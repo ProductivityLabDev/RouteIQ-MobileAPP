@@ -1,5 +1,8 @@
 import {StyleSheet} from 'react-native';
 import { hp, screenHeight, screenWidth } from '../utils/constants';
+import AppFonts from '../utils/appFonts';
+import { AppColors } from '../utils/color';
+import { size } from '../utils/responsiveFonts';
 
 const AppStyles = StyleSheet.create({
   container: {
@@ -38,6 +41,11 @@ const AppStyles = StyleSheet.create({
     width: screenWidth,
     height: screenHeight,
   },
+  titleHead: {
+    fontFamily: AppFonts.NunitoSansBold,
+    fontSize: size.xxvlg,
+    color: AppColors.white,
+  }
 });
 
 export default AppStyles;

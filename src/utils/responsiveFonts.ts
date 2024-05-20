@@ -19,6 +19,7 @@ const size = {
   vxlg: fontSize(24),
   xxlg: fontSize(28),
   xxxlg: fontSize(30),
+  xxvlg: fontSize(32),
   extraxlg: fontSize(40),
 };
 
