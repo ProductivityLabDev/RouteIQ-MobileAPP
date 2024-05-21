@@ -5,3 +5,8 @@ export interface AuthLayoutProps {
 export interface UpdateGuardianProfileProps {
     route: any
 }
+
+export interface AppTabsViewProps {
+    routes?: any;
+    renderScene?: any
+}

@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {Image, StyleSheet, Switch, Text, View} from 'react-native';
+import {Image, Pressable, StyleSheet, Switch, Text, View} from 'react-native';
 import AppButton from '../../components/AppButton';
 import AppHeader from '../../components/AppHeader';
 import AppMapView from '../../components/AppMapView';
@@ -77,13 +77,13 @@ export default function HomeSreen() {
         <View style={styles.bottomContainer}>
           <RouteSlider />
           <View style={[AppStyles.rowBetween, {marginTop: hp(3)}]}>
-            <View style={[AppStyles.rowCenter, styles.bottomButton]}>
+            <Pressable onPress={() => navigation.navigate('ChatScreen')} style={[AppStyles.rowCenter, styles.bottomButton]}>
               <GlobalIcon
                 library="CustomIcon"
                 name="Chat"
                 color={AppColors.red}
               />
-            </View>
+            </Pressable>
             <AppButton
               title="Report Student Absence"
               style={{backgroundColor: AppColors.lightBlack}}
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
   bottomContainer: {
     zIndex: 1,
     position: 'absolute',
-    bottom: hp(5),
     width: '100%',
     backgroundColor: 'white',
     height: hp(20),

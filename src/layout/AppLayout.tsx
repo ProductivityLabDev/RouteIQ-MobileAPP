@@ -8,7 +8,8 @@ import { AppColors } from '../utils/color';
 
 const AppLayout: React.FC<AuthLayoutProps> = ({children}) => {
   return (
-    <View style={[AppStyles.screenWidthHeight]}>
+    <View style={{flex: 1}}>
+    {/* <View style={[AppStyles.screenWidthHeight]}> */}
       <StatusBar translucent={true} backgroundColor={AppColors.black} barStyle={'light-content'} />
       <View style={styles.childContainer}>
         {children}

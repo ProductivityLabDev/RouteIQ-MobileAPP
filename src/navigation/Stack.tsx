@@ -9,6 +9,7 @@ import ChildProfile from '../screens/AppScreens/ChildProfile';
 import Notification from '../screens/AppScreens/Notification';
 import Login from '../screens/AuthScreens/Login';
 import UpdateGuardianProfile from '../screens/AppScreens/UpdateGuardianProfile';
+import ChatScreen from '../screens/AppScreens/ChatScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -30,6 +31,7 @@ export const AuthStack = () => {
       <Stack.Screen name="ChildProfile" component={ChildProfile} />
       <Stack.Screen name="UpdateGuardianProfile" component={UpdateGuardianProfile} />
       <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
     </Stack.Navigator>
   );
 };
