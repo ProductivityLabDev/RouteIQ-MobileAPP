@@ -44,9 +44,6 @@ const AppStyles = StyleSheet.create({
   screenWidthHeight: {
     width: screenWidth,
     height: screenHeight,
-    
-    // flex:1,
-    // backgroundColor: AppColors.screenColor
   },
   titleHead: {
     fontFamily: AppFonts.NunitoSansBold,
@@ -57,7 +54,6 @@ const AppStyles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansRegular,
     fontSize: size.md,
     color: AppColors.white,
-
   }
 });
 

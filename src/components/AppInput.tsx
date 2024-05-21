@@ -115,9 +115,8 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     width: '100%',
     alignSelf: 'center',
-    borderColor: AppColors.white,
     backgroundColor: AppColors.inputColor,
-    // backgroundColor: AppColors.white
+    borderColor: AppColors.black
   },
   multilineInput: {
     height: 'auto',
@@ -126,12 +125,12 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: size.sl,
-    color: AppColors.white,
+    color: AppColors.black,
     fontFamily: AppFonts.NunitoSansSemiBold,
   },
   label: {
     marginBottom: 5,
-    color: AppColors.white,
+    color: AppColors.black,
     fontSize: size.md,
     alignSelf: 'flex-start',
     fontFamily: AppFonts.NunitoSansSemiBold,

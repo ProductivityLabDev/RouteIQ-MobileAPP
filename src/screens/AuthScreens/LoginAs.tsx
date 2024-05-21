@@ -12,17 +12,12 @@ const LoginAs = () => {
   return (
     <AuthLayout>
       <View>
-        <View style={[AppStyles.rowBetween, { alignItems: 'flex-start', justifyContent: 'center' }]}>
-          {/* <GlobalIcon library="Feather" name="chevron-left" /> */}
-          <Image source={require('../../assets/images/route_logo.png')} />
-          <View></View>
-        </View>
-        <View style={AppStyles.center}>
+          <Image style={{alignSelf: 'center'}} source={require('../../assets/images/route_logo.png')} />
+        <View style={[AppStyles.center, {marginTop: hp(3)}]}>
           <Text style={AppStyles.titleHead}>Log In As</Text>
           <View style={styles.setMargin}>
-
-            <AppButton onPress={()=>navigation.navigate('LoginAs2')} title='Driver' leftIcon={<GlobalIcon library="CustomIcon" name="Group-1961" size={20} />} />
-            <AppButton onPress={()=>navigation.navigate('LoginAs2')} title='Parent' leftIcon={<GlobalIcon library="CustomIcon" name="Group" size={20} />} />
+            <AppButton onPress={()=>navigation.navigate('Login')} title='Driver' leftIcon={<GlobalIcon library="CustomIcon" name="Group-1961" size={20} />} />
+            <AppButton onPress={()=>navigation.navigate('Login')} title='Parent' leftIcon={<GlobalIcon library="CustomIcon" name="Group" size={20} />} />
           </View>
         </View>
       </View>

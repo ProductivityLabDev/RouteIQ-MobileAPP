@@ -1,12 +1,11 @@
 export type RootStackParamList = {
     SplashScreen: undefined;
     LoginAs: undefined,
-    LoginAs2: undefined,
+    Login: undefined,
     HomeSreen: undefined,
     Settings: undefined,
     ChildProfile: undefined,
-    Guardian1: undefined,
-    Guardian2: undefined,
+    UpdateGuardianProfile: undefined,
     Notification: undefined,
 };
 

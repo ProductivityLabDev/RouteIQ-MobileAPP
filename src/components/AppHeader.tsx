@@ -3,8 +3,6 @@ import React from 'react';
 import GlobalIcon from './GlobalIcon';
 import { AppColors } from '../utils/color';
 import AppStyles from '../styles/AppStyles';
-
-
 import { useNavigation } from '@react-navigation/native';
 import { hp } from '../utils/constants';
 import { size } from '../utils/responsiveFonts';
@@ -21,7 +19,6 @@ interface AppHeaderProps {
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({ title, greetTitle, enableBack, rightIcon = true, bookmarkIcon = false, onPressLeftIcon, onPressRightIcon }) => {
-
   const navigation = useNavigation()
 
   return (
@@ -86,7 +83,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: size.vxlg,
     color: AppColors.white,
-    fontFamily: AppFonts.NunitoSansBold
+    fontFamily: AppFonts.NunitoSansMedium
   },
   iconContainer: { width: '20%' },
   icon: { padding: hp(1) },
