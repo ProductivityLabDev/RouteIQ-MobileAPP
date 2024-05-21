@@ -26,8 +26,8 @@ const Login = () => {
                     <Text style={AppStyles.titleHead}>Log In</Text>
                     <Text style={[AppStyles.subHeading, { marginBottom: hp(2) }]}>Enter your credential to login</Text>
                     <View style={styles.setMargin}>
-                        <AppInput label='Email' placeholderTextColor={AppColors.inputGrey} inputStyle={{ height: hp(6), marginLeft: wp(2), fontSize: size.md }} placeholder='Email address' rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_email" />}/>
-                        <AppInput label='Password' placeholderTextColor={AppColors.inputGrey} inputStyle={{ height: hp(6),  marginLeft: wp(2), fontSize: size.md }} containerStyle={{marginBottom: hp(3)}} placeholder='Enter password' rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_lock" />} />
+                        <AppInput label='Email' placeholderTextColor={AppColors.inputGrey} inputStyle={styles.inputStyle} placeholder='Email address' container={styles.inputContainer} labelStyle={styles.inputLabelStyle} rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_email" />}/>
+                        <AppInput label='Password' placeholderTextColor={AppColors.inputGrey} inputStyle={styles.inputStyle} containerStyle={{marginBottom: hp(3) }} container={styles.inputContainer} labelStyle={styles.inputLabelStyle} placeholder='Enter password' rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_lock" />} />
                         <AppButton onPress={()=> navigation.navigate('HomeSreen')} title='Log In'  />
                     </View>
                 </View>
@@ -41,6 +41,16 @@ export default Login;
 const styles = StyleSheet.create({
     setMargin: {
         marginTop: hp(3),
-        // gap: hp(1.4)
+    },
+    inputStyle: { 
+        height: hp(6), 
+        marginLeft: wp(2), 
+        fontSize: size.md 
+    },
+    inputContainer: {
+        borderColor: AppColors.white
+    },
+    inputLabelStyle: {
+        color: AppColors.white
     }
 });

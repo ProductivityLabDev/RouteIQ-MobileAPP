@@ -13,5 +13,7 @@ export const AppColors = {
     gradientGrey: '#383A38',
     lineGrey: '#464c53',
     inputGrey: '#CACACA',
-    screenColor: '#DDDDE1'
+    screenColor: '#DDDDE1',
+    lightPink: '#EBB7BB',
+    lightBlack: '#141516'
 }

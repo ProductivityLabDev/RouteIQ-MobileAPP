@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: hp(2.1),
     marginBottom: hp(2.1),
-    backgroundColor: AppColors.black
+    backgroundColor: AppColors.black,
+    paddingHorizontal: hp(1)
   },
   title: {
     width: '60%',
