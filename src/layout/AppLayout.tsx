@@ -1,15 +1,13 @@
 
 import React from 'react';
-import { ImageBackground, StatusBar, StyleSheet, View } from 'react-native';
-import AppStyles from '../styles/AppStyles';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import { AuthLayoutProps } from '../types/types';
-import { hp } from '../utils/constants';
 import { AppColors } from '../utils/color';
+import { hp } from '../utils/constants';
 
 const AppLayout: React.FC<AuthLayoutProps> = ({children}) => {
   return (
     <View style={{flex: 1}}>
-    {/* <View style={[AppStyles.screenWidthHeight]}> */}
       <StatusBar translucent={true} backgroundColor={AppColors.black} barStyle={'light-content'} />
       <View style={styles.childContainer}>
         {children}

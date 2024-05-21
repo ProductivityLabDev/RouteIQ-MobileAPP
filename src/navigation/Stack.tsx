@@ -10,6 +10,7 @@ import Notification from '../screens/AppScreens/Notification';
 import Login from '../screens/AuthScreens/Login';
 import UpdateGuardianProfile from '../screens/AppScreens/UpdateGuardianProfile';
 import ChatScreen from '../screens/AppScreens/ChatScreen';
+import AttendanceHistory from '../screens/AppScreens/AttendanceHistory';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -32,6 +33,7 @@ export const AuthStack = () => {
       <Stack.Screen name="UpdateGuardianProfile" component={UpdateGuardianProfile} />
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} />
     </Stack.Navigator>
   );
 };

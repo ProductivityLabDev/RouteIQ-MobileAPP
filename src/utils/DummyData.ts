@@ -1,35 +1,41 @@
 export const NotificationData = [
-    // {
-    //     id: 1,
-    //     title: 'Bus will reach  at 08:00',
-    //     timeWhenArrived: '1 day ago'
-    // },
-    // {
-    //     id: 2,
-    //     title: 'Your Bus is Approaching!',
-    //     timeWhenArrived: '1 day ago'
-    // },
-    // {
-    //     id: 3,
-    //     from: 'Driver',
-    //     title: 'Adventure calling! Stay in the loop with real-time updates on your favorite outdoor activities.',
-    //     timeWhenArrived: '1 day ago',
-    //     new: true
-    // },
-    // {
-    //     id: 4,
-    //     title: 'Adventure calling! Stay in the loop with real-time updates on your favorite outdoor activities',
-    //     timeWhenArrived: '1 day ago'
-    // },
-]
-
+  // {
+  //     id: 1,
+  //     title: 'Bus will reach  at 08:00',
+  //     timeWhenArrived: '1 day ago'
+  // },
+  // {
+  //     id: 2,
+  //     title: 'Your Bus is Approaching!',
+  //     timeWhenArrived: '1 day ago'
+  // },
+  // {
+  //     id: 3,
+  //     from: 'Driver',
+  //     title: 'Adventure calling! Stay in the loop with real-time updates on your favorite outdoor activities.',
+  //     timeWhenArrived: '1 day ago',
+  //     new: true
+  // },
+  // {
+  //     id: 4,
+  //     title: 'Adventure calling! Stay in the loop with real-time updates on your favorite outdoor activities',
+  //     timeWhenArrived: '1 day ago'
+  // },
+];
 
 export const updateGuardianDropdown = [
-    {key: '1', value: 'Mobiles', disabled: true},
-    {key: '2', value: 'Appliances'},
-    {key: '3', value: 'Cameras'},
-    {key: '4', value: 'Computers', disabled: true},
-    {key: '5', value: 'Vegetables'},
-    {key: '6', value: 'Diary Products'},
-    {key: '7', value: 'Drinks'},
-  ];
+  {key: '1', value: 'Mobiles'},
+  {key: '2', value: 'Appliances'},
+  {key: '3', value: 'Cameras'},
+  {key: '4', value: 'Computers'},
+  {key: '5', value: 'Vegetables'},
+  {key: '6', value: 'Diary Products'},
+  {key: '7', value: 'Drinks'},
+];
+
+export const leaveDropdownData = [
+  {key: '1', value: 'All Week'},
+  {key: '2', value: 'Single Day'},
+  {key: '3', value: 'AM'},
+  {key: '4', value: 'PM'},
+];

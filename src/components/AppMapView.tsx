@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import MapView, {Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {mapCustomStyle} from '../utils/mapConfig';
 
 const AppMapView = () => {
@@ -26,13 +26,7 @@ const AppMapView = () => {
           longitudeDelta:
             Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
         }}
-        customMapStyle={mapCustomStyle}>
-        <Polyline
-          coordinates={[startLocation, endLocation]}
-          strokeColor="#000"
-          strokeWidth={6}
-        />
-      </MapView>
+        customMapStyle={mapCustomStyle}></MapView>
     </View>
   );
 };

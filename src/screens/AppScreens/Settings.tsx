@@ -28,6 +28,7 @@ export default function Settings() {
       ),
       screen: 'ChildProfile',
       title: 'Child Profile',
+      disabled: false
     },
     {
       leftIcon: (
@@ -38,8 +39,9 @@ export default function Settings() {
           size={hp(2.5)}
         />
       ),
-      screen: 'ChildProfile',
+      screen: 'AttendanceHistory',
       title: 'Attendance History',
+      disabled: false
     },
     {
       leftIcon: (
@@ -52,6 +54,7 @@ export default function Settings() {
       ),
       screen: 'UpdateGuardianProfile',
       title: 'Guardian 1',
+      disabled: false
     },
     {
       leftIcon: (
@@ -64,6 +67,7 @@ export default function Settings() {
       ),
       screen: 'UpdateGuardianProfile',
       title: 'Guardian 2',
+      disabled: false
     },
     {
       leftIcon: (
@@ -76,6 +80,7 @@ export default function Settings() {
       ),
       screen: 'ChildProfile',
       title: 'Push Notification',
+      disabled: true
     },
   ];
 
@@ -99,6 +104,7 @@ export default function Settings() {
                   ? navigation.navigate(item.screen, {title: item.title})
                   : navigation.navigate(item.screen)
               }
+              disabled={item.disabled}
               key={index}
               style={[AppStyles.rowBetween, styles.itemContainer]}>
               <View style={[AppStyles.row]}>

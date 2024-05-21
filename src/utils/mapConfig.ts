@@ -10,19 +10,23 @@ export const mapCustomStyle = [
     {
       featureType: 'poi',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#CDD2DB'}],
+      stylers: [{color: '#ededeb'}],
     },
     {
       featureType: 'poi.park',
       elementType: 'geometry',
-      stylers: [{color: '#263c3f'}],
+      stylers: [{color: '#ededeb'}],
     },
     {
       featureType: 'poi.park',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#6b9a76'}],
+      stylers: [{color: '#ededeb'}],
     },
-    {featureType: 'road', elementType: 'geometry', stylers: [{color: '#f6f6f6'}]},
+    {
+      featureType: 'road',
+      elementType: 'geometry',
+      stylers: [{color: '#f6f6f6'}], 
+    },
     {
       featureType: 'road',
       elementType: 'geometry.stroke',
@@ -31,22 +35,22 @@ export const mapCustomStyle = [
     {
       featureType: 'road',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#9ca5b3'}],
+      stylers: [{color: '#f6f6f6'}],
     },
     {
       featureType: 'road.highway',
       elementType: 'geometry',
-      stylers: [{color: '#4E5D79'}],
+      stylers: [{color: '#f6f6f6'}],
     },
     {
       featureType: 'road.highway',
       elementType: 'geometry.stroke',
-      stylers: [{color: '#1f2835'}],
+      stylers: [{color: '#f6f6f6'}], 
     },
     {
       featureType: 'road.highway',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#f3d19c'}],
+      stylers: [{color: '#f6f6f6'}],
     },
     {
       featureType: 'transit',
@@ -74,3 +78,4 @@ export const mapCustomStyle = [
       stylers: [{color: '#17263c'}],
     },
   ];
+  

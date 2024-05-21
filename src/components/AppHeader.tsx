@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextStyle, View } from 'react-native';
 import React from 'react';
 import GlobalIcon from './GlobalIcon';
 import { AppColors } from '../utils/color';
@@ -16,9 +16,10 @@ interface AppHeaderProps {
   bookmarkIcon?: boolean,
   onPressLeftIcon?: any,
   onPressRightIcon?: any,
+  titleStyle?: TextStyle
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({ title, greetTitle, enableBack, rightIcon = true, bookmarkIcon = false, onPressLeftIcon, onPressRightIcon }) => {
+const AppHeader: React.FC<AppHeaderProps> = ({ title, greetTitle, enableBack, rightIcon = true, bookmarkIcon = false, onPressLeftIcon, onPressRightIcon, titleStyle }) => {
   const navigation = useNavigation()
 
   return (
@@ -45,7 +46,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ title, greetTitle, enableBack, ri
             </Pressable>
           }
         </View>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.title, titleStyle]}>{title}</Text>
         <View style={[styles.iconContainer, { alignItems: 'flex-end' }]}>
           {!bookmarkIcon && rightIcon && <Pressable style={styles.icon} onPress={onPressRightIcon}>
             <GlobalIcon
