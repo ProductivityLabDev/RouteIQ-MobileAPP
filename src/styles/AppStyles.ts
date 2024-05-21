@@ -5,6 +5,10 @@ import { AppColors } from '../utils/color';
 import { size } from '../utils/responsiveFonts';
 
 const AppStyles = StyleSheet.create({
+  body:{
+    paddingHorizontal: hp(2),
+    backgroundColor: AppColors.screenColor,
+  },
   container: {
     flex: 1,
     paddingHorizontal: hp(2),
@@ -40,11 +44,20 @@ const AppStyles = StyleSheet.create({
   screenWidthHeight: {
     width: screenWidth,
     height: screenHeight,
+    
+    // flex:1,
+    // backgroundColor: AppColors.screenColor
   },
   titleHead: {
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: size.xxvlg,
     color: AppColors.white,
+  },
+  subHeading:{
+    fontFamily: AppFonts.NunitoSansRegular,
+    fontSize: size.md,
+    color: AppColors.white,
+
   }
 });
 

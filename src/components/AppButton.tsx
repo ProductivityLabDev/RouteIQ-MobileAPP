@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native'
 import React from 'react'
 import { AppColors } from '../utils/color';
-import { hp } from '../utils/constants';
+import { hp, wp } from '../utils/constants';
 import { size } from '../utils/responsiveFonts';
 import AppFonts from '../utils/appFonts';
 
@@ -34,15 +34,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         height: hp(6),
-        borderRadius: hp(6),
-        backgroundColor: AppColors.primary,
-        marginVertical: hp(.5)
+        // borderRadius: hp(6),
+        backgroundColor: AppColors.red,
+        marginVertical: hp(.5),
+
+        width: wp(75),
+        borderRadius: 10
     },
     title: {
-        color: AppColors.secondary,
+        // color: AppColors.secondary,
+        color: AppColors.white,
         fontFamily: AppFonts.NunitoSansRegular,
-        fontSize: size.default
+        fontSize: size.lg,
+        
     },
-    leftIcon: {marginRight: hp(.5)},
-    rightIcon: {marginLeft: hp(.5)},
+    leftIcon: {marginRight: hp(1)},
+    rightIcon: {marginLeft: hp(1)},
 })
