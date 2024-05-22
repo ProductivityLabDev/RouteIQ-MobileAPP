@@ -1,10 +1,14 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
 
-const AppCalender = () => {
+interface AppCalendarProps {
+  setDates?: any;
+}
+
+const AppCalender: React.FC<AppCalendarProps> = ({setDates}) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [markedDates, setMarkedDates] = useState({});
@@ -20,7 +24,7 @@ const AppCalender = () => {
           textColor: 'white',
         },
       });
-      setStartDate(day.dateString);
+      setStartDate(day.timestamp);
       setEndDate(null);
     } else {
       let marked = {} as any;
@@ -43,9 +47,16 @@ const AppCalender = () => {
         current.setDate(current.getDate() + 1);
       }
       setMarkedDates(marked);
-      setEndDate(day.dateString);
+      setEndDate(day.timestamp);
     }
   };
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      setDates([startDate, endDate]);
+    }
+  }, [startDate, endDate]);
+
   return (
     <Calendar
       style={styles.calendar}
@@ -81,11 +92,11 @@ export default AppCalender;
 
 const styles = StyleSheet.create({
   calendar: {
-    borderWidth: 1,
     borderRadius: hp(1.5),
     margin: 0,
     marginBottom: hp(2),
-    backgroundColor: AppColors.lightBlack,
+    // borderWidth: 1,
+    // backgroundColor: AppColors.lightBlack,
   },
   headerStyle: {
     backgroundColor: AppColors.lightBlack,

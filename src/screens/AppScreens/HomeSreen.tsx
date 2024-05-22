@@ -18,17 +18,24 @@ import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {leaveDropdownData} from '../../utils/DummyData';
 import {size} from '../../utils/responsiveFonts';
+import moment from 'moment';
 
 export default function HomeSreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
   const [isEnabled, setIsEnabled] = useState(false);
   const [selectAbsence, setSelectAbsence] = useState('');
+  const [preview, setPreview] = useState(false);
+  const [reasonOfAbsence, setReasonOfAbsence] = useState('');
+  const [getDates, setGetDates] = useState([]);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   const snapPoints = useMemo(
-    () => [selectAbsence == 'All Week' ? '80%' : '45%', '90%'],
-    [selectAbsence],
+    () => [
+      selectAbsence == 'All Week' ? '80%' : preview ? '55%' : '45%',
+      '90%',
+    ],
+    [selectAbsence, preview],
   );
   const openSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -36,6 +43,20 @@ export default function HomeSreen() {
   const closeSheet = useCallback(() => {
     bottomSheetModalRef.current?.close();
   }, []);
+
+  const handleSubmit = () => {
+    if (reasonOfAbsence && getDates.length > 0 && !preview) {
+      setPreview(true);
+      setSelectAbsence('');
+    }
+    if (reasonOfAbsence && getDates.length > 0 && preview) {
+      closeSheet();
+      setGetDates([]);
+      setPreview(false);
+      setReasonOfAbsence('');
+      setSelectAbsence('');
+    }
+  };
 
   return (
     <AppLayout>
@@ -50,7 +71,9 @@ export default function HomeSreen() {
       <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
         <View style={{gap: hp(1)}}>
           <Text style={styles.headerSubTitle}>Bus No.</Text>
-          <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>B456788</Text>
+          <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
+            B456788
+          </Text>
         </View>
         <View style={styles.imageContainer}>
           <Image
@@ -120,25 +143,57 @@ export default function HomeSreen() {
             boxStyles={styles.boxStyle}
             dropdownTextStyles={{color: AppColors.black}}
           />
-          {selectAbsence == 'All Week' && <AppCalender />}
-          <AppInput
-            multiline
-            numberOfLines={7}
-            container={{height: hp(16), borderRadius: hp(0.5)}}
-            label="Reason for Absence"
-            placeholder="Descripton"
-            labelStyle={{
-              fontFamily: AppFonts.NunitoSansBold,
-            }}
-          />
+          {preview && (
+            <AppInput
+              value={
+                moment(getDates[0]).format('Do MMMM YYYY') +
+                ' - ' +
+                moment(getDates[1]).format('Do MMMM YYYY')
+              }
+            />
+          )}
+          {selectAbsence == 'All Week' && !preview && (
+            <AppCalender setDates={setGetDates} />
+          )}
+          {!preview ? (
+            <AppInput
+              multiline
+              numberOfLines={7}
+              container={{height: hp(16), borderRadius: hp(0.5)}}
+              label="Reason for Absence"
+              placeholder="Descripton"
+              value={reasonOfAbsence}
+              onChangeText={(text: string) => setReasonOfAbsence(text)}
+              labelStyle={{
+                fontFamily: AppFonts.NunitoSansBold,
+              }}
+            />
+          ) : (
+            <>
+              <Text style={styles.label}>Reason for Absence</Text>
+              <View style={styles.reasonContainer}>
+                <Text style={AppStyles.subHeading}>{reasonOfAbsence}</Text>
+              </View>
+            </>
+          )}
           <View style={[AppStyles.rowBetween, {width: '100%'}]}>
             <AppButton
               title="Cancel"
-              onPress={() => closeSheet()}
+              onPress={() => {
+                closeSheet();
+                setGetDates([]);
+                setPreview(false);
+                setReasonOfAbsence('');
+                setSelectAbsence('');
+              }}
               style={styles.cancelButton}
               titleStyle={{color: AppColors.textLightGrey}}
             />
-            <AppButton title="Submit" style={styles.submitButton} />
+            <AppButton
+              title="Submit"
+              onPress={() => handleSubmit()}
+              style={styles.submitButton}
+            />
           </View>
         </View>
       </AppBottomSheet>
@@ -206,4 +261,17 @@ const styles = StyleSheet.create({
   },
   cancelButton: {width: '35%', backgroundColor: AppColors.lightGrey},
   submitButton: {width: '60%', backgroundColor: AppColors.black},
+  label: {
+    marginBottom: 5,
+    color: AppColors.black,
+    fontSize: size.md,
+    alignSelf: 'flex-start',
+    fontFamily: AppFonts.NunitoSansSemiBold,
+  },
+  reasonContainer: {
+    padding: hp(2),
+    backgroundColor: '#dddde1',
+    borderRadius: hp(1),
+    marginBottom: hp(3),
+  },
 });

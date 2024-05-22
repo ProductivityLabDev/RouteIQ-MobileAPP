@@ -12,6 +12,7 @@ import UpdateGuardianProfile from '../screens/AppScreens/UpdateGuardianProfile';
 import ChatScreen from '../screens/AppScreens/ChatScreen';
 import AttendanceHistory from '../screens/AppScreens/AttendanceHistory';
 import OnBoarding from '../screens/AppScreens/OnBoarding';
+import ParentFeedback from '../screens/AppScreens/ParentFeedback';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +37,7 @@ export const AuthStack = () => {
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} />
+      <Stack.Screen name="ParentFeedback" component={ParentFeedback} />
     </Stack.Navigator>
   );
 };

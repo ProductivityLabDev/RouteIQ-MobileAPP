@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import AppStyles from '../styles/AppStyles';
 import AppFonts from '../utils/appFonts';
@@ -8,8 +8,10 @@ import {hp} from '../utils/constants';
 import {mapCustomStyle} from '../utils/mapConfig';
 import {size} from '../utils/responsiveFonts';
 import GlobalIcon from './GlobalIcon';
+import {useNavigation} from '@react-navigation/native';
 
 const AppMapView = () => {
+  const navigation = useNavigation();
   const startLocation = {
     latitude: 37.7749,
     longitude: -122.4454,
@@ -44,14 +46,16 @@ const AppMapView = () => {
             ETA: <Text style={styles.timeTitle}>15 min</Text>
           </Text>
         </View>
-        <View style={styles.secondContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ParentFeedback')}
+          style={styles.secondContainer}>
           <GlobalIcon
             library="CustomIcon"
             name="Group-1982"
             color={AppColors.red}
             size={hp(4)}
           />
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

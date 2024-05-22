@@ -1,5 +1,5 @@
 export type RootStackParamList = {
-    SplashScreen: undefined;
+    SplashScreen: undefined,
     LoginAs: undefined,
     Login: undefined,
     HomeSreen: undefined,
@@ -9,7 +9,8 @@ export type RootStackParamList = {
     Notification: undefined,
     ChatScreen: undefined,
     AttendanceHistory: undefined,
-    OnBoarding: undefined
+    OnBoarding: undefined,
+    ParentFeedback: undefined
 };
 
 declare global {

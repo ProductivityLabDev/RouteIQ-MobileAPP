@@ -10,3 +10,8 @@ export interface AppTabsViewProps {
     routes?: any;
     renderScene?: any
 }
+
+export interface AppModalProps {
+    visible?: boolean;
+    setVisible?: any
+}
