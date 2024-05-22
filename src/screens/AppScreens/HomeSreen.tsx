@@ -50,7 +50,7 @@ export default function HomeSreen() {
       <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
         <View style={{gap: hp(1)}}>
           <Text style={styles.headerSubTitle}>Bus No.</Text>
-          <Text style={AppStyles.subHeading}>B456788</Text>
+          <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>B456788</Text>
         </View>
         <View style={styles.imageContainer}>
           <Image
@@ -155,8 +155,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   imageContainer: {
-    height: hp(16),
-    width: hp(16),
+    height: hp(14),
+    width: hp(14),
   },
   container: {
     flex: 1,

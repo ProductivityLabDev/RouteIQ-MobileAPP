@@ -1,7 +1,13 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import AppStyles from '../styles/AppStyles';
+import AppFonts from '../utils/appFonts';
+import {AppColors} from '../utils/color';
+import {hp} from '../utils/constants';
 import {mapCustomStyle} from '../utils/mapConfig';
+import {size} from '../utils/responsiveFonts';
+import GlobalIcon from './GlobalIcon';
 
 const AppMapView = () => {
   const startLocation = {
@@ -27,6 +33,26 @@ const AppMapView = () => {
             Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
         }}
         customMapStyle={mapCustomStyle}></MapView>
+
+      <View style={styles.bottomContainers}>
+        <View style={styles.firstContainer}>
+          <Text style={[AppStyles.subHeading, {fontSize: size.default}]}>
+            Boarding Status:
+          </Text>
+          <Text style={styles.onRouteTitle}>On Route</Text>
+          <Text style={[AppStyles.subHeading, {fontSize: size.sl}]}>
+            ETA: <Text style={styles.timeTitle}>15 min</Text>
+          </Text>
+        </View>
+        <View style={styles.secondContainer}>
+          <GlobalIcon
+            library="CustomIcon"
+            name="Group-1982"
+            color={AppColors.red}
+            size={hp(4)}
+          />
+        </View>
+      </View>
     </View>
   );
 };
@@ -41,5 +67,46 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  bottomContainers: {
+    position: 'absolute',
+    bottom: hp(22),
+    paddingHorizontal: hp(2),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'flex-end',
+  },
+  firstContainer: {
+    backgroundColor: AppColors.white,
+    width: hp(20),
+    paddingHorizontal: hp(2),
+    paddingVertical: hp(1),
+    borderRadius: hp(1),
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -2},
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  onRouteTitle: {
+    fontSize: size.md,
+    color: AppColors.red,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+  },
+  timeTitle: {
+    fontSize: size.sl,
+    color: AppColors.red,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+  },
+  secondContainer: {
+    backgroundColor: AppColors.white,
+    padding: hp(1),
+    borderRadius: hp(1),
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -2},
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
 });

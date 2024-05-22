@@ -6,7 +6,7 @@ import { hp } from '../utils/constants';
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({children}) => {
   return (
-    <ImageBackground style={AppStyles.screenWidthHeight} source={require('../assets/images/auth_background.png')}>
+    <ImageBackground style={AppStyles.screenWidthHeight} source={require('../assets/images/Splash_background.png')}>
       <StatusBar translucent={true} backgroundColor='transparent' barStyle={'dark-content'} />
       <View style={styles.childContainer}>{children}</View>
     </ImageBackground>

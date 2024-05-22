@@ -48,12 +48,12 @@ const AppStyles = StyleSheet.create({
   titleHead: {
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: size.xxvlg,
-    color: AppColors.white,
+    color: AppColors.black,
   },
   subHeading:{
     fontFamily: AppFonts.NunitoSansRegular,
     fontSize: size.md,
-    color: AppColors.white,
+    color: AppColors.black,
   }
 });
 

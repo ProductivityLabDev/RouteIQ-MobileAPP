@@ -51,6 +51,6 @@ const styles = StyleSheet.create({
         borderColor: AppColors.white
     },
     inputLabelStyle: {
-        color: AppColors.white
+        color: AppColors.lightBlack
     }
 });

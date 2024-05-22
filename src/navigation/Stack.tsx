@@ -11,6 +11,7 @@ import Login from '../screens/AuthScreens/Login';
 import UpdateGuardianProfile from '../screens/AppScreens/UpdateGuardianProfile';
 import ChatScreen from '../screens/AppScreens/ChatScreen';
 import AttendanceHistory from '../screens/AppScreens/AttendanceHistory';
+import OnBoarding from '../screens/AppScreens/OnBoarding';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -25,6 +26,7 @@ export const AppStack = () => {
 export const AuthStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="OnBoarding" component={OnBoarding} />
       <Stack.Screen name="LoginAs" component={LoginAs} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="HomeSreen" component={HomeSreen} />

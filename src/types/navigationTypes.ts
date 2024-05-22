@@ -8,7 +8,8 @@ export type RootStackParamList = {
     UpdateGuardianProfile: undefined,
     Notification: undefined,
     ChatScreen: undefined,
-    AttendanceHistory: undefined
+    AttendanceHistory: undefined,
+    OnBoarding: undefined
 };
 
 declare global {

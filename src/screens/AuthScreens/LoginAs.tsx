@@ -1,18 +1,18 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import AppButton from '../../components/AppButton';
 import GlobalIcon from '../../components/GlobalIcon';
 import AuthLayout from '../../layout/AuthLayout';
 import AppStyles from '../../styles/AppStyles';
-import AppButton from '../../components/AppButton';
-import { hp, wp } from '../../utils/constants';
-import { useNavigation } from '@react-navigation/native';
+import { hp } from '../../utils/constants';
 
 const LoginAs = () => {
   const navigation =  useNavigation();
   return (
     <AuthLayout>
       <View>
-          <Image style={{alignSelf: 'center'}} source={require('../../assets/images/route_logo.png')} />
+          <Image style={{alignSelf: 'center', height: hp(50), width: hp(50), resizeMode: 'contain'}} source={require('../../assets/images/Splash_icon.png')} />
         <View style={[AppStyles.center, {marginTop: hp(3)}]}>
           <Text style={AppStyles.titleHead}>Log In As</Text>
           <View style={styles.setMargin}>
