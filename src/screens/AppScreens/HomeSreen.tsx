@@ -69,35 +69,35 @@ export default function HomeSreen() {
         }}
         onPressRightIcon={() => navigation.navigate('Notification')}
       />
-      <View style={{zIndex: 1}}>
-        <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
-          <View style={styles.headerTitle}>
-            <Text style={styles.headerSubTitle}>Bus No.</Text>
-            <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
-              B456788
-            </Text>
-          </View>
-          <View style={styles.imageContainer}>
-            <Image
-              style={styles.image}
-              source={require('../../assets/images/auth_background.png')}
-            />
-          </View>
-          <View style={styles.headerTitle}>
-            <Text style={styles.headerSubTitle}>Geofenced</Text>
-            <Switch
-              onValueChange={toggleSwitch}
-              value={isEnabled}
-              trackColor={{false: '#767577', true: AppColors.red}}
-              thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
-              style={{transform: [{scale: 1.3}]}}
-            />
-          </View>
+      {/* <View style={{zIndex: 1}}> */}
+      <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
+        <View style={styles.headerTitle}>
+          <Text style={styles.headerSubTitle}>Bus No.</Text>
+          <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
+            B456788
+          </Text>
         </View>
-        <View style={styles.reactangleIcon}>
-          <ReactangleIcon />
+        <View style={styles.imageContainer}>
+          <Image
+            style={styles.image}
+            source={require('../../assets/images/auth_background.png')}
+          />
+        </View>
+        <View style={styles.headerTitle}>
+          <Text style={styles.headerSubTitle}>Geofenced</Text>
+          <Switch
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+            trackColor={{false: '#767577', true: AppColors.red}}
+            thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
+            style={{transform: [{scale: 1.3}]}}
+          />
         </View>
       </View>
+      {/* <View style={styles.reactangleIcon}>
+          <ReactangleIcon />
+        </View>
+      </View> */}
 
       <View style={styles.container}>
         <AppMapView />
