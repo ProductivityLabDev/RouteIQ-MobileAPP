@@ -1,20 +1,18 @@
-import {NavigationContainer} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import React, { useState } from 'react';
-import {AuthStack} from './Stack';
 import SplashScreen from '../screens/AppScreens/SplashScreen';
-import HomeSreen from '../screens/AppScreens/HomeSreen';
+import { AuthStack } from './Stack';
 
 const Navigation = () => {
-    const [Splash, setSplash] = useState(true);
+  const [Splash, setSplash] = useState(true);
 
-    setTimeout(() => {
-        setSplash(false)
-    }, 1000);
+  setTimeout(() => {
+    setSplash(false);
+  }, 1000);
 
   return (
     <NavigationContainer>
-     {/* {Splash ? <SplashScreen /> : <AuthStack />} */}
-     <HomeSreen />
+      {Splash ? <SplashScreen /> : <AuthStack />}
     </NavigationContainer>
   );
 };

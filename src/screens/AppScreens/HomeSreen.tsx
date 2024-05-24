@@ -1,8 +1,10 @@
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {useNavigation} from '@react-navigation/native';
+import moment from 'moment';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Image, Pressable, StyleSheet, Switch, Text, View} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
+import ReactangleIcon from '../../assets/svgs/ReactangleIcon';
 import AppBottomSheet from '../../components/AppBottomSheet';
 import AppButton from '../../components/AppButton';
 import AppCalender from '../../components/AppCalender';
@@ -15,10 +17,9 @@ import AppLayout from '../../layout/AppLayout';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
-import {hp} from '../../utils/constants';
+import {hp, screenWidth} from '../../utils/constants';
 import {leaveDropdownData} from '../../utils/DummyData';
 import {size} from '../../utils/responsiveFonts';
-import moment from 'moment';
 
 export default function HomeSreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -68,28 +69,33 @@ export default function HomeSreen() {
         }}
         onPressRightIcon={() => navigation.navigate('Notification')}
       />
-      <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
-        <View style={{gap: hp(1)}}>
-          <Text style={styles.headerSubTitle}>Bus No.</Text>
-          <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
-            B456788
-          </Text>
+      <View style={{zIndex: 1}}>
+        <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
+          <View style={styles.headerTitle}>
+            <Text style={styles.headerSubTitle}>Bus No.</Text>
+            <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
+              B456788
+            </Text>
+          </View>
+          <View style={styles.imageContainer}>
+            <Image
+              style={styles.image}
+              source={require('../../assets/images/auth_background.png')}
+            />
+          </View>
+          <View style={styles.headerTitle}>
+            <Text style={styles.headerSubTitle}>Geofenced</Text>
+            <Switch
+              onValueChange={toggleSwitch}
+              value={isEnabled}
+              trackColor={{false: '#767577', true: AppColors.red}}
+              thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
+              style={{transform: [{scale: 1.3}]}}
+            />
+          </View>
         </View>
-        <View style={styles.imageContainer}>
-          <Image
-            style={styles.image}
-            source={require('../../assets/images/auth_background.png')}
-          />
-        </View>
-        <View style={{gap: hp(1)}}>
-          <Text style={styles.headerSubTitle}>Geofenced</Text>
-          <Switch
-            onValueChange={toggleSwitch}
-            value={isEnabled}
-            trackColor={{false: '#767577', true: AppColors.red}}
-            thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
-            style={{transform: [{scale: 1.3}]}}
-          />
+        <View style={styles.reactangleIcon}>
+          <ReactangleIcon />
         </View>
       </View>
 
@@ -220,6 +226,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 0,
   },
+  reactangleIcon: {
+    height: 100,
+    width: screenWidth,
+    backgroundColor: 'rgba(16, 35, 53, 0)',
+    position: 'absolute',
+    top: 60,
+    elevation: 0,
+    opacity: 1,
+  },
+  headerTitle: {gap: hp(1), paddingTop: hp(1)},
   headerSubTitle: {
     fontFamily: AppFonts.NunitoSansLight,
     fontSize: size.sl,
@@ -230,6 +246,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: hp(10),
+    position: 'absolute',
+    top: 15,
   },
   bottomContainer: {
     zIndex: 1,
