@@ -2,9 +2,16 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {useNavigation} from '@react-navigation/native';
 import moment from 'moment';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Image, Pressable, StyleSheet, Switch, Text, View} from 'react-native';
+import {
+  Image,
+  ImageBackground,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
-import ReactangleIcon from '../../assets/svgs/ReactangleIcon';
 import AppBottomSheet from '../../components/AppBottomSheet';
 import AppButton from '../../components/AppButton';
 import AppCalender from '../../components/AppCalender';
@@ -17,7 +24,7 @@ import AppLayout from '../../layout/AppLayout';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
-import {hp, screenWidth} from '../../utils/constants';
+import {hp, screenHeight, screenWidth} from '../../utils/constants';
 import {leaveDropdownData} from '../../utils/DummyData';
 import {size} from '../../utils/responsiveFonts';
 
@@ -60,47 +67,49 @@ export default function HomeSreen() {
   };
 
   return (
-    <AppLayout>
-      <AppHeader
-        title="Mark Tommay"
-        rightIcon={true}
-        onPressLeftIcon={() => {
-          navigation.navigate('Settings');
-        }}
-        onPressRightIcon={() => navigation.navigate('Notification')}
-      />
-      {/* <View style={{zIndex: 1}}> */}
-      <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
-        <View style={styles.headerTitle}>
-          <Text style={styles.headerSubTitle}>Bus No.</Text>
-          <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
-            B456788
-          </Text>
-        </View>
-        <View style={styles.imageContainer}>
-          <Image
-            style={styles.image}
-            source={require('../../assets/images/auth_background.png')}
-          />
-        </View>
-        <View style={styles.headerTitle}>
-          <Text style={styles.headerSubTitle}>Geofenced</Text>
-          <Switch
-            onValueChange={toggleSwitch}
-            value={isEnabled}
-            trackColor={{false: '#767577', true: AppColors.red}}
-            thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
-            style={{transform: [{scale: 1.3}]}}
-          />
-        </View>
-      </View>
-      {/* <View style={styles.reactangleIcon}>
-          <ReactangleIcon />
-        </View>
-      </View> */}
-
-      <View style={styles.container}>
+    <AppLayout style={styles.layoutContainer}>
+      <View style={{height: screenHeight, width: screenWidth}}>
         <AppMapView />
+      </View>
+      <ImageBackground
+        style={styles.headerImage}
+        source={require('../../assets/images/rectangle.png')}>
+        <AppHeader
+          title="Mark Tommay"
+          rightIcon={true}
+          onPressLeftIcon={() => {
+            navigation.navigate('Settings');
+          }}
+          onPressRightIcon={() => navigation.navigate('Notification')}
+          containerStyle={{backgroundColor: '#141516'}}
+        />
+        <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
+          <View style={styles.headerTitle}>
+            <Text style={styles.headerSubTitle}>Bus No.</Text>
+            <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
+              B456788
+            </Text>
+          </View>
+          <View style={styles.imageContainer}>
+            <Image
+              style={styles.image}
+              source={require('../../assets/images/auth_background.png')}
+            />
+          </View>
+          <View style={styles.headerTitle}>
+            <Text style={styles.headerSubTitle}>Geofenced</Text>
+            <Switch
+              onValueChange={toggleSwitch}
+              value={isEnabled}
+              trackColor={{false: '#767577', true: AppColors.red}}
+              thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
+              style={{transform: [{scale: 1.3}]}}
+            />
+          </View>
+        </View>
+      </ImageBackground>
+
+      {/* <View style={styles.container}>
         <View style={styles.bottomContainer}>
           <RouteSlider />
           <View style={[AppStyles.rowBetween, {marginTop: hp(3)}]}>
@@ -119,6 +128,26 @@ export default function HomeSreen() {
               style={{backgroundColor: AppColors.lightBlack}}
             />
           </View>
+        </View>
+      </View> */}
+
+      <View style={styles.bottomContainer}>
+        <RouteSlider />
+        <View style={[AppStyles.rowBetween, {marginTop: hp(3)}]}>
+          <Pressable
+            onPress={() => navigation.navigate('ChatScreen')}
+            style={[AppStyles.rowCenter, styles.bottomButton]}>
+            <GlobalIcon
+              library="CustomIcon"
+              name="Chat"
+              color={AppColors.red}
+            />
+          </Pressable>
+          <AppButton
+            title="Report Student Absence"
+            onPress={() => openSheet()}
+            style={{backgroundColor: AppColors.lightBlack}}
+          />
         </View>
       </View>
 
@@ -208,6 +237,13 @@ export default function HomeSreen() {
 }
 
 const styles = StyleSheet.create({
+  headerImage: {
+    height: 220,
+    width: screenWidth,
+    paddingTop: hp(4),
+    position: 'absolute',
+  },
+  layoutContainer: {backgroundColor: 'rgba(16, 35, 53, 0)', paddingTop: 0},
   headerBottomContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: hp(2),
@@ -252,6 +288,7 @@ const styles = StyleSheet.create({
   bottomContainer: {
     zIndex: 1,
     position: 'absolute',
+    bottom: 0,
     width: '100%',
     backgroundColor: 'white',
     height: hp(20),

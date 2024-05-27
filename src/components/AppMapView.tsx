@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   bottomContainers: {
     position: 'absolute',
-    bottom: hp(22),
+    bottom: hp(28),
     paddingHorizontal: hp(2),
     flexDirection: 'row',
     justifyContent: 'space-between',

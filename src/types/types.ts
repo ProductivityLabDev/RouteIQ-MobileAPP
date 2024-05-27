@@ -1,5 +1,12 @@
+import { ViewStyle } from "react-native";
+
 export interface AuthLayoutProps {
-    children?: any
+    children?: any;
+}
+
+export interface AppLayoutProps {
+    children?: any;
+    style?: ViewStyle
 }
 
 export interface UpdateGuardianProfileProps {
