@@ -10,6 +10,7 @@ import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
+import GuardianIcon from '../../assets/svgs/GuardianIcon';
 
 export default function Settings() {
   const navigation = useNavigation();
@@ -28,7 +29,7 @@ export default function Settings() {
       ),
       screen: 'ChildProfile',
       title: 'Child Profile',
-      disabled: false
+      disabled: false,
     },
     {
       leftIcon: (
@@ -41,33 +42,19 @@ export default function Settings() {
       ),
       screen: 'AttendanceHistory',
       title: 'Attendance History',
-      disabled: false
+      disabled: false,
     },
     {
-      leftIcon: (
-        <GlobalIcon
-          library="CustomIcon"
-          name="Group-1981"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
+      leftIcon: <GuardianIcon />,
       screen: 'UpdateGuardianProfile',
       title: 'Guardian 1',
-      disabled: false
+      disabled: false,
     },
     {
-      leftIcon: (
-        <GlobalIcon
-          library="CustomIcon"
-          name="Group-1981"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
+      leftIcon: <GuardianIcon />,
       screen: 'UpdateGuardianProfile',
       title: 'Guardian 2',
-      disabled: false
+      disabled: false,
     },
     {
       leftIcon: (
@@ -80,7 +67,7 @@ export default function Settings() {
       ),
       screen: 'ChildProfile',
       title: 'Push Notification',
-      disabled: true
+      disabled: true,
     },
   ];
 

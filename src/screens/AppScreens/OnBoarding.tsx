@@ -20,7 +20,7 @@ const OnBoarding = () => {
       case 1:
         return require('../../assets/images/licenseAndRoute.png');
       case 2:
-        return require('../../assets/images/houseCloud.png');
+        return require('../../assets/images/boarding_bus.png');
     }
   };
   return (
