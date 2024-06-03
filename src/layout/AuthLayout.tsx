@@ -1,5 +1,5 @@
 import React from 'react';
-import {ImageBackground, StatusBar, StyleSheet, View} from 'react-native';
+import {ImageBackground, SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 import AppStyles from '../styles/AppStyles';
 import {AuthLayoutProps} from '../types/types';
 import {hp} from '../utils/constants';

@@ -60,6 +60,19 @@ export default function Settings() {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
+          name="-icon-_lock"
+          color={AppColors.red}
+          size={hp(3)}
+        />
+      ),
+      screen: 'ChangePassword',
+      title: 'Change Password',
+      disabled: false,
+    },
+    {
+      leftIcon: (
+        <GlobalIcon
+          library="CustomIcon"
           name="notifications"
           color={AppColors.red}
           size={hp(2.5)}
@@ -160,6 +173,6 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: AppColors.black,
     position: 'absolute',
-    bottom: hp(8),
+    bottom: hp(6),
   },
 });

@@ -90,8 +90,8 @@ const AppInput: React.FC<AppInputProps> = ({
             style={[styles.iconStyle, iconStyle]}>
             <GlobalIcon
               name={!isSecure ? 'eye' : 'eye-off'}
-              library="Ionicons"
-              color={AppColors.white}
+              library="Feather"
+              color={AppColors.black}
             />
           </TouchableOpacity>
         )}

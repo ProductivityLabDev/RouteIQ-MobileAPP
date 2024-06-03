@@ -43,7 +43,7 @@ const AppStyles = StyleSheet.create({
   },
   screenWidthHeight: {
     width: screenWidth,
-    height: screenHeight,
+    height: screenHeight - hp(6),
   },
   titleHead: {
     fontFamily: AppFonts.NunitoSansBold,

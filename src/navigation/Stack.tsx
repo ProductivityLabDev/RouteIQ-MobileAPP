@@ -13,6 +13,11 @@ import ChatScreen from '../screens/AppScreens/ChatScreen';
 import AttendanceHistory from '../screens/AppScreens/AttendanceHistory';
 import OnBoarding from '../screens/AppScreens/OnBoarding';
 import ParentFeedback from '../screens/AppScreens/ParentFeedback';
+import ResetPassword from '../screens/AuthScreens/ResetPassword';
+import VerificationCode from '../screens/AuthScreens/VerificationCode';
+import NewPassword from '../screens/AuthScreens/NewPassword';
+import SuccessScreen from '../screens/AuthScreens/SuccessScreen';
+import ChangePassword from '../screens/AppScreens/ChangePassword';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,6 +43,11 @@ export const AuthStack = () => {
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} />
       <Stack.Screen name="ParentFeedback" component={ParentFeedback} />
+      <Stack.Screen name="ResetPassword" component={ResetPassword} />
+      <Stack.Screen name="VerificationCode" component={VerificationCode} />
+      <Stack.Screen name="NewPassword" component={NewPassword} />
+      <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
+      <Stack.Screen name="ChangePassword" component={ChangePassword} />
     </Stack.Navigator>
   );
 };

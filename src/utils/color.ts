@@ -18,5 +18,7 @@ export const AppColors = {
   textLightGrey: '#676767',
   yellow: '#fed743',
   green: '#0ba071',
-  palePink: '#ffcccf'
+  palePink: '#ffcccf',
+  transparent: 'transparent',
+  brightGrey: '#64748B'
 };

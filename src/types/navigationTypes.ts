@@ -10,7 +10,12 @@ export type RootStackParamList = {
     ChatScreen: undefined,
     AttendanceHistory: undefined,
     OnBoarding: undefined,
-    ParentFeedback: undefined
+    ParentFeedback: undefined,
+    ResetPassword: undefined,
+    VerificationCode: undefined,
+    NewPassword: undefined,
+    SuccessScreen: undefined,
+    ChangePassword: undefined
 };
 
 declare global {
