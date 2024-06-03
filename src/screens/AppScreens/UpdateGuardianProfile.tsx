@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
 import AppButton from '../../components/AppButton';
@@ -11,6 +11,8 @@ import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {UpdateGuardianProfileProps} from '../../types/types';
 import {updateGuardianDropdown} from '../../utils/DummyData';
+import AppFonts from '../../utils/appFonts';
+import {size} from '../../utils/responsiveFonts';
 
 const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
   route,
@@ -18,6 +20,13 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
   const route_data = route?.params;
   const navigation = useNavigation();
   const [selected, setSelected] = React.useState('');
+  const [name, setName] = useState('Jacob Jones');
+  const [address, setAddress] = useState('E301, 20 Cooper Square');
+  const [city, setCity] = useState('New York');
+  const [state, setState] = useState('New York State');
+  const [zipCode, setZipCode] = useState('3132325');
+  const [phone, setPhone] = useState('+93123132325');
+  const [email, setEmail] = useState('jones234@gmail.com');
 
   return (
     <AppLayout>
@@ -28,6 +37,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
       />
       <ScrollView
         scrollEnabled={true}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           AppStyles.body,
           {
@@ -38,7 +48,8 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
           <AppInput
             containerStyle={styles.inputContainer}
             label="Name"
-            value="Jacob Jones"
+            value={name}
+            onChangeText={(text: string) => setName(text)}
             editable={true}
           />
 
@@ -53,57 +64,75 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
             data={updateGuardianDropdown}
             save="value"
             placeholder="Select"
-            inputStyles={{
-              color: AppColors.black,
-            }}
             boxStyles={styles.boxStyle}
+            dropdownStyles={{
+              backgroundColor: AppColors.white,
+              borderColor: AppColors.black,
+            }}
+            dropdownTextStyles={{
+              color: AppColors.black,
+              fontSize: size.sl,
+              fontFamily: AppFonts.NunitoSansSemiBold,
+            }}
+            inputStyles={{
+              fontSize: size.sl,
+              color: AppColors.black,
+              fontFamily: AppFonts.NunitoSansSemiBold,
+            }}
           />
 
           <AppInput
             containerStyle={styles.inputContainer}
             label="Address"
-            value="E301, 20 Cooper Square"
+            value={address}
+            onChangeText={(text: string) => setAddress(text)}
             editable={true}
           />
 
           <AppInput
             containerStyle={styles.inputContainer}
             label="City"
-            value="New York"
+            value={city}
+            onChangeText={(text: string) => setCity(text)}
             editable={true}
           />
 
           <AppInput
             containerStyle={styles.inputContainer}
             label="State"
-            value="New York State"
+            value={state}
+            onChangeText={(text: string) => setState(text)}
             editable={true}
           />
 
           <AppInput
             containerStyle={styles.inputContainer}
             label="Zip Code"
-            value="3132325"
+            value={zipCode}
+            onChangeText={(text: string) => setZipCode(text)}
             editable={true}
           />
 
           <AppInput
             containerStyle={styles.inputContainer}
             label="Phone"
-            value="+93123132325"
+            value={phone}
+            onChangeText={(text: string) => setPhone(text)}
             editable={true}
+            keyboardType="number-pad"
           />
 
           <AppInput
             containerStyle={styles.inputContainer}
             label="Email"
-            value="jones234@gmail.com"
+            value={email}
+            onChangeText={(text: string) => setEmail(text)}
             editable={true}
           />
         </View>
 
         <AppButton
-          onPress={() => navigation.navigate('HomeSreen')}
+          onPress={() => navigation.goBack()}
           title="Update"
           style={styles.button}
         />

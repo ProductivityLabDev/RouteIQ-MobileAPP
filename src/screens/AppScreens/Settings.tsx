@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: size.md,
     marginLeft: hp(1),
-    fontFamily: AppFonts.NunitoSansRegular,
+    fontFamily: AppFonts.NunitoSansSemiBold,
     color: AppColors.black,
   },
   button: {

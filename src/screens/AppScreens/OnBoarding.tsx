@@ -26,19 +26,25 @@ const OnBoarding = () => {
   return (
     <AuthLayout>
       <View style={styles.container}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('LoginAs')}
-          style={styles.skipContainer}>
-          <Text style={styles.skipTitle}>SKIP</Text>
-        </TouchableOpacity>
+        {
+          <TouchableOpacity
+            disabled={index != 2 ? false : true}
+            onPress={() => navigation.navigate('LoginAs')}
+            style={styles.skipContainer}>
+            {index != 2 && <Text style={styles.skipTitle}>SKIP</Text>}
+          </TouchableOpacity>
+        }
         <View style={styles.imageContainer}>
           <Image source={nextImage(index)} />
         </View>
         <View style={AppStyles.rowBetween}>
           <View style={[AppStyles.row, {marginTop: hp(2)}]}>
-            <View style={index == 0 ? styles.selectedCircle : styles.circle}></View>
-            <View style={index == 1 ? styles.selectedCircle : styles.circle}></View>
-            <View style={index == 2 ? styles.selectedCircle : styles.circle}></View>
+            <View
+              style={index == 0 ? styles.selectedCircle : styles.circle}></View>
+            <View
+              style={index == 1 ? styles.selectedCircle : styles.circle}></View>
+            <View
+              style={index == 2 ? styles.selectedCircle : styles.circle}></View>
           </View>
           <AppButton
             title="Next"
@@ -46,6 +52,7 @@ const OnBoarding = () => {
               index < 2 ? setIndex(index + 1) : navigation.navigate('LoginAs')
             }
             style={styles.button}
+            titleStyle={{fontFamily: AppFonts.NunitoSansSemiBold}}
           />
         </View>
       </View>
@@ -65,7 +72,7 @@ const styles = StyleSheet.create({
   skipTitle: {
     fontSize: size.lg,
     color: AppColors.red,
-    fontFamily: AppFonts.NunitoSansRegular,
+    fontFamily: AppFonts.NunitoSansBold,
   },
   imageContainer: {
     marginTop: hp(2),
@@ -75,15 +82,15 @@ const styles = StyleSheet.create({
   circle: {
     height: hp(1.2),
     width: hp(1.2),
-    backgroundColor: 'red',
+    backgroundColor: '#808080',
     borderRadius: hp(2),
     marginHorizontal: hp(0.5),
   },
   button: {width: '50%'},
   selectedCircle: {
     height: hp(1.2),
+    backgroundColor: 'red',
     width: hp(3),
-    backgroundColor: '#808080',
     borderRadius: hp(2),
     marginHorizontal: hp(0.5),
   },

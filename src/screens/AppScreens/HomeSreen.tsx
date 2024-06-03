@@ -6,6 +6,7 @@ import {
   Image,
   ImageBackground,
   Pressable,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -27,6 +28,7 @@ import {AppColors} from '../../utils/color';
 import {hp, screenHeight, screenWidth} from '../../utils/constants';
 import {leaveDropdownData} from '../../utils/DummyData';
 import {size} from '../../utils/responsiveFonts';
+import AppCustomModal from '../../components/AppCustomModal';
 
 export default function HomeSreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -37,6 +39,7 @@ export default function HomeSreen() {
   const [reasonOfAbsence, setReasonOfAbsence] = useState('');
   const [getDates, setGetDates] = useState([]);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const snapPoints = useMemo(
     () => [
@@ -53,17 +56,23 @@ export default function HomeSreen() {
   }, []);
 
   const handleSubmit = () => {
-    if (reasonOfAbsence && getDates.length > 0 && !preview) {
-      setPreview(true);
-      setSelectAbsence('');
-    }
-    if (reasonOfAbsence && getDates.length > 0 && preview) {
-      closeSheet();
-      setGetDates([]);
-      setPreview(false);
-      setReasonOfAbsence('');
-      setSelectAbsence('');
-    }
+    closeSheet();
+    setModalVisible(false)
+    setGetDates([]);
+    setPreview(false);
+    setReasonOfAbsence('');
+    setSelectAbsence('');
+    // if (reasonOfAbsence && getDates.length > 0 && !preview) {
+    //   setPreview(true);
+    //   setSelectAbsence('');
+    // }
+    // if (reasonOfAbsence && getDates.length > 0 && preview) {
+    //   closeSheet();
+    //   setGetDates([]);
+    //   setPreview(false);
+    //   setReasonOfAbsence('');
+    //   setSelectAbsence('');
+    // }
   };
 
   return (
@@ -85,8 +94,15 @@ export default function HomeSreen() {
         />
         <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
           <View style={styles.headerTitle}>
-            <Text style={styles.headerSubTitle}>Bus No.</Text>
-            <Text style={[AppStyles.subHeading, {color: AppColors.white}]}>
+            <Text style={styles.headerSubTitle}>Bus No:</Text>
+            <Text
+              style={[
+                AppStyles.subHeading,
+                {
+                  color: AppColors.white,
+                  fontFamily: AppFonts.NunitoSansBold,
+                },
+              ]}>
               B456788
             </Text>
           </View>
@@ -97,7 +113,13 @@ export default function HomeSreen() {
             />
           </View>
           <View style={styles.headerTitle}>
-            <Text style={styles.headerSubTitle}>Geofenced</Text>
+            <Text
+              style={[
+                styles.headerSubTitle,
+                {fontFamily: AppFonts.NunitoSansSemiBold},
+              ]}>
+              Geofenced
+            </Text>
             <Switch
               onValueChange={toggleSwitch}
               value={isEnabled}
@@ -109,28 +131,6 @@ export default function HomeSreen() {
         </View>
       </ImageBackground>
 
-      {/* <View style={styles.container}>
-        <View style={styles.bottomContainer}>
-          <RouteSlider />
-          <View style={[AppStyles.rowBetween, {marginTop: hp(3)}]}>
-            <Pressable
-              onPress={() => navigation.navigate('ChatScreen')}
-              style={[AppStyles.rowCenter, styles.bottomButton]}>
-              <GlobalIcon
-                library="CustomIcon"
-                name="Chat"
-                color={AppColors.red}
-              />
-            </Pressable>
-            <AppButton
-              title="Report Student Absence"
-              onPress={() => openSheet()}
-              style={{backgroundColor: AppColors.lightBlack}}
-            />
-          </View>
-        </View>
-      </View> */}
-
       <View style={styles.bottomContainer}>
         <RouteSlider />
         <View style={[AppStyles.rowBetween, {marginTop: hp(3)}]}>
@@ -138,20 +138,107 @@ export default function HomeSreen() {
             onPress={() => navigation.navigate('ChatScreen')}
             style={[AppStyles.rowCenter, styles.bottomButton]}>
             <GlobalIcon
-              library="CustomIcon"
-              name="Chat"
+              library="Ionicons"
+              name="chatbubble-ellipses"
               color={AppColors.red}
             />
           </Pressable>
           <AppButton
             title="Report Student Absence"
-            onPress={() => openSheet()}
+            onPress={() => setModalVisible(true)}
+            // onPress={() => openSheet()}
             style={{backgroundColor: AppColors.lightBlack}}
+            titleStyle={{fontFamily: AppFonts.NunitoSansSemiBold}}
           />
         </View>
       </View>
 
-      <AppBottomSheet
+      <AppCustomModal visible={modalVisible} setVisible={setModalVisible}>
+        <ScrollView contentContainerStyle={{flex: 1}}>
+          <View style={{flex: 1, justifyContent: 'flex-end'}}>
+            <View
+              style={{
+                backgroundColor: AppColors.white,
+                paddingHorizontal: hp(2),
+                paddingVertical: hp(2),
+                borderTopRightRadius: hp(2),
+                borderTopLeftRadius: hp(2),
+              }}>
+              <AppInput
+                containerStyle={{marginBottom: 0}}
+                label="Child Absence"
+                container={{display: 'none'}}
+                labelStyle={{
+                  fontFamily: AppFonts.NunitoSansBold,
+                }}
+              />
+              <SelectList
+                search={false}
+                setSelected={(val: string) => setSelectAbsence(val)}
+                data={leaveDropdownData}
+                save="value"
+                placeholder="Select"
+                boxStyles={styles.boxStyle}
+                dropdownTextStyles={{color: AppColors.black}}
+              />
+              {preview && (
+                <AppInput
+                  value={
+                    moment(getDates[0]).format('Do MMMM YYYY') +
+                    ' - ' +
+                    moment(getDates[1]).format('Do MMMM YYYY')
+                  }
+                />
+              )}
+              {selectAbsence == 'All Week' && !preview && (
+                <AppCalender setDates={setGetDates} />
+              )}
+              {!preview ? (
+                <AppInput
+                  multiline
+                  numberOfLines={7}
+                  container={{height: hp(16), borderRadius: hp(0.5)}}
+                  label="Reason for Absence"
+                  placeholder="Descripton"
+                  value={reasonOfAbsence}
+                  onChangeText={(text: string) => setReasonOfAbsence(text)}
+                  labelStyle={{
+                    fontFamily: AppFonts.NunitoSansBold,
+                  }}
+                />
+              ) : (
+                <>
+                  <Text style={styles.label}>Reason for Absence</Text>
+                  <View style={styles.reasonContainer}>
+                    <Text style={AppStyles.subHeading}>{reasonOfAbsence}</Text>
+                  </View>
+                </>
+              )}
+              <View style={[AppStyles.rowBetween, {width: '100%'}]}>
+                <AppButton
+                  title="Cancel"
+                  onPress={() => {
+                    setModalVisible(false);
+                    setGetDates([]);
+                    setPreview(false);
+                    setReasonOfAbsence('');
+                    setSelectAbsence('');
+                  }}
+                  style={styles.cancelButton}
+                  titleStyle={{color: AppColors.textLightGrey}}
+                />
+                <AppButton
+                  title="Submit"
+                  onPress={() => handleSubmit()}
+                  style={styles.submitButton}
+                />
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </AppCustomModal>
+
+      {/* <AppBottomSheet
         bottomSheetModalRef={bottomSheetModalRef}
         snapPoints={snapPoints}
         backdropComponent={({style}) => (
@@ -231,7 +318,7 @@ export default function HomeSreen() {
             />
           </View>
         </View>
-      </AppBottomSheet>
+      </AppBottomSheet> */}
     </AppLayout>
   );
 }
@@ -271,9 +358,9 @@ const styles = StyleSheet.create({
     elevation: 0,
     opacity: 1,
   },
-  headerTitle: {gap: hp(1), paddingTop: hp(1)},
+  headerTitle: {gap: hp(0.5), paddingTop: hp(1)},
   headerSubTitle: {
-    fontFamily: AppFonts.NunitoSansLight,
+    fontFamily: AppFonts.NunitoSansMedium,
     fontSize: size.sl,
     lineHeight: 20,
     color: AppColors.white,

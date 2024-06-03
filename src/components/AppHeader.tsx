@@ -14,6 +14,7 @@ import {useNavigation} from '@react-navigation/native';
 import {hp} from '../utils/constants';
 import {size} from '../utils/responsiveFonts';
 import AppFonts from '../utils/appFonts';
+import NotificationIcon from '../assets/svgs/NotificationIcon';
 
 interface AppHeaderProps {
   title?: string;
@@ -36,7 +37,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   onPressLeftIcon,
   onPressRightIcon,
   titleStyle,
-  containerStyle
+  containerStyle,
 }) => {
   const navigation = useNavigation();
 
@@ -51,7 +52,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 library="CustomIcon"
                 name="settings"
                 color={AppColors.white}
-                size={hp(3)}
+                size={hp(3.5)}
               />
             </Pressable>
           )}
@@ -70,12 +71,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         <View style={[styles.iconContainer, {alignItems: 'flex-end'}]}>
           {!bookmarkIcon && rightIcon && (
             <Pressable style={styles.icon} onPress={onPressRightIcon}>
-              <GlobalIcon
-                library="CustomIcon"
-                name="notifications"
-                color={AppColors.white}
-                size={hp(3)}
-              />
+              <NotificationIcon />
             </Pressable>
           )}
           {!rightIcon && bookmarkIcon && (
@@ -105,13 +101,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(1),
   },
   title: {
-    width: '60%',
+    width: '70%',
     textAlign: 'center',
     fontSize: size.vxlg,
     color: AppColors.white,
-    fontFamily: AppFonts.NunitoSansMedium,
+    fontFamily: AppFonts.NunitoSansBold,
   },
-  iconContainer: {width: '20%'},
+  iconContainer: {width: '15%'},
   icon: {padding: hp(1)},
   greetTitle: {
     textAlign: 'center',

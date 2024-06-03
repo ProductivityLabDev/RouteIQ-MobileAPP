@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     title: {
         // color: AppColors.secondary,
         color: AppColors.white,
-        fontFamily: AppFonts.NunitoSansRegular,
+        fontFamily: AppFonts.NunitoSansSemiBold,
         fontSize: size.lg,
         
     },

@@ -6,7 +6,7 @@ import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
 import {mapCustomStyle} from '../utils/mapConfig';
-import {size} from '../utils/responsiveFonts';
+import {fontSize, size} from '../utils/responsiveFonts';
 import GlobalIcon from './GlobalIcon';
 import {useNavigation} from '@react-navigation/native';
 
@@ -38,11 +38,19 @@ const AppMapView = () => {
 
       <View style={styles.bottomContainers}>
         <View style={styles.firstContainer}>
-          <Text style={[AppStyles.subHeading, {fontSize: size.default}]}>
-            Boarding Status:
+          <Text
+            style={[
+              AppStyles.subHeading,
+              {fontSize: size.default, fontFamily: AppFonts.NunitoSansSemiBold},
+            ]}>
+            Boarding status:
           </Text>
           <Text style={styles.onRouteTitle}>On Route</Text>
-          <Text style={[AppStyles.subHeading, {fontSize: size.sl}]}>
+          <Text
+            style={[
+              AppStyles.subHeading,
+              {fontSize: fontSize(14), fontFamily: AppFonts.NunitoSansSemiBold},
+            ]}>
             ETA: <Text style={styles.timeTitle}>15 min</Text>
           </Text>
         </View>
@@ -83,7 +91,7 @@ const styles = StyleSheet.create({
   },
   firstContainer: {
     backgroundColor: AppColors.white,
-    width: hp(20),
+    width: hp(22),
     paddingHorizontal: hp(2),
     paddingVertical: hp(1),
     borderRadius: hp(1),
@@ -94,19 +102,19 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   onRouteTitle: {
-    fontSize: size.md,
+    fontSize: size.slg,
     color: AppColors.red,
     fontFamily: AppFonts.NunitoSansSemiBold,
   },
   timeTitle: {
-    fontSize: size.sl,
+    fontSize: fontSize(14),
     color: AppColors.red,
     fontFamily: AppFonts.NunitoSansSemiBold,
   },
   secondContainer: {
     backgroundColor: AppColors.white,
-    padding: hp(1),
-    borderRadius: hp(1),
+    padding: hp(2),
+    borderRadius: hp(2),
     shadowColor: '#000',
     shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.25,

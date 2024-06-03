@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Bubble, GiftedChat} from 'react-native-gifted-chat';
 import AppStyles from '../styles/AppStyles';
 import AppFonts from '../utils/appFonts';

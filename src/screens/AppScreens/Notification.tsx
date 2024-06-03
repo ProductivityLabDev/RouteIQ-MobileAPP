@@ -19,7 +19,7 @@ const Notifications = () => {
 
   return (
     <AppLayout>
-      <AppHeader enableBack={true} rightIcon={false} title={`Notifications`} />
+      <AppHeader enableBack={true} rightIcon={false} title={`Notification`} />
       <View
         style={[
           AppStyles.body,

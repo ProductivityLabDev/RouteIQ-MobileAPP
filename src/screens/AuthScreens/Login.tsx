@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import GlobalIcon from '../../components/GlobalIcon';
 import AuthLayout from '../../layout/AuthLayout';
 import AppStyles from '../../styles/AppStyles';
@@ -13,11 +13,12 @@ import { size } from '../../utils/responsiveFonts';
 const Login = () => {
     const navigation = useNavigation();
     return (
+        <ScrollView showsVerticalScrollIndicator={false}>
         <AuthLayout>
-            <View>
+             <View>
                 <View style={[AppStyles.rowBetween, { alignItems: 'flex-start', justifyContent: 'center' }]}>
-                    <TouchableOpacity style={{position: 'absolute', left:0}} onPress={() => navigation.goBack()}>
-                        <GlobalIcon library="Feather" name="chevron-left" />
+                    <TouchableOpacity style={{position: 'absolute', left:0, top: 15}} onPress={() => navigation.goBack()}>
+                        <GlobalIcon library="Feather" name="chevron-left" color={AppColors.red} />
                     </TouchableOpacity>
                     <Image source={require('../../assets/images/route_logo.png')} />
                     <View></View>
@@ -26,13 +27,14 @@ const Login = () => {
                     <Text style={AppStyles.titleHead}>Log In</Text>
                     <Text style={[AppStyles.subHeading, { marginBottom: hp(2) }]}>Enter your credential to login</Text>
                     <View style={styles.setMargin}>
-                        <AppInput label='Email' placeholderTextColor={AppColors.inputGrey} inputStyle={styles.inputStyle} placeholder='Email address' container={styles.inputContainer} labelStyle={styles.inputLabelStyle} rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_email" />}/>
-                        <AppInput label='Password' placeholderTextColor={AppColors.inputGrey} inputStyle={styles.inputStyle} containerStyle={{marginBottom: hp(3) }} container={styles.inputContainer} labelStyle={styles.inputLabelStyle} placeholder='Enter password' rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_lock" />} />
+                        <AppInput label='Email' placeholderTextColor={AppColors.inputGrey} inputStyle={styles.inputStyle} placeholder='Enter Email Address' container={styles.inputContainer} labelStyle={styles.inputLabelStyle} rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_email" />}/>
+                        <AppInput label='Password' placeholderTextColor={AppColors.inputGrey} inputStyle={styles.inputStyle} containerStyle={{marginBottom: hp(3) }} container={styles.inputContainer} labelStyle={styles.inputLabelStyle} placeholder='Enter Password' rightInnerIcon={<GlobalIcon size={20} library="CustomIcon" color={AppColors.inputGrey} name="-icon-_lock" />} />
                         <AppButton onPress={()=> navigation.navigate('HomeSreen')} title='Log In'  />
                     </View>
                 </View>
             </View>
         </AuthLayout>
+        </ScrollView>
     );
 };
 

@@ -3,7 +3,8 @@ import {StyleSheet, useWindowDimensions} from 'react-native';
 import {TabBar, TabView} from 'react-native-tab-view';
 import {AppTabsViewProps} from '../types/types';
 import {AppColors} from '../utils/color';
-import {size} from '../utils/responsiveFonts';
+import {fontSize, size} from '../utils/responsiveFonts';
+import AppFonts from '../utils/appFonts';
 
 const AppTabsView: React.FC<AppTabsViewProps> = ({routes, renderScene}) => {
   const layout = useWindowDimensions();
@@ -54,6 +55,7 @@ const styles = StyleSheet.create({
   },
   labelStyle: {
     color: AppColors.black,
-    fontSize: size.sl,
+    fontSize: fontSize(14),
+    fontFamily: AppFonts.NunitoSansSemiBold
   },
 });

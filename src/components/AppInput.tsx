@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     color: AppColors.black,
     fontSize: size.md,
     alignSelf: 'flex-start',
-    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontFamily: AppFonts.NunitoSansBold,
   },
   iconStyle: {
     padding: 5,

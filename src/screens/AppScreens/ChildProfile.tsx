@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useState} from 'react';
 import {Image, ScrollView, StyleSheet, View} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
 import AppButton from '../../components/AppButton';
@@ -9,25 +9,28 @@ import GlobalIcon from '../../components/GlobalIcon';
 import AppLayout from '../../layout/AppLayout';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
+import {size} from '../../utils/responsiveFonts';
+import AppFonts from '../../utils/appFonts';
 
 export default function ChildProfile() {
   const navigation = useNavigation();
-  const [selected, setSelected] = React.useState('');
+  const [selected, setSelected] = useState('');
+  const [firstName, setFirstName] = useState('Jacob');
+  const [lastName, setLastName] = useState('Jones');
+  const [emergencyContact, setEmergencyContact] = useState('+93123132325');
 
   const data = [
-    {key: '1', value: 'Mobiles', disabled: true},
-    {key: '2', value: 'Appliances'},
-    {key: '3', value: 'Cameras'},
-    {key: '4', value: 'Computers', disabled: true},
-    {key: '5', value: 'Vegetables'},
-    {key: '6', value: 'Diary Products'},
-    {key: '7', value: 'Drinks'},
+    {key: '1', value: 'Bus'},
+    {key: '2', value: 'Bike'},
+    {key: '3', value: 'Car'},
+    {key: '4', value: 'Auto'},
   ];
   return (
     <AppLayout>
       <AppHeader title="Child Profile" enableBack={true} rightIcon={false} />
       <ScrollView
         scrollEnabled={true}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: hp(2),
           backgroundColor: AppColors.screenColor,
@@ -53,17 +56,28 @@ export default function ChildProfile() {
 
           <AppInput
             containerStyle={styles.inputContainerStyle}
-            label="Name"
-            value="Jacob Jones"
+            label="First Name"
+            value={firstName}
+            onChangeText={(text: string) => setFirstName(text)}
+            inputStyle={{color: AppColors.black}}
+            editable={true}
+          />
+          <AppInput
+            containerStyle={styles.inputContainerStyle}
+            label="Last Name"
+            value={lastName}
+            onChangeText={(text: string) => setLastName(text)}
             inputStyle={{color: AppColors.black}}
             editable={true}
           />
           <AppInput
             containerStyle={styles.inputContainerStyle}
             label="Emergency Contacts"
-            value="+93123132325"
+            value={emergencyContact}
+            onChangeText={(text: string) => setEmergencyContact(text)}
             inputStyle={{color: AppColors.black}}
             editable={true}
+            keyboardType="number-pad"
           />
           <AppInput
             containerStyle={styles.inputContainerStyle}
@@ -95,17 +109,32 @@ export default function ChildProfile() {
             save="value"
             placeholder="Select"
             boxStyles={styles.boxStyle}
+            dropdownStyles={{
+              backgroundColor: AppColors.white,
+              borderColor: AppColors.black,
+            }}
+            dropdownTextStyles={{
+              color: AppColors.black,
+              fontSize: size.sl,
+              fontFamily: AppFonts.NunitoSansSemiBold,
+            }}
+            inputStyles={{
+              fontSize: size.sl,
+              color: AppColors.black,
+              fontFamily: AppFonts.NunitoSansSemiBold,
+            }}
           />
         </View>
 
         <AppButton
-          onPress={() => navigation.navigate('HomeSreen')}
+          onPress={() => navigation.goBack()}
           title="Update"
           style={{
             alignSelf: 'center',
             width: '100%',
             backgroundColor: AppColors.black,
-            marginBottom: hp(10),
+            marginTop: hp(2),
+            marginBottom: hp(5),
           }}
         />
       </ScrollView>
@@ -140,12 +169,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     position: 'absolute',
     top: 125,
-    right: 120,
+    right: 112,
     backgroundColor: AppColors.white,
   },
   inputContainerStyle: {marginBottom: hp(1.4)},
   boxStyle: {
-    marginBottom: hp(3),
+    // marginBottom: hp(3),
     backgroundColor: AppColors.white,
     height: hp(7),
     alignItems: 'center',

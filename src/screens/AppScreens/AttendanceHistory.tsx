@@ -27,7 +27,7 @@ const AttendanceHistory = () => {
       : 
       <View style={styles.container}>
         <Text style={styles.title}>{type}</Text>
-        <View style={[AppStyles.row, {gap: hp(2), marginTop: hp(1)}]}>
+        <View style={[AppStyles.row, {gap: hp(1), marginTop: hp(1)}]}>
           <Text style={[styles.subTitle, type == 'Check In' || type == 'Check Out' ? {backgroundColor: AppColors.green, color: AppColors.white } : {backgroundColor: AppColors.yellow }]}>8:00 AM</Text>
           <Text style={[styles.subTitle, type == 'Check In' || type == 'Check Out' ? {backgroundColor: AppColors.green, color: AppColors.white } : {backgroundColor: AppColors.yellow }]}>Feb 25, 2024</Text>
         </View>
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontFamily: AppFonts.NunitoSansBold,
+    fontFamily: AppFonts.NunitoSansExtraBold,
     color: AppColors.black,
     fontSize: size.md,
   },
