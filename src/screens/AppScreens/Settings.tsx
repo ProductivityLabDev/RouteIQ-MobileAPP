@@ -11,9 +11,12 @@ import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 import GuardianIcon from '../../assets/svgs/GuardianIcon';
+import {useAppDispatch} from '../../store/hooks';
+import {saveToken} from '../../store/user/userSlices';
 
 export default function Settings() {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
@@ -132,7 +135,7 @@ export default function Settings() {
         </View>
 
         <AppButton
-          onPress={() => navigation.navigate('HomeSreen')}
+          onPress={() => dispatch(saveToken(null))}
           title="Logout"
           style={styles.button}
         />
@@ -173,6 +176,6 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: AppColors.black,
     position: 'absolute',
-    bottom: hp(6),
+    bottom: hp(4),
   },
 });

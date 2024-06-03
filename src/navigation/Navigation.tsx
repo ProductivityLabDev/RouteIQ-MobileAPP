@@ -1,9 +1,11 @@
-import { NavigationContainer } from '@react-navigation/native';
-import React, { useState } from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import React, {useState} from 'react';
 import SplashScreen from '../screens/AppScreens/SplashScreen';
-import { AuthStack } from './Stack';
+import {AppStack, AuthStack} from './Stack';
+import {useAppSelector} from '../store/hooks';
 
 const Navigation = () => {
+  const token = useAppSelector(state => state.userSlices.token);
   const [Splash, setSplash] = useState(true);
 
   setTimeout(() => {
@@ -12,7 +14,7 @@ const Navigation = () => {
 
   return (
     <NavigationContainer>
-      {Splash ? <SplashScreen /> : <AuthStack />}
+      {Splash ? <SplashScreen /> : token ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };

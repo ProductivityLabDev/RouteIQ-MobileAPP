@@ -1,6 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
-import SplashScreen from '../screens/AppScreens/SplashScreen';
 import {RootStackParamList} from '../types/navigationTypes';
 import LoginAs from '../screens/AuthScreens/LoginAs';
 import HomeSreen from '../screens/AppScreens/HomeSreen';
@@ -24,17 +23,6 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const AppStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="SplashScreen" component={SplashScreen} />
-    </Stack.Navigator>
-  );
-};
-
-export const AuthStack = () => {
-  return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="OnBoarding" component={OnBoarding} />
-      <Stack.Screen name="LoginAs" component={LoginAs} />
-      <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="HomeSreen" component={HomeSreen} />
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="ChildProfile" component={ChildProfile} />
@@ -43,11 +31,22 @@ export const AuthStack = () => {
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="AttendanceHistory" component={AttendanceHistory} />
       <Stack.Screen name="ParentFeedback" component={ParentFeedback} />
+      <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
+      <Stack.Screen name="ChangePassword" component={ChangePassword} />
+    </Stack.Navigator>
+  );
+};
+
+export const AuthStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="LoginAs" component={LoginAs} />
+      <Stack.Screen name="OnBoarding" component={OnBoarding} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
       <Stack.Screen name="VerificationCode" component={VerificationCode} />
       <Stack.Screen name="NewPassword" component={NewPassword} />
       <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
-      <Stack.Screen name="ChangePassword" component={ChangePassword} />
     </Stack.Navigator>
   );
 };

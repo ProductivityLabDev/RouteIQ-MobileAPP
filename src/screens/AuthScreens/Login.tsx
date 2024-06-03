@@ -17,9 +17,12 @@ import AppInput from '../../components/AppInput';
 import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
+import {useAppDispatch} from '../../store/hooks';
+import { saveToken } from '../../store/user/userSlices';
 
 const Login = () => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <AuthLayout>
@@ -88,7 +91,7 @@ const Login = () => {
                 <Text style={styles.forgotText}>Forgot Password?</Text>
               </TouchableOpacity>
               <AppButton
-                onPress={() => navigation.navigate('HomeSreen')}
+                onPress={() => dispatch(saveToken(1))}
                 title="Log In"
               />
             </View>
