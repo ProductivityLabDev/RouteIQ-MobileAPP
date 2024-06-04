@@ -18,7 +18,7 @@ const OnBoarding = () => {
       case 0:
         return require('../../assets/images/mobile.png');
       case 1:
-        return require('../../assets/images/licenseAndRoute.png');
+        return require('../../assets/images/licenseandroute.png');
       case 2:
         return require('../../assets/images/boarding_bus.png');
     }
@@ -26,18 +26,19 @@ const OnBoarding = () => {
   return (
     <AuthLayout>
       <View style={styles.container}>
-        {
-          <TouchableOpacity
-            disabled={index != 2 ? false : true}
-            onPress={() => navigation.navigate('LoginAs')}
-            style={styles.skipContainer}>
-            {index != 2 && <Text style={styles.skipTitle}>SKIP</Text>}
-          </TouchableOpacity>
-        }
+        <TouchableOpacity
+          disabled={index != 2 ? false : true}
+          onPress={() => setIndex(index + 1)}
+          style={styles.skipContainer}>
+          {index != 2 && <Text style={styles.skipTitle}>SKIP</Text>}
+        </TouchableOpacity>
         <View style={styles.imageContainer}>
-          <Image source={nextImage(index)} />
+          <Image
+            style={{height: hp(40), width: hp(40), resizeMode: 'contain'}}
+            source={nextImage(index)}
+          />
         </View>
-        <View style={AppStyles.rowBetween}>
+        <View style={[AppStyles.rowBetween, {flex: 0.2}]}>
           <View style={[AppStyles.row, {marginTop: hp(2)}]}>
             <View
               style={index == 0 ? styles.selectedCircle : styles.circle}></View>
@@ -68,6 +69,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     height: '10%',
     paddingTop: hp(3),
+    flex: 0.2,
   },
   skipTitle: {
     fontSize: size.lg,
@@ -78,6 +80,7 @@ const styles = StyleSheet.create({
     marginTop: hp(2),
     height: '70%',
     alignItems: 'center',
+    flex: 0.6,
   },
   circle: {
     height: hp(1.2),

@@ -8,7 +8,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({children}) => {
   return (
     <ImageBackground
       style={AppStyles.screenWidthHeight}
-      source={require('../assets/images/auth_background1.png')}>
+      source={require('../assets/images/auth_background.png')}>
       <StatusBar
         translucent={true}
         backgroundColor="transparent"

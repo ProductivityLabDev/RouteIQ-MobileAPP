@@ -1,5 +1,13 @@
-import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import React, {useCallback, useState} from 'react';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import AppStyles from '../styles/AppStyles';
 import AppFonts from '../utils/appFonts';
@@ -8,10 +16,11 @@ import {hp} from '../utils/constants';
 import {mapCustomStyle} from '../utils/mapConfig';
 import {fontSize, size} from '../utils/responsiveFonts';
 import GlobalIcon from './GlobalIcon';
-import {useNavigation} from '@react-navigation/native';
+import Range from './Range';
 
 const AppMapView = () => {
   const navigation = useNavigation();
+  const [showDistance, setShowDistance] = useState(false);
   const startLocation = {
     latitude: 37.7749,
     longitude: -122.4454,
@@ -21,6 +30,11 @@ const AppMapView = () => {
     latitude: 37.7793,
     longitude: -122.426,
   };
+
+  const handleChange = useCallback((condition: boolean) => {
+    setShowDistance(condition);
+  }, []);
+
   return (
     <View style={styles.mapContainer}>
       <MapView
@@ -36,12 +50,19 @@ const AppMapView = () => {
         }}
         customMapStyle={mapCustomStyle}></MapView>
 
+      <Pressable
+        onPress={() => handleChange(true)}
+        style={[styles.bottomContainers, {bottom: hp(49), justifyContent: 'center'}]}>
+        <Image source={require('../assets/images/direction.png')} />
+      </Pressable>
+      {showDistance && <Range onPress={() => handleChange(false)} />}
+
       <View style={styles.bottomContainers}>
         <View style={styles.firstContainer}>
           <Text
             style={[
               AppStyles.subHeading,
-              {fontSize: size.default, fontFamily: AppFonts.NunitoSansSemiBold},
+              {fontSize: size.default, fontFamily: AppFonts.NunitoSansBold},
             ]}>
             Boarding status:
           </Text>
@@ -49,7 +70,7 @@ const AppMapView = () => {
           <Text
             style={[
               AppStyles.subHeading,
-              {fontSize: fontSize(14), fontFamily: AppFonts.NunitoSansSemiBold},
+              {fontSize: fontSize(14), fontFamily: AppFonts.NunitoSansBold},
             ]}>
             ETA: <Text style={styles.timeTitle}>15 min</Text>
           </Text>
@@ -109,7 +130,7 @@ const styles = StyleSheet.create({
   timeTitle: {
     fontSize: fontSize(14),
     color: AppColors.red,
-    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontFamily: AppFonts.NunitoSansBold,
   },
   secondContainer: {
     backgroundColor: AppColors.white,

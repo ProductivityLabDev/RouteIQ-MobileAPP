@@ -12,7 +12,7 @@ import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 import GuardianIcon from '../../assets/svgs/GuardianIcon';
 import {useAppDispatch} from '../../store/hooks';
-import {saveToken} from '../../store/user/userSlices';
+import {saveToken, setLogout} from '../../store/user/userSlices';
 
 export default function Settings() {
   const navigation = useNavigation();
@@ -95,7 +95,7 @@ export default function Settings() {
         <View style={styles.imageContainer}>
           <Image
             style={styles.image}
-            source={require('../../assets/images/auth_background.png')}
+            source={require('../../assets/images/profile_image.webp')}
           />
         </View>
 
@@ -135,7 +135,10 @@ export default function Settings() {
         </View>
 
         <AppButton
-          onPress={() => dispatch(saveToken(null))}
+          onPress={() => {
+            dispatch(setLogout(true));
+            dispatch(saveToken(null));
+          }}
           title="Logout"
           style={styles.button}
         />
@@ -155,8 +158,6 @@ const styles = StyleSheet.create({
     height: hp(15),
     width: hp(15),
     borderRadius: hp(20),
-    borderColor: AppColors.white,
-    borderWidth: 2,
     alignSelf: 'center',
     marginVertical: hp(4),
   },

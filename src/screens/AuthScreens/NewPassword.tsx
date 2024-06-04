@@ -34,7 +34,7 @@ const NewPassword = () => {
                 {marginBottom: hp(2), textAlign: 'center'},
               ]}>
               Set the new password for your account so you can login and access
-              all featuress.
+              all features.
             </Text>
           </View>
           <View style={styles.setMargin}>

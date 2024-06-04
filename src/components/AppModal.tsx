@@ -27,9 +27,9 @@ const AppModal: React.FC<AppModalProps> = ({visible, setVisible}) => {
           />
           <View style={styles.titleContainer}>
             <Text style={[AppStyles.titleHead, {fontSize: size.xlg}]}>
-              Thank You
+              Thankyou
             </Text>
-            <Text style={AppStyles.subHeading}>For your feedback</Text>
+            <Text style={AppStyles.subHeading}>For your Feedback</Text>
           </View>
         </View>
       </Pressable>

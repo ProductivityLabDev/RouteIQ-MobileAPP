@@ -41,7 +41,7 @@ export default function ChildProfile() {
             <View style={styles.imageContainer}>
               <Image
                 style={styles.image}
-                source={require('../../assets/images/auth_background.png')}
+                source={require('../../assets/images/profile_image.webp')}
               />
             </View>
             <View style={styles.cameraIcon}>
@@ -153,8 +153,6 @@ const styles = StyleSheet.create({
     height: hp(18),
     width: hp(18),
     borderRadius: hp(20),
-    borderColor: AppColors.white,
-    borderWidth: 2,
     alignSelf: 'center',
     marginVertical: hp(4),
   },

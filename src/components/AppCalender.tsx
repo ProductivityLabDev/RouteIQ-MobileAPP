@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Text} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
 
 interface AppCalendarProps {
   setDates?: any;
+  error?: string;
 }
 
-const AppCalender: React.FC<AppCalendarProps> = ({setDates}) => {
+const AppCalender: React.FC<AppCalendarProps> = ({setDates, error}) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [markedDates, setMarkedDates] = useState({});
@@ -58,33 +59,36 @@ const AppCalender: React.FC<AppCalendarProps> = ({setDates}) => {
   }, [startDate, endDate]);
 
   return (
-    <Calendar
-      style={styles.calendar}
-      headerStyle={styles.headerStyle}
-      current={Date()}
-      minDate={'2020-01-01'}
-      maxDate={'2030-12-31'}
-      onDayPress={onDayPress}
-      markingType={'period'}
-      markedDates={markedDates}
-      hideExtraDays
-      theme={{
-        calendarBackground: 'white',
-        textSectionTitleColor: '#fff',
-        monthTextColor: '#fff',
-        arrowColor: '#fff',
-        textDayFontSize: 12,
-        textMonthFontSize: 15,
-        textDayHeaderFontSize: 12,
-        weekVerticalMargin: 1,
-        textDayStyle: {
-          backgroundColor: 'red',
-        },
-        contentStyle: {
-          backgroundColor: 'red',
-        },
-      }}
-    />
+    <>
+      <Calendar
+        style={styles.calendar}
+        headerStyle={styles.headerStyle}
+        current={Date()}
+        minDate={'2020-01-01'}
+        maxDate={'2030-12-31'}
+        onDayPress={onDayPress}
+        markingType={'period'}
+        markedDates={markedDates}
+        hideExtraDays
+        theme={{
+          calendarBackground: 'white',
+          textSectionTitleColor: '#fff',
+          monthTextColor: '#fff',
+          arrowColor: '#fff',
+          textDayFontSize: 12,
+          textMonthFontSize: 15,
+          textDayHeaderFontSize: 12,
+          weekVerticalMargin: 1,
+          textDayStyle: {
+            backgroundColor: 'red',
+          },
+          contentStyle: {
+            backgroundColor: 'red',
+          },
+        }}
+      />
+      {error && <Text style={{color: AppColors.red}}>{error}</Text>}
+    </>
   );
 };
 

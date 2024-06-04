@@ -40,6 +40,10 @@ export default function HomeSreen() {
   const [getDates, setGetDates] = useState([]);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   const [modalVisible, setModalVisible] = useState(false);
+  const [error, setError] = useState({
+    reason: '',
+    calendar: '',
+  });
 
   const snapPoints = useMemo(
     () => [
@@ -56,19 +60,24 @@ export default function HomeSreen() {
   }, []);
 
   const handleSubmit = () => {
-    console.log(selectAbsence, 'selectAbsence');
     if (selectAbsence == 'All Week') {
       if (reasonOfAbsence && getDates.length > 0 && !preview) {
         setPreview(true);
         setSelectAbsence('');
-      }
-      if (reasonOfAbsence && getDates.length > 0 && preview) {
+      } else {
         setGetDates([]);
         setPreview(false);
         setReasonOfAbsence('');
         setSelectAbsence('');
         setModalVisible(false);
       }
+      // if (reasonOfAbsence && getDates.length > 0 && preview) {
+      //   setGetDates([]);
+      //   setPreview(false);
+      //   setReasonOfAbsence('');
+      //   setSelectAbsence('');
+      //   setModalVisible(false);
+      // }
     } else {
       setGetDates([]);
       setPreview(false);
@@ -112,7 +121,7 @@ export default function HomeSreen() {
           <View style={styles.imageContainer}>
             <Image
               style={styles.image}
-              source={require('../../assets/images/auth_background.png')}
+              source={require('../../assets/images/profile_image.webp')}
             />
           </View>
           <View style={styles.headerTitle}>
@@ -194,7 +203,7 @@ export default function HomeSreen() {
                 />
               )}
               {selectAbsence == 'All Week' && !preview && (
-                <AppCalender setDates={setGetDates} />
+                <AppCalender setDates={setGetDates} error={error.calendar} />
               )}
               {!preview ? (
                 <AppInput
@@ -208,6 +217,7 @@ export default function HomeSreen() {
                   labelStyle={{
                     fontFamily: AppFonts.NunitoSansBold,
                   }}
+                  error={error.reason}
                 />
               ) : (
                 <>
@@ -342,8 +352,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   imageContainer: {
-    height: hp(14),
-    width: hp(14),
+    height: hp(15),
+    width: hp(15),
   },
   container: {
     flex: 1,

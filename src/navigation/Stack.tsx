@@ -17,6 +17,7 @@ import VerificationCode from '../screens/AuthScreens/VerificationCode';
 import NewPassword from '../screens/AuthScreens/NewPassword';
 import SuccessScreen from '../screens/AuthScreens/SuccessScreen';
 import ChangePassword from '../screens/AppScreens/ChangePassword';
+import { useAppSelector } from '../store/hooks';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,11 +39,12 @@ export const AppStack = () => {
 };
 
 export const AuthStack = () => {
+  const logout = useAppSelector(state => state.userSlices.logout);
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
+      {!logout && <Stack.Screen name="OnBoarding" component={OnBoarding} />}
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="LoginAs" component={LoginAs} />
-      <Stack.Screen name="OnBoarding" component={OnBoarding} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
       <Stack.Screen name="VerificationCode" component={VerificationCode} />
       <Stack.Screen name="NewPassword" component={NewPassword} />

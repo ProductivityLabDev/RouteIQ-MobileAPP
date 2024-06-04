@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   Image,
   ScrollView,
@@ -18,11 +18,16 @@ import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import {useAppDispatch} from '../../store/hooks';
-import { saveToken } from '../../store/user/userSlices';
+import {saveToken, setLogout} from '../../store/user/userSlices';
 
 const Login = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setLogout(false));
+  }, []);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <AuthLayout>
@@ -34,14 +39,14 @@ const Login = () => {
             ]}>
             <TouchableOpacity
               style={{position: 'absolute', left: 0, top: 15}}
-              onPress={() => navigation.goBack()}>
+              onPress={() => navigation.navigate('LoginAs')}>
               <GlobalIcon
                 library="Feather"
                 name="chevron-left"
                 color={AppColors.red}
               />
             </TouchableOpacity>
-            <Image source={require('../../assets/images/route_logo.png')} />
+            <Image source={require('../../assets/images/Splash_icon.png')} />
             <View></View>
           </View>
           <View style={AppStyles.center}>
@@ -91,7 +96,9 @@ const Login = () => {
                 <Text style={styles.forgotText}>Forgot Password?</Text>
               </TouchableOpacity>
               <AppButton
-                onPress={() => dispatch(saveToken(1))}
+                onPress={() => {
+                  dispatch(saveToken(1));
+                }}
                 title="Log In"
               />
             </View>

@@ -19,7 +19,7 @@ const AttendanceHistory = () => {
           <Text style={styles.absentTitle}>Reason:</Text>
           <Text style={styles.absentSubTitle}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy.</Text>
         </View>
-        <View style={[AppStyles.row, {gap: hp(2), marginTop: hp(1)}]}>
+        <View style={[AppStyles.row, {gap: hp(1), marginTop: hp(1)}]}>
           <Text style={[styles.subTitle, {backgroundColor: AppColors.red, color: AppColors.white }]}>8:00 AM</Text>
           <Text style={[styles.subTitle, {backgroundColor: AppColors.red, color: AppColors.white }]}>Feb 25, 2024</Text>
         </View>

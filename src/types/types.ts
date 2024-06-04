@@ -1,24 +1,28 @@
-import { ViewStyle } from "react-native";
+import {ViewStyle} from 'react-native';
 
 export interface AuthLayoutProps {
-    children?: any;
+  children?: any;
 }
 
 export interface AppLayoutProps {
-    children?: any;
-    style?: ViewStyle
+  children?: any;
+  style?: ViewStyle;
 }
 
 export interface UpdateGuardianProfileProps {
-    route: any
+  route: any;
 }
 
 export interface AppTabsViewProps {
-    routes?: any;
-    renderScene?: any
+  routes?: any;
+  renderScene?: any;
 }
 
 export interface AppModalProps {
-    visible?: boolean;
-    setVisible?: any
+  visible?: boolean;
+  setVisible?: any;
+}
+
+export interface RangeProps {
+  onPress?: () => void;
 }

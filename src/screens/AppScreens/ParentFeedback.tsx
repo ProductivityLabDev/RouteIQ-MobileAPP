@@ -8,9 +8,20 @@ import AppStyles from '../../styles/AppStyles';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import AppModal from '../../components/AppModal';
+import {useNavigation} from '@react-navigation/native';
 
 const ParentFeedback = () => {
+  const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
+
+  const handleSubmit = () => {
+    setVisible(true);
+    setTimeout(() => {
+      setVisible(false);
+      navigation.navigate('HomeSreen');
+    }, 2000);
+  };
+
   return (
     <AppLayout>
       <AppHeader enableBack={true} title="Parent Feedback" rightIcon={false} />
@@ -26,7 +37,7 @@ const ParentFeedback = () => {
         </View>
         <AppButton
           title="Submit"
-          onPress={() => setVisible(true)}
+          onPress={handleSubmit}
           style={styles.button}
         />
       </View>
