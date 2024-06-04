@@ -56,23 +56,26 @@ export default function HomeSreen() {
   }, []);
 
   const handleSubmit = () => {
-    closeSheet();
-    setModalVisible(false)
-    setGetDates([]);
-    setPreview(false);
-    setReasonOfAbsence('');
-    setSelectAbsence('');
-    // if (reasonOfAbsence && getDates.length > 0 && !preview) {
-    //   setPreview(true);
-    //   setSelectAbsence('');
-    // }
-    // if (reasonOfAbsence && getDates.length > 0 && preview) {
-    //   closeSheet();
-    //   setGetDates([]);
-    //   setPreview(false);
-    //   setReasonOfAbsence('');
-    //   setSelectAbsence('');
-    // }
+    console.log(selectAbsence, 'selectAbsence');
+    if (selectAbsence == 'All Week') {
+      if (reasonOfAbsence && getDates.length > 0 && !preview) {
+        setPreview(true);
+        setSelectAbsence('');
+      }
+      if (reasonOfAbsence && getDates.length > 0 && preview) {
+        setGetDates([]);
+        setPreview(false);
+        setReasonOfAbsence('');
+        setSelectAbsence('');
+        setModalVisible(false);
+      }
+    } else {
+      setGetDates([]);
+      setPreview(false);
+      setReasonOfAbsence('');
+      setSelectAbsence('');
+      setModalVisible(false);
+    }
   };
 
   return (

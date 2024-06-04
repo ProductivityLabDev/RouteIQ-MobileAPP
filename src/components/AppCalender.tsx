@@ -24,7 +24,7 @@ const AppCalender: React.FC<AppCalendarProps> = ({setDates}) => {
           textColor: 'white',
         },
       });
-      setStartDate(day.timestamp);
+      setStartDate(day.dateString);
       setEndDate(null);
     } else {
       let marked = {} as any;
@@ -47,7 +47,7 @@ const AppCalender: React.FC<AppCalendarProps> = ({setDates}) => {
         current.setDate(current.getDate() + 1);
       }
       setMarkedDates(marked);
-      setEndDate(day.timestamp);
+      setEndDate(day.dateString);
     }
   };
 
@@ -92,11 +92,8 @@ export default AppCalender;
 
 const styles = StyleSheet.create({
   calendar: {
-    borderRadius: hp(1.5),
     margin: 0,
     marginBottom: hp(2),
-    // borderWidth: 1,
-    // backgroundColor: AppColors.lightBlack,
   },
   headerStyle: {
     backgroundColor: AppColors.lightBlack,

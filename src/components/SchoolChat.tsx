@@ -20,10 +20,11 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 1,
-      text: 'Hello developer',
+      text: '08:43',
       createdAt: new Date(),
       position: 'left',
       user: {
@@ -31,6 +32,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'date',
     },
     {
       _id: 2,
@@ -42,6 +44,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 3,
@@ -53,10 +56,11 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 4,
-      text: 'Hello developer',
+      text: '08:12',
       createdAt: new Date(),
       position: 'right',
       user: {
@@ -64,6 +68,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'date',
     },
     {
       _id: 5,
@@ -75,6 +80,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 6,
@@ -86,6 +92,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 7,
@@ -97,10 +104,11 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 8,
-      text: 'Hello developer',
+      text: '1 FEB 12:00',
       createdAt: new Date(),
       position: 'right',
       user: {
@@ -108,6 +116,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'date',
     },
     {
       _id: 9,
@@ -119,6 +128,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 10,
@@ -130,6 +140,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
     {
       _id: 11,
@@ -141,6 +152,7 @@ const SchoolChat = () => {
         name: 'React Native',
         avatar: 'https://placeimg.com/140/140/any',
       },
+      type: 'messages',
     },
   ]);
 
@@ -161,7 +173,8 @@ const SchoolChat = () => {
       right: {
         fontFamily: AppFonts.NunitoSansMedium,
         fontSize: 12,
-        color: AppColors.white,
+        color:
+          currentMessage.type == 'date' ? AppColors.black : AppColors.white,
       },
     };
 
@@ -169,24 +182,44 @@ const SchoolChat = () => {
       <Bubble
         key={currentMessage.id}
         {...props}
+        renderTime={() => <Text style={{position: 'absolute'}}></Text>}
         position={currentMessage.position}
         wrapperStyle={{
           left: {
             backgroundColor:
-              currentMessage.position === 'left'
+              currentMessage.type == 'date'
+                ? AppColors.transparent
+                : currentMessage.position === 'left'
                 ? AppColors.inputColor
                 : AppColors.red,
             marginBottom: 20,
             fontFamily: AppFonts.NunitoSansMedium,
-            alignSelf: currentMessage.position === 'left' ? 'left' : 'right',
+            alignSelf:
+              currentMessage.type == 'date'
+                ? 'center'
+                : currentMessage.position === 'left'
+                ? 'left'
+                : 'right',
+            marginRight: currentMessage.type == 'date' ? hp(0) : 0,
+            paddingVertical: hp(1),
           },
           right: {
             backgroundColor:
-              currentMessage.position === 'left'
+              currentMessage.type == 'date'
+                ? AppColors.transparent
+                : currentMessage.position === 'left'
                 ? '#EDEDED'
                 : AppColors.lightBlack,
             fontFamily: AppFonts.NunitoSansMedium,
             marginBottom: 20,
+            alignSelf:
+              currentMessage.type == 'date'
+                ? 'center'
+                : currentMessage.position === 'left'
+                ? 'left'
+                : 'right',
+            marginLeft: currentMessage.type == 'date' ? hp(0) : 0,
+            paddingVertical: hp(1),
           },
         }}
         textStyle={messageTextStyle}
@@ -246,6 +279,7 @@ export default SchoolChat;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: AppColors.screenColor
   },
   giftedContainer: {
     backgroundColor: AppColors.screenColor,
