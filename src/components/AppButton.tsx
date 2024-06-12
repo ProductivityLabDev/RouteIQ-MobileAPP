@@ -1,20 +1,10 @@
-import { ActivityIndicator, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native'
-import React from 'react'
-import { AppColors } from '../utils/color';
-import { hp, wp } from '../utils/constants';
-import { size } from '../utils/responsiveFonts';
+import React from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppButtonProps } from '../types/types';
 import AppFonts from '../utils/appFonts';
-
-interface AppButtonProps {
-    title: string;
-    onPress?: () => void;
-    style?: StyleProp<ViewStyle>;
-    titleStyle?: StyleProp<TextStyle>;
-    leftIcon?: React.ReactNode;
-    rightIcon?: React.ReactNode;
-    disabled?: boolean;
-    loading?: boolean
-}
+import { AppColors } from '../utils/color';
+import { hp } from '../utils/constants';
+import { size } from '../utils/responsiveFonts';
 
 const AppButton: React.FC<AppButtonProps> = ({title, onPress, style, titleStyle, leftIcon, rightIcon, disabled, loading}) => {
   return (
@@ -37,16 +27,15 @@ const styles = StyleSheet.create({
         // borderRadius: hp(6),
         backgroundColor: AppColors.red,
         marginVertical: hp(.5),
-
-        width: wp(75),
-        borderRadius: 10
+        // width: wp(75),
+        width: '100%',
+        borderRadius: 8
     },
     title: {
         // color: AppColors.secondary,
         color: AppColors.white,
         fontFamily: AppFonts.NunitoSansSemiBold,
         fontSize: size.lg,
-        
     },
     leftIcon: {marginRight: hp(1)},
     rightIcon: {marginLeft: hp(1)},

@@ -18,6 +18,9 @@ import NewPassword from '../screens/AuthScreens/NewPassword';
 import SuccessScreen from '../screens/AuthScreens/SuccessScreen';
 import ChangePassword from '../screens/AppScreens/ChangePassword';
 import { useAppSelector } from '../store/hooks';
+import DriverProfileInfo from '../screens/AppScreens/DriverProfileInfo';
+import UpdateDriveProfile from '../screens/AppScreens/UpdateDriveProfile';
+import DriverBottomTabs from './DriverBottomTabs';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -49,6 +52,16 @@ export const AuthStack = () => {
       <Stack.Screen name="VerificationCode" component={VerificationCode} />
       <Stack.Screen name="NewPassword" component={NewPassword} />
       <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
+    </Stack.Navigator>
+  );
+};
+
+export const DriverStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="DriverBottomTabs" component={DriverBottomTabs} />
+      <Stack.Screen name="DriverProfileInfo" component={DriverProfileInfo} />
+      <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />
     </Stack.Navigator>
   );
 };

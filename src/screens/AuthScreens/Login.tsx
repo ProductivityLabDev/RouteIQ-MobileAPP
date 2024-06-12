@@ -46,7 +46,7 @@ const Login = () => {
                 color={AppColors.red}
               />
             </TouchableOpacity>
-            <Image source={require('../../assets/images/Splash_icon.png')} />
+            <Image style={{height: hp(40), width: hp(40), resizeMode: 'contain'}} source={require('../../assets/images/Splash_icon.png')} />
             <View></View>
           </View>
           <View style={AppStyles.center}>

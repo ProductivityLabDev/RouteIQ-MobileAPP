@@ -6,9 +6,12 @@ import GlobalIcon from '../../components/GlobalIcon';
 import AuthLayout from '../../layout/AuthLayout';
 import AppStyles from '../../styles/AppStyles';
 import {hp} from '../../utils/constants';
+import {handleSetRole} from '../../utils/functions';
+import {useAppDispatch} from '../../store/hooks';
 
 const LoginAs = () => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   return (
     <AuthLayout>
       <View>
@@ -25,14 +28,14 @@ const LoginAs = () => {
           <Text style={AppStyles.titleHead}>Log In As</Text>
           <View style={styles.setMargin}>
             <AppButton
-              disabled
+              onPress={() => handleSetRole('Driver', navigation, dispatch)}
               title="Driver"
               leftIcon={
                 <GlobalIcon library="CustomIcon" name="Group-1961" size={20} />
               }
             />
             <AppButton
-              onPress={() => navigation.navigate('Login')}
+              onPress={() => handleSetRole('Parents', navigation, dispatch)}
               title="Parent"
               leftIcon={
                 <GlobalIcon library="CustomIcon" name="Group" size={20} />

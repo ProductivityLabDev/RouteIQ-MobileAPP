@@ -1,4 +1,4 @@
-import {ViewStyle} from 'react-native';
+import {StyleProp, TextStyle, ViewStyle} from 'react-native';
 
 export interface AuthLayoutProps {
   children?: any;
@@ -7,6 +7,7 @@ export interface AuthLayoutProps {
 export interface AppLayoutProps {
   children?: any;
   style?: ViewStyle;
+  statusbackgroundColor?: string;
 }
 
 export interface UpdateGuardianProfileProps {
@@ -25,4 +26,29 @@ export interface AppModalProps {
 
 export interface RangeProps {
   onPress?: () => void;
+}
+
+export interface AppHeaderProps {
+  title?: string;
+  greetTitle?: string;
+  enableBack?: any;
+  rightIcon?: boolean;
+  bookmarkIcon?: boolean;
+  onPressLeftIcon?: any;
+  onPressRightIcon?: any;
+  titleStyle?: TextStyle;
+  containerStyle?: ViewStyle;
+  role?: string;
+  switchIcon?: boolean
+}
+
+export interface AppButtonProps {
+  title: string;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
+  titleStyle?: StyleProp<TextStyle>;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  disabled?: boolean;
+  loading?: boolean;
 }

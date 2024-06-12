@@ -1,16 +1,21 @@
 import {StyleSheet} from 'react-native';
-import { hp, screenHeight, screenWidth } from '../utils/constants';
+import {hp, screenHeight, screenWidth} from '../utils/constants';
 import AppFonts from '../utils/appFonts';
-import { AppColors } from '../utils/color';
-import { size } from '../utils/responsiveFonts';
+import {AppColors} from '../utils/color';
+import {size} from '../utils/responsiveFonts';
 
 const AppStyles = StyleSheet.create({
-  body:{
+  body: {
     paddingHorizontal: hp(2),
     backgroundColor: AppColors.screenColor,
   },
   container: {
     flex: 1,
+    paddingHorizontal: hp(2),
+  },
+  driverContainer: {
+    flex: 1,
+    paddingVertical: hp(2),
     paddingHorizontal: hp(2),
   },
   rowCenter: {
@@ -26,6 +31,9 @@ const AppStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  flex: {
+    flex: 1,
   },
   flexBetween: {
     flex: 1,
@@ -50,10 +58,23 @@ const AppStyles = StyleSheet.create({
     fontSize: size.xxvlg,
     color: AppColors.black,
   },
-  subHeading:{
+  subHeading: {
     fontFamily: AppFonts.NunitoSansRegular,
     fontSize: size.md,
     color: AppColors.black,
+  },
+  title: {
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: size.md,
+    color: AppColors.black,
+  },
+  subTitle: {
+    fontFamily: AppFonts.NunitoSansMedium,
+    fontSize: size.md,
+    color: AppColors.taupeGray,
+  },
+  halfWidth: {
+    width: '50%'
   }
 });
 

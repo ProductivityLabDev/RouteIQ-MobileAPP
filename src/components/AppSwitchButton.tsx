@@ -1,0 +1,71 @@
+import React, {useState} from 'react';
+import {Animated, StyleSheet, TouchableOpacity} from 'react-native';
+import {hp} from '../utils/constants';
+import {AppColors} from '../utils/color';
+import AppFonts from '../utils/appFonts';
+import {size} from '../utils/responsiveFonts';
+
+const AppSwitchButton = ({isOn, onToggle}: any) => {
+  const [position] = useState(new Animated.Value(isOn ? 1 : 0));
+
+  const toggleSwitch = () => {
+    Animated.timing(position, {
+      toValue: isOn ? 0 : 1,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    onToggle(!isOn);
+  };
+
+  const backgroundColor = position.interpolate({
+    inputRange: [0, 1],
+    outputRange: [AppColors.black, AppColors.black],
+  });
+
+  const circlePosition = position.interpolate({
+    inputRange: [0, 1],
+    outputRange: [hp(0.5), hp(9)],
+  });
+
+  return (
+    <TouchableOpacity onPress={toggleSwitch} style={styles.switchContainer}>
+      <Animated.View style={[styles.switchBackground, {backgroundColor}]}>
+        <Animated.Text style={styles.text}>
+          {isOn ? 'Online' : ''}
+        </Animated.Text>
+        <Animated.View style={[styles.circle, {left: circlePosition}]} />
+      </Animated.View>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  switchContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  switchBackground: {
+    width: hp(13),
+    height: hp(5),
+    borderRadius: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 3,
+  },
+  text: {
+    color: AppColors.white,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: size.default,
+    position: 'absolute',
+    left: 10,
+  },
+  circle: {
+    width: hp(3.5),
+    height: hp(3.5),
+    borderRadius: 50,
+    backgroundColor: 'white',
+    position: 'absolute',
+  },
+});
+
+export default AppSwitchButton;
