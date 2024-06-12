@@ -1,6 +1,9 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import moment from 'moment';
+import GlobalIcon from './GlobalIcon';
+import {AppColors} from '../utils/color';
+import {hp} from '../utils/constants';
 
 const AppWeeklyCalendar = () => {
   const [currentWeek, setCurrentWeek] = useState(moment());
@@ -28,11 +31,21 @@ const AppWeeklyCalendar = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={previousWeek}>
-          <Text style={styles.arrow}>‹</Text>
+          <GlobalIcon
+            library="FontAwesome5"
+            name="chevron-left"
+            color={AppColors.black}
+            size={hp(2.5)}
+          />
         </TouchableOpacity>
         <Text style={styles.monthText}>{currentWeek.format('MMMM YYYY')}</Text>
         <TouchableOpacity onPress={nextWeek}>
-          <Text style={styles.arrow}>›</Text>
+          <GlobalIcon
+            library="FontAwesome5"
+            name="chevron-right"
+            color={AppColors.black}
+            size={hp(2.5)}
+          />
         </TouchableOpacity>
       </View>
       <View style={styles.weekContainer}>
@@ -50,8 +63,9 @@ const AppWeeklyCalendar = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 10,
+    paddingHorizontal: hp(1.5),
+    paddingTop: hp(2),
+    paddingBottom: hp(3),
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: {width: 0, height: 1},
@@ -60,9 +74,9 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: hp(2),
   },
   arrow: {
     fontSize: 20,
@@ -71,7 +85,7 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: AppColors.black,
   },
   weekContainer: {
     flexDirection: 'row',
@@ -84,11 +98,11 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#d32f2f',
+    color: AppColors.black,
   },
   dayText: {
     fontSize: 14,
-    color: '#666',
+    color: AppColors.black,
   },
 });
 
