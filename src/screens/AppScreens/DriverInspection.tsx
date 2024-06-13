@@ -18,8 +18,10 @@ import {
 } from '../../utils/functions';
 import {front_inspection} from '../../utils/objects';
 import {size} from '../../utils/responsiveFonts';
+import {useNavigation} from '@react-navigation/native';
 
 const DriverInspection = () => {
+  const navigation = useNavigation();
   const [index, setIndex] = useState(0);
   const [isSwitchOn, setIsSwitchOn] = useState(true);
   const [isChecked, setIsChecked] = useState<any>({
@@ -212,7 +214,11 @@ const DriverInspection = () => {
             <AppButton
               title={handleInspectionButtonTitle(index)}
               style={{width: '100%'}}
-              onPress={() => (index <= 2 ? setIndex(index + 1) : null)}
+              onPress={() =>
+                index <= 2
+                  ? setIndex(index + 1)
+                  : navigation.navigate('DriverMapView')
+              }
             />
           </View>
         </View>

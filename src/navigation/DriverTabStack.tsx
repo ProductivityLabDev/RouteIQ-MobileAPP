@@ -6,6 +6,7 @@ import DriverStudentsScreen from '../screens/AppScreens/DriverStudentsScreen';
 import DriverChatScreen from '../screens/AppScreens/DriverChatScreen';
 import DriverProfile from '../screens/AppScreens/DriverProfile';
 import DriverInspection from '../screens/AppScreens/DriverInspection';
+import DriverMapView from '../screens/AppScreens/DriverMapView';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -14,6 +15,7 @@ export const HomeStack = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="DriverHomeScreen" component={DriverHomeScreen} />
       <Stack.Screen name="DriverInspection" component={DriverInspection} />
+      <Stack.Screen name="DriverMapView" component={DriverMapView} />
     </Stack.Navigator>
   );
 };

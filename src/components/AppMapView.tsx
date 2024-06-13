@@ -39,7 +39,7 @@ const AppMapView = () => {
     <View style={styles.mapContainer}>
       <MapView
         provider={PROVIDER_GOOGLE}
-        style={styles.map}
+        style={AppStyles.map}
         region={{
           latitude: (startLocation.latitude + endLocation.latitude) / 2,
           longitude: (startLocation.longitude + endLocation.longitude) / 2,
@@ -97,9 +97,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     overflow: 'hidden',
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
   },
   bottomContainers: {
     position: 'absolute',
