@@ -24,7 +24,7 @@ const DriverHomeScreen = () => {
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{backgroundColor: '#e6e3d8'}}>
+      style={{backgroundColor: AppColors.driverScreen}}>
       <AppHeader
         role="Driver"
         enableBack={false}

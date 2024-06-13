@@ -1,9 +1,10 @@
 import React from 'react';
 import {Path, Svg} from 'react-native-svg';
+import {AppIconProps} from '../../types/types';
 
-const BulletIcon = () => {
+const BulletIcon: React.FC<AppIconProps> = ({height = 16, width = 16}) => {
   return (
-    <Svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 16 16" fill="none">
       <Path
         d="M8.00087 11.569C9.9721 11.569 11.5701 9.971 11.5701 7.99977C11.5701 6.02854 9.9721 4.43054 8.00087 4.43054C6.02964 4.43054 4.43164 6.02854 4.43164 7.99977C4.43164 9.971 6.02964 11.569 8.00087 11.569Z"
         fill="#D23540"

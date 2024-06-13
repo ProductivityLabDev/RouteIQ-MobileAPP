@@ -23,9 +23,11 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   containerStyle,
   role = 'Parents',
   switchIcon = false,
+  backFunctionEnable = false,
+  handleBack,
 }) => {
   const navigation = useNavigation();
-  const [isSwitchOn, setIsSwitchOn] = useState(false);
+  const [isSwitchOn, setIsSwitchOn] = useState(true);
 
   const handleToggle = (newValue: boolean) => {
     setIsSwitchOn(newValue);
@@ -89,7 +91,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             <View style={styles.iconContainer}>
               {enableBack && (
                 <Pressable
-                  onPress={() => navigation.goBack()}
+                  onPress={() =>
+                    backFunctionEnable ? handleBack() : navigation.goBack()
+                  }
                   style={styles.icon}>
                   <GlobalIcon
                     library="Ionicons"

@@ -40,10 +40,12 @@ export interface AppHeaderProps {
   containerStyle?: ViewStyle;
   role?: string;
   switchIcon?: boolean;
+  backFunctionEnable?: boolean;
+  handleBack?: any;
 }
 
 export interface AppButtonProps {
-  title: string;
+  title: any;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   titleStyle?: StyleProp<TextStyle>;
@@ -59,4 +61,20 @@ export interface AppDocProps {
 
 export interface TripCardProps {
   item: any;
+}
+
+export interface AppIconProps {
+  height?: number;
+  width?: number;
+}
+
+export interface AppSwitchButtonProps {
+  isOn: boolean;
+  onToggle: any;
+  onTitle?: string;
+  offTitle?: string;
+  switchBackgroundStyle?: StyleProp<ViewStyle>;
+  switchBackgroundColor?: string;
+  outputRange?: any;
+  circleStyle?: StyleProp<ViewStyle>;
 }

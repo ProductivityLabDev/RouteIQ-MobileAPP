@@ -102,7 +102,7 @@ function DriverBottomTabs() {
               headerShown,
               tabBarLabel: label,
               tabBarStyle: {
-                display: ['SignIn'].includes(
+                display: ['DriverInspection'].includes(
                   getFocusedRouteNameFromRoute(route) as any,
                 )
                   ? 'none'

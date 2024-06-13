@@ -26,4 +26,6 @@ export const AppColors = {
   charcoal: '#2C2F32',
   profileBg: '#f0ede2',
   darkBrown: '#43080D',
+  driverScreen: '#e6e3d8',
+  dimGray: '#808080',
 };

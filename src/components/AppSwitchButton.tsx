@@ -4,8 +4,18 @@ import {hp} from '../utils/constants';
 import {AppColors} from '../utils/color';
 import AppFonts from '../utils/appFonts';
 import {size} from '../utils/responsiveFonts';
+import {AppSwitchButtonProps} from '../types/types';
 
-const AppSwitchButton = ({isOn, onToggle}: any) => {
+const AppSwitchButton: React.FC<AppSwitchButtonProps> = ({
+  isOn,
+  onToggle,
+  onTitle = 'Online',
+  offTitle = '',
+  switchBackgroundStyle,
+  switchBackgroundColor = AppColors.black,
+  outputRange = [hp(0.5), hp(9)],
+  circleStyle,
+}) => {
   const [position] = useState(new Animated.Value(isOn ? 1 : 0));
 
   const toggleSwitch = () => {
@@ -19,21 +29,28 @@ const AppSwitchButton = ({isOn, onToggle}: any) => {
 
   const backgroundColor = position.interpolate({
     inputRange: [0, 1],
-    outputRange: [AppColors.black, AppColors.black],
+    outputRange: [switchBackgroundColor, switchBackgroundColor],
   });
 
   const circlePosition = position.interpolate({
     inputRange: [0, 1],
-    outputRange: [hp(0.5), hp(9)],
+    outputRange: outputRange,
   });
 
   return (
     <TouchableOpacity onPress={toggleSwitch} style={styles.switchContainer}>
-      <Animated.View style={[styles.switchBackground, {backgroundColor}]}>
+      <Animated.View
+        style={[
+          styles.switchBackground,
+          switchBackgroundStyle,
+          {backgroundColor},
+        ]}>
         <Animated.Text style={styles.text}>
-          {isOn ? 'Online' : ''}
+          {isOn ? onTitle : offTitle}
         </Animated.Text>
-        <Animated.View style={[styles.circle, {left: circlePosition}]} />
+        <Animated.View
+          style={[styles.circle, circleStyle, {left: circlePosition}]}
+        />
       </Animated.View>
     </TouchableOpacity>
   );

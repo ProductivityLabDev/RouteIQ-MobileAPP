@@ -23,8 +23,10 @@ import GlobalIcon from './GlobalIcon';
 import AppBottomSheet from './AppBottomSheet';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AppInput from './AppInput';
+import {useNavigation} from '@react-navigation/native';
 
 const TripCard: React.FC<TripCardProps> = ({item}) => {
+  const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [declined, setDeclined] = useState(false);
@@ -137,7 +139,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   <AppButton
                     title="Start"
                     style={[styles.acceptButton, {width: '90%'}]}
-                    onPress={() => setAccept(true)}
+                    onPress={() => navigation.navigate('DriverInspection')}
                   />
                 )}
               </View>

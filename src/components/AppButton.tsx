@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { AppButtonProps } from '../types/types';
 import AppFonts from '../utils/appFonts';
 import { AppColors } from '../utils/color';
-import { hp } from '../utils/constants';
+import { hp, wp } from '../utils/constants';
 import { size } from '../utils/responsiveFonts';
 
 const AppButton: React.FC<AppButtonProps> = ({title, onPress, style, titleStyle, leftIcon, rightIcon, disabled, loading}) => {
@@ -27,8 +27,7 @@ const styles = StyleSheet.create({
         // borderRadius: hp(6),
         backgroundColor: AppColors.red,
         marginVertical: hp(.5),
-        // width: wp(75),
-        width: '100%',
+        width: wp(75),
         borderRadius: 8
     },
     title: {

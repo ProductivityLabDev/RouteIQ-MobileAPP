@@ -24,3 +24,23 @@ export const handleSetColor = (status: string) => {
       return AppColors.red;
   }
 };
+
+export const handleSetFrontInspention = (title: string, setIsChecked: any) => {
+  setIsChecked((prev: any) => ({
+    ...prev,
+    [title]: !prev[title],
+  }));
+};
+
+export const handleInspectionButtonTitle = (selectedIndex: number) => {
+  switch (selectedIndex) {
+    case 0:
+      return 'Scan';
+    case 1:
+      return 'Inspect Front Side';
+    case 2:
+      return 'Next';
+    case 3:
+      return 'Submit Report';
+  }
+};
