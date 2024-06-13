@@ -2,7 +2,7 @@ import {StyleSheet} from 'react-native';
 import {hp, screenHeight, screenWidth} from '../utils/constants';
 import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
-import {size} from '../utils/responsiveFonts';
+import {fontSize, size} from '../utils/responsiveFonts';
 
 const AppStyles = StyleSheet.create({
   body: {
@@ -73,9 +73,23 @@ const AppStyles = StyleSheet.create({
     fontSize: size.md,
     color: AppColors.taupeGray,
   },
+  whiteTitle: {
+    fontFamily: AppFonts.NunitoSansBold,
+    fontSize: size.xlg,
+    color: AppColors.white,
+  },
+  whiteSubTitle: {
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: fontSize(14),
+    color: AppColors.white,
+  },
   halfWidth: {
-    width: '50%'
-  }
+    width: '50%',
+  },
+  widthHeightFullPercent: {
+    width: '100%',
+    height: '100%',
+  },
 });
 
 export default AppStyles;

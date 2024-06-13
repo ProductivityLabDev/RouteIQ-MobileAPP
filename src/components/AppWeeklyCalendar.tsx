@@ -4,9 +4,12 @@ import moment from 'moment';
 import GlobalIcon from './GlobalIcon';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
+import AppFonts from '../utils/appFonts';
+import {fontSize, size} from '../utils/responsiveFonts';
 
 const AppWeeklyCalendar = () => {
   const [currentWeek, setCurrentWeek] = useState(moment());
+  const today = moment();
 
   const generateWeek = (date: any) => {
     const startOfWeek = date.startOf('week');
@@ -49,12 +52,39 @@ const AppWeeklyCalendar = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.weekContainer}>
-        {daysOfWeek.map((day, index) => (
-          <View key={index} style={styles.dayContainer}>
-            <Text style={styles.dateText}>{day.format('DD')}</Text>
-            <Text style={styles.dayText}>{day.format('ddd')}</Text>
-          </View>
-        ))}
+        {daysOfWeek.map((day, index) => {
+          const isToday = day.isSame(today, 'day');
+          return (
+            <View
+              key={index}
+              style={[
+                styles.dayContainer,
+                isToday && styles.highlightedDayContainer,
+              ]}>
+              <Text
+                style={[
+                  styles.dateText,
+                  {color: isToday ? AppColors.red : AppColors.black},
+                ]}>
+                {day.format('DD')}
+              </Text>
+              <Text
+                style={[
+                  styles.dayText,
+                  {color: isToday ? AppColors.red : AppColors.black},
+                ]}>
+                {day.format('ddd')}
+              </Text>
+              <View
+                style={[
+                  styles.dot,
+                  {
+                    backgroundColor: isToday ? AppColors.red : AppColors.white,
+                  },
+                ]}></View>
+            </View>
+          );
+        })}
       </View>
     </View>
   );
@@ -64,8 +94,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     paddingHorizontal: hp(1.5),
-    paddingTop: hp(2),
-    paddingBottom: hp(3),
+    paddingTop: hp(1),
+    paddingBottom: hp(1.5),
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: {width: 0, height: 1},
@@ -76,7 +106,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    marginBottom: hp(2),
+    marginBottom: hp(1),
   },
   arrow: {
     fontSize: 20,
@@ -94,15 +124,28 @@ const styles = StyleSheet.create({
   dayContainer: {
     alignItems: 'center',
     flex: 1,
+    height: hp(10),
+    gap: 4,
+    justifyContent: 'center',
   },
   dateText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: size.md,
+    fontFamily: AppFonts.NunitoSansBold,
     color: AppColors.black,
   },
   dayText: {
-    fontSize: 14,
+    fontSize: fontSize(14),
+    fontFamily: AppFonts.NunitoSansSemiBold,
     color: AppColors.black,
+  },
+  dot: {
+    height: hp(1),
+    width: hp(1),
+    borderRadius: hp(1),
+  },
+  highlightedDayContainer: {
+    backgroundColor: AppColors.lightRed,
+    borderRadius: 5,
   },
 });
 

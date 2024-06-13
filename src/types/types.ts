@@ -39,7 +39,7 @@ export interface AppHeaderProps {
   titleStyle?: TextStyle;
   containerStyle?: ViewStyle;
   role?: string;
-  switchIcon?: boolean
+  switchIcon?: boolean;
 }
 
 export interface AppButtonProps {
@@ -53,7 +53,10 @@ export interface AppButtonProps {
   loading?: boolean;
 }
 
+export interface AppDocProps {
+  title: string;
+}
 
-export interface AppDocProps{
-  title: string,
+export interface TripCardProps {
+  item: any;
 }

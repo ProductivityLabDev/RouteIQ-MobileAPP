@@ -1,5 +1,12 @@
 import React, {useState} from 'react';
-import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import AppWeeklyCalendar from '../../components/AppWeeklyCalendar';
 import AppLayout from '../../layout/AppLayout';
@@ -7,10 +14,12 @@ import AppStyles from '../../styles/AppStyles';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {fontSize} from '../../utils/responsiveFonts';
+import TripCard from '../../components/TripCard';
+import {tripData} from '../../utils/DummyData';
+import {dayScene} from '../../utils/objects';
 
 const DriverHomeScreen = () => {
   const [selectedScene, setSelectedScene] = useState(2);
-  const dayScene = ['AM', 'PM', 'All'];
 
   return (
     <AppLayout
@@ -31,7 +40,7 @@ const DriverHomeScreen = () => {
                 Morning route starts at 8:00am
               </Text>
               <View style={AppStyles.row}>
-                {dayScene.map((item, index) => {
+                {dayScene?.map((item, index) => {
                   return (
                     <Pressable
                       onPress={() => setSelectedScene(index)}
@@ -66,6 +75,14 @@ const DriverHomeScreen = () => {
                   );
                 })}
               </View>
+            </View>
+            <View style={{marginTop: hp(1)}}>
+              <FlatList
+                scrollEnabled={false}
+                data={tripData}
+                renderItem={({item}) => <TripCard item={item} />}
+                contentContainerStyle={{marginBottom: hp(30)}}
+              />
             </View>
           </View>
         </ScrollView>

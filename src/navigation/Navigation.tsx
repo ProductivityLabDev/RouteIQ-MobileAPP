@@ -12,7 +12,6 @@ const Navigation = () => {
   setTimeout(() => {
     setSplash(false);
   }, 1000);
-console.log(role);
 
   return (
     <NavigationContainer>
