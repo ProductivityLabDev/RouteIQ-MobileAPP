@@ -21,6 +21,8 @@ import { useAppSelector } from '../store/hooks';
 import DriverProfileInfo from '../screens/AppScreens/DriverProfileInfo';
 import UpdateDriveProfile from '../screens/AppScreens/UpdateDriveProfile';
 import DriverBottomTabs from './DriverBottomTabs';
+import DriverProfile from '../screens/AppScreens/DriverProfile';
+import DriverCertification from '../screens/AppScreens/DriverCertification';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -62,6 +64,8 @@ export const DriverStack = () => {
       <Stack.Screen name="DriverBottomTabs" component={DriverBottomTabs} />
       <Stack.Screen name="DriverProfileInfo" component={DriverProfileInfo} />
       <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />
+      <Stack.Screen name="DriverProfile" component={DriverProfile} />
+      <Stack.Screen name="DriverCertification" component={DriverCertification} />
     </Stack.Navigator>
   );
 };

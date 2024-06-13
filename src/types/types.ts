@@ -52,3 +52,8 @@ export interface AppButtonProps {
   disabled?: boolean;
   loading?: boolean;
 }
+
+
+export interface AppDocProps{
+  title: string,
+}

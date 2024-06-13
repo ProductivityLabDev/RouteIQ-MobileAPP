@@ -23,5 +23,7 @@ export const AppColors = {
   brightGrey: '#64748B',
   taupeGray: '#8F8F8F',
   graySuit: '#BAB7B7',
-  charcoal: '#2C2F32'
+  charcoal: '#2C2F32',
+  profileBg: '#f0ede2',
+  darkBrown: '#43080D',
 };
