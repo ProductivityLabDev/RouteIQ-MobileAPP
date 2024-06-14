@@ -43,7 +43,7 @@ export interface AppHeaderProps {
   switchIcon?: boolean;
   backFunctionEnable?: boolean;
   handleBack?: any;
-  profile_image?: boolean
+  profile_image?: boolean;
 }
 
 export interface AppButtonProps {
@@ -79,4 +79,8 @@ export interface AppSwitchButtonProps {
   switchBackgroundColor?: string;
   outputRange?: any;
   circleStyle?: StyleProp<ViewStyle>;
+}
+
+export interface CleaningCardProps {
+  mileage?: boolean;
 }

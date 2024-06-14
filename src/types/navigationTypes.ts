@@ -22,7 +22,7 @@ export type RootStackParamList = {
   DriverProfileInfo: undefined;
   UpdateDriveProfile: undefined;
   DriverHomeScreen: undefined;
-  DriverTasksScreen: undefined;
+  DriverMaintenanceScreen: undefined;
   DriverStudentsScreen: undefined;
   DriverChatScreen: undefined;
   DriverProfile: undefined;

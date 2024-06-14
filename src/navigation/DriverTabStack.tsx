@@ -1,13 +1,13 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../types/navigationTypes';
 import DriverHomeScreen from '../screens/AppScreens/DriverHomeScreen';
-import DriverTasksScreen from '../screens/AppScreens/DriverTasksScreen';
 import DriverStudentsScreen from '../screens/AppScreens/DriverStudentsScreen';
 import DriverChatScreen from '../screens/AppScreens/DriverChatScreen';
 import DriverProfile from '../screens/AppScreens/DriverProfile';
 import DriverInspection from '../screens/AppScreens/DriverInspection';
 import DriverMapView from '../screens/AppScreens/DriverMapView';
 import DriverMaintenanceDetail from '../screens/AppScreens/DriverMaintenanceDetail';
+import DriverMaintenanceScreen from '../screens/AppScreens/DriverMaintenanceScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -24,7 +24,7 @@ export const HomeStack = () => {
 export const TasksStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="DriverTasksScreen" component={DriverTasksScreen} />
+      <Stack.Screen name="DriverMaintenanceScreen" component={DriverMaintenanceScreen} />
       <Stack.Screen name="DriverMaintenanceDetail" component={DriverMaintenanceDetail} />
     </Stack.Navigator>
   );

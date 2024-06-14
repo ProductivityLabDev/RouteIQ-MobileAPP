@@ -1,19 +1,19 @@
-import {FlatList, Pressable, StyleSheet, Text, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
+import CleanBusIcon from '../../assets/svgs/CleanBusIcon';
+import FuelIcon from '../../assets/svgs/FuelIcon';
+import MeterIcon from '../../assets/svgs/MeterIcon';
 import AppHeader from '../../components/AppHeader';
 import AppLayout from '../../layout/AppLayout';
-import {AppColors} from '../../utils/color';
-import AppStyles from '../../styles/AppStyles';
-import {size} from '../../utils/responsiveFonts';
-import FuelIcon from '../../assets/svgs/FuelIcon';
-import {hp} from '../../utils/constants';
-import CleanBusIcon from '../../assets/svgs/CleanBusIcon';
-import MeterIcon from '../../assets/svgs/MeterIcon';
-import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch} from '../../store/hooks';
 import {setMaintenanceDetail} from '../../store/driver/driverSlices';
+import {useAppDispatch} from '../../store/hooks';
+import AppStyles from '../../styles/AppStyles';
+import {AppColors} from '../../utils/color';
+import {hp} from '../../utils/constants';
+import {size} from '../../utils/responsiveFonts';
 
-const DriverTasksScreen = () => {
+const DriverMaintenanceScreen = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const maintenance_data = [
@@ -78,7 +78,7 @@ const DriverTasksScreen = () => {
   );
 };
 
-export default DriverTasksScreen;
+export default DriverMaintenanceScreen;
 
 const styles = StyleSheet.create({
   cardContainer: {

@@ -4,16 +4,44 @@ import AppLayout from '../../layout/AppLayout';
 import {AppColors} from '../../utils/color';
 import {useAppSelector} from '../../store/hooks';
 import AppStyles from '../../styles/AppStyles';
-import {StyleSheet, View} from 'react-native';
+import {ImageBackground, StyleSheet, Text, View} from 'react-native';
 import AppInput from '../../components/AppInput';
 import {hp} from '../../utils/constants';
 import AppFonts from '../../utils/appFonts';
+import {size} from '../../utils/responsiveFonts';
+import {Image} from 'react-native';
+import CleaningCard from '../../components/CleaningCard';
 
 const DriverMaintenanceDetail = () => {
   const maintenanceDetail = useAppSelector(
     state => state.driverSlices.maintenanceDetail,
   );
   const [mileage, setMileage] = useState('201569');
+
+  const fuelItem = () => {
+    return (
+      <>
+        <AppInput
+          label="Enter Current Mileage"
+          value={mileage}
+          onChangeText={(text: string) => setMileage(text)}
+          keyboardType="number-pad"
+          containerStyle={styles.containerStyle}
+          inputStyle={styles.inputStyle}
+          labelStyle={styles.labelStyle}
+        />
+        <View style={[styles.containerStyle, {marginTop: hp(1)}]}>
+          <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
+            Fuel Card
+          </Text>
+          <Image
+            style={styles.image}
+            source={require('../../assets/images/Credit-Card-Design.png')}
+          />
+        </View>
+      </>
+    );
+  };
 
   return (
     <AppLayout
@@ -26,18 +54,10 @@ const DriverMaintenanceDetail = () => {
         enableBack={true}
         rightIcon={true}
       />
-      <View style={AppStyles.driverContainer}>
-        <View>
-          <AppInput
-            label="Enter Current Mileage"
-            value={mileage}
-            onChangeText={(text: string) => setMileage(text)}
-            keyboardType="number-pad"
-            containerStyle={styles.containerStyle}
-            inputStyle={styles.inputStyle}
-            labelStyle={styles.labelStyle}
-          />
-        </View>
+      <View style={[AppStyles.driverContainer, {paddingTop: hp(4)}]}>
+        {maintenanceDetail == 'Fuel' && fuelItem()}
+        {maintenanceDetail == 'Cleaning' && <CleaningCard />}
+        {maintenanceDetail == 'Mileage Record' && <CleaningCard mileage={true} />}
       </View>
     </AppLayout>
   );
@@ -56,5 +76,11 @@ const styles = StyleSheet.create({
   },
   labelStyle: {
     fontFamily: AppFonts.NunitoSansSemiBold,
+  },
+  image: {
+    height: hp(30),
+    width: '100%',
+    resizeMode: 'contain',
+    marginTop: hp(1),
   },
 });
