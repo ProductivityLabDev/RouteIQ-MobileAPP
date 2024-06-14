@@ -28,4 +28,6 @@ export const AppColors = {
   darkBrown: '#43080D',
   driverScreen: '#e6e3d8',
   dimGray: '#808080',
+  diffGray: '#878680',
+  veryLightPink: '#F9E8E9',
 };

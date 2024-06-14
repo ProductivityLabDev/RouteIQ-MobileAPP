@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import AppLayout from '../../layout/AppLayout'
 import { AppColors } from '../../utils/color'
 import AppHeader from '../../components/AppHeader'
@@ -11,10 +11,20 @@ import GlobalIcon from '../../components/GlobalIcon'
 import AppDoc from '../../components/AppDoc'
 import AppButton from '../../components/AppButton'
 import { useNavigation } from '@react-navigation/native'
+import AppBottomSheet from '../../components/AppBottomSheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 export default function DriverCertification() {
 
     const [showDriverLicense, setShowDriverLicense] = useState(false);
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+    const snapPoints = useMemo(() => ['34%', '90%'], []);
+    const openSheet = useCallback(() => {
+        bottomSheetModalRef.current?.present();
+    }, []);
+    const closeSheet = useCallback(() => {
+        bottomSheetModalRef.current?.close();
+    }, []);
 
     const navigation = useNavigation();
 
@@ -86,7 +96,7 @@ export default function DriverCertification() {
 
                     <AppButton
                         title="Upload Documents"
-                        onPress={() => navigation.navigate('Settings')}
+                        onPress={() => openSheet()}
                         style={{
                             // width: '100%',
                             width: '90%',
@@ -101,6 +111,44 @@ export default function DriverCertification() {
                             fontSize: size.md
                         }}
                     />
+
+                    <AppBottomSheet
+                        bottomSheetModalRef={bottomSheetModalRef}
+                        snapPoints={snapPoints}
+                        backdropComponent={({ style }) => (
+                            <Pressable
+                                onPress={() => closeSheet()}
+                                style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
+                            />
+                        )}>
+                        <View style={AppStyles.center}>
+
+                            <View style={{ width: '90%' }}>
+
+                                <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
+                                    Upload Documents
+                                </Text>
+                                <View style={styles.uploadDocBox}>
+
+                                    <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} size={40} />
+                                    <Text style={styles.tapText} >Tap and Upload Files</Text>
+                                </View>
+                            </View>
+
+                            <View style={[AppStyles.rowBetween, AppStyles.widthFullPercent]}>
+                                <AppButton
+                                    title="Cancel"
+                                    style={styles.backButton}
+                                    titleStyle={{ color: AppColors.textLightGrey }}
+                                    onPress={() => closeSheet()}
+                                />
+                                <AppButton title="Upload" style={styles.submitButton} />
+                            </View>
+                        </View>
+                    </AppBottomSheet>
+
+
+
 
 
                 </Pressable>
@@ -194,6 +242,29 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
 
+    uploadDocBox: {
+        width: '100%',
+        marginVertical: hp(3),
+        marginTop: hp(2),
+        height: hp(15),
+        gap: hp(1),
+        borderRadius: 20,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: AppColors.red,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    tapText: {
+
+        fontFamily: AppFonts.NunitoSansSemiBold,
+        fontSize: size.s,
+        lineHeight: 20,
+        color: AppColors.red,
+        alignSelf: 'center',
+    },
+
     text2: {
         fontFamily: AppFonts.NunitoSansMedium,
         fontSize: size.default,
@@ -212,7 +283,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         backgroundColor: AppColors.white,
         borderRadius: 10,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        elevation: 20
     },
     mainContainer3: {
         paddingVertical: hp(6),
@@ -225,7 +297,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         backgroundColor: AppColors.white,
         borderRadius: 10,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        elevation: 20
     },
     boxContainer: {
         flexDirection: 'row',
@@ -277,4 +350,17 @@ const styles = StyleSheet.create({
         fontSize: size.xlg,
         textAlign: 'left',
     },
+    inputContainer: {
+        borderWidth: 1,
+        borderColor: AppColors.dimGray,
+        borderRadius: 5,
+        width: '60%',
+        marginTop: hp(2),
+        marginBottom: hp(1),
+    },
+    inputStyle: {
+        textAlign: 'center',
+    },
+    backButton: { width: '36%', backgroundColor: AppColors.screenColor },
+    submitButton: { width: '60%' },
 })

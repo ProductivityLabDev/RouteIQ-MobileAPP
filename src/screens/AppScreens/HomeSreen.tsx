@@ -166,8 +166,8 @@ export default function HomeSreen() {
       </View>
 
       <AppCustomModal visible={modalVisible} setVisible={setModalVisible}>
-        <ScrollView contentContainerStyle={{flex: 1}}>
-          <View style={{flex: 1, justifyContent: 'flex-end'}}>
+        <ScrollView contentContainerStyle={{}}>
+          <View style={{ justifyContent: 'flex-end'}}>
             <View
               style={{
                 backgroundColor: AppColors.white,

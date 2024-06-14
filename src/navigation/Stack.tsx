@@ -23,6 +23,10 @@ import UpdateDriveProfile from '../screens/AppScreens/UpdateDriveProfile';
 import DriverBottomTabs from './DriverBottomTabs';
 import DriverProfile from '../screens/AppScreens/DriverProfile';
 import DriverCertification from '../screens/AppScreens/DriverCertification';
+import DriverChangePassword from '../screens/AppScreens/DriverChangePassword';
+import DriverMedicalRecord from '../screens/AppScreens/DriverMedicalRecord';
+import DriverHistory from '../screens/AppScreens/DriverHistory';
+import DriverIncident from '../screens/AppScreens/DriverIncident';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -66,6 +70,10 @@ export const DriverStack = () => {
       <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />
       <Stack.Screen name="DriverProfile" component={DriverProfile} />
       <Stack.Screen name="DriverCertification" component={DriverCertification} />
+      <Stack.Screen name="DriverChangePassword" component={DriverChangePassword} />
+      <Stack.Screen name="DriverMedicalRecord" component={DriverMedicalRecord} />
+      <Stack.Screen name="DriverHistory" component={DriverHistory} />
+      <Stack.Screen name="DriverIncident" component={DriverIncident} />
     </Stack.Navigator>
   );
 };
