@@ -6,8 +6,11 @@ import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
 import AppFonts from '../utils/appFonts';
 import {fontSize, size} from '../utils/responsiveFonts';
+import {useAppDispatch} from '../store/hooks';
+import {setDriverHomeStatus} from '../store/user/userSlices';
 
 const AppWeeklyCalendar = () => {
+  const dispatch = useAppDispatch();
   const [currentWeek, setCurrentWeek] = useState(moment());
   const today = moment();
 
@@ -41,7 +44,11 @@ const AppWeeklyCalendar = () => {
             size={hp(2.5)}
           />
         </TouchableOpacity>
-        <Text style={styles.monthText}>{currentWeek.format('MMMM YYYY')}</Text>
+        <TouchableOpacity onPress={() => dispatch(setDriverHomeStatus(true))}>
+          <Text style={styles.monthText}>
+            {currentWeek.format('MMMM YYYY')}
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={nextWeek}>
           <GlobalIcon
             library="FontAwesome5"

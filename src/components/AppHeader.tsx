@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import NotificationIcon from '../assets/svgs/NotificationIcon';
 import AppStyles from '../styles/AppStyles';
 import {AppHeaderProps} from '../types/types';
@@ -25,6 +25,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   switchIcon = false,
   backFunctionEnable = false,
   handleBack,
+  profile_image
 }) => {
   const navigation = useNavigation();
   const [isSwitchOn, setIsSwitchOn] = useState(true);
@@ -100,6 +101,18 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                     name="chevron-back"
                     color={AppColors.white}
                     size={hp(3)}
+                  />
+                </Pressable>
+              )}
+              {profile_image && (
+                <Pressable
+                  onPress={() =>
+                    backFunctionEnable ? handleBack() : navigation.goBack()
+                  }
+                  style={styles.icon}>
+                  <Image
+                    style={{height: hp(5), width: hp(5), borderRadius: 50}}
+                    source={require('../assets/images/profile_image.webp')}
                   />
                 </Pressable>
               )}

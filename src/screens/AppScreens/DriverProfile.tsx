@@ -10,9 +10,11 @@ import { size } from '../../utils/responsiveFonts';
 import { useNavigation } from '@react-navigation/native';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppButton from '../../components/AppButton';
+import { useAppDispatch } from '../../store/hooks';
+import { saveToken } from '../../store/user/userSlices';
 
 const DriverProfile = () => {
-
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const [isEnabled, setIsEnabled] = useState(false);
 
@@ -244,7 +246,7 @@ const DriverProfile = () => {
 
         <AppButton
           title="Logout"
-          onPress={() => navigation.navigate('Settings')}
+          onPress={() => dispatch(saveToken(null))}
           style={{
             // width: '100%',
             width: '90%',

@@ -30,4 +30,7 @@ export const AppColors = {
   dimGray: '#808080',
   diffGray: '#878680',
   veryLightPink: '#F9E8E9',
+  sageGreen: '#6FB592',
+  silverBlue: '#B2B8BF',
+  vividOrange: '#F8A566',
 };

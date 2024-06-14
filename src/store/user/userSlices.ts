@@ -6,6 +6,7 @@ const userSlice = createSlice({
     token: null,
     logout: false,
     role: '',
+    driverHomeStatus: false,
   },
   reducers: {
     saveToken: (state, {payload}) => {
@@ -17,9 +18,12 @@ const userSlice = createSlice({
     setRole: (state, {payload}) => {
       state.role = payload;
     },
+    setDriverHomeStatus: (state, {payload}) => {
+      state.driverHomeStatus = payload;
+    },
   },
 });
 
-export const {saveToken, setLogout, setRole} = userSlice.actions;
+export const {saveToken, setLogout, setRole, setDriverHomeStatus} = userSlice.actions;
 
 export default userSlice.reducer;

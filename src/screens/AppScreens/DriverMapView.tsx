@@ -15,8 +15,10 @@ import {mapCustomStyle} from '../../utils/mapConfig';
 import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
 import AlarmIcon from '../../assets/svgs/AlarmIcon';
+import {useNavigation} from '@react-navigation/native';
 
 const DriverMapView = () => {
+  const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [endTrip, setEndTrip] = useState(false);
   const [tripEnd, setTripEnd] = useState(false);
@@ -54,6 +56,10 @@ const DriverMapView = () => {
       customMapStyle={mapCustomStyle}
     />
   );
+
+  useEffect(() => {
+    openSheet();
+  }, []);
 
   return (
     <AppLayout
@@ -98,7 +104,7 @@ const DriverMapView = () => {
             </View>
             <Pressable
               onPress={() => setEndTrip(true)}
-              style={styles.alarmIcon}>
+              style={AppStyles.alarmIcon}>
               <AlarmIcon />
             </Pressable>
           </View>
@@ -144,7 +150,18 @@ const DriverMapView = () => {
               titleStyle={{color: AppColors.textLightGrey}}
               onPress={() => closeSheet()}
             />
-            <AppButton title="Submit" style={styles.submitButton} />
+            <AppButton
+              title="Submit"
+              style={styles.submitButton}
+              onPress={() => {
+                if (endTrip) {
+                  closeSheet();
+                  navigation.navigate('DriverHomeScreen');
+                } else {
+                  closeSheet();
+                }
+              }}
+            />
           </View>
         </View>
       </AppBottomSheet>
@@ -183,12 +200,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize(14),
     color: AppColors.white,
     fontFamily: AppFonts.NunitoSansMedium,
-  },
-  alarmIcon: {
-    backgroundColor: AppColors.red,
-    paddingVertical: hp(2),
-    paddingHorizontal: hp(1.5),
-    borderRadius: hp(1.8),
   },
   distanceContainer: {
     backgroundColor: AppColors.black,

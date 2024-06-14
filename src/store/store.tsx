@@ -11,9 +11,11 @@ import {
 } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import userSlices from './user/userSlices';
+import driverSlices from './driver/driverSlices';
 
 const reducers = combineReducers({
   userSlices,
+  driverSlices,
 });
 
 const persistConfig = {

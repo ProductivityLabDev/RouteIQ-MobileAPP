@@ -93,6 +93,12 @@ const AppStyles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+  alarmIcon: {
+    backgroundColor: AppColors.red,
+    paddingVertical: hp(2),
+    paddingHorizontal: hp(1.5),
+    borderRadius: hp(1.8),
+  },
 });
 
 export default AppStyles;

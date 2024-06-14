@@ -8,6 +8,7 @@ export interface AppLayoutProps {
   children?: any;
   style?: ViewStyle;
   statusbackgroundColor?: string;
+  alarmIcon?: boolean;
 }
 
 export interface UpdateGuardianProfileProps {
@@ -42,6 +43,7 @@ export interface AppHeaderProps {
   switchIcon?: boolean;
   backFunctionEnable?: boolean;
   handleBack?: any;
+  profile_image?: boolean
 }
 
 export interface AppButtonProps {

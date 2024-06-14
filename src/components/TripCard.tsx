@@ -106,6 +106,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
               <View style={[AppStyles.row, {width: '30%'}]}>
                 <MapViewIcon />
                 <TouchableOpacity
+                  onPress={() => navigation.navigate('DriverMapView')}
                   style={{marginLeft: hp(0.5), padding: hp(0.5)}}>
                   <Text
                     style={[
@@ -156,6 +157,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
       <Collapsible collapsed={!isCollapsed}>
         <View style={styles.collapseContainer}>
           <FlatList
+            scrollEnabled={false}
             data={item?.trip_plan}
             renderItem={({item: trip}) => (
               <View

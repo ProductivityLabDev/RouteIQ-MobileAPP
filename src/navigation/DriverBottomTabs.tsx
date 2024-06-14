@@ -6,6 +6,7 @@ import HomeIcon from '../assets/svgs/HomeIcon';
 import ProfileIcon from '../assets/svgs/ProfileIcon';
 import StudentIcon from '../assets/svgs/StudentIcon';
 import TaskIcon from '../assets/svgs/TaskIcon';
+import {useAppSelector} from '../store/hooks';
 import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
@@ -51,6 +52,9 @@ const BottomIcon: React.FC<DriverBottomTabsProps> = ({
 };
 
 function DriverBottomTabs() {
+  const driverHomeStatus = useAppSelector(
+    state => state.userSlices.driverHomeStatus,
+  );
   const screens = [
     {
       name: 'HomeStack',
@@ -102,9 +106,10 @@ function DriverBottomTabs() {
               headerShown,
               tabBarLabel: label,
               tabBarStyle: {
-                display: ['DriverInspection'].includes(
-                  getFocusedRouteNameFromRoute(route) as any,
-                )
+                display: [
+                  'DriverInspection',
+                  driverHomeStatus == true && 'DriverHomeScreen',
+                ].includes(getFocusedRouteNameFromRoute(route) as any)
                   ? 'none'
                   : 'flex',
                 borderTopWidth: 0,
