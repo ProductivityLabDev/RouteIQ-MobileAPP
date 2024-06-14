@@ -25,7 +25,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   switchIcon = false,
   backFunctionEnable = false,
   handleBack,
-  profile_image
+  profile_image,
 }) => {
   const navigation = useNavigation();
   const [isSwitchOn, setIsSwitchOn] = useState(true);
@@ -105,11 +105,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 </Pressable>
               )}
               {profile_image && (
-                <Pressable
-                  onPress={() =>
-                    backFunctionEnable ? handleBack() : navigation.goBack()
-                  }
-                  style={styles.icon}>
+                <Pressable style={styles.icon}>
                   <Image
                     style={{height: hp(5), width: hp(5), borderRadius: 50}}
                     source={require('../assets/images/profile_image.webp')}
@@ -127,7 +123,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             </View>
             <View style={[styles.iconContainer, {alignItems: 'flex-end'}]}>
               {!bookmarkIcon && rightIcon && (
-                <Pressable style={styles.icon} onPress={onPressRightIcon}>
+                <Pressable
+                  style={styles.icon}
+                  onPress={() => navigation.navigate('Notification')}>
                   <NotificationIcon />
                 </Pressable>
               )}

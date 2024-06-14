@@ -35,6 +35,9 @@ const AppStyles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  halfFlex: {
+    flex: 0.5,
+  },
   flexBetween: {
     flex: 1,
     justifyContent: 'space-between',
@@ -98,6 +101,13 @@ const AppStyles = StyleSheet.create({
     paddingVertical: hp(2),
     paddingHorizontal: hp(1.5),
     borderRadius: hp(1.8),
+  },
+  boxShadow: {
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -2},
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
 });
 

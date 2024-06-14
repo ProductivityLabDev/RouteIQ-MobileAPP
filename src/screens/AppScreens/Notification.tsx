@@ -1,36 +1,49 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useState} from 'react';
+import React from 'react';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import GlobalIcon from '../../components/GlobalIcon';
-import {useNavigation} from '@react-navigation/native';
 import {AppColors} from '../../utils/color';
-import {FlatList} from 'react-native';
-
 import AppHeader from '../../components/AppHeader';
-import {NotificationData} from '../../utils/DummyData';
-import {hp, wp} from '../../utils/constants';
-import AppFonts from '../../utils/appFonts';
-import AppStyles from '../../styles/AppStyles';
 import AppLayout from '../../layout/AppLayout';
+import {useAppSelector} from '../../store/hooks';
+import AppStyles from '../../styles/AppStyles';
+import {NotificationData} from '../../utils/DummyData';
+import AppFonts from '../../utils/appFonts';
+import {hp, wp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 
 const Notifications = () => {
-  const navigation = useNavigation();
+  const role = useAppSelector(state => state.userSlices.role);
   const [selected, setSelected] = React.useState<Array<number | string>>([3]);
 
   return (
-    <AppLayout>
-      <AppHeader enableBack={true} rightIcon={false} title={`Notification`} />
+    <AppLayout
+      statusbackgroundColor={role == 'Driver' ? AppColors.red : AppColors.black}
+      style={{
+        backgroundColor:
+          role == 'Driver' ? AppColors.driverScreen : AppColors.black,
+      }}>
+      {role == 'Driver' ? (
+        <AppHeader
+          role="Driver"
+          title="Notification"
+          enableBack={true}
+          rightIcon={false}
+        />
+      ) : (
+        <AppHeader enableBack={true} rightIcon={false} title={`Notification`} />
+      )}
       <View
         style={[
           AppStyles.body,
           {
             flex: 1,
             paddingHorizontal: 0,
-            backgroundColor: AppColors.white,
+            backgroundColor:
+              role == 'Driver' ? AppColors.driverScreen : AppColors.white,
             paddingTop: hp(2),
           },
         ]}>
-        {NotificationData.length >= 0 ? (
+        {NotificationData.length <= 0 ? (
           <FlatList
             contentContainerStyle={{padding: hp(0)}}
             data={NotificationData}
@@ -82,7 +95,7 @@ const Notifications = () => {
             <GlobalIcon
               library="CustomIcon"
               name="checkmark-1"
-              color={AppColors.black}
+              color={role == 'Driver' ? AppColors.red : AppColors.black}
               size={60}
             />
             <Text
@@ -95,7 +108,7 @@ const Notifications = () => {
             <Text
               style={[
                 styles.textWhenEmptyNotifs,
-                {color: AppColors.grey, fontFamily: AppFonts.NunitoSansMedium},
+                {color: AppColors.black, fontFamily: AppFonts.NunitoSansMedium},
               ]}>
               No new notifications yet for you
             </Text>

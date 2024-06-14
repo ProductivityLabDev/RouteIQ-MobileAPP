@@ -68,6 +68,7 @@ export interface TripCardProps {
 export interface AppIconProps {
   height?: number;
   width?: number;
+  color?: string;
 }
 
 export interface AppSwitchButtonProps {

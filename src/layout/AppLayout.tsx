@@ -5,6 +5,7 @@ import {AppColors} from '../utils/color';
 import {hp, StatusBarHeight} from '../utils/constants';
 import AppStyles from '../styles/AppStyles';
 import AlarmIcon from '../assets/svgs/AlarmIcon';
+import {useNavigation} from '@react-navigation/native';
 
 const AppLayout: React.FC<AppLayoutProps> = ({
   children,
@@ -12,6 +13,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   statusbackgroundColor = AppColors.black,
   alarmIcon,
 }) => {
+  const navigation = useNavigation();
   return (
     <View style={AppStyles.flex}>
       <StatusBar
@@ -22,15 +24,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({
       <View style={[styles.childContainer, style]}>{children}</View>
       {alarmIcon && (
         <TouchableOpacity
-          onPress={() => {}}
-          style={[
-            AppStyles.alarmIcon,
-            {
-              position: 'absolute',
-              bottom: hp(1.5),
-              right: hp(2),
-            },
-          ]}>
+          onPress={() => {
+            navigation.navigate('AlertScreen');
+          }}
+          style={[AppStyles.alarmIcon, styles.absolute]}>
           <AlarmIcon />
         </TouchableOpacity>
       )}
@@ -45,5 +42,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: StatusBarHeight(),
     backgroundColor: AppColors.black,
+  },
+  absolute: {
+    position: 'absolute',
+    bottom: hp(1.5),
+    right: hp(2),
   },
 });

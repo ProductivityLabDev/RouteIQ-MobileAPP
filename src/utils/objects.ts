@@ -7,3 +7,9 @@ export const front_inspection = [
   'Driver Side',
   'In Cab',
 ];
+
+export const alertButtonText = [
+  'Call Ambulance',
+  'Call Fire brigade',
+  'Call Police Station',
+];
