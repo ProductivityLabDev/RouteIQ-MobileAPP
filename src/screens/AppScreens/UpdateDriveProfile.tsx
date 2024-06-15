@@ -72,7 +72,7 @@ const UpdateDriveProfile = () => {
           </View>
         </View>
         <View>
-          <AppButton title="Update" />
+          <AppButton title="Update" style={{width: '100%', alignSelf: 'center'}} />
         </View>
       </View>
     </AppLayout>

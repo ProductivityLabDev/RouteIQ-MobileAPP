@@ -85,3 +85,9 @@ export interface AppSwitchButtonProps {
 export interface CleaningCardProps {
   mileage?: boolean;
 }
+
+export interface UploadDocProps {
+  title: string,
+  containerStyle: StyleProp<ViewStyle>;
+  textStyle: StyleProp<TextStyle>;
+}

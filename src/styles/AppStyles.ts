@@ -70,6 +70,7 @@ const AppStyles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansSemiBold,
     fontSize: size.md,
     color: AppColors.black,
+    // lineHeight: 18
   },
   subTitle: {
     fontFamily: AppFonts.NunitoSansMedium,

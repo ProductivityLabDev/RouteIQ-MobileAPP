@@ -125,6 +125,9 @@ const DriverProfile = () => {
   ];
 
   const handleRoute = (name: string) => {
+    if (name == 'Profile Info') navigation.navigate('DriverProfileInfo');
+    if (name == 'Emergency Contact') navigation.navigate('DriverEmergencyContact');
+    if (name == 'Qualification') navigation.navigate('DriverQualifications');
     if (name == 'Certification') navigation.navigate('DriverCertification');
     if (name == 'Change Password') navigation.navigate('DriverChangePassword');
     if (name == 'Medical Record (Optional)') navigation.navigate('DriverMedicalRecord');

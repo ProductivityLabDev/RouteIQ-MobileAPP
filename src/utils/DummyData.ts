@@ -39,6 +39,19 @@ export const leaveDropdownData = [
   {key: '4', value: 'PM'},
 ];
 
+export const DegreeData = [
+  {key: '1', value: 'Computer Science'},
+  {key: '2', value: 'Mechanical'},
+  {key: '3', value: 'Mechatronics'},
+  {key: '4', value: 'Electrical'},
+];
+export const HighSchoolData = [
+  {key: '1', value: 'St. Joseph'},
+  {key: '2', value: 'St. Michael'},
+  {key: '3', value: 'St. Hey'},
+  {key: '4', value: 'St. Ho'},
+];
+
 export const tripData = [
   {
     title: 'TRIP 1',

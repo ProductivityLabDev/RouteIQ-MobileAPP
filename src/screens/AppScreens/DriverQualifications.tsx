@@ -1,0 +1,376 @@
+import { View, Text, StyleSheet, useWindowDimensions, PressableAndroidRippleConfig, StyleProp, TextStyle, ViewStyle, Image, Pressable } from 'react-native'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
+import AppHeader from '../../components/AppHeader'
+import AppLayout from '../../layout/AppLayout'
+import AppButton from '../../components/AppButton'
+import { hp, wp } from '../../utils/constants'
+import { AppColors } from '../../utils/color'
+import { size } from '../../utils/responsiveFonts'
+import AppFonts from '../../utils/appFonts'
+import AppInput from '../../components/AppInput'
+import AppStyles from '../../styles/AppStyles'
+import GlobalIcon from '../../components/GlobalIcon'
+import { TabView, SceneMap, TabBar, NavigationState, Route, SceneRendererProps, TabBarIndicatorProps, TabBarItemProps } from 'react-native-tab-view';
+import { Scene, Event } from 'react-native-tab-view/lib/typescript/src/types'
+import { SelectList } from 'react-native-dropdown-select-list'
+import { DegreeData, HighSchoolData, leaveDropdownData } from '../../utils/DummyData';
+import AppBottomSheet from '../../components/AppBottomSheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import UploadDoc from '../../components/UploadDoc'
+
+
+export default function DriverQualifications() {
+
+    const SecondRoute = () => (
+        <View style={styles.subContainer}>
+
+            <AppInput
+                multiline
+                numberOfLines={11}
+                container={{ height: hp(25), borderRadius: hp(0.5), marginBottom: hp(2), borderColor: AppColors.grey }}
+
+                label="Description"
+                placeholder="Report Accident Details here..."
+                placeholderTextColor={AppColors.black}
+
+                labelStyle={{
+                    marginBottom: hp(2),
+                    fontFamily: AppFonts.NunitoSansBold,
+                }}
+            />
+
+            <View style={{ width: '90%', alignSelf: 'center', }}>
+                <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
+                    Attachments
+                </Text>
+
+                <View style={styles.uploadDocBox}>
+                    <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} size={40} />
+                    <Text style={styles.tapText} >Tap and Upload Files</Text>
+                </View>
+
+
+            </View>
+
+
+        </View>
+    );
+
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+    const snapPoints = useMemo(() => ['34%', '90%'], []);
+    const openSheet = useCallback(() => {
+        bottomSheetModalRef.current?.present();
+    }, []);
+    const closeSheet = useCallback(() => {
+        bottomSheetModalRef.current?.close();
+    }, []);
+    const [selectAbsence, setSelectAbsence] = useState('');
+
+    const [selected, setSelected] = useState(false);
+    const [selected1, setSelected1] = useState(false);
+    const [selected2, setSelected2] = useState(false);
+
+
+
+    const FirstRoute = () => (
+        <View style={{ justifyContent: 'space-between', flex: 1 }}>
+            <View style={styles.subContainer}>
+
+
+                <View style={{ flexDirection: selected1 ? 'row' : 'column', justifyContent: 'space-between', gap: hp(2)}}>
+                    <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
+                        Bachelors
+                    </Text>
+
+                    {
+                        selected1 ?
+                            <Text style={[AppStyles.title, AppStyles.halfWidth,{verticalAlign: 'bottom'}]}>
+                                {selected1}
+                            </Text>
+                            :
+                            <SelectList
+                                search={false}
+                                setSelected={setSelected1}
+                                data={DegreeData}
+                                save="value"
+                                placeholder="Select your Degree"
+                                boxStyles={styles.boxStyle}
+                                dropdownTextStyles={{ color: AppColors.black }}
+                                onSelect={() => setSelected1(true)}
+                            />
+
+                    }
+                </View>
+
+
+                <View style={{ flexDirection: selected2 ? 'row' : 'column', justifyContent: 'space-between', gap: hp(2) }}>
+
+                    <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
+                        High School {selected2 === false ? 'Certificate' : ''}
+                    </Text>
+
+
+                    {
+                        selected2 ?
+                            <Text style={[AppStyles.title, AppStyles.halfWidth,{verticalAlign: 'bottom'} ]}>
+                                {selected2}
+                            </Text>
+                            :
+                            <SelectList
+                                search={false}
+
+                                setSelected={setSelected2}
+                                data={HighSchoolData}
+                                save="value"
+                                placeholder="Select your Certificate"
+                                boxStyles={styles.boxStyle}
+                                dropdownTextStyles={{ color: AppColors.black }}
+                                onSelect={() => setSelected2(true)}
+                            />
+
+                    }
+                </View>
+
+
+                {/* <UploadDoc */}
+
+            </View>
+
+
+            <AppButton
+                title="Upload Documents"
+                onPress={() => openSheet()}
+                style={{
+                    // width: '100%',
+                    width: '90%',
+                    backgroundColor: AppColors.red,
+                    height: hp(6),
+                    marginHorizontal: wp(7),
+                    alignSelf: 'center',
+                    position: 'relative',
+                    top: -10
+                }}
+                titleStyle={{
+                    fontSize: size.md
+                }}
+            />
+
+            <AppBottomSheet
+                bottomSheetModalRef={bottomSheetModalRef}
+                snapPoints={snapPoints}
+                backdropComponent={({ style }) => (
+                    <Pressable
+                        onPress={() => closeSheet()}
+                        style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
+                    />
+                )}>
+                <View style={AppStyles.center}>
+
+                    <View style={{ width: '90%' }}>
+
+                        <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
+                            Upload Documents
+                        </Text>
+
+                        <UploadDoc title='Tap and Upload Files' containerStyle={{ marginHorizontal: hp(2), alignSelf: 'center', borderRadius: 15, backgroundColor: 'transparent' }} textStyle={{ fontSize: size.default }} />
+                    </View>
+
+                    <View style={[AppStyles.rowBetween, AppStyles.widthFullPercent]}>
+                        <AppButton
+                            title="Cancel"
+                            style={styles.backButton}
+                            titleStyle={{ color: AppColors.textLightGrey }}
+                            onPress={() => closeSheet()}
+                        />
+                        <AppButton title="Upload" style={styles.submitButton} />
+                    </View>
+                </View>
+            </AppBottomSheet>
+
+        </View>
+    );
+
+    const layout = useWindowDimensions();
+
+
+    const [index, setIndex] = React.useState(0);
+    const [routes] = React.useState([
+        { key: 'first', title: 'Education' },
+        { key: 'second', title: 'Experience' },
+    ]);
+
+    const renderScene = SceneMap({
+        first: FirstRoute,
+        second: SecondRoute,
+    });
+
+    const renderTabBar = (props: React.JSX.IntrinsicAttributes & SceneRendererProps & { navigationState: NavigationState<Route>; scrollEnabled?: boolean | undefined; bounces?: boolean | undefined; activeColor?: string | undefined; inactiveColor?: string | undefined; pressColor?: string | undefined; pressOpacity?: number | undefined; getLabelText?: ((scene: Scene<Route>) => string | undefined) | undefined; getAccessible?: ((scene: Scene<Route>) => boolean | undefined) | undefined; getAccessibilityLabel?: ((scene: Scene<Route>) => string | undefined) | undefined; getTestID?: ((scene: Scene<Route>) => string | undefined) | undefined; renderLabel?: ((scene: Scene<Route> & { focused: boolean; color: string }) => React.ReactNode) | undefined; renderIcon?: ((scene: Scene<Route> & { focused: boolean; color: string }) => React.ReactNode) | undefined; renderBadge?: ((scene: Scene<Route>) => React.ReactNode) | undefined; renderIndicator?: ((props: TabBarIndicatorProps<Route>) => React.ReactNode) | undefined; renderTabBarItem?: ((props: TabBarItemProps<Route> & { key: string }) => React.ReactElement<any, string | React.JSXElementConstructor<any>>) | undefined; onTabPress?: ((scene: Scene<Route> & Event) => void) | undefined; onTabLongPress?: ((scene: Scene<Route>) => void) | undefined; tabStyle?: StyleProp<ViewStyle>; indicatorStyle?: StyleProp<ViewStyle>; indicatorContainerStyle?: StyleProp<ViewStyle>; labelStyle?: StyleProp<TextStyle>; contentContainerStyle?: StyleProp<ViewStyle>; style?: StyleProp<ViewStyle>; gap?: number | undefined; testID?: string | undefined; android_ripple?: PressableAndroidRippleConfig | undefined }) => (
+        <TabBar
+            {...props}
+            // pressColor={colors.blue}
+            indicatorStyle={{ backgroundColor: AppColors.black }}
+            style={{ paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6), width: wp(100) }}
+            labelStyle={styles.subTitle}
+            activeColor={AppColors.red}
+            inactiveColor="#666"
+            renderLabel={({ route, focused, color }) => (
+                <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontFamily: AppFonts.NunitoSansBold }]}>
+                    {route.title}
+                    {/* {route.title.split(' ').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ')} */}
+                </Text>
+            )}
+        />
+    );
+
+
+
+
+
+    return (
+
+        <AppLayout statusbackgroundColor={AppColors.red}
+            style={{ backgroundColor: AppColors.profileBg }}>
+            <AppHeader role="Driver"
+                title={'Qualification'}
+                enableBack={true}
+                rightIcon={false} />
+
+
+
+            <View style={styles.container}>
+
+
+                <TabView
+                    style={{ width: '100%' }}
+                    navigationState={{ index, routes }}
+                    renderScene={renderScene}
+                    onIndexChange={setIndex}
+                    initialLayout={{ width: layout.width }}
+                    renderTabBar={renderTabBar}
+                />
+
+            </View>
+
+
+        </AppLayout>
+    )
+}
+
+
+const styles = StyleSheet.create({
+    backButton: { width: '36%', backgroundColor: AppColors.screenColor },
+    submitButton: { width: '60%' },
+    dropdownButtonStyle: {
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: hp(1),
+        paddingHorizontal: 12,
+        marginVertical: hp(2),
+        backgroundColor: AppColors.white,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: AppColors.grey
+    },
+    dropdownItemStyle: {
+        width: '100%',
+        flexDirection: 'row',
+        paddingHorizontal: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#B1BDC8',
+    },
+    dropdownItemTxtStyle: {
+        flex: 1,
+        fontSize: 18,
+        fontWeight: '500',
+        color: '#151E26',
+        textAlign: 'center',
+    },
+    dropdownButtonTxtStyle: {
+        flex: 1,
+        fontSize: 18,
+        fontWeight: '500',
+        color: '#151E26',
+        textAlign: 'center',
+    },
+    dropdownMenuStyle: {
+        backgroundColor: '#E9ECEF',
+        borderRadius: 8,
+        height: 150,
+    },
+    title: {
+        fontFamily: AppFonts.NunitoSansBold,
+        color: AppColors.black,
+        fontSize: size.default,
+    },
+    subTitle: {
+        backgroundColor: AppColors.yellow,
+        padding: hp(0.5),
+        borderRadius: hp(1),
+        color: AppColors.black,
+        fontSize: size.s,
+        fontFamily: AppFonts.NunitoSansMedium,
+    },
+
+    container: {
+        flex: 1,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexDirection: 'column',
+    },
+    subContainer: {
+        width: '100%',
+        justifyContent: 'center',
+        marginTop: hp(3),
+        gap: hp(2),
+        paddingHorizontal: wp(5)
+    },
+    uploadDocBox: {
+        width: '100%',
+        marginVertical: hp(3),
+        marginTop: hp(2),
+        height: hp(15),
+        gap: hp(1),
+        borderRadius: 2,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: AppColors.red,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: AppColors.veryLightPink
+    },
+
+    tapText: {
+
+        fontFamily: AppFonts.NunitoSansSemiBold,
+        fontSize: size.s,
+        lineHeight: 20,
+        color: AppColors.red,
+        alignSelf: 'center',
+    },
+    notifEach: {
+        fontSize: size.default,
+        fontFamily: AppFonts.NunitoSansSemiBold,
+        padding: wp(0),
+        height: hp(4),
+        // width: wp(20),
+        // borderBottomWidth: 1,
+        textAlign: 'center',
+        // color: colors.black,
+        borderBottomColor: AppColors.red,
+    },
+
+    boxStyle: {
+        width: '100%',
+        marginBottom: hp(1.6),
+        backgroundColor: AppColors.white,
+        alignItems: 'center',
+        borderColor: AppColors.black,
+        height: hp(6),
+        borderRadius: hp(0.5),
+    },
+})

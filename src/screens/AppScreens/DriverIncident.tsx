@@ -38,11 +38,13 @@ const FirstRoute = () => (
             <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
                 Attachments
             </Text>
-            <View style={styles.uploadDocBox}>
 
+            <View style={styles.uploadDocBox}>
                 <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} size={40} />
                 <Text style={styles.tapText} >Tap and Upload Files</Text>
             </View>
+
+
         </View>
 
 

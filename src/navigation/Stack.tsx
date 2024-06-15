@@ -28,6 +28,8 @@ import DriverMedicalRecord from '../screens/AppScreens/DriverMedicalRecord';
 import DriverHistory from '../screens/AppScreens/DriverHistory';
 import DriverIncident from '../screens/AppScreens/DriverIncident';
 import AlertScreen from '../screens/AppScreens/AlertScreen';
+import DriverEmergencyContact from '../screens/AppScreens/DriverEmergencyContact';
+import DriverQualifications from '../screens/AppScreens/DriverQualifications';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -77,6 +79,8 @@ export const DriverStack = () => {
       <Stack.Screen name="DriverIncident" component={DriverIncident} />
       <Stack.Screen name="AlertScreen" component={AlertScreen} />
       <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="DriverEmergencyContact" component={DriverEmergencyContact} />
+      <Stack.Screen name="DriverQualifications" component={DriverQualifications} />
     </Stack.Navigator>
   );
 };

@@ -17,7 +17,7 @@ const DriverProfileInfo = () => {
       <AppHeader
         role="Driver"
         title="Profile Info"
-        enableBack={false}
+        enableBack={true}
         rightIcon={false}
       />
       <View style={[AppStyles.driverContainer, AppStyles.flexBetween]}>
@@ -60,7 +60,7 @@ const DriverProfileInfo = () => {
             style={styles.button}
             titleStyle={styles.buttonTitle}
           />
-          <AppButton title="Confirm" />
+          <AppButton title="Confirm" style={{alignSelf: 'center', width: '100%'}} />
         </View>
       </View>
     </AppLayout>
@@ -71,10 +71,12 @@ export default DriverProfileInfo;
 
 const styles = StyleSheet.create({
   button: {
+    width: '100%',
     backgroundColor: AppColors.white,
     borderColor: AppColors.red,
     borderWidth: 1.5,
     marginBottom: hp(2),
+    alignSelf: 'center'
   },
   buttonTitle: {
     color: AppColors.black,

@@ -35,6 +35,8 @@ export type RootStackParamList = {
   DriverIncident: undefined;
   DriverMaintenanceDetail: undefined;
   AlertScreen: undefined;
+  DriverEmergencyContact: undefined;
+  DriverQualifications: undefined;
 };
 
 declare global {
