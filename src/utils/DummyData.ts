@@ -168,3 +168,26 @@ export const tripData = [
     ],
   },
 ];
+
+export const studentsData = [
+  {
+    name: 'Jane Cooper',
+    image: require('../assets/images/child1.jpg'),
+    age: 5,
+  },
+  {
+    name: 'Jacob Jones',
+    image: require('../assets/images/child2.jpg'),
+    age: 6,
+  },
+  {
+    name: 'Kathryn Murphy',
+    image: require('../assets/images/child3.jpg'),
+    age: 5,
+  },
+  {
+    name: 'Theresa Webb',
+    image: require('../assets/images/child4.jpg'),
+    age: 6,
+  },
+];

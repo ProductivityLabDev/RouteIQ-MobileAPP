@@ -6,11 +6,11 @@ import { AppColors } from '../utils/color';
 import { hp, wp } from '../utils/constants';
 import { size } from '../utils/responsiveFonts';
 
-const AppButton: React.FC<AppButtonProps> = ({title, onPress, style, titleStyle, leftIcon, rightIcon, disabled, loading}) => {
+const AppButton: React.FC<AppButtonProps> = ({title, onPress, style, titleStyle, leftIcon, rightIcon, disabled, loading, loaderStyle}) => {
   return (
     <TouchableOpacity disabled={disabled} onPress={onPress} style={[styles.container, style]}>
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
-      {loading ? <ActivityIndicator size="small" color={AppColors.black} /> : <Text style={[styles.title, titleStyle]}>{title}</Text>}
+      {loading ? <View style={[{width: '100%'}, loaderStyle]}><ActivityIndicator size="small" color={AppColors.black} /></View> : <Text style={[styles.title, titleStyle]}>{title}</Text>}
       {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
     </TouchableOpacity>
   )

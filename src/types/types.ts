@@ -55,6 +55,7 @@ export interface AppButtonProps {
   rightIcon?: React.ReactNode;
   disabled?: boolean;
   loading?: boolean;
+  loaderStyle?: StyleProp<ViewStyle>;
 }
 
 export interface AppDocProps {
@@ -87,7 +88,12 @@ export interface CleaningCardProps {
 }
 
 export interface UploadDocProps {
-  title: string,
+  title: string;
   containerStyle: StyleProp<ViewStyle>;
   textStyle: StyleProp<TextStyle>;
+}
+
+export interface StudentCardProps {
+  position?: string;
+  item: any;
 }

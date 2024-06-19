@@ -44,3 +44,11 @@ export const handleInspectionButtonTitle = (selectedIndex: number) => {
       return 'Submit Report';
   }
 };
+
+export const truncateString = (title: string, length: number) => {
+  if (title.length > length) {
+    return title.slice(0, length) + '...';
+  } else {
+    return title;
+  }
+};

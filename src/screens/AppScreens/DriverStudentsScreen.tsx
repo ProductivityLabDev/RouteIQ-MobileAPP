@@ -1,17 +1,20 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
 import AppHeader from '../../components/AppHeader';
 import AppLayout from '../../layout/AppLayout';
 import {AppColors} from '../../utils/color';
 import AppStyles from '../../styles/AppStyles';
 import {size} from '../../utils/responsiveFonts';
-import AppFonts from '../../utils/appFonts';
 import {hp} from '../../utils/constants';
 import AppInput from '../../components/AppInput';
 import GlobalIcon from '../../components/GlobalIcon';
 import GridIcon from '../../assets/svgs/GridIcon';
+import StudentCard from '../../components/StudentCard';
+import {studentsData} from '../../utils/DummyData';
 
 const DriverStudentsScreen = () => {
+  const [grid, setGrid] = useState('row');
+  const numColumns = grid === 'row' ? 2 : 1;
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
@@ -42,7 +45,11 @@ const DriverStudentsScreen = () => {
             </View>
           </View>
         </View>
-        <View style={[AppStyles.rowBetween, {marginTop: hp(2)}]}>
+        <View
+          style={[
+            AppStyles.rowBetween,
+            {marginTop: hp(2), paddingBottom: hp(1)},
+          ]}>
           <View style={{width: '83%'}}>
             <AppInput
               placeholder="Search..."
@@ -59,9 +66,32 @@ const DriverStudentsScreen = () => {
               }
             />
           </View>
-          <View style={[AppStyles.boxShadow, styles.gridIcon]}>
-            <GridIcon />
-          </View>
+          <TouchableOpacity
+            onPress={() => (grid == 'row' ? setGrid('column') : setGrid('row'))}
+            style={[AppStyles.boxShadow, styles.gridIcon]}>
+            {grid == 'row' ? (
+              <GridIcon />
+            ) : (
+              <GlobalIcon
+                library="Ionicons"
+                name="grid-sharp"
+                color={AppColors.dimGray}
+                size={hp(2.5)}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+
+        <View style={[AppStyles.rowBetween, AppStyles.rowBetween]}>
+          <FlatList
+            key={numColumns}
+            numColumns={numColumns}
+            data={studentsData}
+            renderItem={({item}) => <StudentCard position={grid} item={item} />}
+            columnWrapperStyle={numColumns > 1 ? styles.row : null}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: hp(20)}}
+          />
         </View>
       </View>
     </AppLayout>
@@ -84,7 +114,14 @@ const styles = StyleSheet.create({
   },
   gridIcon: {
     backgroundColor: AppColors.white,
-    padding: hp(2),
     borderRadius: 10,
+    height: hp(6),
+    width: hp(6),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  row: {
+    flex: 1,
+    justifyContent: 'space-between',
   },
 });
