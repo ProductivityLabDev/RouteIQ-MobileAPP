@@ -4,14 +4,38 @@ const driverSlice = createSlice({
   name: 'driver',
   initialState: {
     maintenanceDetail: null,
+    studentDetail:   {
+      name: 'Jane Cooper',
+      image: require('../../assets/images/child1.jpg'),
+      age: 5,
+      emergency_contact: '8978675634',
+      school_name: 'Oakwood Elementary School',
+      transportation_preference: 'Van',
+      medical_details: 'Oakwood Elementary School',
+      guardians: [
+        {
+          name: 'Jacob Jones',
+          relation: 'Uncle',
+          phone_number: 'Phone Number',
+        },
+        {
+          name: 'Sarah Jones',
+          relation: 'Aunt',
+          phone_number: '8978675634',
+        },
+      ],
+    },
   },
   reducers: {
     setMaintenanceDetail: (state, {payload}) => {
       state.maintenanceDetail = payload;
     },
+    setStudentDetail: (state, {payload}) => {
+      state.studentDetail = payload;
+    },
   },
 });
 
-export const {setMaintenanceDetail} = driverSlice.actions;
+export const {setMaintenanceDetail, setStudentDetail} = driverSlice.actions;
 
 export default driverSlice.reducer;

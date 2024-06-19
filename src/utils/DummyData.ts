@@ -174,20 +174,84 @@ export const studentsData = [
     name: 'Jane Cooper',
     image: require('../assets/images/child1.jpg'),
     age: 5,
+    emergency_contact: '8978675634',
+    school_name: 'Oakwood Elementary School',
+    transportation_preference: 'Van',
+    medical_details: 'Oakwood Elementary School',
+    guardians: [
+      {
+        name: 'Jacob Jones',
+        relation: 'Uncle',
+        phone_number: 'Phone Number',
+      },
+      {
+        name: 'Sarah Jones',
+        relation: 'Aunt',
+        phone_number: '8978675634',
+      },
+    ],
   },
   {
     name: 'Jacob Jones',
     image: require('../assets/images/child2.jpg'),
     age: 6,
+    emergency_contact: '8978675634',
+    school_name: 'Oakwood Elementary School',
+    transportation_preference: 'Van',
+    medical_details: 'Oakwood Elementary School',
+    guardians: [
+      {
+        name: 'Jacob Jones',
+        relation: 'Uncle',
+        phone_number: 'Phone Number',
+      },
+      {
+        name: 'Sarah Jones',
+        relation: 'Aunt',
+        phone_number: '8978675634',
+      },
+    ],
   },
   {
     name: 'Kathryn Murphy',
     image: require('../assets/images/child3.jpg'),
     age: 5,
+    emergency_contact: '8978675634',
+    school_name: 'Oakwood Elementary School',
+    transportation_preference: 'Van',
+    medical_details: 'Oakwood Elementary School',
+    guardians: [
+      {
+        name: 'Jacob Jones',
+        relation: 'Uncle',
+        phone_number: 'Phone Number',
+      },
+      {
+        name: 'Sarah Jones',
+        relation: 'Aunt',
+        phone_number: '8978675634',
+      },
+    ],
   },
   {
     name: 'Theresa Webb',
     image: require('../assets/images/child4.jpg'),
     age: 6,
+    emergency_contact: '8978675634',
+    school_name: 'Oakwood Elementary School',
+    transportation_preference: 'Van',
+    medical_details: 'Oakwood Elementary School',
+    guardians: [
+      {
+        name: 'Jacob Jones',
+        relation: 'Uncle',
+        phone_number: 'Phone Number',
+      },
+      {
+        name: 'Sarah Jones',
+        relation: 'Aunt',
+        phone_number: '8978675634',
+      },
+    ],
   },
 ];

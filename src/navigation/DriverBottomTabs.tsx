@@ -109,6 +109,7 @@ function DriverBottomTabs() {
                 display: [
                   'DriverInspection',
                   driverHomeStatus == true && 'DriverHomeScreen',
+                  'DriverStudentDetail',
                 ].includes(getFocusedRouteNameFromRoute(route) as any)
                   ? 'none'
                   : 'flex',

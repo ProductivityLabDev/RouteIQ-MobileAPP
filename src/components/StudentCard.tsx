@@ -8,8 +8,13 @@ import AppStyles from '../styles/AppStyles';
 import {StudentCardProps} from '../types/types';
 import AppFonts from '../utils/appFonts';
 import {truncateString} from '../utils/functions';
+import {useNavigation} from '@react-navigation/native';
+import {useAppDispatch} from '../store/hooks';
+import {setStudentDetail} from '../store/driver/driverSlices';
 
 const StudentCard: React.FC<StudentCardProps> = ({position, item}) => {
+  const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const [present, setPresent] = useState(false);
   return (
     <View
@@ -80,6 +85,10 @@ const StudentCard: React.FC<StudentCardProps> = ({position, item}) => {
                 : {...styles.detailColumnBtn, width: present ? '100%' : '48%'}
             }
             titleStyle={styles.detailTitle}
+            onPress={() => {
+              dispatch(setStudentDetail(item));
+              navigation.navigate('DriverStudentDetail');
+            }}
           />
         </View>
       </View>
