@@ -38,6 +38,8 @@ export type RootStackParamList = {
   DriverEmergencyContact: undefined;
   DriverQualifications: undefined;
   DriverStudentDetail: undefined;
+  DriverShiftTracking: undefined;
+  DriverShiftTrackingDetails: undefined;
 };
 
 declare global {

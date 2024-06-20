@@ -17,45 +17,13 @@ import { DegreeData, HighSchoolData, leaveDropdownData } from '../../utils/Dummy
 import AppBottomSheet from '../../components/AppBottomSheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import UploadDoc from '../../components/UploadDoc'
+import AppDoc from '../../components/AppDoc'
 
 
 export default function DriverQualifications() {
-
-    const SecondRoute = () => (
-        <View style={styles.subContainer}>
-
-            <AppInput
-                multiline
-                numberOfLines={11}
-                container={{ height: hp(25), borderRadius: hp(0.5), marginBottom: hp(2), borderColor: AppColors.grey }}
-
-                label="Description"
-                placeholder="Report Accident Details here..."
-                placeholderTextColor={AppColors.black}
-
-                labelStyle={{
-                    marginBottom: hp(2),
-                    fontFamily: AppFonts.NunitoSansBold,
-                }}
-            />
-
-            <View style={{ width: '90%', alignSelf: 'center', }}>
-                <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
-                    Attachments
-                </Text>
-
-                <View style={styles.uploadDocBox}>
-                    <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} size={40} />
-                    <Text style={styles.tapText} >Tap and Upload Files</Text>
-                </View>
-
-
-            </View>
-
-
-        </View>
-    );
-
+    
+    
+    const [docUploaded, setDocUploaded] = useState(false)
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const snapPoints = useMemo(() => ['34%', '90%'], []);
     const openSheet = useCallback(() => {
@@ -64,11 +32,193 @@ export default function DriverQualifications() {
     const closeSheet = useCallback(() => {
         bottomSheetModalRef.current?.close();
     }, []);
+    
+    const bottomSheetModalRef2 = useRef<BottomSheetModal>(null);
+    const snapPoints2 = useMemo(() => ['45%', '90%'], []);
+    const openSheet2 = useCallback(() => {
+        bottomSheetModalRef2.current?.present();
+    }, []);
+    const closeSheet2 = useCallback(() => {
+        bottomSheetModalRef2.current?.close();
+    }, []);
+    
+    
+    
     const [selectAbsence, setSelectAbsence] = useState('');
-
+    
     const [selected, setSelected] = useState(false);
     const [selected1, setSelected1] = useState(false);
     const [selected2, setSelected2] = useState(false);
+    
+
+
+
+    const SecondRoute = () => (
+        <View style={{ justifyContent: 'space-between', flex: 1 }}>
+            <View style={styles.subContainer}>
+
+
+
+
+
+                <View style={styles.experienceContainer}>
+
+                    <View style={[styles.dotnDashContainer, { }]} >
+                        <View style={styles.circle}><View style={styles.innerCircle}></View></View>
+
+                        <View style={styles.dashedLine}></View>
+                    </View>
+
+                    <View style={styles.experienceInfoContainer}>
+                        <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>Van Driver</Text>
+                        <Text style={[AppStyles.title, { fontFamily: AppFonts.NunitoSansLight, fontSize: size.default }]}>Adventure calling! Stay in the loop with real-time updates on your favorite outdoor activities</Text>
+                        <Text style={[AppStyles.title, { fontFamily: AppFonts.NunitoSansLight, fontSize: size.s, color: AppColors.dimGray }]}>1 day ago</Text>
+                    </View>
+
+                </View>
+
+
+
+
+
+
+                <View style={styles.experienceContainer}>
+
+                    <View style={[styles.dotnDashContainer, {  }]} >
+                        <View style={styles.circle}><View style={styles.innerCircle}></View></View>
+
+                        <View style={styles.dashedLine}></View>
+                    </View>
+
+                    <View style={styles.experienceInfoContainer}>
+                        <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>Office Boy</Text>
+                        <Text style={[AppStyles.title, { fontFamily: AppFonts.NunitoSansLight, fontSize: size.default }]}>Your Bus is Approaching!</Text>
+                        <Text style={[AppStyles.title, { fontFamily: AppFonts.NunitoSansLight, fontSize: size.s, color: AppColors.dimGray }]}>1 day ago</Text>
+                    </View>
+
+                </View>
+
+
+
+
+
+
+                <View style={styles.experienceContainer}>
+
+                    <View style={[styles.dotnDashContainer, {  }]} >
+                        <View style={styles.circle}><View style={styles.innerCircle}></View></View>
+
+                        <View style={styles.dashedLine}></View>
+                    </View>
+
+                    <View style={styles.experienceInfoContainer}>
+                        <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>Junior Chef </Text>
+                        <Text style={[AppStyles.title, { fontFamily: AppFonts.NunitoSansLight, fontSize: size.default }]}>Your Bus is Approaching!</Text>
+                        <Text style={[AppStyles.title, { fontFamily: AppFonts.NunitoSansLight, fontSize: size.s, color: AppColors.dimGray }]}>1 day ago</Text>
+                    </View>
+
+                </View>
+
+
+
+
+
+
+
+
+            </View>
+
+
+            <AppButton
+                title="Add Experience"
+                onPress={() => openSheet2()}
+                style={{
+                    // width: '100%',
+                    width: '90%',
+                    backgroundColor: AppColors.red,
+                    height: hp(6),
+                    marginHorizontal: wp(7),
+                    alignSelf: 'center',
+                    position: 'relative',
+                    top: -10
+                }}
+                titleStyle={{
+                    fontSize: size.md
+                }}
+            />
+
+
+
+            <AppBottomSheet
+                bottomSheetModalRef={bottomSheetModalRef2}
+                snapPoints={snapPoints2}
+                backdropComponent={({ style }) => (
+                    <Pressable
+                        onPress={() => closeSheet2()}
+                        style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
+                    />
+                )}>
+                <View
+                    style={{
+                        backgroundColor: AppColors.white,
+                        paddingHorizontal: hp(2),
+                        paddingVertical: hp(2),
+                        borderTopRightRadius: hp(2),
+                        borderTopLeftRadius: hp(2),
+                    }}>
+
+                    <AppInput
+                        // multiline
+                        numberOfLines={1}
+                        container={{ height: hp(6), borderRadius: hp(0.5), marginBottom: hp(2) }}
+                        label="Title"
+                        placeholder="Enter Job Title"
+                        labelStyle={{
+                            marginBottom: hp(2),
+                            fontFamily: AppFonts.NunitoSansBold,
+                        }}
+
+                    />
+
+
+
+                    <AppInput
+                        multiline
+                        numberOfLines={7}
+                        container={{ height: hp(12), borderRadius: hp(0.5), marginBottom: hp(2) }}
+                        label="Description"
+                        placeholder="Descripton"
+
+                        labelStyle={{
+                            marginBottom: hp(2),
+                            fontFamily: AppFonts.NunitoSansBold,
+                        }}
+
+                    />
+
+                    <View style={[AppStyles.rowBetween, { width: '100%' }]}>
+                        <AppButton
+                            title="Cancel"
+                            onPress={() => {
+                                closeSheet2()
+                            }}
+                            style={styles.backButton}
+                            titleStyle={{ color: AppColors.textLightGrey }}
+                        />
+                        <AppButton
+                            title="Submit"
+                            onPress={() => closeSheet2()}
+                            style={styles.submitButton}
+                        />
+                    </View>
+                </View>
+            </AppBottomSheet>
+
+
+
+        </View>
+    );
+
 
 
 
@@ -77,14 +227,14 @@ export default function DriverQualifications() {
             <View style={styles.subContainer}>
 
 
-                <View style={{ flexDirection: selected1 ? 'row' : 'column', justifyContent: 'space-between', gap: hp(2)}}>
+                <View style={{ flexDirection: selected1 ? 'row' : 'column', justifyContent: 'space-between', gap: hp(2) }}>
                     <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
                         Bachelors
                     </Text>
 
                     {
                         selected1 ?
-                            <Text style={[AppStyles.title, AppStyles.halfWidth,{verticalAlign: 'bottom'}]}>
+                            <Text style={[AppStyles.title, AppStyles.halfWidth, { verticalAlign: 'bottom' }]}>
                                 {selected1}
                             </Text>
                             :
@@ -112,7 +262,7 @@ export default function DriverQualifications() {
 
                     {
                         selected2 ?
-                            <Text style={[AppStyles.title, AppStyles.halfWidth,{verticalAlign: 'bottom'} ]}>
+                            <Text style={[AppStyles.title, AppStyles.halfWidth, { verticalAlign: 'bottom' }]}>
                                 {selected2}
                             </Text>
                             :
@@ -131,8 +281,12 @@ export default function DriverQualifications() {
                     }
                 </View>
 
-
-                {/* <UploadDoc */}
+                {
+                    docUploaded === true && (<>
+                        <AppDoc containerStyle={{ width: '100%' }} title="Bachelor's Degree" />
+                        <AppDoc containerStyle={{ width: '100%' }} title="School Certificate" />
+                    </>
+                    )}
 
             </View>
 
@@ -182,7 +336,7 @@ export default function DriverQualifications() {
                             titleStyle={{ color: AppColors.textLightGrey }}
                             onPress={() => closeSheet()}
                         />
-                        <AppButton title="Upload" style={styles.submitButton} />
+                        <AppButton title="Upload" style={styles.submitButton} onPress={() => setDocUploaded(true)} />
                     </View>
                 </View>
             </AppBottomSheet>
@@ -208,7 +362,7 @@ export default function DriverQualifications() {
         <TabBar
             {...props}
             // pressColor={colors.blue}
-            indicatorStyle={{ backgroundColor: AppColors.black }}
+            indicatorStyle={{ backgroundColor: AppColors.red }}
             style={{ paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6), width: wp(100) }}
             labelStyle={styles.subTitle}
             activeColor={AppColors.red}
@@ -229,7 +383,7 @@ export default function DriverQualifications() {
     return (
 
         <AppLayout statusbackgroundColor={AppColors.red}
-            style={{ backgroundColor: AppColors.profileBg }}>
+            style={{ backgroundColor: AppColors.veryLightGrey }}>
             <AppHeader role="Driver"
                 title={'Qualification'}
                 enableBack={true}
@@ -373,4 +527,47 @@ const styles = StyleSheet.create({
         height: hp(6),
         borderRadius: hp(0.5),
     },
+    circle: {
+        width: hp(3),
+        height: hp(3),
+        borderWidth: 1,
+        borderColor: AppColors.red,
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    innerCircle: {
+        width: hp(1.5),
+        height: hp(1.5),
+        backgroundColor: AppColors.red,
+        borderRadius: 100
+    },
+    dotnDashContainer: {
+        marginTop: hp(0.2),
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+    },
+    dashedLine: {
+        borderStyle: 'dashed',
+        // height: '20%',
+        flexGrow: 1,
+        marginTop: hp(1.5),
+        borderColor: AppColors.grey,
+        borderWidth: 2,
+        width: 0,
+        // paddingBottom: hp(8),
+        // marginBottom: hp(2)
+    },
+    experienceContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        gap: wp(6),
+    },
+    experienceInfoContainer: {
+        width: wp(83),
+        gap: hp(1),
+        paddingBottom: hp(3)
+    }
 })

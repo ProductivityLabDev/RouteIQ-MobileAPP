@@ -8,11 +8,12 @@ import { AppColors } from '../utils/color'
 import { hp, wp } from '../utils/constants'
 import { AppDocProps } from '../types/types'
 
-const AppDoc: React.FC<AppDocProps> = ({ title }) => {
+const AppDoc: React.FC<AppDocProps> = ({ title, containerStyle }) => {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, containerStyle]}>
             <Text style={[styles.docName, { fontSize: size.sl }]}>{title}</Text>
             <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} />
+            {/* <GlobalIcon library='CustomIcon' name={'attachment_svgrepocom'} color={AppColors.brightGrey} /> */}
         </View>
     )
 }

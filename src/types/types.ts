@@ -60,6 +60,7 @@ export interface AppButtonProps {
 
 export interface AppDocProps {
   title: string;
+  containerStyle: StyleProp<ViewStyle>;
 }
 
 export interface TripCardProps {
@@ -96,4 +97,8 @@ export interface UploadDocProps {
 export interface StudentCardProps {
   position?: string;
   item: any;
+}
+
+export interface DriverShiftInfoProps{
+  trackingDetails: Boolean;
 }

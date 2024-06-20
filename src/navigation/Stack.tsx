@@ -30,6 +30,8 @@ import DriverIncident from '../screens/AppScreens/DriverIncident';
 import AlertScreen from '../screens/AppScreens/AlertScreen';
 import DriverEmergencyContact from '../screens/AppScreens/DriverEmergencyContact';
 import DriverQualifications from '../screens/AppScreens/DriverQualifications';
+import DriverShiftTracking from '../screens/AppScreens/DriverShiftTracking';
+import DriverShiftTrackingDetails from '../screens/AppScreens/DriverShiftTrackingDetails';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -81,6 +83,8 @@ export const DriverStack = () => {
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen name="DriverEmergencyContact" component={DriverEmergencyContact} />
       <Stack.Screen name="DriverQualifications" component={DriverQualifications} />
+      <Stack.Screen name="DriverShiftTracking" component={DriverShiftTracking} />
+      <Stack.Screen name="DriverShiftTrackingDetails" component={DriverShiftTrackingDetails} />
     </Stack.Navigator>
   );
 };

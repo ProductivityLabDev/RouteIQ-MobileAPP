@@ -103,7 +103,8 @@ const DriverEmergencyContact = () => {
                             {editDetails2 ?
                                 <Text style={[AppStyles.title, AppStyles.halfWidth, { color: AppColors.red, width: '100%' }]}>Save</Text>
                                 :
-                                <GlobalIcon library='Ionicons' name={'eyedrop-outline'} color={AppColors.red} />
+                                // <GlobalIcon library='Ionicons' name={'eyedrop-outline'} color={AppColors.red} />
+                                <GlobalIcon library='CustomIcon' name={'Frame-3'} color={AppColors.red} size={20} />
                             }
                         </Pressable>
                     </View>
