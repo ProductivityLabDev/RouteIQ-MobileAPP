@@ -33,5 +33,7 @@ export const AppColors = {
   sageGreen: '#6FB592',
   silverBlue: '#B2B8BF',
   vividOrange: '#F8A566',
-  veryLightGrey: '#F5F6FA'
+  veryLightGrey: '#F5F6FA',
+  darkRed: '#9A131D',
+  diffGrey: '#EFEFEF'
 };

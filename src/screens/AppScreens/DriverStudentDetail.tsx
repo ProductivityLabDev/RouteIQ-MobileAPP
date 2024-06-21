@@ -1,4 +1,5 @@
 import {
+  Button,
   FlatList,
   Image,
   Pressable,
@@ -7,36 +8,48 @@ import {
   Text,
   View,
 } from 'react-native';
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import AppLayout from '../../layout/AppLayout';
-import {AppColors} from '../../utils/color';
+import { AppColors } from '../../utils/color';
 import AppHeader from '../../components/AppHeader';
 import AppStyles from '../../styles/AppStyles';
-import {hp} from '../../utils/constants';
+import { hp } from '../../utils/constants';
 import AppFonts from '../../utils/appFonts';
 import AppButton from '../../components/AppButton';
 import GlobalIcon from '../../components/GlobalIcon';
-import {useAppSelector} from '../../store/hooks';
+import { useAppSelector } from '../../store/hooks';
 import AppBottomSheet from '../../components/AppBottomSheet';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import AppInput from '../../components/AppInput';
+import Modal from "react-native-modal";
+import { size } from '../../utils/responsiveFonts';
+import { useNavigation } from '@react-navigation/native';
 
 const DriverStudentDetail = () => {
+  const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const studentDetail = useAppSelector(
     state => state.driverSlices.studentDetail,
   );
 
-  const snapPoints = useMemo(() => ['28%', '90%'], []);
+  const snapPoints = useMemo(() => ['38%', '90%'], []);
   const openSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
   const closeSheet = useCallback(() => {
     bottomSheetModalRef.current?.close();
   }, []);
+
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{backgroundColor: AppColors.driverScreen}}>
+      style={{ backgroundColor: AppColors.driverScreen }}>
       <AppHeader
         role="Driver"
         title="Students Details"
@@ -44,9 +57,11 @@ const DriverStudentDetail = () => {
         profile_image={false}
         rightIcon={false}
       />
+
+      
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={[AppStyles.driverContainer, {paddingHorizontal: 0}]}>
-          <View style={[AppStyles.alignJustifyCenter, {marginBottom: hp(2)}]}>
+        <View style={[AppStyles.driverContainer, { paddingHorizontal: 0 }]}>
+          <View style={[AppStyles.alignJustifyCenter, { marginBottom: hp(2) }]}>
             <Image style={styles.image} source={studentDetail?.image} />
           </View>
           <View style={styles.container}>
@@ -56,7 +71,7 @@ const DriverStudentDetail = () => {
                 style={[
                   AppStyles.halfWidth,
                   AppStyles.subTitle,
-                  {color: AppColors.charcoal},
+                  { color: AppColors.charcoal },
                 ]}>
                 {studentDetail?.name}
               </Text>
@@ -69,7 +84,7 @@ const DriverStudentDetail = () => {
                 style={[
                   AppStyles.halfWidth,
                   AppStyles.subTitle,
-                  {color: AppColors.charcoal},
+                  { color: AppColors.charcoal },
                 ]}>
                 {studentDetail?.emergency_contact}
               </Text>
@@ -82,7 +97,7 @@ const DriverStudentDetail = () => {
                 style={[
                   AppStyles.halfWidth,
                   AppStyles.subTitle,
-                  {color: AppColors.charcoal},
+                  { color: AppColors.charcoal },
                 ]}>
                 {studentDetail?.school_name}
               </Text>
@@ -95,7 +110,7 @@ const DriverStudentDetail = () => {
                 style={[
                   AppStyles.halfWidth,
                   AppStyles.subTitle,
-                  {color: AppColors.charcoal},
+                  { color: AppColors.charcoal },
                 ]}>
                 {studentDetail?.transportation_preference}
               </Text>
@@ -108,7 +123,7 @@ const DriverStudentDetail = () => {
                 style={[
                   AppStyles.halfWidth,
                   AppStyles.subTitle,
-                  {color: AppColors.charcoal},
+                  { color: AppColors.charcoal },
                 ]}>
                 {studentDetail?.medical_details}
               </Text>
@@ -116,14 +131,14 @@ const DriverStudentDetail = () => {
             <FlatList
               scrollEnabled={false}
               data={studentDetail?.guardians}
-              renderItem={({item, index}) => (
+              renderItem={({ item, index }) => (
                 <>
                   <View style={[AppStyles.rowBetween, styles.textContainer]}>
                     <Text
                       style={[
                         AppStyles.halfWidth,
                         AppStyles.title,
-                        {fontFamily: AppFonts.NunitoSansBold},
+                        { fontFamily: AppFonts.NunitoSansBold },
                       ]}>
                       Guardian {index + 1}:
                     </Text>
@@ -136,7 +151,7 @@ const DriverStudentDetail = () => {
                       style={[
                         AppStyles.halfWidth,
                         AppStyles.subTitle,
-                        {color: AppColors.charcoal},
+                        { color: AppColors.charcoal },
                       ]}>
                       {item?.name}
                     </Text>
@@ -149,7 +164,7 @@ const DriverStudentDetail = () => {
                       style={[
                         AppStyles.halfWidth,
                         AppStyles.subTitle,
-                        {color: AppColors.charcoal},
+                        { color: AppColors.charcoal },
                       ]}>
                       {item?.relation}
                     </Text>
@@ -162,7 +177,7 @@ const DriverStudentDetail = () => {
                       style={[
                         AppStyles.halfWidth,
                         AppStyles.subTitle,
-                        {color: AppColors.charcoal},
+                        { color: AppColors.charcoal },
                       ]}>
                       {item?.phone_number}
                     </Text>
@@ -171,7 +186,7 @@ const DriverStudentDetail = () => {
               )}
             />
           </View>
-          <View style={{padding: hp(2), gap: 10}}>
+          <View style={{ padding: hp(2), gap: 10 }}>
             <AppButton
               title="Add Feedback"
               style={AppStyles.widthFullPercent}
@@ -185,26 +200,86 @@ const DriverStudentDetail = () => {
               onPress={() => openSheet()}
             />
             <AppButton
+            onPress={()=> navigation.navigate('DriverChats') }
               title="Message Guardian"
               style={AppStyles.widthFullPercent}
             />
           </View>
         </View>
+
       </ScrollView>
 
       <AppBottomSheet
         bottomSheetModalRef={bottomSheetModalRef}
         snapPoints={snapPoints}
-        backdropComponent={({style}) => (
+        backdropComponent={({ style }) => (
           <Pressable
             onPress={() => closeSheet()}
-            style={[style, {backgroundColor: 'rgba(0, 0, 0, 0.6)'}]}
+            style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
           />
         )}>
-        <View>
-          <Text style={AppStyles.title}>Add Feedback</Text>
+
+
+
+
+        <AppInput
+          multiline
+          numberOfLines={8}
+          container={{ height: hp(16), borderRadius: hp(0.5), marginBottom: hp(2) }}
+          label="Add Feedback"
+          placeholder="Descripton"
+
+          labelStyle={{
+            marginBottom: hp(2),
+            fontFamily: AppFonts.NunitoSansBold,
+          }}
+
+        />
+
+        <View style={[AppStyles.rowBetween, { width: '100%' }]}>
+          <AppButton
+            title="Cancel"
+            onPress={() => {
+              closeSheet()
+            }}
+            style={styles.backButton}
+            titleStyle={{ color: AppColors.textLightGrey }}
+          />
+          <AppButton
+            title="Submit"
+            onPress={() => { closeSheet(); toggleModal() }}
+            style={styles.submitButton}
+          />
         </View>
+
+
       </AppBottomSheet>
+
+
+  
+
+      <Modal isVisible={isModalVisible}
+      backdropTransitionInTiming={0}
+        coverScreen={true}
+        animationIn={'fadeInRightBig'}
+        backdropOpacity={0.5}
+        useNativeDriver
+        hideModalContentWhileAnimating
+        backdropTransitionOutTiming={0}
+        onSwipeComplete={() => setModalVisible(false)}
+        swipeDirection="left"
+        onBackdropPress={() => setModalVisible(false)}
+        style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+        <View style={{ width: '70%', height: '40%', backgroundColor: AppColors.white, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}>
+          <GlobalIcon name={'Frame1'} library='CustomIcon' color={AppColors.red} size={hp(8)} />
+          <Text style={[AppStyles.titleHead,
+          { fontFamily: AppFonts.NunitoSansBold, marginTop: hp(3) }]}>Thankyou</Text>
+          <Text style={[AppStyles.title,
+          { fontFamily: AppFonts.NunitoSansSemiBold, fontSize: size.lg, }]}>For your feedback</Text>
+        </View>
+      </Modal>
+
+      
     </AppLayout>
   );
 };
@@ -223,5 +298,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: 8,
   },
-  textContainer: {alignItems: 'flex-start', marginBottom: hp(2)},
+  textContainer: { alignItems: 'flex-start', marginBottom: hp(2) },
+  backButton: { width: '36%', backgroundColor: AppColors.screenColor },
+  submitButton: { width: '60%' },
 });

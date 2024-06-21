@@ -102,3 +102,13 @@ export interface StudentCardProps {
 export interface DriverShiftInfoProps{
   trackingDetails: Boolean;
 }
+
+interface ChatItem {
+  title: string;
+  message: string;
+  time: string
+}
+export interface DriverAllChatsProps{
+  arrayData?:  ChatItem[];
+  setSchoolChattingScreen?: (value: boolean) => void;
+}

@@ -9,6 +9,7 @@ import DriverMapView from '../screens/AppScreens/DriverMapView';
 import DriverMaintenanceDetail from '../screens/AppScreens/DriverMaintenanceDetail';
 import DriverMaintenanceScreen from '../screens/AppScreens/DriverMaintenanceScreen';
 import DriverStudentDetail from '../screens/AppScreens/DriverStudentDetail';
+import DriverChats from '../screens/AppScreens/DriverChats';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,7 +44,7 @@ export const StudentStack = () => {
   export const ChatStack = () => {
     return (
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name="DriverChatScreen" component={DriverChatScreen} />
+        <Stack.Screen name="DriverChats" component={DriverChats} />
       </Stack.Navigator>
     );
   };

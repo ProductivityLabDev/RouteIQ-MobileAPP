@@ -238,13 +238,7 @@ const styles = StyleSheet.create({
         color: '#151E26',
         textAlign: 'center',
     },
-    dropdownButtonTxtStyle: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#151E26',
-        textAlign: 'center',
-    },
+
     dropdownMenuStyle: {
         backgroundColor: '#E9ECEF',
         borderRadius: 8,
@@ -300,24 +294,5 @@ const styles = StyleSheet.create({
         color: AppColors.red,
         alignSelf: 'center',
     },
-    notifEach: {
-        fontSize: size.default,
-        fontFamily: AppFonts.NunitoSansSemiBold,
-        padding: wp(0),
-        height: hp(4),
-        // width: wp(20),
-        // borderBottomWidth: 1,
-        textAlign: 'center',
-        // color: colors.black,
-        borderBottomColor: AppColors.red,
-    },
 
-    boxStyle: {
-        marginBottom: hp(1.6),
-        backgroundColor: AppColors.white,
-        alignItems: 'center',
-        borderColor: AppColors.black,
-        height: hp(6),
-        borderRadius: hp(0.5),
-    },
 })

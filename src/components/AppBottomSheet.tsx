@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, StyleProp, ViewStyle} from 'react-native';
 import {BottomSheetBackdropProps, BottomSheetModal} from '@gorhom/bottom-sheet';
 import {hp} from '../utils/constants';
 
@@ -9,6 +9,9 @@ interface AppBottomSheetProps {
   backdropComponent?: React.FC<BottomSheetBackdropProps>;
   handleSheetChanges?: (index: number) => void;
   children?: React.ReactNode;
+  enablePanDownToClose?: boolean,
+  contentContainerStyle?: StyleProp<ViewStyle>,
+  ContainerStyle?: StyleProp<ViewStyle>,
 }
 
 const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
@@ -17,17 +20,26 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
   backdropComponent,
   handleSheetChanges,
   children,
+  enablePanDownToClose,
+  contentContainerStyle,
+  ContainerStyle
 }) => {
   return (
     <BottomSheetModal
       backdropComponent={backdropComponent}
+      // detached={true}
+      enablePanDownToClose={enablePanDownToClose}
+      // enableDismissOnClose={false}
+      // enableContentPanningGesture={false}
+      
       ref={bottomSheetModalRef}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
       index={0}
       snapPoints={snapPoints}
+      containerStyle={ContainerStyle}
       onChange={handleSheetChanges}>
-      <View style={styles.contentContainer}>{children}</View>
+      <View style={[styles.contentContainer, contentContainerStyle]}>{children}</View>
     </BottomSheetModal>
   );
 };

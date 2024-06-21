@@ -255,3 +255,72 @@ export const studentsData = [
     ],
   },
 ];
+
+
+export const chats_data = [
+  {
+    title: 'Marie Moores',
+    message: 'Hi, Marie Moores',
+    time: '08:43'
+  },
+  {
+    title: 'Bobby Langford',
+    message: 'Will do, super, thank you',
+    time: 'Mon'
+  },
+  {
+    title: 'William Wiles',
+    message: 'Uploaded file.',
+    time: '08:43'
+  },
+  {
+    title: 'James Edelen',
+    message: 'Here is another tutorial, if you...',
+    time: 'Tue'
+  },
+  {
+    title: 'Jose Farmer',
+    message: 'Here is another tutorial, if you...',
+    time: '08:43'
+  },
+  {
+    title: 'Frank Marten',
+    message: 'Here is another tutorial, if you...',
+    time: 'Sun'
+  },
+  {
+    title: 'Marzena Klasa',
+    message: 'Will do, super, thank you',
+    time: 'Fri'
+  },
+  {
+    title: 'James Edelen',
+    message: 'Here is another tutorial, if you...',
+    time: '10:01'
+  },
+  {
+    title: 'Jose Farmer',
+    message: 'Will do, super, thank you',
+    time: '01:56'
+  },
+  {
+    title: 'Frank Marten',
+    message: 'Here is another tutorial, if you...',
+    time: '08:43'
+  },
+  {
+    title: 'NYU STERN',
+    message: 'Hi Bruce..',
+    time: '08:43'
+  },
+  {
+    title: 'Taft Public School',
+    message: 'Here is another tutorial, if you...',
+    time: 'Mon'
+  },
+  {
+    title: 'Berkeley Haas',
+    message: 'Will do, super, thank you',
+    time: '08:43'
+  },
+];
