@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?sksz80');
-  src:  url('fonts/icomoon.eot?sksz80#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?sksz80') format('truetype'),
-    url('fonts/icomoon.woff?sksz80') format('woff'),
-    url('fonts/icomoon.svg?sksz80#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?mbl0ni');
+  src:  url('fonts/icomoon.eot?mbl0ni#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?mbl0ni') format('truetype'),
+    url('fonts/icomoon.woff?mbl0ni') format('woff'),
+    url('fonts/icomoon.svg?mbl0ni#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +25,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-uploadOrAdd:before {
+  content: "\e9d3";
+  color: #c01824;
+}
 .icon-1 .path1:before {
   content: "\e92c";
   color: rgb(224, 241, 233);
@@ -832,10 +836,6 @@
   content: "\e9d2";
   margin-left: -1.1640625em;
   color: rgb(20, 21, 22);
-}
-.icon-Group-5:before {
-  content: "\e9d3";
-  color: #c01824;
 }
 .icon-Group-6:before {
   content: "\e9d4";

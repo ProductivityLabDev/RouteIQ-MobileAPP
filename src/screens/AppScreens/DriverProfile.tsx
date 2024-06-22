@@ -93,7 +93,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="Frame"
+          name="uploadOrAdd"
           color={AppColors.red}
           size={hp(2.5)}
         />
