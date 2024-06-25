@@ -27,7 +27,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="account_circle"
+          name="Group-2022"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -38,7 +38,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="Group-2002"
+          name="Group-2019"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -49,7 +49,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="notifications"
+          name="Group-2020"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -60,7 +60,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="Frame"
+          name="Group-2021"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -71,7 +71,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="Group-2002"
+          name="Group-289239"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -82,7 +82,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="account_circle"
+          name="Group-2023"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -93,7 +93,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="uploadOrAdd"
+          name="Group-2024"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -104,7 +104,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="notifications"
+          name="Group-2025"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -115,7 +115,7 @@ const DriverProfile = () => {
       leftIcon: (
         <GlobalIcon
           library="CustomIcon"
-          name="account_circle"
+          name="lock"
           color={AppColors.red}
           size={hp(2.5)}
         />
