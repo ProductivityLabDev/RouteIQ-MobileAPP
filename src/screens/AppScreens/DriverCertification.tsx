@@ -73,14 +73,14 @@ export default function DriverCertification() {
                                     <Image source={require('../../assets/images/driverlicensepic.png')} resizeMode='cover' style={styles.image} />
                                 </View>
                                 <View style={styles.infoContainer}>
-                                    <View style={styles.row1}>
+                                    <View style={[styles.row1, {width: '100%'}]}>
                                         <Text style={styles.headerSubTitle}>ID: B456788 </Text>
                                         <Text style={styles.headerSubTitle}>Class B</Text>
                                     </View>
                                     <Text style={styles.nameText}>Mark Tommay</Text>
                                     <Text style={styles.headerSubTitle}>Exp Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
                                     <Text style={styles.headerSubTitle}>Renewal Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '80%' }}>
+                                    <View style={[styles.row1,{width: '100%'}]}>
                                         <Text style={[styles.headerSubTitle, { color: AppColors.green }]}>Verified</Text>
                                         <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} />
                                     </View>
@@ -183,14 +183,14 @@ export default function DriverCertification() {
                                 <Image source={require('../../assets/images/driverlicensepic.png')} resizeMode='cover' style={styles.image} />
                             </View>
                             <View style={styles.infoContainer}>
-                                <View style={styles.row1}>
+                            <View style={[styles.row1,{width: '100%'}]}>
                                     <Text style={styles.headerSubTitle}>ID: B456788 </Text>
                                     <Text style={styles.headerSubTitle}>Class B</Text>
                                 </View>
                                 <Text style={styles.nameText}>Mark Tommay</Text>
                                 <Text style={styles.headerSubTitle}>Exp Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
                                 <Text style={styles.headerSubTitle}>Renewal Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '80%' }}>
+                                <View style={[styles.row1,{width: '100%', justifyContent: 'flex-end'}]}>
                                     <Text style={[styles.headerSubTitle, { color: AppColors.green, fontSize: size.md }]}>Verified</Text>
                                     {/* <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} /> */}
                                 </View>
@@ -333,7 +333,9 @@ const styles = StyleSheet.create({
 
     },
     row1: {
-        width: '80%',
+        maxWidth: '80%',
+        minWidth: '78%',
+        
         flexDirection: 'row',
         justifyContent: 'space-between',
         // gap: wp(10)

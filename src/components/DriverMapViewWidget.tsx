@@ -114,6 +114,7 @@ const DriverMapViewWidget = () => {
                             library="MaterialCommunityIcons"
                             name="arrow-left-top-bold"
                             />
+
                     </View>
 
                     <View style={{ gap: hp(0.4) }}>

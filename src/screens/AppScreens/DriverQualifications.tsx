@@ -363,12 +363,21 @@ export default function DriverQualifications() {
             {...props}
             // pressColor={colors.blue}
             indicatorStyle={{ backgroundColor: AppColors.red }}
-            style={{ paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6), width: wp(100) }}
-            labelStyle={styles.subTitle}
+            style={{ paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6),
+                //  width: wp(100),
+                  margin:0 }}
+            labelStyle={[styles.subTitle]}
+            
             activeColor={AppColors.red}
             inactiveColor="#666"
+            
             renderLabel={({ route, focused, color }) => (
-                <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontFamily: AppFonts.NunitoSansBold }]}>
+                <Text style={[styles.subTitle, {padding:0, 
+                    backgroundColor: 'transparent',
+                //  fontFamily: focused? AppFonts.NunitoSansBold : AppFonts.NunitoSansSemiBold,
+                fontFamily: AppFonts.NunitoSansBold,
+                  color: focused?  AppColors.red: AppColors.black
+                   }]}>
                     {route.title}
                     {/* {route.title.split(' ').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ')} */}
                 </Text>
@@ -395,6 +404,7 @@ export default function DriverQualifications() {
 
 
                 <TabView
+                
                     style={{ width: '100%' }}
                     navigationState={{ index, routes }}
                     renderScene={renderScene}
@@ -526,6 +536,8 @@ const styles = StyleSheet.create({
         borderColor: AppColors.black,
         height: hp(6),
         borderRadius: hp(0.5),
+        borderBottomColor: AppColors.black,
+        borderWidth: 1
     },
     circle: {
         width: hp(3),

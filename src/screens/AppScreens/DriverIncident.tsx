@@ -62,8 +62,9 @@ export default function DriverIncident() {
     const [selectAbsence, setSelectAbsence] = useState('');
 
     const emojis = [
-        'happy',
-        'cool',
+        'Ann Co',
+        'Yu Hin',
+        'Annie Harris'
     ];
 
 
@@ -140,13 +141,18 @@ export default function DriverIncident() {
         <TabBar
             {...props}
             // pressColor={colors.blue}
-            indicatorStyle={{ backgroundColor: AppColors.black }}
+            indicatorStyle={{ backgroundColor: AppColors.red }}
             style={{ paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6), width: wp(100) }}
             labelStyle={styles.subTitle}
             activeColor={AppColors.red}
             inactiveColor="#666"
             renderLabel={({ route, focused, color }) => (
-                <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontFamily:  AppFonts.NunitoSansBold }]}>
+                <Text style={[styles.subTitle, { backgroundColor: 'transparent', 
+                    fontFamily:  AppFonts.NunitoSansBold,
+                        // fontFamily: focused? AppFonts.NunitoSansBold : AppFonts.NunitoSansSemiBold,
+                // fontFamily: AppFonts.NunitoSansBold,
+                color: focused?  AppColors.red: AppColors.black
+                 }]}>
                     {route.title}
                     {/* {route.title.split(' ').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ')} */}
                 </Text>

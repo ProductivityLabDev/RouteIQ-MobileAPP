@@ -114,11 +114,11 @@ const DriverMaintenanceScreen = () => {
             }, 1000)
           }}>
             <View style={{
-              height: hp(26), width: '48%',
+              height: hp(23), width: '48%',
               alignSelf: 'flex-end',
               position: 'relative',
               //  position: 'absolute',
-              bottom: 40,
+              bottom: 25,
               right: 10
             }}>
 
@@ -141,6 +141,20 @@ const DriverMaintenanceScreen = () => {
                         size={28}
                       />
                     </View>
+
+
+                    <TouchableOpacity onPress={()=>{
+                      navigation.navigate('DriverMapView')
+                    }} style={{alignSelf: 'center'} }>
+                    <GlobalIcon
+                        library="MaterialCommunityIcons"
+                        name="arrow-left-top-bold"
+                        color={AppColors.red}
+                        size={50}
+                        />
+                        </TouchableOpacity>
+
+
                   </View>
                   :
                   null
@@ -179,10 +193,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     left: 0,
-    // justifyContent: 'center',
+    gap: hp(3),
+    justifyContent: 'flex-start',
     position: 'absolute',
     zIndex: 12,
-    backgroundColor: '#00000042',
+    backgroundColor: '#0000004c',
   },
 
   cardContainer: {

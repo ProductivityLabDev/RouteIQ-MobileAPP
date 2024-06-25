@@ -28,7 +28,7 @@ export default function DriverShiftTracking() {
             <DriverShiftInfo trackingDetails={false} />
 
 
-            <ScrollView>
+            {/* <ScrollView> */}
 
 
 
@@ -83,7 +83,7 @@ export default function DriverShiftTracking() {
 
                 </View>
 
-            </ScrollView>
+            {/* </ScrollView> */}
 
         </AppLayout>
     )

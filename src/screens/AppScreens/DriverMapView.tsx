@@ -16,6 +16,7 @@ import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
 import AlarmIcon from '../../assets/svgs/AlarmIcon';
 import {useNavigation} from '@react-navigation/native';
+import { Image } from 'react-native';
 
 const DriverMapView = () => {
   const navigation = useNavigation();
@@ -78,6 +79,21 @@ const DriverMapView = () => {
       </View>
       <View style={[AppStyles.driverContainer, {paddingHorizontal: hp(0)}]}>
         {mapView()}
+
+
+        <Pressable
+        style={[styles.bottomContainers, {bottom: hp(25), justifyContent: 'center'}]}>
+        <Image source={require('../../assets/images/DriverMapDirectionsPic.png')} />
+<View style={{position: 'absolute', top: 100}}>
+<Image source={require('../../assets/images/DriverMapDirectionsPic.png')} />
+            {/* <GlobalIcon
+              library="CustomIcon"
+              name="Ellipse-1-1"
+              color={AppColors.black}
+              size={30}
+            /> */}
+                            </View>
+      </Pressable>
 
         <View style={[styles.absoluteContainer]}>
           <View style={[AppStyles.rowBetween, {alignItems: 'flex-end'}]}>
@@ -230,4 +246,13 @@ const styles = StyleSheet.create({
   },
   backButton: {width: '36%', backgroundColor: AppColors.screenColor},
   submitButton: {width: '60%'},
+  bottomContainers: {
+    position: 'absolute',
+    bottom: hp(28),
+    paddingHorizontal: hp(2),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'flex-end',
+  },
 });
