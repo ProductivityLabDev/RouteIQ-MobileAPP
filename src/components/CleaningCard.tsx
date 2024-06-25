@@ -53,10 +53,12 @@ const CleaningCard: React.FC<CleaningCardProps> = ({mileage = false}) => {
             }
           />
           <AppCheckBox
+          
             isChecked={!isChecked}
             onClick={() => setIsChecked(!isChecked)}
             rightText="Exterior"
             unCheckedImage={<View style={styles.checkContainer}></View>}
+            rightTextStyle={{}}
             checkedImage={
               <View style={styles.checkContainer}>
                 <GlobalIcon

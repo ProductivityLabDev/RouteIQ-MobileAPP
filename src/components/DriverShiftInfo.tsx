@@ -170,7 +170,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                 style={[
                     AppStyles.row,
                     styles.dayContainer,
-                    { backgroundColor: AppColors.white, justifyContent: 'flex-start', gap: wp(4) },
+                    { backgroundColor: AppColors.white, justifyContent: 'center', gap: wp(4), paddingHorizontal:0 },
                 ]}
                 key={day.format('D')}>
 
@@ -179,7 +179,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                     <Text style={styles.dayName}>{day.format('MMM').toLocaleUpperCase()}</Text>
                 </View>
 
-                <View style={[AppStyles.rowBetween, styles.tasksContainer, { gap: wp(1), }]}>
+                <View style={[AppStyles.rowBetween, styles.tasksContainer, { gap: wp(2), }]}>
                     {renderTaskBlocksForDay(day)}
                 </View>
 
@@ -232,7 +232,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                         backgroundColor: AppColors.white,
                     }}>
 
-                    <ScrollView style={[styles.daysContainer, { height: hp(64), }]}>
+                    <ScrollView style={[styles.daysContainer, { height: hp(64), alignSelf: 'center', paddingHorizontal: wp(1)}]}>
                         {renderDays()}
                     </ScrollView>
 
@@ -357,13 +357,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: hp(1),
         borderBottomWidth: 1,
         borderBottomColor: '#E2E2E9',
+        
+        
     },
     dateContainer: {
         borderRadius: 5,
         width: '12%',
         height: hp(6),
         elevation: 10,
-        marginLeft: wp(1),
+        // marginLeft: wp(1),
         // borderWidth:1,
         backgroundColor: AppColors.white,
         // borderColor: AppColors.black,
@@ -384,7 +386,7 @@ const styles = StyleSheet.create({
     },
     timeSlotContainer: {
         alignItems: 'flex-start',
-        width: '25%',
+        maxWidth: '25%',
         paddingVertical: hp(1.4),
         // backgroundColor: AppColors.white
     },

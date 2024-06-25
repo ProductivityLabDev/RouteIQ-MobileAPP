@@ -92,12 +92,14 @@ const Notifications = () => {
           />
         ) : (
           <View style={styles.noNotifContainer}>
+            <View>
             <GlobalIcon
               library="CustomIcon"
               name="checkmark-1"
               color={role == 'Driver' ? AppColors.red : AppColors.black}
-              size={60}
-            />
+              size={80}
+              />
+              </View>
             <Text
               style={[
                 styles.textWhenEmptyNotifs,

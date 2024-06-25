@@ -82,15 +82,15 @@ export default function DriverCertification() {
                                     <Text style={styles.headerSubTitle}>Renewal Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
                                     <View style={[styles.row1,{width: '100%'}]}>
                                         <Text style={[styles.headerSubTitle, { color: AppColors.green }]}>Verified</Text>
-                                        <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} />
+                                        <GlobalIcon library='CustomIcon' name={'attachment_svgrepoco'} color={AppColors.red} />
                                     </View>
                                 </View>
                             </View>
 
                         </View>
 
-                        <AppDoc title={'Fed Med Card'} />
-                        <AppDoc title={'Endorsements'} />
+                        <AppDoc title={'Fed Med Card'} containerStyle={{}} />
+                        <AppDoc title={'Endorsements'} containerStyle={{}} />
 
                     </View>
 
@@ -130,7 +130,7 @@ export default function DriverCertification() {
                                 </Text>
                                 <View style={styles.uploadDocBox}>
 
-                                    <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} size={40} />
+                                    <GlobalIcon library='CustomIcon' name={'attachment_svgrepoco'} color={AppColors.red} size={40} />
                                     <Text style={styles.tapText} >Tap and Upload Files</Text>
                                 </View>
                             </View>

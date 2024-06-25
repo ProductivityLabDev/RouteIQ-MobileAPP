@@ -60,7 +60,7 @@ const DriverChangePassword = () => {
         />
         <AppButton
           title="Submit"
-          onPress={() => navigation.navigate('Settings')}
+          // onPress={() => navigation.navigate('Settings')}
           style={{
             width: '100%',
             backgroundColor: AppColors.black,

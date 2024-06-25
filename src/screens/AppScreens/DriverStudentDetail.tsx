@@ -271,7 +271,9 @@ const DriverStudentDetail = () => {
         onBackdropPress={() => setModalVisible(false)}
         style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
         <View style={{ width: '70%', height: '40%', backgroundColor: AppColors.white, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}>
-          <GlobalIcon name={'Frame1'} library='CustomIcon' color={AppColors.red} size={hp(8)} />
+          <GlobalIcon name={'Group-6'} library='CustomIcon' color={AppColors.red} 
+          size={hp(8)} 
+          />
           <Text style={[AppStyles.titleHead,
           { fontFamily: AppFonts.NunitoSansBold, marginTop: hp(3) }]}>Thankyou</Text>
           <Text style={[AppStyles.title,

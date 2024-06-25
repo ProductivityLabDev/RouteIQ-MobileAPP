@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     boardDate: {
-        fontSize: size.s,
+        fontSize: size.xs,
         color: AppColors.white,
         fontFamily: AppFonts.NunitoSansSemiBold,
     },

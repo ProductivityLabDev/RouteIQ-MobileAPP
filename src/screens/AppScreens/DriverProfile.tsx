@@ -96,6 +96,7 @@ const DriverProfile = () => {
           name="Group-2024"
           color={AppColors.red}
           size={hp(2.5)}
+          
         />
       ),
       title: 'Incident',

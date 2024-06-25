@@ -40,7 +40,7 @@ const FirstRoute = () => (
             </Text>
 
             <View style={styles.uploadDocBox}>
-                <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} size={40} />
+                <GlobalIcon library='CustomIcon' name={'Group-51'} color={AppColors.red} size={40} />
                 <Text style={styles.tapText} >Tap and Upload Files</Text>
             </View>
 
