@@ -52,7 +52,10 @@ const AppMapView = () => {
 
       <Pressable
         onPress={() => handleChange(true)}
-        style={[styles.bottomContainers, {bottom: hp(49), justifyContent: 'center'}]}>
+        style={[
+          styles.bottomContainers,
+          {bottom: hp(49), justifyContent: 'center'},
+        ]}>
         <Image source={require('../assets/images/direction.png')} />
       </Pressable>
       {showDistance && <Range onPress={() => handleChange(false)} />}
@@ -78,12 +81,14 @@ const AppMapView = () => {
         <TouchableOpacity
           onPress={() => navigation.navigate('ParentFeedback')}
           style={styles.secondContainer}>
-          <GlobalIcon
-            library="CustomIcon"
-            name="Group-1982"
-            color={AppColors.red}
-            size={hp(4)}
-          />
+          <View style={{marginBottom: hp(-1)}}>
+            <GlobalIcon
+              library="FontelloIcon"
+              name="group-1982"
+              color={AppColors.red}
+              size={hp(4)}
+            />
+          </View>
         </TouchableOpacity>
       </View>
     </View>

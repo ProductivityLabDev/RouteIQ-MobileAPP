@@ -13,6 +13,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Octicons from 'react-native-vector-icons/Octicons';
 import Foundation from 'react-native-vector-icons/Foundation'
 import CustomIcon from './CustomIcon';
+import FontelloIcon from './FontelloIcon';
 
 interface IconProps {
   name: any;
@@ -38,7 +39,8 @@ const iconLibraries: IconLibraries = {
   MaterialCommunityIcons: MaterialCommunityIcons ,
   Octicons: Octicons ,
   CustomIcon: CustomIcon,
-  Foundation: Foundation 
+  Foundation: Foundation ,
+  FontelloIcon: FontelloIcon 
 };
 
 const GlobalIcon: React.FC<IconProps & { library?: string }> = ({ library = 'FontAwesome', name = 'arrow', size = 24, color = '#fff', ...props }) => {

@@ -12,7 +12,7 @@ const AppDoc: React.FC<AppDocProps> = ({ title, containerStyle }) => {
     return (
         <View style={[styles.container, containerStyle]}>
             <Text style={[styles.docName, { fontSize: size.sl }]}>{title}</Text>
-            <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} />
+            <View style={{transform: [{ rotate: '-50deg' }]}}><GlobalIcon library='MaterialIcons' name={'attachment'} color={AppColors.black} /></View>
             {/* <GlobalIcon library='CustomIcon' name={'attachment_svgrepocom'} color={AppColors.brightGrey} /> */}
         </View>
     )

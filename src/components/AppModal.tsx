@@ -20,8 +20,8 @@ const AppModal: React.FC<AppModalProps> = ({visible, setVisible}) => {
         ]}>
         <View style={styles.modalContainer}>
           <GlobalIcon
-            library="CustomIcon"
-            name="Frame"
+            library="FontelloIcon"
+            name="frame11"
             color={AppColors.red}
             size={hp(6)}
           />
@@ -66,5 +66,6 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderRadius: hp(1),
   },
-  titleContainer: {alignItems: 'center', marginTop: hp(1)},
+  titleContainer: {alignItems: 'center'},
+  // titleContainer: {alignItems: 'center', marginTop: hp(-1)},
 });

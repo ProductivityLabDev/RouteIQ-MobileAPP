@@ -8,6 +8,7 @@ import AlarmIcon from '../../assets/svgs/AlarmIcon';
 import {hp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import {alertButtonText} from '../../utils/objects';
+import GlobalIcon from '../../components/GlobalIcon';
 
 const AlertScreen = () => {
   return (
@@ -23,7 +24,8 @@ const AlertScreen = () => {
       <View
         style={[AppStyles.driverContainer, {justifyContent: 'space-between'}]}>
         <View style={[AppStyles.halfFlex, AppStyles.center]}>
-          <AlarmIcon height={hp(5)} width={hp(5)} color={AppColors.red} />
+        <GlobalIcon library="FontelloIcon" name="vector" color={AppColors.red} size={hp(5)} />
+          {/* <AlarmIcon height={hp(5)} width={hp(5)} color={AppColors.red} /> */}
           <View
             style={[
               AppStyles.alignJustifyCenter,

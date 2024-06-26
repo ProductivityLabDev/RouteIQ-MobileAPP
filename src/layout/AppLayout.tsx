@@ -6,6 +6,7 @@ import {hp, StatusBarHeight} from '../utils/constants';
 import AppStyles from '../styles/AppStyles';
 import AlarmIcon from '../assets/svgs/AlarmIcon';
 import {useNavigation} from '@react-navigation/native';
+import GlobalIcon from '../components/GlobalIcon';
 
 const AppLayout: React.FC<AppLayoutProps> = ({
   children,

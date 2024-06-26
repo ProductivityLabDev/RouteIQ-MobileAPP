@@ -14,16 +14,21 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-routeIQ-routeIQTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-routeIQ-routeIQTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		51F8C40FF5D545458A2333C6 /* icomoon.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C386F328313B45A3BF76E85B /* icomoon.ttf */; };
-		9B944A35D90447A596FEA134 /* icomoon.eot in Resources */ = {isa = PBXBuildFile; fileRef = CC31878E287A42C3A835D44B /* icomoon.eot */; };
-		D415A85BF2AD4B948F5A272A /* icomoon.svg in Resources */ = {isa = PBXBuildFile; fileRef = D336971CE4544FB19CDB9921 /* icomoon.svg */; };
-		C1476FC7DCA445D198FF9E46 /* icomoon.woff in Resources */ = {isa = PBXBuildFile; fileRef = C54E3FAB014E473EB9CB6CF1 /* icomoon.woff */; };
 		F89A3630F90846DB985EE682 /* NunitoSansBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E273167375ED4E048714F700 /* NunitoSansBold.ttf */; };
 		EFFE40664941453E9D4482D0 /* NunitoSansExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E968092AE97D45C6B44311FA /* NunitoSansExtraBold.ttf */; };
 		72EBCDA466E4462D80DE3687 /* NunitoSansLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ABEF48C7465B4F878B9B22B4 /* NunitoSansLight.ttf */; };
 		39CE94F03DC443918338F60E /* NunitoSansMedium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3D96FA92258A40E58B8B813B /* NunitoSansMedium.ttf */; };
 		EC16B81260E8460497C50914 /* NunitoSansSemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EA269540E4BB43E6B41096AD /* NunitoSansSemiBold.ttf */; };
-		C4A6E77D61534F3E82009B02 /* NunitoSans_7pt-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 558D823A11DD4F019AFA6BD1 /* NunitoSans_7pt-Regular.ttf */; };
+		6F407AA29A9745B29E59CE83 /* NunitoSansRegular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C37A645A6C904268923F5672 /* NunitoSansRegular.ttf */; };
+		C697C773DCFB4C0AB725AC6F /* icomoon.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47A37EB68462413F8A0AAFC3 /* icomoon.ttf */; };
+		12579BBAEB884D91811F71F7 /* icomoon.eot in Resources */ = {isa = PBXBuildFile; fileRef = 99DD16347CDB415F95A7C5D6 /* icomoon.eot */; };
+		3DEA925082544455A2653F6F /* icomoon.svg in Resources */ = {isa = PBXBuildFile; fileRef = 5866DC5B613A48F3BC7CA635 /* icomoon.svg */; };
+		00D546255C5E4D959969C155 /* icomoon.woff in Resources */ = {isa = PBXBuildFile; fileRef = 43EA6CEFBF414C6EB71E5088 /* icomoon.woff */; };
+		A8F5595851874440BB745F0B /* fontello.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 19425F4D0B774E31843B1044 /* fontello.ttf */; };
+		A94EFCF7C0FF4415A96AB32A /* fontello.eot in Resources */ = {isa = PBXBuildFile; fileRef = EEDD1D8053244DCE88E6475A /* fontello.eot */; };
+		26904168CEEA441DBF2CC45E /* fontello.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4FF7AE0E05C7484AB006B6AD /* fontello.svg */; };
+		89C4465775EC46BD9D6DAD77 /* fontello.woff in Resources */ = {isa = PBXBuildFile; fileRef = 664A2ACE6B894EB7B3275951 /* fontello.woff */; };
+		994239FF5FA8407BB31BC7EE /* fontello.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = 07ECD2B7BB484C4EA53F12F5 /* fontello.woff2 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,16 +60,21 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = routeIQ/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-routeIQ-routeIQTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-routeIQ-routeIQTests.release.xcconfig"; path = "Target Support Files/Pods-routeIQ-routeIQTests/Pods-routeIQ-routeIQTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		C386F328313B45A3BF76E85B /* icomoon.ttf */ = {isa = PBXFileReference; name = "icomoon.ttf"; path = "../src/assets/fonts/icomoon.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		CC31878E287A42C3A835D44B /* icomoon.eot */ = {isa = PBXFileReference; name = "icomoon.eot"; path = "../src/assets/fonts/icomoon.eot"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		D336971CE4544FB19CDB9921 /* icomoon.svg */ = {isa = PBXFileReference; name = "icomoon.svg"; path = "../src/assets/fonts/icomoon.svg"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		C54E3FAB014E473EB9CB6CF1 /* icomoon.woff */ = {isa = PBXFileReference; name = "icomoon.woff"; path = "../src/assets/fonts/icomoon.woff"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		E273167375ED4E048714F700 /* NunitoSansBold.ttf */ = {isa = PBXFileReference; name = "NunitoSansBold.ttf"; path = "../src/assets/fonts/NunitoSansBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		E968092AE97D45C6B44311FA /* NunitoSansExtraBold.ttf */ = {isa = PBXFileReference; name = "NunitoSansExtraBold.ttf"; path = "../src/assets/fonts/NunitoSansExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		ABEF48C7465B4F878B9B22B4 /* NunitoSansLight.ttf */ = {isa = PBXFileReference; name = "NunitoSansLight.ttf"; path = "../src/assets/fonts/NunitoSansLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		3D96FA92258A40E58B8B813B /* NunitoSansMedium.ttf */ = {isa = PBXFileReference; name = "NunitoSansMedium.ttf"; path = "../src/assets/fonts/NunitoSansMedium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		EA269540E4BB43E6B41096AD /* NunitoSansSemiBold.ttf */ = {isa = PBXFileReference; name = "NunitoSansSemiBold.ttf"; path = "../src/assets/fonts/NunitoSansSemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		558D823A11DD4F019AFA6BD1 /* NunitoSans_7pt-Regular.ttf */ = {isa = PBXFileReference; name = "NunitoSans_7pt-Regular.ttf"; path = "../src/assets/fonts/NunitoSans_7pt-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C37A645A6C904268923F5672 /* NunitoSansRegular.ttf */ = {isa = PBXFileReference; name = "NunitoSansRegular.ttf"; path = "../src/assets/fonts/NunitoSansRegular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		47A37EB68462413F8A0AAFC3 /* icomoon.ttf */ = {isa = PBXFileReference; name = "icomoon.ttf"; path = "../src/assets/fonts/icomoon.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		99DD16347CDB415F95A7C5D6 /* icomoon.eot */ = {isa = PBXFileReference; name = "icomoon.eot"; path = "../src/assets/fonts/icomoon.eot"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		5866DC5B613A48F3BC7CA635 /* icomoon.svg */ = {isa = PBXFileReference; name = "icomoon.svg"; path = "../src/assets/fonts/icomoon.svg"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		43EA6CEFBF414C6EB71E5088 /* icomoon.woff */ = {isa = PBXFileReference; name = "icomoon.woff"; path = "../src/assets/fonts/icomoon.woff"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		19425F4D0B774E31843B1044 /* fontello.ttf */ = {isa = PBXFileReference; name = "fontello.ttf"; path = "../src/assets/fonts/fontello.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		EEDD1D8053244DCE88E6475A /* fontello.eot */ = {isa = PBXFileReference; name = "fontello.eot"; path = "../src/assets/fonts/fontello.eot"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4FF7AE0E05C7484AB006B6AD /* fontello.svg */ = {isa = PBXFileReference; name = "fontello.svg"; path = "../src/assets/fonts/fontello.svg"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		664A2ACE6B894EB7B3275951 /* fontello.woff */ = {isa = PBXFileReference; name = "fontello.woff"; path = "../src/assets/fonts/fontello.woff"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		07ECD2B7BB484C4EA53F12F5 /* fontello.woff2 */ = {isa = PBXFileReference; name = "fontello.woff2"; path = "../src/assets/fonts/fontello.woff2"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,16 +184,21 @@
 		FF193855CA9348708E52494F /* Resources */ = {
 			isa = "PBXGroup";
 			children = (
-				C386F328313B45A3BF76E85B /* icomoon.ttf */,
-				CC31878E287A42C3A835D44B /* icomoon.eot */,
-				D336971CE4544FB19CDB9921 /* icomoon.svg */,
-				C54E3FAB014E473EB9CB6CF1 /* icomoon.woff */,
 				E273167375ED4E048714F700 /* NunitoSansBold.ttf */,
 				E968092AE97D45C6B44311FA /* NunitoSansExtraBold.ttf */,
 				ABEF48C7465B4F878B9B22B4 /* NunitoSansLight.ttf */,
 				3D96FA92258A40E58B8B813B /* NunitoSansMedium.ttf */,
 				EA269540E4BB43E6B41096AD /* NunitoSansSemiBold.ttf */,
-				558D823A11DD4F019AFA6BD1 /* NunitoSans_7pt-Regular.ttf */,
+				C37A645A6C904268923F5672 /* NunitoSansRegular.ttf */,
+				47A37EB68462413F8A0AAFC3 /* icomoon.ttf */,
+				99DD16347CDB415F95A7C5D6 /* icomoon.eot */,
+				5866DC5B613A48F3BC7CA635 /* icomoon.svg */,
+				43EA6CEFBF414C6EB71E5088 /* icomoon.woff */,
+				19425F4D0B774E31843B1044 /* fontello.ttf */,
+				EEDD1D8053244DCE88E6475A /* fontello.eot */,
+				4FF7AE0E05C7484AB006B6AD /* fontello.svg */,
+				664A2ACE6B894EB7B3275951 /* fontello.woff */,
+				07ECD2B7BB484C4EA53F12F5 /* fontello.woff2 */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -284,16 +299,21 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				51F8C40FF5D545458A2333C6 /* icomoon.ttf in Resources */,
-				9B944A35D90447A596FEA134 /* icomoon.eot in Resources */,
-				D415A85BF2AD4B948F5A272A /* icomoon.svg in Resources */,
-				C1476FC7DCA445D198FF9E46 /* icomoon.woff in Resources */,
 				F89A3630F90846DB985EE682 /* NunitoSansBold.ttf in Resources */,
 				EFFE40664941453E9D4482D0 /* NunitoSansExtraBold.ttf in Resources */,
 				72EBCDA466E4462D80DE3687 /* NunitoSansLight.ttf in Resources */,
 				39CE94F03DC443918338F60E /* NunitoSansMedium.ttf in Resources */,
 				EC16B81260E8460497C50914 /* NunitoSansSemiBold.ttf in Resources */,
-				C4A6E77D61534F3E82009B02 /* NunitoSans_7pt-Regular.ttf in Resources */,
+				6F407AA29A9745B29E59CE83 /* NunitoSansRegular.ttf in Resources */,
+				C697C773DCFB4C0AB725AC6F /* icomoon.ttf in Resources */,
+				12579BBAEB884D91811F71F7 /* icomoon.eot in Resources */,
+				3DEA925082544455A2653F6F /* icomoon.svg in Resources */,
+				00D546255C5E4D959969C155 /* icomoon.woff in Resources */,
+				A8F5595851874440BB745F0B /* fontello.ttf in Resources */,
+				A94EFCF7C0FF4415A96AB32A /* fontello.eot in Resources */,
+				26904168CEEA441DBF2CC45E /* fontello.svg in Resources */,
+				89C4465775EC46BD9D6DAD77 /* fontello.woff in Resources */,
+				994239FF5FA8407BB31BC7EE /* fontello.woff2 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

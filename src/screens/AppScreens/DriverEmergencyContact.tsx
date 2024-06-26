@@ -160,7 +160,7 @@ const DriverEmergencyContact = () => {
 
                 </View>
 
-                <UploadDoc title='Add New' containerStyle={{ marginHorizontal: hp(2), alignSelf: 'center', width: '80%', borderRadius: 15 }} textStyle={{ fontSize: size.default }} />
+                <UploadDoc title='Add New' containerStyle={{ marginHorizontal: hp(2), alignSelf: 'center', width: '80%', borderRadius: 15 }} textStyle={{ fontSize: size.default, marginTop: hp(-3) }} />
 
 
 

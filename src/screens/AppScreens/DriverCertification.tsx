@@ -80,9 +80,9 @@ export default function DriverCertification() {
                                     <Text style={styles.nameText}>Mark Tommay</Text>
                                     <Text style={styles.headerSubTitle}>Exp Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
                                     <Text style={styles.headerSubTitle}>Renewal Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                    <View style={[styles.row1,{width: '100%'}]}>
+                                    <View style={[styles.row1,{width: '100%', paddingRight: hp(1)}]}>
                                         <Text style={[styles.headerSubTitle, { color: AppColors.green }]}>Verified</Text>
-                                        <GlobalIcon library='CustomIcon' name={'attachment_svgrepoco'} color={AppColors.red} />
+                                        <View style={{transform: [{ rotate: '-50deg' }]}}><GlobalIcon library='MaterialIcons' name={'attachment'} color={AppColors.black} /></View>
                                     </View>
                                 </View>
                             </View>

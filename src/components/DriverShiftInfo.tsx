@@ -254,7 +254,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
 
                                 <View style={styles.lastLine}>
                                     <Text style={[AppStyles.titleHead, styles.salaryBreakdownTitles, styles.salaryHeading]}>Salary Details</Text>
-                                    <GlobalIcon name={'chevron-back'} library='CustomIcon' />
+                                    <GlobalIcon name={'arrowright'} library='AntDesign' />
                                 </View>
 
                                 <View style={[styles.lastLine]}>

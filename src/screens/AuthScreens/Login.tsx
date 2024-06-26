@@ -46,7 +46,10 @@ const Login = () => {
                 color={AppColors.red}
               />
             </TouchableOpacity>
-            <Image style={{height: hp(40), width: hp(40), resizeMode: 'contain'}} source={require('../../assets/images/Splash_icon.png')} />
+            <Image
+              style={{height: hp(40), width: hp(40), resizeMode: 'contain'}}
+              source={require('../../assets/images/Splash_icon.png')}
+            />
             <View></View>
           </View>
           <View style={AppStyles.center}>
@@ -63,12 +66,14 @@ const Login = () => {
                 container={styles.inputContainer}
                 labelStyle={styles.inputLabelStyle}
                 rightInnerIcon={
-                  <GlobalIcon
-                    size={20}
-                    library="CustomIcon"
-                    color={AppColors.inputGrey}
-                    name="-icon-_email"
-                  />
+                  <View style={{marginBottom: hp(-.4)}}>
+                    <GlobalIcon
+                      size={20}
+                      library="FontelloIcon"
+                      color={AppColors.inputGrey}
+                      name="-icon-_email"
+                    />
+                  </View>
                 }
               />
               <AppInput
@@ -84,10 +89,16 @@ const Login = () => {
                 rightInnerIcon={
                   <GlobalIcon
                     size={20}
-                    library="CustomIcon"
+                    library="FontelloIcon"
                     color={AppColors.inputGrey}
-                    name="-icon-_lock"
+                    name="lock"
                   />
+                  // <GlobalIcon
+                  //   size={20}
+                  //   library="CustomIcon"
+                  //   color={AppColors.inputGrey}
+                  //   name="-icon-_lock"
+                  // />
                 }
               />
               <TouchableOpacity

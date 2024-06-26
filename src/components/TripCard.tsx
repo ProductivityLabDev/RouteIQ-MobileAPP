@@ -104,10 +104,11 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
           {!declined && (
             <View style={AppStyles.rowBetween}>
               <View style={[AppStyles.row, {width: '30%'}]}>
-                <MapViewIcon />
+                {/* <MapViewIcon /> */}
+                <GlobalIcon library="FontelloIcon" name="frame" color={AppColors.white} size={hp(2.6)} />
                 <TouchableOpacity
                   onPress={() => navigation.navigate('DriverMapView')}
-                  style={{marginLeft: hp(0.5), padding: hp(0.5)}}>
+                  style={{marginLeft: hp(0.5), padding: hp(0.5), top: hp(-.4)}}>
                   <Text
                     style={[
                       AppStyles.whiteSubTitle,
@@ -166,11 +167,12 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   {marginVertical: hp(1.5), width: '100%'},
                 ]}>
                 <View style={styles.busContainer}>
-                  <BusIcon color={handleSetColor(trip?.status)} />
+                <GlobalIcon library="FontelloIcon" name="group-(1)" color={handleSetColor(trip?.status)} size={hp(4.5)} />
+                  {/* <BusIcon color={handleSetColor(trip?.status)} /> */}
                   <Text
                     style={[
                       AppStyles.title,
-                      {fontFamily: AppFonts.NunitoSansBold},
+                      {fontFamily: AppFonts.NunitoSansBold, marginTop: hp(-1.5)},
                     ]}>
                     {trip?.status}
                   </Text>

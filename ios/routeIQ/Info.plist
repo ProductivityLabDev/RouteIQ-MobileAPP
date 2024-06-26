@@ -49,13 +49,14 @@
 	<false/>
 	<key>UIAppFonts</key>
 	<array>
-		<string>icomoon.ttf</string>
 		<string>NunitoSansBold.ttf</string>
 		<string>NunitoSansExtraBold.ttf</string>
 		<string>NunitoSansLight.ttf</string>
 		<string>NunitoSansMedium.ttf</string>
 		<string>NunitoSansSemiBold.ttf</string>
-		<string>NunitoSans_7pt-Regular.ttf</string>
+		<string>NunitoSansRegular.ttf</string>
+		<string>icomoon.ttf</string>
+		<string>fontello.ttf</string>
 	</array>
 </dict>
 </plist>

@@ -42,9 +42,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           <View style={AppStyles.rowBetween}>
             <View style={styles.iconContainer}>
               {!enableBack && (
-                <Pressable style={styles.icon} onPress={onPressLeftIcon}>
+                <Pressable style={[styles.icon, {marginBottom: hp(-1)}]} onPress={onPressLeftIcon}>
                   <GlobalIcon
-                    library="CustomIcon"
+                    library="FontelloIcon"
                     name="settings"
                     color={AppColors.white}
                     size={hp(3.5)}

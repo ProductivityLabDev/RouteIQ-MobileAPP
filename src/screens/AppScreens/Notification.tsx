@@ -92,9 +92,9 @@ const Notifications = () => {
           />
         ) : (
           <View style={styles.noNotifContainer}>
-            <View>
+            <View style={{top: hp(4)}}>
             <GlobalIcon
-              library="CustomIcon"
+              library="FontelloIcon"
               name="checkmark-1"
               color={role == 'Driver' ? AppColors.red : AppColors.black}
               size={80}
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
 
   noNotifContainer: {
-    flex: 1, //need fix here
+    flex: .9, //need fix here
     justifyContent: 'center',
     alignItems: 'center',
     gap: hp(1),

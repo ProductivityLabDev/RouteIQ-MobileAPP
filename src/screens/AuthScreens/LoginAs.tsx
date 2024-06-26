@@ -30,15 +30,20 @@ const LoginAs = () => {
             <AppButton
               onPress={() => handleSetRole('Driver', navigation, dispatch)}
               title="Driver"
+              titleStyle={{marginTop: hp(-.6)}}
+              style={{paddingTop: hp(.9)}}
               leftIcon={
-                <GlobalIcon library="CustomIcon" name="Group-1961" size={20} />
+                <GlobalIcon library="FontelloIcon" name="group-1961" size={20} />
               }
             />
             <AppButton
               onPress={() => handleSetRole('Parents', navigation, dispatch)}
               title="Parent"
+              titleStyle={{marginTop: hp(-1)}}
+              style={{paddingTop: hp(.9)}}
               leftIcon={
-                <GlobalIcon library="CustomIcon" name="Group" size={20} />
+                <GlobalIcon library="FontelloIcon" name="group-(1)" size={20} />
+                // <GlobalIcon library="CustomIcon" name="Group" size={20} />
               }
             />
           </View>

@@ -1,17 +1,26 @@
-import { Image, ImageBackground, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
-import React, { useState } from 'react';
-import { AppColors } from '../../utils/color';
+import {
+  Image,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
+import React, {useState} from 'react';
+import {AppColors} from '../../utils/color';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
-import { hp, screenWidth, wp } from '../../utils/constants';
-import { size } from '../../utils/responsiveFonts';
-import { useNavigation } from '@react-navigation/native';
+import {hp, screenHeight, screenWidth, wp} from '../../utils/constants';
+import {size} from '../../utils/responsiveFonts';
+import {useNavigation} from '@react-navigation/native';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppButton from '../../components/AppButton';
-import { useAppDispatch } from '../../store/hooks';
-import { saveToken } from '../../store/user/userSlices';
+import {useAppDispatch} from '../../store/hooks';
+import {saveToken} from '../../store/user/userSlices';
 
 const DriverProfile = () => {
   const dispatch = useAppDispatch();
@@ -20,14 +29,12 @@ const DriverProfile = () => {
 
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
-
-
   const settingItems = [
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-2022"
+          library="FontelloIcon"
+          name="group-2022"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -37,8 +44,8 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-2019"
+          library="FontelloIcon"
+          name="group-2019"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -48,8 +55,8 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-2020"
+          library="FontelloIcon"
+          name="group-2020"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -59,8 +66,8 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-2021"
+          library="FontelloIcon"
+          name="group-2021"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -70,8 +77,8 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-289239"
+          library="FontelloIcon"
+          name="group-289239"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -81,8 +88,8 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-2023"
+          library="FontelloIcon"
+          name="group-2023"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -92,11 +99,10 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-2024"
+          library="FontelloIcon"
+          name="group-2024"
           color={AppColors.red}
           size={hp(2.5)}
-          
         />
       ),
       title: 'Incident',
@@ -104,8 +110,8 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
-          name="Group-2025"
+          library="FontelloIcon"
+          name="group-2025"
           color={AppColors.red}
           size={hp(2.5)}
         />
@@ -115,7 +121,7 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
+          library="FontelloIcon"
           name="lock"
           color={AppColors.red}
           size={hp(2.5)}
@@ -127,25 +133,23 @@ const DriverProfile = () => {
 
   const handleRoute = (name: string) => {
     if (name == 'Profile Info') navigation.navigate('DriverProfileInfo');
-    if (name == 'Emergency Contact') navigation.navigate('DriverEmergencyContact');
+    if (name == 'Emergency Contact')
+      navigation.navigate('DriverEmergencyContact');
     if (name == 'Qualification') navigation.navigate('DriverQualifications');
     if (name == 'Certification') navigation.navigate('DriverCertification');
     if (name == 'Change Password') navigation.navigate('DriverChangePassword');
-    if (name == 'Medical Record (Optional)') navigation.navigate('DriverMedicalRecord');
+    if (name == 'Medical Record (Optional)')
+      navigation.navigate('DriverMedicalRecord');
     if (name == 'History') navigation.navigate('DriverHistory');
     if (name == 'Incident') navigation.navigate('DriverIncident');
     if (name == 'Shift Tracking') navigation.navigate('DriverShiftTracking');
-  }
-
-
-
+  };
 
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{ backgroundColor: AppColors.profileBg }}>
-
-
+      style={{backgroundColor: AppColors.profileBg}}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{height: screenHeight}}>
       <ImageBackground
         style={styles.headerImage}
         source={require('../../assets/images/redCurvedBorderBg.png')}>
@@ -154,7 +158,7 @@ const DriverProfile = () => {
           title="Profile"
           enableBack={false}
           rightIcon={false}
-          containerStyle={{ height: hp(11) }}
+          containerStyle={{height: hp(11)}}
         />
         <View style={styles.imageContainer}>
           <Image
@@ -171,7 +175,7 @@ const DriverProfile = () => {
               fontFamily: AppFonts.NunitoSansBold,
               alignSelf: 'center',
               fontSize: size.lg,
-              marginTop: hp(1)
+              marginTop: hp(1),
             },
           ]}>
           Mark Tommay
@@ -195,7 +199,7 @@ const DriverProfile = () => {
             <Text
               style={[
                 styles.headerSubTitle,
-                { fontFamily: AppFonts.NunitoSansSemiBold, textAlign: 'right' },
+                {fontFamily: AppFonts.NunitoSansSemiBold, textAlign: 'right'},
               ]}>
               Status:
             </Text>
@@ -212,11 +216,7 @@ const DriverProfile = () => {
           </View>
         </View>
 
-
-
-
         <View style={styles.mainItemsContainer}>
-
           {settingItems.map((item, index) => (
             <Pressable
               onPress={() => handleRoute(item.title)}
@@ -231,6 +231,7 @@ const DriverProfile = () => {
                       fontSize: size.default,
                       marginLeft: hp(1),
                       fontFamily: AppFonts.NunitoSansSemiBold,
+                      top: hp(-0.4),
                     },
                   ]}>
                   {item.title}
@@ -244,10 +245,7 @@ const DriverProfile = () => {
               />
             </Pressable>
           ))}
-
-
         </View>
-
 
         <AppButton
           title="Logout"
@@ -260,17 +258,12 @@ const DriverProfile = () => {
             marginHorizontal: wp(7),
             alignSelf: 'center',
             position: 'relative',
-            top: -10
+            top: -5,
           }}
-          titleStyle={{ fontSize: size.md
-          }}
+          titleStyle={{fontSize: size.md}}
         />
-
       </ImageBackground>
-
-
-
-
+      </ScrollView>
     </AppLayout>
   );
 };
@@ -278,7 +271,6 @@ const DriverProfile = () => {
 export default DriverProfile;
 
 const styles = StyleSheet.create({
-
   mainItemsContainer: {
     paddingHorizontal: wp(4),
     marginHorizontal: wp(4),
@@ -286,10 +278,10 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     paddingVertical: hp(2),
     position: 'relative',
-    top: -20,
+    top: hp(-1.3),
     borderColor: AppColors.lightGrey,
     borderWidth: 1,
-    elevation: 5
+    elevation: 5,
   },
 
   itemContainer: {
@@ -299,14 +291,13 @@ const styles = StyleSheet.create({
     marginVertical: hp(0),
   },
 
-
   headerImage: {
     height: 400,
     width: screenWidth,
     paddingTop: hp(0),
     position: 'absolute',
   },
-  layoutContainer: { backgroundColor: 'rgba(16, 35, 53, 0)', paddingTop: 0 },
+  layoutContainer: {backgroundColor: 'rgba(16, 35, 53, 0)', paddingTop: 0},
   headerBottomContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: hp(2),
@@ -317,7 +308,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     height: hp(9),
     width: hp(9),
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   container: {
     flex: 1,
@@ -335,7 +326,7 @@ const styles = StyleSheet.create({
     elevation: 0,
     opacity: 1,
   },
-  headerTitle: { gap: hp(0.5), paddingTop: hp(1) },
+  headerTitle: {gap: hp(0.5), paddingTop: hp(1)},
   headerSubTitle: {
     fontFamily: AppFonts.NunitoSansMedium,
     fontSize: size.sl,
@@ -358,7 +349,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: hp(20),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
@@ -379,8 +370,8 @@ const styles = StyleSheet.create({
     height: hp(6),
     borderRadius: hp(0.5),
   },
-  cancelButton: { width: '35%', backgroundColor: AppColors.lightGrey },
-  submitButton: { width: '60%', backgroundColor: AppColors.black },
+  cancelButton: {width: '35%', backgroundColor: AppColors.lightGrey},
+  submitButton: {width: '60%', backgroundColor: AppColors.black},
   label: {
     marginBottom: 5,
     color: AppColors.black,

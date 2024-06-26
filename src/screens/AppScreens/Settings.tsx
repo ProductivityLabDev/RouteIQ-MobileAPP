@@ -24,10 +24,10 @@ export default function Settings() {
     {
       leftIcon: (
         <GlobalIcon
-          library="FontAwesome"
-          name="user-circle-o"
+          library="FontelloIcon"
+          name="account_circle"
           color={AppColors.red}
-          size={hp(2.5)}
+          size={hp(3)}
         />
       ),
       screen: 'ChildProfile',
@@ -37,10 +37,10 @@ export default function Settings() {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
+          library="FontelloIcon"
           name="domain_verification"
           color={AppColors.red}
-          size={hp(2.5)}
+          size={hp(3)}
         />
       ),
       screen: 'AttendanceHistory',
@@ -62,7 +62,7 @@ export default function Settings() {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
+          library="FontelloIcon"
           name="-icon-_lock"
           color={AppColors.red}
           size={hp(3)}
@@ -75,10 +75,10 @@ export default function Settings() {
     {
       leftIcon: (
         <GlobalIcon
-          library="CustomIcon"
+          library="FontelloIcon"
           name="notifications"
           color={AppColors.red}
-          size={hp(2.5)}
+          size={hp(3)}
         />
       ),
       screen: 'ChildProfile',
@@ -110,7 +110,7 @@ export default function Settings() {
               disabled={item.disabled}
               key={index}
               style={[AppStyles.rowBetween, styles.itemContainer]}>
-              <View style={[AppStyles.row]}>
+              <View style={[AppStyles.row, {top: hp(.2)}]}>
                 {item.leftIcon}
                 <Text style={styles.title}>{item.title}</Text>
               </View>
@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
     marginLeft: hp(1),
     fontFamily: AppFonts.NunitoSansSemiBold,
     color: AppColors.black,
+    marginTop: hp(-.7)
   },
   button: {
     alignSelf: 'center',

@@ -45,12 +45,14 @@ export default function ChildProfile() {
               />
             </View>
             <View style={styles.cameraIcon}>
-              <GlobalIcon
-                library="CustomIcon"
-                name="Group-183"
-                color={AppColors.black}
-                size={hp(2.5)}
-              />
+              <View style={{marginTop: hp(.5)}}>
+                <GlobalIcon
+                  library="FontelloIcon"
+                  name="group-183"
+                  color={AppColors.black}
+                  size={hp(2.5)}
+                />
+              </View>
             </View>
           </View>
 
@@ -162,13 +164,16 @@ const styles = StyleSheet.create({
     borderRadius: hp(16),
   },
   cameraIcon: {
-    padding: hp(1),
+    height: hp(5),
+    width: hp(5),
     borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: hp(10),
     position: 'absolute',
     top: 125,
     right: 112,
     backgroundColor: AppColors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   inputContainerStyle: {marginBottom: hp(1.4)},
   boxStyle: {
