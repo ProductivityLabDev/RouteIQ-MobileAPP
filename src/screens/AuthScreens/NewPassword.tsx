@@ -51,7 +51,7 @@ const NewPassword = () => {
               rightInnerIcon={
                 <GlobalIcon
                   size={20}
-                  library="CustomIcon"
+                  library="FontelloIcon"
                   color={AppColors.inputGrey}
                   name="-icon-_lock"
                 />
@@ -70,7 +70,7 @@ const NewPassword = () => {
               rightInnerIcon={
                 <GlobalIcon
                   size={20}
-                  library="CustomIcon"
+                  library="FontelloIcon"
                   color={AppColors.inputGrey}
                   name="-icon-_lock"
                 />

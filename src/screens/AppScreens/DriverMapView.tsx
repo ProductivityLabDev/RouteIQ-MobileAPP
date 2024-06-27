@@ -82,17 +82,17 @@ const DriverMapView = () => {
 
 
         <Pressable
-        style={[styles.bottomContainers, {bottom: hp(25), justifyContent: 'center'}]}>
-        <Image source={require('../../assets/images/DriverMapDirectionsPic.png')} />
-<View style={{position: 'absolute', top: 100}}>
-<Image source={require('../../assets/images/DriverMapDirectionsPic.png')} />
+        style={[styles.bottomContainers, {bottom: hp(20), justifyContent: 'center'}]}>
+        <Image source={require('../../assets/images/mappic.png')} />
+        {/* <View style={{position: 'absolute', top: 100}}> */}
+        {/* <Image source={require('../../assets/images/DriverMapDirectionsPic.png')} /> */}
             {/* <GlobalIcon
               library="CustomIcon"
               name="Ellipse-1-1"
               color={AppColors.black}
               size={30}
             /> */}
-                            </View>
+        {/* </View> */}
       </Pressable>
 
         <View style={[styles.absoluteContainer]}>
