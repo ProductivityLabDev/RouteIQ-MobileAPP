@@ -12,7 +12,7 @@ import { UploadDocProps } from '../types/types'
 
     return (
         <View style={[styles.uploadDocBox, containerStyle]}>
-            <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} size={40} />
+            <GlobalIcon library='FontelloIcon' name='group-(5)' color={AppColors.red} size={40} />
             <Text style={[styles.tapText, textStyle]} >{title}</Text>
         </View>
     )
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
         marginVertical: hp(3),
         marginTop: hp(2),
         height: hp(15),
-        gap: hp(1),
+        gap: hp(2.5),
         borderRadius: 2,
         borderWidth: 1,
         borderStyle: 'dashed',
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 
         fontFamily: AppFonts.NunitoSansSemiBold,
         fontSize: size.s,
-        lineHeight: 20,
+        // lineHeight: 20,
         color: AppColors.red,
         alignSelf: 'center',
     },

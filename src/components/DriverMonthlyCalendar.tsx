@@ -29,7 +29,7 @@ const DriverMonthlyCalendar = () => {
   const renderHeader = () => {
     return (
       <View style={[AppStyles.row, styles.header]}>
-        <TouchableOpacity onPress={() => changeMonth(-1)}>
+        <TouchableOpacity style={{padding: hp(1)}} onPress={() => changeMonth(-1)}>
           <GlobalIcon
             library="FontAwesome5"
             name="chevron-left"
@@ -40,7 +40,7 @@ const DriverMonthlyCalendar = () => {
         <TouchableOpacity onPress={() => dispatch(setDriverHomeStatus(false))}>
           <Text style={styles.headerText}>{selectedDate.format('YYYY')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => changeMonth(1)}>
+        <TouchableOpacity style={{padding: hp(1)}} onPress={() => changeMonth(1)}>
           <GlobalIcon
             library="FontAwesome5"
             name="chevron-right"
@@ -187,12 +187,12 @@ const DriverMonthlyCalendar = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 5,
     backgroundColor: AppColors.white,
   },
   header: {
     alignSelf: 'center',
-    marginBottom: 10,
+    // marginBottom: 10,
     gap: 30,
   },
   headerText: {

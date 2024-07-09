@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Bubble, GiftedChat} from 'react-native-gifted-chat';
 import AppStyles from '../styles/AppStyles';
 import AppFonts from '../utils/appFonts';
@@ -98,7 +98,7 @@ const VendorChat = () => {
     },
     {
       _id: 6,
-      text: '1 FEB 12:00',
+      text: '2 FEB 6:00',
       createdAt: new Date(),
       position: 'right',
       user: {
@@ -143,6 +143,18 @@ const VendorChat = () => {
         avatar: 'https://placeimg.com/140/140/any',
       },
       type: 'messages',
+    },
+    {
+      _id: 10,
+      text: '1 FEB 12:00',
+      createdAt: new Date(),
+      position: 'right',
+      user: {
+        _id: 1,
+        name: 'React Native',
+        avatar: 'https://placeimg.com/140/140/any',
+      },
+      type: 'date',
     },
   ]);
 
@@ -246,7 +258,7 @@ const VendorChat = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView scrollEnabled={false} contentContainerStyle={styles.container}>
       <GiftedChat
         renderMessage={renderMessage}
         renderInputToolbar={renderInputToolbar}
@@ -264,7 +276,7 @@ const VendorChat = () => {
         isKeyboardInternallyHandled={false}
         listViewProps={{showsVerticalScrollIndicator: false}}
       />
-    </View>
+    </ScrollView>
   );
 };
 

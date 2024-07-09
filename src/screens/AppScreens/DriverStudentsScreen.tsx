@@ -87,7 +87,7 @@ const DriverStudentsScreen = () => {
             key={numColumns}
             numColumns={numColumns}
             data={studentsData}
-            renderItem={({item}) => <StudentCard position={grid} item={item} />}
+            renderItem={({item, index}) => <StudentCard position={grid} item={item} index={index} />}
             columnWrapperStyle={numColumns > 1 ? styles.row : null}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: hp(20)}}

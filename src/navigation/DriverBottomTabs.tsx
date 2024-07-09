@@ -1,6 +1,6 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, Pressable, StyleSheet, Text, View} from 'react-native';
 import ChatIcon from '../assets/svgs/ChatIcon';
 import HomeIcon from '../assets/svgs/HomeIcon';
 import ProfileIcon from '../assets/svgs/ProfileIcon';
@@ -18,6 +18,7 @@ import {
   StudentStack,
   TasksStack,
 } from './DriverTabStack';
+import GlobalIcon from '../components/GlobalIcon';
 
 const Tab = createBottomTabNavigator();
 
@@ -174,9 +175,19 @@ function DriverBottomTabs() {
                       title="Chat"
                       children={
                         focused ? (
-                          <ChatIcon color={AppColors.red} />
+                          <GlobalIcon
+                            library="Ionicons"
+                            name="chatbubble-ellipses"
+                            color={AppColors.red}
+                          />
+                          // <ChatIcon color={AppColors.red} />
                         ) : (
-                          <ChatIcon color={AppColors.charcoal} />
+                          <GlobalIcon
+                            library="Ionicons"
+                            name="chatbubble-ellipses"
+                            color={AppColors.charcoal}
+                          />
+                          // <ChatIcon color={AppColors.charcoal} />
                         )
                       }
                     />
@@ -210,7 +221,7 @@ export default DriverBottomTabs;
 
 const styles = StyleSheet.create({
   textStyle: {
-    fontSize: size.sl,
+    fontSize: size.s,
     lineHeight: size.vxlg,
     width: '100%',
     fontFamily: AppFonts.NunitoSansSemiBold,

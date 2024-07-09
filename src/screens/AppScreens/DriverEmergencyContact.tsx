@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
@@ -28,7 +28,7 @@ const DriverEmergencyContact = () => {
                 enableBack={true}
                 rightIcon={false}
             />
-            <View style={[AppStyles.driverContainer, AppStyles.flex, { backgroundColor: AppColors.profileBg, paddingHorizontal: 0 }]}>
+            <ScrollView style={[AppStyles.driverContainer, AppStyles.flex, { backgroundColor: AppColors.profileBg, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
 
                 <View style={{ backgroundColor: AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2) }}>
                     <View style={[AppStyles.rowBetween, { marginBottom: hp(2) }]}>
@@ -37,7 +37,7 @@ const DriverEmergencyContact = () => {
                             {editDetails1 ?
                                 <Text style={[AppStyles.title, { color: AppColors.red }]}>Save</Text>
                                 :
-                                <GlobalIcon library='Ionicons' name={'eyedrop-outline'} color={AppColors.red} />
+                                <GlobalIcon library='FontelloIcon' name={'frame-(3)'} color={AppColors.red} />
                             }
                         </Pressable>
                     </View>
@@ -50,7 +50,7 @@ const DriverEmergencyContact = () => {
                             </Text>
                             :
                             <AppInput
-                                value="Esther Howard"
+                                placeholder="Esther Howard"
                                 containerStyle={AppStyles.halfWidth}
                                 container={[styles.inputContainer, { height: 40 }]}
                                 inputStyle={styles.inputStyle}
@@ -63,7 +63,7 @@ const DriverEmergencyContact = () => {
                             <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>Aunty</Text>
                             :
                             <AppInput
-                                value="Aunty"
+                                placeholder="Aunty"
                                 containerStyle={AppStyles.halfWidth}
                                 container={[styles.inputContainer, { height: 40 }]}
                                 inputStyle={styles.inputStyle}
@@ -82,10 +82,11 @@ const DriverEmergencyContact = () => {
                             </Text>
                             :
                             <AppInput
-                                value="+1-424-271-8337"
+                                placeholder="+1-424-271-8337"
                                 containerStyle={AppStyles.halfWidth}
                                 container={[styles.inputContainer, { height: 40 }]}
                                 inputStyle={styles.inputStyle}
+                                keyboardType='number-pad'
                             />
                         }
                     </View>
@@ -104,7 +105,7 @@ const DriverEmergencyContact = () => {
                                 <Text style={[AppStyles.title, AppStyles.halfWidth, { color: AppColors.red, width: '100%' }]}>Save</Text>
                                 :
                                 // <GlobalIcon library='Ionicons' name={'eyedrop-outline'} color={AppColors.red} />
-                                <GlobalIcon library='Ionicons' name={'eyedrop-outline'} color={AppColors.red} />
+                                <GlobalIcon library='FontelloIcon' name={'frame-(3)'} color={AppColors.red} />
                             }
                         </Pressable>
                     </View>
@@ -116,7 +117,7 @@ const DriverEmergencyContact = () => {
                             </Text>
                             :
                             <AppInput
-                                value="Esther Howard"
+                                placeholder="Esther Howard"
                                 containerStyle={AppStyles.halfWidth}
                                 container={[styles.inputContainer, { height: 40 }]}
                                 inputStyle={styles.inputStyle}
@@ -130,7 +131,7 @@ const DriverEmergencyContact = () => {
                             <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>Grandpa</Text>
                             :
                             <AppInput
-                                value="Grandpa"
+                                placeholder="Grandpa"
                                 containerStyle={AppStyles.halfWidth}
                                 container={[styles.inputContainer, { height: 40 }]}
                                 inputStyle={styles.inputStyle}
@@ -148,10 +149,11 @@ const DriverEmergencyContact = () => {
                             </Text>
                             :
                             <AppInput
-                                value="+1-424-271-8337"
+                                placeholder="+1-424-271-8337"
                                 containerStyle={AppStyles.halfWidth}
                                 container={[styles.inputContainer, { height: 40 }]}
                                 inputStyle={styles.inputStyle}
+                                keyboardType='number-pad'
                             />
                         }
                     </View>
@@ -164,7 +166,7 @@ const DriverEmergencyContact = () => {
 
 
 
-            </View>
+            </ScrollView>
         </AppLayout>
     );
 };

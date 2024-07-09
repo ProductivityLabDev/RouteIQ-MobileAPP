@@ -171,7 +171,7 @@ export default function DriverQualifications() {
                         // multiline
                         numberOfLines={1}
                         container={{ height: hp(6), borderRadius: hp(0.5), marginBottom: hp(2) }}
-                        label="Title"
+                        label="Job Title"
                         placeholder="Enter Job Title"
                         labelStyle={{
                             marginBottom: hp(2),
@@ -336,7 +336,7 @@ export default function DriverQualifications() {
                             titleStyle={{ color: AppColors.textLightGrey }}
                             onPress={() => closeSheet()}
                         />
-                        <AppButton title="Upload" style={styles.submitButton} onPress={() => setDocUploaded(true)} />
+                        <AppButton title="Upload" style={styles.submitButton} onPress={() => { closeSheet(); setDocUploaded(true)}} />
                     </View>
                 </View>
             </AppBottomSheet>

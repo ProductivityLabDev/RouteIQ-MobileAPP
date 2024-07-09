@@ -60,7 +60,11 @@ const DriverProfileInfo = () => {
             style={styles.button}
             titleStyle={styles.buttonTitle}
           />
-          <AppButton title="Confirm" style={{alignSelf: 'center', width: '100%'}} />
+          <AppButton
+            title="Confirm"
+            style={{alignSelf: 'center', width: '100%'}}
+            onPress={() => navigation.goBack()}
+          />
         </View>
       </View>
     </AppLayout>
@@ -76,7 +80,7 @@ const styles = StyleSheet.create({
     borderColor: AppColors.red,
     borderWidth: 1.5,
     marginBottom: hp(2),
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   buttonTitle: {
     color: AppColors.black,

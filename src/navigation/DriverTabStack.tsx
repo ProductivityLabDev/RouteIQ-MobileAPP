@@ -28,6 +28,8 @@ export const TasksStack = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="DriverMaintenanceScreen" component={DriverMaintenanceScreen} />
       <Stack.Screen name="DriverMaintenanceDetail" component={DriverMaintenanceDetail} />
+      <Stack.Screen name="DriverInspection" component={DriverInspection} />
+      <Stack.Screen name="DriverMapView" component={DriverMapView} />
     </Stack.Navigator>
   );
 };

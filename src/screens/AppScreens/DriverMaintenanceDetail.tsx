@@ -4,7 +4,13 @@ import AppLayout from '../../layout/AppLayout';
 import {AppColors} from '../../utils/color';
 import {useAppSelector} from '../../store/hooks';
 import AppStyles from '../../styles/AppStyles';
-import {ImageBackground, StyleSheet, Text, View} from 'react-native';
+import {
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import AppInput from '../../components/AppInput';
 import {hp} from '../../utils/constants';
 import AppFonts from '../../utils/appFonts';
@@ -54,11 +60,15 @@ const DriverMaintenanceDetail = () => {
         enableBack={true}
         rightIcon={true}
       />
-      <View style={[AppStyles.driverContainer, {paddingTop: hp(4)}]}>
-        {maintenanceDetail == 'Fuel' && fuelItem()}
-        {maintenanceDetail == 'Cleaning' && <CleaningCard />}
-        {maintenanceDetail == 'Mileage Record' && <CleaningCard mileage={true} />}
-      </View>
+      <ScrollView>
+        <View style={[AppStyles.driverContainer, {paddingTop: hp(4)}]}>
+          {maintenanceDetail == 'Fuel' && fuelItem()}
+          {maintenanceDetail == 'Cleaning' && <CleaningCard />}
+          {maintenanceDetail == 'Mileage Record' && (
+            <CleaningCard mileage={true} />
+          )}
+        </View>
+      </ScrollView>
     </AppLayout>
   );
 };

@@ -42,7 +42,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           <View style={AppStyles.rowBetween}>
             <View style={styles.iconContainer}>
               {!enableBack && (
-                <Pressable style={[styles.icon, {marginBottom: hp(-1)}]} onPress={onPressLeftIcon}>
+                <Pressable
+                  style={[styles.icon, {marginBottom: hp(-1)}]}
+                  onPress={onPressLeftIcon}>
                   <GlobalIcon
                     library="FontelloIcon"
                     name="settings"
@@ -118,7 +120,18 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 <Text style={[styles.driverTitle, titleStyle]}>{title}</Text>
               )}
               {switchIcon && (
-                <AppSwitchButton isOn={isSwitchOn} onToggle={handleToggle} />
+                <AppSwitchButton
+                  isOn={isSwitchOn}
+                  onToggle={handleToggle}
+                  offTitle="Offline"
+                  switchBackgroundColor={
+                    isSwitchOn ? AppColors.black : '#d3d2d5'
+                  }
+                  circleBackgroundColor={
+                    isSwitchOn ? AppColors.white : '#9f9ca3'
+                  }
+                  titleColor={isSwitchOn ? AppColors.white : AppColors.black}
+                />
               )}
             </View>
             <View style={[styles.iconContainer, {alignItems: 'flex-end'}]}>

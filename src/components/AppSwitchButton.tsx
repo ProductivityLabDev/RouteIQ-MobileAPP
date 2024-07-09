@@ -15,6 +15,8 @@ const AppSwitchButton: React.FC<AppSwitchButtonProps> = ({
   switchBackgroundColor = AppColors.black,
   outputRange = [hp(0.5), hp(9)],
   circleStyle,
+  circleBackgroundColor = AppColors.white,
+  titleColor = AppColors.white,
 }) => {
   const [position] = useState(new Animated.Value(isOn ? 1 : 0));
 
@@ -45,11 +47,20 @@ const AppSwitchButton: React.FC<AppSwitchButtonProps> = ({
           switchBackgroundStyle,
           {backgroundColor},
         ]}>
-        <Animated.Text style={styles.text}>
+        <Animated.Text
+          style={[
+            styles.text,
+            {color: titleColor},
+            isOn ? {left: 10} : {right: 10},
+          ]}>
           {isOn ? onTitle : offTitle}
         </Animated.Text>
         <Animated.View
-          style={[styles.circle, circleStyle, {left: circlePosition}]}
+          style={[
+            styles.circle,
+            circleStyle,
+            {left: circlePosition, backgroundColor: circleBackgroundColor},
+          ]}
         />
       </Animated.View>
     </TouchableOpacity>
@@ -74,13 +85,13 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansSemiBold,
     fontSize: size.default,
     position: 'absolute',
-    left: 10,
+    // left: 10,
   },
   circle: {
     width: hp(3.5),
     height: hp(3.5),
     borderRadius: 50,
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
     position: 'absolute',
   },
 });

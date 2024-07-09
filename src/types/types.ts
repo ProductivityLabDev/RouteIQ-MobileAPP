@@ -82,6 +82,8 @@ export interface AppSwitchButtonProps {
   switchBackgroundColor?: string;
   outputRange?: any;
   circleStyle?: StyleProp<ViewStyle>;
+  circleBackgroundColor?: string;
+  titleColor?: string;
 }
 
 export interface CleaningCardProps {
@@ -97,18 +99,19 @@ export interface UploadDocProps {
 export interface StudentCardProps {
   position?: string;
   item: any;
+  index?: number;
 }
 
-export interface DriverShiftInfoProps{
+export interface DriverShiftInfoProps {
   trackingDetails: Boolean;
 }
 
 interface ChatItem {
   title: string;
   message: string;
-  time: string
+  time: string;
 }
-export interface DriverAllChatsProps{
-  arrayData?:  ChatItem[];
+export interface DriverAllChatsProps {
+  arrayData?: ChatItem[];
   setSchoolChattingScreen?: (value: boolean) => void;
 }

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, useWindowDimensions, PressableAndroidRippleConfig, StyleProp, TextStyle, ViewStyle, Image, Pressable } from 'react-native'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import AppHeader from '../../components/AppHeader'
 import AppLayout from '../../layout/AppLayout'
 import { hp, wp } from '../../utils/constants'
@@ -11,10 +11,15 @@ import { Scene, Event } from 'react-native-tab-view/lib/typescript/src/types'
 import { chats_data } from '../../utils/DummyData';
 import VendorChat from '../../components/VendorChat'
 import DriverAllChats from './DriverAllChats'
+import { useNavigation } from '@react-navigation/native'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { setChatTabIndex } from '../../store/driver/driverSlices'
 
 
 export default function DriverChats() {
-
+    const navigation = useNavigation();
+    const dispatch = useAppDispatch();
+    const chatTabIndex = useAppSelector(state => state.driverSlices.chatTabIndex);
     const [SchoolChattingScreen, setSchoolChattingScreen] = useState(false);
 
     const FirstRoute = useMemo(
@@ -54,8 +59,16 @@ export default function DriverChats() {
 
     const layout = useWindowDimensions();
 
-
     const [index, setIndex] = React.useState(0);
+    useEffect(() => {
+        if (chatTabIndex) {
+            setIndex(chatTabIndex)
+        }
+        else {
+            setIndex(0)
+        }
+    }, [chatTabIndex])
+
     const [routes] = React.useState([
         { key: 'first', title: 'Vendor' },
         { key: 'second', title: 'Parent' },
@@ -93,7 +106,15 @@ export default function DriverChats() {
             <AppHeader role="Driver"
                 title={'Chat'}
                 backFunctionEnable={true}
-                handleBack={() => setSchoolChattingScreen(false)}
+                handleBack={() => {
+                    if (!SchoolChattingScreen) {
+                        dispatch(setChatTabIndex(0));
+                        navigation.goBack()
+                    }
+                    else {
+                        setSchoolChattingScreen(false)
+                    }
+                }}
                 enableBack={true}
                 rightIcon={false} />
 

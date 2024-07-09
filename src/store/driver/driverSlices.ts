@@ -4,7 +4,8 @@ const driverSlice = createSlice({
   name: 'driver',
   initialState: {
     maintenanceDetail: null,
-    studentDetail:   {
+    chatTabIndex: 0,
+    studentDetail: {
       name: 'Jane Cooper',
       image: require('../../assets/images/child1.jpg'),
       age: 5,
@@ -33,9 +34,13 @@ const driverSlice = createSlice({
     setStudentDetail: (state, {payload}) => {
       state.studentDetail = payload;
     },
+    setChatTabIndex: (state, {payload}) => {
+      state.chatTabIndex = payload;
+    },
   },
 });
 
-export const {setMaintenanceDetail, setStudentDetail} = driverSlice.actions;
+export const {setMaintenanceDetail, setStudentDetail, setChatTabIndex} =
+  driverSlice.actions;
 
 export default driverSlice.reducer;

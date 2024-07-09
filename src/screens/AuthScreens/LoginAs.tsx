@@ -16,12 +16,7 @@ const LoginAs = () => {
     <AuthLayout>
       <View>
         <Image
-          style={{
-            alignSelf: 'center',
-            height: hp(50),
-            width: hp(50),
-            resizeMode: 'contain',
-          }}
+          style={styles.image}
           source={require('../../assets/images/Splash_icon.png')}
         />
         <View style={[AppStyles.center, {marginTop: hp(3)}]}>
@@ -30,20 +25,23 @@ const LoginAs = () => {
             <AppButton
               onPress={() => handleSetRole('Driver', navigation, dispatch)}
               title="Driver"
-              titleStyle={{marginTop: hp(-.6)}}
-              style={{paddingTop: hp(.9)}}
+              titleStyle={{marginTop: hp(-0.6)}}
+              style={{paddingTop: hp(0.9)}}
               leftIcon={
-                <GlobalIcon library="FontelloIcon" name="group-1961" size={20} />
+                <GlobalIcon
+                  library="FontelloIcon"
+                  name="group-1961"
+                  size={20}
+                />
               }
             />
             <AppButton
               onPress={() => handleSetRole('Parents', navigation, dispatch)}
               title="Parent"
               titleStyle={{marginTop: hp(-1)}}
-              style={{paddingTop: hp(.9)}}
+              style={{paddingTop: hp(0.9)}}
               leftIcon={
-                <GlobalIcon library="FontelloIcon" name="group-(1)" size={20} />
-                // <GlobalIcon library="CustomIcon" name="Group" size={20} />
+                <GlobalIcon library="FontelloIcon" name="group1" size={20} />
               }
             />
           </View>
@@ -56,6 +54,12 @@ const LoginAs = () => {
 export default LoginAs;
 
 const styles = StyleSheet.create({
+  image: {
+    alignSelf: 'center',
+    height: hp(50),
+    width: hp(50),
+    resizeMode: 'contain',
+  },
   setMargin: {
     marginTop: hp(3),
     gap: hp(1.2),

@@ -36,7 +36,7 @@ const AppWeeklyCalendar = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={previousWeek}>
+        <TouchableOpacity style={{padding: hp(1)}} onPress={previousWeek}>
           <GlobalIcon
             library="FontAwesome5"
             name="chevron-left"
@@ -49,7 +49,7 @@ const AppWeeklyCalendar = () => {
             {currentWeek.format('MMMM YYYY')}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={nextWeek}>
+        <TouchableOpacity style={{padding: hp(1)}} onPress={nextWeek}>
           <GlobalIcon
             library="FontAwesome5"
             name="chevron-right"
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     paddingHorizontal: hp(1.5),
-    paddingTop: hp(1),
+    paddingTop: hp(.5),
     paddingBottom: hp(1.5),
     shadowColor: '#000',
     shadowOpacity: 0.1,

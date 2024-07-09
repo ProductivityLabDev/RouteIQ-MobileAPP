@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, useWindowDimensions, PressableAndroidRippleConfig, StyleProp, TextStyle, ViewStyle, Image } from 'react-native'
+import { View, Text, StyleSheet, useWindowDimensions, PressableAndroidRippleConfig, StyleProp, TextStyle, ViewStyle, Image, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import AppHeader from '../../components/AppHeader'
 import AppLayout from '../../layout/AppLayout'
@@ -15,9 +15,10 @@ import { Scene, Event } from 'react-native-tab-view/lib/typescript/src/types'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { leaveDropdownData } from '../../utils/DummyData';
 import SelectDropdown from 'react-native-select-dropdown'
+import { useNavigation } from '@react-navigation/native'
 
 const FirstRoute = () => (
-    <View style={styles.subContainer}>
+    <ScrollView contentContainerStyle={styles.subContainer}>
 
         <AppInput
             multiline
@@ -34,7 +35,7 @@ const FirstRoute = () => (
             }}
         />
 
-        <View style={{ width: '90%', alignSelf: 'center', }}>
+        <View style={{ width: '90%', alignSelf: 'center', marginBottom: hp(2)}}>
             <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
                 Attachments
             </Text>
@@ -48,7 +49,7 @@ const FirstRoute = () => (
         </View>
 
 
-    </View>
+    </ScrollView>
 );
 
 
@@ -58,7 +59,7 @@ const FirstRoute = () => (
 
 
 export default function DriverIncident() {
-
+    const navigation = useNavigation();
     const [selectAbsence, setSelectAbsence] = useState('');
 
     const emojis = [
@@ -69,7 +70,7 @@ export default function DriverIncident() {
 
 
     const SecondRoute = () => (
-        <View style={styles.subContainer}>
+        <ScrollView contentContainerStyle={styles.subContainer}>
 
 
 
@@ -108,19 +109,19 @@ export default function DriverIncident() {
             <AppInput
                 multiline
                 numberOfLines={11}
-                container={{ height: hp(25), borderRadius: hp(0.5), marginBottom: hp(2), borderColor: AppColors.grey }}
+                container={{ height: hp(25), borderRadius: hp(0.5), marginBottom: hp(4), borderColor: AppColors.grey }}
 
                 label="Description"
                 placeholder="Report Accident Details here..."
-                placeholderTextColor={AppColors.black}
-                inputStyle={{fontFamily: AppFonts.NunitoSansLight}}
+                // placeholderTextColor={AppColors.black}
+                inputStyle={{fontFamily: AppFonts.NunitoSansMedium}}
 
                 labelStyle={{
                     marginBottom: hp(2),
                     fontFamily: AppFonts.NunitoSansBold,
                 }}
             />
-        </View>
+        </ScrollView>
     );
 
     const layout = useWindowDimensions();
@@ -171,7 +172,7 @@ export default function DriverIncident() {
 
 
 
-            <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.container}>
 
 
                 <TabView
@@ -189,7 +190,7 @@ export default function DriverIncident() {
 
                 <AppButton
                     title="Send"
-                    // onPress={() => }
+                    onPress={() => navigation.goBack()}
                     style={{
                         // width: '100%',
                         width: '90%',
@@ -198,14 +199,14 @@ export default function DriverIncident() {
                         marginHorizontal: wp(7),
                         alignSelf: 'center',
                         position: 'relative',
-                        top: -10
+                        bottom: 10
                     }}
                     titleStyle={{
                         fontSize: size.md
                     }}
                 />
 
-            </View>
+            </ScrollView>
 
 
         </AppLayout>

@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
 import AppStyles from '../styles/AppStyles';
 import {size} from '../utils/responsiveFonts';
@@ -7,11 +7,13 @@ import {hp} from '../utils/constants';
 import AppCheckBox from './AppCheckBox';
 import GlobalIcon from './GlobalIcon';
 import {CleaningCardProps} from '../types/types';
+import { useNavigation } from '@react-navigation/native';
 
 const CleaningCard: React.FC<CleaningCardProps> = ({mileage = false}) => {
+  const navigation = useNavigation();
   const [isChecked, setIsChecked] = useState(true);
   return (
-    <View style={styles.container}>
+    <Pressable onPress={() => navigation.navigate('DriverInspection')} style={styles.container}>
       <View style={AppStyles.rowBetween}>
         <View>
           <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
@@ -58,7 +60,7 @@ const CleaningCard: React.FC<CleaningCardProps> = ({mileage = false}) => {
             onClick={() => setIsChecked(!isChecked)}
             rightText="Exterior"
             unCheckedImage={<View style={styles.checkContainer}></View>}
-            rightTextStyle={{}}
+            // rightTextStyle={{}}
             checkedImage={
               <View style={styles.checkContainer}>
                 <GlobalIcon
@@ -72,7 +74,7 @@ const CleaningCard: React.FC<CleaningCardProps> = ({mileage = false}) => {
           />
         </View>
       )}
-    </View>
+    </Pressable>
   );
 };
 

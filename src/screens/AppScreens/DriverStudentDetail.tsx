@@ -17,16 +17,18 @@ import { hp } from '../../utils/constants';
 import AppFonts from '../../utils/appFonts';
 import AppButton from '../../components/AppButton';
 import GlobalIcon from '../../components/GlobalIcon';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import AppBottomSheet from '../../components/AppBottomSheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import AppInput from '../../components/AppInput';
 import Modal from "react-native-modal";
 import { size } from '../../utils/responsiveFonts';
 import { useNavigation } from '@react-navigation/native';
+import { setChatTabIndex } from '../../store/driver/driverSlices';
 
 const DriverStudentDetail = () => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const studentDetail = useAppSelector(
     state => state.driverSlices.studentDetail,
@@ -45,6 +47,15 @@ const DriverStudentDetail = () => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+
+  const handleSubmitFeedBack = () => {
+    closeSheet(); 
+    toggleModal()
+
+    setTimeout(() => {
+      setModalVisible(false)
+    }, 2000)
+  }
 
   return (
     <AppLayout
@@ -200,7 +211,7 @@ const DriverStudentDetail = () => {
               onPress={() => openSheet()}
             />
             <AppButton
-            onPress={()=> navigation.navigate('DriverChats') }
+            onPress={()=> {dispatch(setChatTabIndex(1)); navigation.navigate('DriverChats')} }
               title="Message Guardian"
               style={AppStyles.widthFullPercent}
             />
@@ -247,7 +258,7 @@ const DriverStudentDetail = () => {
           />
           <AppButton
             title="Submit"
-            onPress={() => { closeSheet(); toggleModal() }}
+            onPress={handleSubmitFeedBack}
             style={styles.submitButton}
           />
         </View>
@@ -271,7 +282,7 @@ const DriverStudentDetail = () => {
         onBackdropPress={() => setModalVisible(false)}
         style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
         <View style={{ width: '70%', height: '40%', backgroundColor: AppColors.white, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}>
-          <GlobalIcon name={'Group-6'} library='CustomIcon' color={AppColors.red} 
+          <GlobalIcon name={'group-(6)'} library='FontelloIcon' color={AppColors.red} 
           size={hp(8)} 
           />
           <Text style={[AppStyles.titleHead,

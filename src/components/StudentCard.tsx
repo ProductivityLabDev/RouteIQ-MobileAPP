@@ -11,11 +11,15 @@ import {truncateString} from '../utils/functions';
 import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch} from '../store/hooks';
 import {setStudentDetail} from '../store/driver/driverSlices';
+import {studentsData} from '../utils/DummyData';
 
-const StudentCard: React.FC<StudentCardProps> = ({position, item}) => {
+const StudentCard: React.FC<StudentCardProps> = ({position, item, index}) => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const [present, setPresent] = useState(false);
+  const [absent, setAbsent] = useState(false);
+  const lastIndex = studentsData.length - 1 == index;
+
   return (
     <View
       style={[
@@ -38,6 +42,23 @@ const StudentCard: React.FC<StudentCardProps> = ({position, item}) => {
               title="Present"
               style={styles.button}
               titleStyle={styles.buttonTitle}
+            />
+          </View>
+        )}
+        {absent && (
+          <View
+            style={[
+              AppStyles.widthHeightFullPercent,
+              styles.transparentContainer,
+              {
+                backgroundColor: 'rgba(255, 0, 0, 0.4)',
+              },
+            ]}>
+            <AppButton
+              disabled={true}
+              title="Absent"
+              style={styles.absentButton}
+              titleStyle={[styles.buttonTitle, {color: AppColors.red}]}
             />
           </View>
         )}
@@ -65,16 +86,17 @@ const StudentCard: React.FC<StudentCardProps> = ({position, item}) => {
           style={
             position == 'row' ? styles.btnContainer : styles.columnBtnContainer
           }>
-          {!present && (
+          {!present && !absent && (
             <AppButton
-              title="Present"
-              style={
+              title={lastIndex ? 'Absent' : 'Present'}
+              style={[
                 position == 'row'
                   ? {...styles.presentBtn}
-                  : {...styles.presentColumnBtn}
-              }
+                  : {...styles.presentColumnBtn},
+                lastIndex ? {backgroundColor: AppColors.red} : {},
+              ]}
               titleStyle={styles.presentTitle}
-              onPress={() => setPresent(true)}
+              onPress={() => (lastIndex ? setAbsent(true) : setPresent(true))}
             />
           )}
           <AppButton
@@ -82,7 +104,7 @@ const StudentCard: React.FC<StudentCardProps> = ({position, item}) => {
             style={
               position == 'row'
                 ? styles.detailBtn
-                : {...styles.detailColumnBtn, width: present ? '100%' : '48%'}
+                : {...styles.detailColumnBtn, width: present || absent ? '100%' : '48%'}
             }
             titleStyle={styles.detailTitle}
             onPress={() => {
@@ -195,6 +217,15 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: AppColors.white,
     borderColor: AppColors.green,
+    borderWidth: 1.5,
+    borderRadius: 50,
+    height: hp(3.5),
+    bottom: hp(0.5),
+    width: hp(9),
+  },
+  absentButton: {
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.red,
     borderWidth: 1.5,
     borderRadius: 50,
     height: hp(3.5),

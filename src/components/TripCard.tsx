@@ -105,10 +105,19 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
             <View style={AppStyles.rowBetween}>
               <View style={[AppStyles.row, {width: '30%'}]}>
                 {/* <MapViewIcon /> */}
-                <GlobalIcon library="FontelloIcon" name="frame" color={AppColors.white} size={hp(2.6)} />
+                <GlobalIcon
+                  library="FontelloIcon"
+                  name="frame"
+                  color={AppColors.white}
+                  size={hp(2.6)}
+                />
                 <TouchableOpacity
                   onPress={() => navigation.navigate('DriverMapView')}
-                  style={{marginLeft: hp(0.5), padding: hp(0.5), top: hp(-.4)}}>
+                  style={{
+                    marginLeft: hp(0.5),
+                    padding: hp(0.5),
+                    top: hp(-0.4),
+                  }}>
                   <Text
                     style={[
                       AppStyles.whiteSubTitle,
@@ -167,12 +176,20 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   {marginVertical: hp(1.5), width: '100%'},
                 ]}>
                 <View style={styles.busContainer}>
-                <GlobalIcon library="FontelloIcon" name="group-(1)" color={handleSetColor(trip?.status)} size={hp(4.5)} />
+                  <GlobalIcon
+                    library="FontelloIcon"
+                    name="group-(1)"
+                    color={handleSetColor(trip?.status)}
+                    size={hp(4.5)}
+                  />
                   {/* <BusIcon color={handleSetColor(trip?.status)} /> */}
                   <Text
                     style={[
                       AppStyles.title,
-                      {fontFamily: AppFonts.NunitoSansBold, marginTop: hp(-1.5)},
+                      {
+                        fontFamily: AppFonts.NunitoSansBold,
+                        marginTop: hp(-1.5),
+                      },
                     ]}>
                     {trip?.status}
                   </Text>
@@ -221,10 +238,11 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
             styles.declinedContainer,
           ]}>
           <AppButton
+            disabled={true}
             title="DECLINED"
             style={[AppStyles.halfWidth, styles.button]}
             titleStyle={{color: AppColors.black}}
-            onPress={() => setDeclined(false)}
+            // onPress={() => setDeclined(false)}
           />
         </View>
       )}

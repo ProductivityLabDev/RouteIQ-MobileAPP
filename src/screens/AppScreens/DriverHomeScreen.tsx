@@ -30,7 +30,7 @@ const DriverHomeScreen = () => {
     <AppLayout
       statusbackgroundColor={AppColors.red}
       style={{backgroundColor: AppColors.driverScreen}}
-      alarmIcon={true}>
+      alarmIcon={false}>
       <AppHeader
         role="Driver"
         enableBack={false}
@@ -47,7 +47,7 @@ const DriverHomeScreen = () => {
               <View style={AppStyles.driverContainer}>
                 <View style={AppStyles.rowBetween}>
                   <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
-                    Morning route starts at 8:00am
+                    Morning route starts at 8 AM
                   </Text>
                   <View style={AppStyles.row}>
                     {dayScene?.map((item, index) => {
