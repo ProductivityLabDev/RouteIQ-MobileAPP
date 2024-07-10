@@ -105,7 +105,7 @@ export default function DriverMedicalRecord() {
                         numberOfLines={1}
                         container={{ height: hp(6), borderRadius: hp(0.5), marginBottom: hp(2) }}
                         label="Title"
-                        placeholder="Enter Job Title"
+                        placeholder="Enter Title"
                         labelStyle={{
                             marginBottom: hp(2),
                             fontFamily: AppFonts.NunitoSansBold,

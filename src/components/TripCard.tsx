@@ -24,7 +24,7 @@ import AppBottomSheet from './AppBottomSheet';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AppInput from './AppInput';
 import {useNavigation} from '@react-navigation/native';
-import {setShowStartMileAgeSheet} from '../store/user/userSlices';
+import {setMapViewRouteBackOn, setShowStartMileAgeSheet} from '../store/user/userSlices';
 import {useAppDispatch} from '../store/hooks';
 
 const TripCard: React.FC<TripCardProps> = ({item}) => {
@@ -117,6 +117,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                 <TouchableOpacity
                   onPress={() => {
                     dispatch(setShowStartMileAgeSheet(false));
+                    dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
                     navigation.navigate('DriverMapView');
                   }}
                   style={{
@@ -158,6 +159,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                     style={[styles.acceptButton, {width: '90%'}]}
                     onPress={() => {
                       setAccept(false);
+                      dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
                       navigation.navigate('DriverInspection');
                     }}
                   />

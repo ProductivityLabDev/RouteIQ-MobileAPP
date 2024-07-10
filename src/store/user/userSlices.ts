@@ -9,6 +9,7 @@ const userSlice = createSlice({
     driverHomeStatus: false,
     selectedUserChatData: {},
     showStartMileAgeSheet: false,
+    mapViewRouteBackOn: 'DriverHomeScreen',
   },
   reducers: {
     saveToken: (state, {payload}) => {
@@ -29,6 +30,9 @@ const userSlice = createSlice({
     setShowStartMileAgeSheet: (state, {payload}) => {
       state.showStartMileAgeSheet = payload;
     },
+    setMapViewRouteBackOn: (state, {payload}) => {
+      state.mapViewRouteBackOn = payload;
+    },
   },
 });
 
@@ -39,6 +43,7 @@ export const {
   setDriverHomeStatus,
   setSelectedUserChatData,
   setShowStartMileAgeSheet,
+  setMapViewRouteBackOn,
 } = userSlice.actions;
 
 export default userSlice.reducer;

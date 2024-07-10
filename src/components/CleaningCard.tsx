@@ -8,12 +8,15 @@ import AppCheckBox from './AppCheckBox';
 import GlobalIcon from './GlobalIcon';
 import {CleaningCardProps} from '../types/types';
 import { useNavigation } from '@react-navigation/native';
+import { useAppDispatch } from '../store/hooks';
+import { setMapViewRouteBackOn } from '../store/user/userSlices';
 
 const CleaningCard: React.FC<CleaningCardProps> = ({mileage = false}) => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const [isChecked, setIsChecked] = useState(true);
   return (
-    <Pressable onPress={() => navigation.navigate('DriverInspection')} style={styles.container}>
+    <Pressable onPress={() => {if(!mileage) {dispatch(setMapViewRouteBackOn('DriverMaintenanceScreen')); navigation.navigate('DriverInspection')}}} style={styles.container}>
       <View style={AppStyles.rowBetween}>
         <View>
           <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>

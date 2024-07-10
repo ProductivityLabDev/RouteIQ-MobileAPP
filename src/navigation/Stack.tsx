@@ -21,6 +21,7 @@ import VerificationCode from '../screens/AuthScreens/VerificationCode';
 import { useAppSelector } from '../store/hooks';
 import { RootStackParamList } from '../types/navigationTypes';
 import DriverBottomTabs from './DriverBottomTabs';
+import AlertScreen from '../screens/AppScreens/AlertScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -62,6 +63,8 @@ export const DriverStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="DriverBottomTabs" component={DriverBottomTabs} />
+      <Stack.Screen name="AlertScreen" component={AlertScreen} />
+      <Stack.Screen name="Notification" component={Notification} />
       {/* <Stack.Screen name="DriverProfile" component={DriverProfile} />
       <Stack.Screen name="DriverProfileInfo" component={DriverProfileInfo} />
       <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />

@@ -14,13 +14,13 @@ import {studentsData} from '../../utils/DummyData';
 import { useIsFocused } from '@react-navigation/native';
 
 const DriverStudentsScreen = () => {
-  const isFocused = useIsFocused();
+  // const isFocused = useIsFocused();
   const [grid, setGrid] = useState('row');
   const numColumns = grid === 'row' ? 2 : 1;
 
-  useEffect(() => {
-    setGrid('row')
-  }, [isFocused])
+  // useEffect(() => {
+  //   setGrid('row')
+  // }, [isFocused])
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}

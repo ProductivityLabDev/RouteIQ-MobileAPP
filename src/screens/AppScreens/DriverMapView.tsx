@@ -24,6 +24,7 @@ const DriverMapView = () => {
   const navigation = useNavigation();
   const keyboardHeight = useKeyboard();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const mapViewRouteBackOn = useAppSelector(state => state.userSlices.mapViewRouteBackOn);
   const [endTrip, setEndTrip] = useState(false);
   const [tripEnd, setTripEnd] = useState(false);
   const showStartMileAgeSheet = useAppSelector(
@@ -176,7 +177,7 @@ const DriverMapView = () => {
               onPress={() => {
                 if (endTrip) {
                   closeSheet();
-                  navigation.navigate('DriverHomeScreen');
+                  navigation.navigate(mapViewRouteBackOn || 'DriverHomeScreen');
                 } else {
                   closeSheet();
                 }

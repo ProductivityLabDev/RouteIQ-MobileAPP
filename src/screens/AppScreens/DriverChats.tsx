@@ -61,10 +61,13 @@ export default function DriverChats() {
 
     const [index, setIndex] = React.useState(0);
     useEffect(() => {
-        if (chatTabIndex) {
+        if (chatTabIndex == 1) {
+            console.log(SchoolChattingScreen)
             setIndex(chatTabIndex)
+            setSchoolChattingScreen(true)
         }
         else {
+            setSchoolChattingScreen(false)
             setIndex(0)
         }
     }, [chatTabIndex])

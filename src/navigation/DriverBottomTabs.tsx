@@ -102,124 +102,129 @@ function DriverBottomTabs() {
             key={`bottom-tabs-${index}`}
             name={name}
             component={component}
-            options={({route}) => ({
-              headerShown,
-              tabBarLabel: label,
-              tabBarStyle: {
-                display: [
-                  'DriverInspection',
-                  driverHomeStatus == true && 'DriverHomeScreen',
-                  'DriverStudentDetail',
-                  'DriverProfileInfo',
-                  'UpdateDriveProfile',
-                  'DriverEmergencyContact',
-                  'DriverQualifications',
-                  'DriverCertification',
-                  'DriverMedicalRecord',
-                  'DriverHistory',
-                  'DriverIncident',
-                  'DriverShiftTracking',
-                  'DriverShiftTrackingDetails',
-                  'DriverChangePassword',
-                ].includes(getFocusedRouteNameFromRoute(route) as any)
-                  ? 'none'
-                  : 'flex',
-                borderTopWidth: 0,
-                zIndex: 0,
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: Platform.OS === 'ios' ? hp(12) : hp(9),
-                backgroundColor: AppColors.white,
-                paddingHorizontal: hp(1),
-              },
-              tabBarIcon: ({color, focused}: any) => {
-                if (name.includes('HomeStack')) {
-                  return (
-                    <BottomIcon
-                      focused={focused}
-                      title="Home"
-                      children={
-                        focused ? (
-                          <HomeIcon color={AppColors.red} />
-                        ) : (
-                          <HomeIcon />
-                        )
-                      }
-                    />
-                  );
-                }
-                if (name.includes('TasksStack')) {
-                  return (
-                    <BottomIcon
-                      focused={focused}
-                      title="Tasks"
-                      children={
-                        focused ? (
-                          <TaskIcon color={AppColors.red} />
-                        ) : (
-                          <TaskIcon />
-                        )
-                      }
-                    />
-                  );
-                }
-                if (name.includes('StudentStack')) {
-                  return (
-                    <BottomIcon
-                      focused={focused}
-                      title="Students"
-                      children={
-                        focused ? (
-                          <StudentIcon color={AppColors.red} />
-                        ) : (
-                          <StudentIcon />
-                        )
-                      }
-                    />
-                  );
-                }
-                if (name.includes('ChatStack')) {
-                  return (
-                    <BottomIcon
-                      focused={focused}
-                      title="Chat"
-                      children={
-                        focused ? (
-                          <GlobalIcon
-                            library="Ionicons"
-                            name="chatbubble-ellipses"
-                            color={AppColors.red}
-                          />
-                        ) : (
-                          // <ChatIcon color={AppColors.red} />
-                          <GlobalIcon
-                            library="Ionicons"
-                            name="chatbubble-ellipses"
-                            color={AppColors.charcoal}
-                          />
-                          // <ChatIcon color={AppColors.charcoal} />
-                        )
-                      }
-                    />
-                  );
-                }
-                if (name.includes('ProfileStack')) {
-                  return (
-                    <BottomIcon
-                      focused={focused}
-                      title="My Profile"
-                      children={
-                        focused ? (
-                          <ProfileIcon color={AppColors.red} />
-                        ) : (
-                          <ProfileIcon />
-                        )
-                      }
-                    />
-                  );
-                }
-              },
-            })}
+            options={({route}) => {
+              console.log(route, 'route');
+              
+              return {
+                headerShown,
+                tabBarLabel: label,
+                tabBarStyle: {
+                  display: [
+                    'DriverInspection',
+                    driverHomeStatus == true && 'DriverHomeScreen',
+                    'DriverStudentDetail',
+                    'DriverProfileInfo',
+                    'UpdateDriveProfile',
+                    'DriverEmergencyContact',
+                    'DriverQualifications',
+                    'DriverCertification',
+                    'DriverMedicalRecord',
+                    'DriverHistory',
+                    'DriverIncident',
+                    'DriverShiftTracking',
+                    'DriverShiftTrackingDetails',
+                    'DriverChangePassword',
+                    'DriverChats'
+                  ].includes(getFocusedRouteNameFromRoute(route) as any)
+                    ? 'none'
+                    : 'flex',
+                  borderTopWidth: 0,
+                  zIndex: 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: Platform.OS === 'ios' ? hp(12) : hp(9),
+                  backgroundColor: AppColors.white,
+                  paddingHorizontal: hp(1),
+                },
+                tabBarIcon: ({color, focused}: any) => {
+                  if (name.includes('HomeStack')) {
+                    return (
+                      <BottomIcon
+                        focused={focused}
+                        title="Home"
+                        children={
+                          focused ? (
+                            <HomeIcon color={AppColors.red} />
+                          ) : (
+                            <HomeIcon />
+                          )
+                        }
+                      />
+                    );
+                  }
+                  if (name.includes('TasksStack')) {
+                    return (
+                      <BottomIcon
+                        focused={focused}
+                        title="Tasks"
+                        children={
+                          focused ? (
+                            <TaskIcon color={AppColors.red} />
+                          ) : (
+                            <TaskIcon />
+                          )
+                        }
+                      />
+                    );
+                  }
+                  if (name.includes('StudentStack')) {
+                    return (
+                      <BottomIcon
+                        focused={focused}
+                        title="Students"
+                        children={
+                          focused ? (
+                            <StudentIcon color={AppColors.red} />
+                          ) : (
+                            <StudentIcon />
+                          )
+                        }
+                      />
+                    );
+                  }
+                  if (name.includes('ChatStack')) {
+                    return (
+                      <BottomIcon
+                        focused={focused}
+                        title="Chat"
+                        children={
+                          focused ? (
+                            <GlobalIcon
+                              library="Ionicons"
+                              name="chatbubble-ellipses"
+                              color={AppColors.red}
+                            />
+                          ) : (
+                            // <ChatIcon color={AppColors.red} />
+                            <GlobalIcon
+                              library="Ionicons"
+                              name="chatbubble-ellipses"
+                              color={AppColors.charcoal}
+                            />
+                            // <ChatIcon color={AppColors.charcoal} />
+                          )
+                        }
+                      />
+                    );
+                  }
+                  if (name.includes('ProfileStack')) {
+                    return (
+                      <BottomIcon
+                        focused={focused}
+                        title="My Profile"
+                        children={
+                          focused ? (
+                            <ProfileIcon color={AppColors.red} />
+                          ) : (
+                            <ProfileIcon />
+                          )
+                        }
+                      />
+                    );
+                  }
+                },
+              };
+            }}
           />
         );
       })}
