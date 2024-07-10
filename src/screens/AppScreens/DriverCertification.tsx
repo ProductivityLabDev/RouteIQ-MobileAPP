@@ -80,7 +80,7 @@ export default function DriverCertification() {
                                     <Text style={styles.nameText}>Mark Tommay</Text>
                                     <Text style={styles.headerSubTitle}>Exp Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
                                     <Text style={styles.headerSubTitle}>Renewal Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                    <View style={[styles.row1,{width: '100%', paddingRight: hp(1)}]}>
+                                    <View style={[styles.row1,{width: '100%',}]}>
                                         <Text style={[styles.headerSubTitle, { color: AppColors.green }]}>Verified</Text>
                                         <View style={{transform: [{ rotate: '-50deg' }]}}><GlobalIcon library='MaterialIcons' name={'attachment'} color={AppColors.black} /></View>
                                     </View>
@@ -130,7 +130,7 @@ export default function DriverCertification() {
                                 </Text>
                                 <View style={styles.uploadDocBox}>
 
-                                    <GlobalIcon library='CustomIcon' name={'attachment_svgrepoco'} color={AppColors.red} size={40} />
+                                    <GlobalIcon library='FontelloIcon' name={'group-(5)'} color={AppColors.red} size={40} />
                                     <Text style={styles.tapText} >Tap and Upload Files</Text>
                                 </View>
                             </View>
@@ -142,7 +142,7 @@ export default function DriverCertification() {
                                     titleStyle={{ color: AppColors.textLightGrey }}
                                     onPress={() => closeSheet()}
                                 />
-                                <AppButton title="Upload" style={styles.submitButton} />
+                                <AppButton title="Upload" style={styles.submitButton} onPress={() => closeSheet()} />
                             </View>
                         </View>
                     </AppBottomSheet>

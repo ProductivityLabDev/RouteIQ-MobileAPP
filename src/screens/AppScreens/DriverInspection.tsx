@@ -19,6 +19,7 @@ import {
 import {front_inspection} from '../../utils/objects';
 import {size} from '../../utils/responsiveFonts';
 import {useNavigation} from '@react-navigation/native';
+import SquareCheckedIcon from '../../assets/svgs/SquareCheckedIcon';
 
 const DriverInspection = () => {
   const navigation = useNavigation();
@@ -118,27 +119,36 @@ const DriverInspection = () => {
                 <View style={[styles.lightsContainer, {marginTop: hp(5)}]}>
                   <AppCheckBox
                     isChecked={isBoxChecked.hazardLight}
-                    onClick={() => {}}
+                    onClick={() => setIsBoxChecked((prev) => ({
+                      ...prev,
+                      hazardLight: !prev.hazardLight,
+                    }))}
                     rightText="Hazard light is not working"
-                    checkedImage={<SquareCheckBoxIcon />}
+                    checkedImage={<SquareCheckedIcon />}
                     unCheckedImage={<SquareCheckBoxIcon />}
                   />
                 </View>
                 <View style={styles.lightsContainer}>
                   <AppCheckBox
-                    isChecked={isBoxChecked.hazardLight}
-                    onClick={() => {}}
+                    isChecked={isBoxChecked.headLight}
+                    onClick={() => setIsBoxChecked((prev) => ({
+                      ...prev,
+                      headLight: !prev.headLight,
+                    }))}
                     rightText="Headlight is not working"
-                    checkedImage={<SquareCheckBoxIcon />}
+                    checkedImage={<SquareCheckedIcon />}
                     unCheckedImage={<SquareCheckBoxIcon />}
                   />
                 </View>
                 <View style={[styles.lightsContainer]}>
                   <AppCheckBox
-                    isChecked={isBoxChecked.hazardLight}
-                    onClick={() => {}}
+                    isChecked={isBoxChecked.workProperly}
+                    onClick={() => setIsBoxChecked((prev) => ({
+                      ...prev,
+                      workProperly: !prev.workProperly,
+                    }))}
                     rightText="Lights of light covers damaged (leaving hole or void), missing, or not working properly"
-                    checkedImage={<SquareCheckBoxIcon />}
+                    checkedImage={<SquareCheckedIcon />}
                     unCheckedImage={<SquareCheckBoxIcon />}
                   />
                 </View>
@@ -160,7 +170,7 @@ const DriverInspection = () => {
                       isOn={isSwitchOn}
                       onToggle={handleToggle}
                       onTitle=""
-                      switchBackgroundColor={AppColors.red}
+                      switchBackgroundColor={isSwitchOn ? AppColors.red : '#e3e0e8'}
                       switchBackgroundStyle={styles.switchStyle}
                       outputRange={[hp(0.2), hp(2.4)]}
                       circleStyle={styles.circleStyle}

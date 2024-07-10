@@ -20,7 +20,7 @@ import {useNavigation} from '@react-navigation/native';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppButton from '../../components/AppButton';
 import {useAppDispatch} from '../../store/hooks';
-import {saveToken} from '../../store/user/userSlices';
+import {saveToken, setLogout} from '../../store/user/userSlices';
 
 const DriverProfile = () => {
   const dispatch = useAppDispatch();
@@ -40,6 +40,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'Profile Info',
+      subTitle: ''
     },
     {
       leftIcon: (
@@ -51,6 +52,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'Emergency Contact',
+      subTitle: ''
     },
     {
       leftIcon: (
@@ -62,6 +64,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'Qualification',
+      subTitle: ''
     },
     {
       leftIcon: (
@@ -73,6 +76,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'Certification',
+      subTitle: ''
     },
     {
       leftIcon: (
@@ -83,7 +87,8 @@ const DriverProfile = () => {
           size={hp(2.5)}
         />
       ),
-      title: 'Medical Record (Optional)',
+      title: 'Medical Record',
+      subTitle: ' (Optional)'
     },
     {
       leftIcon: (
@@ -95,6 +100,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'History',
+      subTitle: ''
     },
     {
       leftIcon: (
@@ -106,6 +112,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'Incident',
+      subTitle: ''
     },
     {
       leftIcon: (
@@ -117,6 +124,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'Shift Tracking',
+      subTitle: ''
     },
     {
       leftIcon: (
@@ -128,6 +136,7 @@ const DriverProfile = () => {
         />
       ),
       title: 'Change Password',
+      subTitle: ''
     },
   ];
 
@@ -138,7 +147,7 @@ const DriverProfile = () => {
     if (name == 'Qualification') navigation.navigate('DriverQualifications');
     if (name == 'Certification') navigation.navigate('DriverCertification');
     if (name == 'Change Password') navigation.navigate('DriverChangePassword');
-    if (name == 'Medical Record (Optional)')
+    if (name == 'Medical Record')
       navigation.navigate('DriverMedicalRecord');
     if (name == 'History') navigation.navigate('DriverHistory');
     if (name == 'Incident') navigation.navigate('DriverIncident');
@@ -234,7 +243,7 @@ const DriverProfile = () => {
                       top: hp(-0.4),
                     },
                   ]}>
-                  {item.title}
+                  {item.title}{item.subTitle && <Text style={{color: AppColors.red}}>{item.subTitle}</Text>}
                 </Text>
               </View>
               <GlobalIcon
@@ -249,7 +258,7 @@ const DriverProfile = () => {
 
         <AppButton
           title="Logout"
-          onPress={() => dispatch(saveToken(null))}
+          onPress={() => {dispatch(setLogout(true)); dispatch(saveToken(null))}}
           style={{
             // width: '100%',
             width: '90%',

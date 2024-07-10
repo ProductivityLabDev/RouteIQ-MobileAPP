@@ -1,39 +1,26 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import {RootStackParamList} from '../types/navigationTypes';
-import LoginAs from '../screens/AuthScreens/LoginAs';
-import HomeSreen from '../screens/AppScreens/HomeSreen';
-import Settings from '../screens/AppScreens/Settings';
-import ChildProfile from '../screens/AppScreens/ChildProfile';
-import Notification from '../screens/AppScreens/Notification';
-import Login from '../screens/AuthScreens/Login';
-import UpdateGuardianProfile from '../screens/AppScreens/UpdateGuardianProfile';
-import ChatScreen from '../screens/AppScreens/ChatScreen';
 import AttendanceHistory from '../screens/AppScreens/AttendanceHistory';
+import ChangePassword from '../screens/AppScreens/ChangePassword';
+import ChatScreen from '../screens/AppScreens/ChatScreen';
+import ChildProfile from '../screens/AppScreens/ChildProfile';
+import DriverProfileInfo from '../screens/AppScreens/DriverProfileInfo';
+import HomeSreen from '../screens/AppScreens/HomeSreen';
+import Notification from '../screens/AppScreens/Notification';
 import OnBoarding from '../screens/AppScreens/OnBoarding';
 import ParentFeedback from '../screens/AppScreens/ParentFeedback';
-import ResetPassword from '../screens/AuthScreens/ResetPassword';
-import VerificationCode from '../screens/AuthScreens/VerificationCode';
-import NewPassword from '../screens/AuthScreens/NewPassword';
-import SuccessScreen from '../screens/AuthScreens/SuccessScreen';
-import ChangePassword from '../screens/AppScreens/ChangePassword';
-import { useAppSelector } from '../store/hooks';
-import DriverProfileInfo from '../screens/AppScreens/DriverProfileInfo';
+import Settings from '../screens/AppScreens/Settings';
 import UpdateDriveProfile from '../screens/AppScreens/UpdateDriveProfile';
+import UpdateGuardianProfile from '../screens/AppScreens/UpdateGuardianProfile';
+import Login from '../screens/AuthScreens/Login';
+import LoginAs from '../screens/AuthScreens/LoginAs';
+import NewPassword from '../screens/AuthScreens/NewPassword';
+import ResetPassword from '../screens/AuthScreens/ResetPassword';
+import SuccessScreen from '../screens/AuthScreens/SuccessScreen';
+import VerificationCode from '../screens/AuthScreens/VerificationCode';
+import { useAppSelector } from '../store/hooks';
+import { RootStackParamList } from '../types/navigationTypes';
 import DriverBottomTabs from './DriverBottomTabs';
-import DriverProfile from '../screens/AppScreens/DriverProfile';
-import DriverCertification from '../screens/AppScreens/DriverCertification';
-import DriverChangePassword from '../screens/AppScreens/DriverChangePassword';
-import DriverMedicalRecord from '../screens/AppScreens/DriverMedicalRecord';
-import DriverHistory from '../screens/AppScreens/DriverHistory';
-import DriverIncident from '../screens/AppScreens/DriverIncident';
-import AlertScreen from '../screens/AppScreens/AlertScreen';
-import DriverEmergencyContact from '../screens/AppScreens/DriverEmergencyContact';
-import DriverQualifications from '../screens/AppScreens/DriverQualifications';
-import DriverShiftTracking from '../screens/AppScreens/DriverShiftTracking';
-import DriverShiftTrackingDetails from '../screens/AppScreens/DriverShiftTrackingDetails';
-import DriverChats from '../screens/AppScreens/DriverChats';
-import DriverAllChats from '../screens/AppScreens/DriverAllChats';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -65,6 +52,8 @@ export const AuthStack = () => {
       <Stack.Screen name="VerificationCode" component={VerificationCode} />
       <Stack.Screen name="NewPassword" component={NewPassword} />
       <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
+      <Stack.Screen name="DriverProfileInfo" component={DriverProfileInfo} />
+      <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />
     </Stack.Navigator>
   );
 };
@@ -73,9 +62,9 @@ export const DriverStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="DriverBottomTabs" component={DriverBottomTabs} />
+      {/* <Stack.Screen name="DriverProfile" component={DriverProfile} />
       <Stack.Screen name="DriverProfileInfo" component={DriverProfileInfo} />
       <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />
-      <Stack.Screen name="DriverProfile" component={DriverProfile} />
       <Stack.Screen name="DriverCertification" component={DriverCertification} />
       <Stack.Screen name="DriverChangePassword" component={DriverChangePassword} />
       <Stack.Screen name="DriverMedicalRecord" component={DriverMedicalRecord} />
@@ -88,7 +77,7 @@ export const DriverStack = () => {
       <Stack.Screen name="DriverShiftTracking" component={DriverShiftTracking} />
       <Stack.Screen name="DriverShiftTrackingDetails" component={DriverShiftTrackingDetails} />
       <Stack.Screen name="DriverChats" component={DriverChats} />
-      <Stack.Screen name="DriverAllChats" component={DriverAllChats} />
+      <Stack.Screen name="DriverAllChats" component={DriverAllChats} /> */}
     </Stack.Navigator>
   );
 };

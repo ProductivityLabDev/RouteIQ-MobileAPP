@@ -22,7 +22,7 @@ const DriverMaintenanceDetail = () => {
   const maintenanceDetail = useAppSelector(
     state => state.driverSlices.maintenanceDetail,
   );
-  const [mileage, setMileage] = useState('201569');
+  const [mileage, setMileage] = useState('');
 
   const fuelItem = () => {
     return (
@@ -30,6 +30,7 @@ const DriverMaintenanceDetail = () => {
         <AppInput
           label="Enter Current Mileage"
           value={mileage}
+          placeholder='e.g 201569'
           onChangeText={(text: string) => setMileage(text)}
           keyboardType="number-pad"
           containerStyle={styles.containerStyle}

@@ -17,12 +17,13 @@ import AppInput from '../../components/AppInput';
 import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
-import {useAppDispatch} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {saveToken, setLogout} from '../../store/user/userSlices';
 
 const Login = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const role = useAppSelector(state => state.userSlices.role);
 
   useEffect(() => {
     dispatch(setLogout(false));
@@ -66,7 +67,7 @@ const Login = () => {
                 container={styles.inputContainer}
                 labelStyle={styles.inputLabelStyle}
                 rightInnerIcon={
-                  <View style={{marginBottom: hp(-.4)}}>
+                  <View style={{marginBottom: hp(-0.4)}}>
                     <GlobalIcon
                       size={20}
                       library="FontelloIcon"
@@ -108,7 +109,9 @@ const Login = () => {
               </TouchableOpacity>
               <AppButton
                 onPress={() => {
-                  dispatch(saveToken(1));
+                  role == 'Driver'
+                    ? navigation.navigate('DriverProfileInfo')
+                    : dispatch(saveToken(1));
                 }}
                 title="Log In"
               />

@@ -1,11 +1,11 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
-import {Platform, Pressable, StyleSheet, Text, View} from 'react-native';
-import ChatIcon from '../assets/svgs/ChatIcon';
+import {Platform, StyleSheet, Text, View} from 'react-native';
 import HomeIcon from '../assets/svgs/HomeIcon';
 import ProfileIcon from '../assets/svgs/ProfileIcon';
 import StudentIcon from '../assets/svgs/StudentIcon';
 import TaskIcon from '../assets/svgs/TaskIcon';
+import GlobalIcon from '../components/GlobalIcon';
 import {useAppSelector} from '../store/hooks';
 import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
@@ -18,7 +18,6 @@ import {
   StudentStack,
   TasksStack,
 } from './DriverTabStack';
-import GlobalIcon from '../components/GlobalIcon';
 
 const Tab = createBottomTabNavigator();
 
@@ -111,6 +110,17 @@ function DriverBottomTabs() {
                   'DriverInspection',
                   driverHomeStatus == true && 'DriverHomeScreen',
                   'DriverStudentDetail',
+                  'DriverProfileInfo',
+                  'UpdateDriveProfile',
+                  'DriverEmergencyContact',
+                  'DriverQualifications',
+                  'DriverCertification',
+                  'DriverMedicalRecord',
+                  'DriverHistory',
+                  'DriverIncident',
+                  'DriverShiftTracking',
+                  'DriverShiftTrackingDetails',
+                  'DriverChangePassword',
                 ].includes(getFocusedRouteNameFromRoute(route) as any)
                   ? 'none'
                   : 'flex',
@@ -180,8 +190,8 @@ function DriverBottomTabs() {
                             name="chatbubble-ellipses"
                             color={AppColors.red}
                           />
-                          // <ChatIcon color={AppColors.red} />
                         ) : (
+                          // <ChatIcon color={AppColors.red} />
                           <GlobalIcon
                             library="Ionicons"
                             name="chatbubble-ellipses"

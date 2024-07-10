@@ -7,9 +7,13 @@ import AppStyles from '../../styles/AppStyles';
 import {hp} from '../../utils/constants';
 import AppButton from '../../components/AppButton';
 import {useNavigation} from '@react-navigation/native';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {saveToken} from '../../store/user/userSlices';
 
 const DriverProfileInfo = () => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  const token = useAppSelector(state => state.userSlices.token);
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
@@ -63,7 +67,11 @@ const DriverProfileInfo = () => {
           <AppButton
             title="Confirm"
             style={{alignSelf: 'center', width: '100%'}}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              console.log(token, "token");
+              
+              token || token == 1 ? navigation.goBack() : dispatch(saveToken(1));
+            }}
           />
         </View>
       </View>

@@ -170,7 +170,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                 style={[
                     AppStyles.row,
                     styles.dayContainer,
-                    { backgroundColor: AppColors.white, justifyContent: 'center', gap: wp(4), paddingHorizontal:0 },
+                    { backgroundColor: AppColors.white, justifyContent: 'center', gap: wp(4), paddingHorizontal:0, paddingBottom: monthss.length - 1 == index ? hp(5) : hp(1) },
                 ]}
                 key={day.format('D')}>
 
@@ -239,9 +239,11 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                     <AppBottomSheet
                         bottomSheetModalRef={bottomSheetModalRef}
                         enablePanDownToClose={false}
-                        contentContainerStyle={{ backgroundColor: AppColors.red, borderRadius: 10, }}
+                        // contentContainerStyle={{ backgroundColor: AppColors.red, borderRadius: 10, }}
+                        contentContainerStyle={{borderRadius: 10, paddingHorizontal: hp(5), backgroundColor: AppColors.red, marginHorizontal: hp(2)}}
                         snapPoints={snapPoints}
-                        ContainerStyle={{ marginHorizontal: wp(5), borderRadius: 10, elevation: 10, shadowColor: AppColors.transparent }}
+                        // ContainerStyle={{ marginHorizontal: wp(5), borderRadius: 10, elevation: 10, shadowColor: AppColors.transparent }}
+                        ContainerStyle={{borderRadius: 10}}
                         backdropComponent={({ style }) => (
                             <>
                             </>
@@ -252,10 +254,10 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                             <View style={{ width: '95%', paddingTop: hp(2) }}>
 
 
-                                <View style={styles.lastLine}>
+                                <Pressable  style={styles.lastLine}>
                                     <Text style={[AppStyles.titleHead, styles.salaryBreakdownTitles, styles.salaryHeading]}>Salary Details</Text>
                                     <GlobalIcon name={'arrowright'} library='AntDesign' />
-                                </View>
+                                </Pressable>
 
                                 <View style={[styles.lastLine]}>
                                     <Text style={[AppStyles.titleHead, styles.salaryBreakdownTitles, styles.headings]}>Deduction</Text>

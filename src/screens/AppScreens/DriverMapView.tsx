@@ -17,14 +17,16 @@ import GlobalIcon from '../../components/GlobalIcon';
 import AlarmIcon from '../../assets/svgs/AlarmIcon';
 import {useNavigation} from '@react-navigation/native';
 import { Image } from 'react-native';
+import { useKeyboard } from '../../utils/keyboard';
 
 const DriverMapView = () => {
   const navigation = useNavigation();
+  const keyboardHeight = useKeyboard();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [endTrip, setEndTrip] = useState(false);
   const [tripEnd, setTripEnd] = useState(false);
 
-  const snapPoints = useMemo(() => ['28%', '90%'], []);
+  const snapPoints = useMemo(() => [keyboardHeight ? '58%' : '28%', '90%'], [keyboardHeight]);
   const openSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
@@ -84,15 +86,6 @@ const DriverMapView = () => {
         <Pressable
         style={[styles.bottomContainers, {bottom: hp(20), justifyContent: 'center'}]}>
         <Image source={require('../../assets/images/mappic.png')} />
-        {/* <View style={{position: 'absolute', top: 100}}> */}
-        {/* <Image source={require('../../assets/images/DriverMapDirectionsPic.png')} /> */}
-            {/* <GlobalIcon
-              library="CustomIcon"
-              name="Ellipse-1-1"
-              color={AppColors.black}
-              size={30}
-            /> */}
-        {/* </View> */}
       </Pressable>
 
         <View style={[styles.absoluteContainer]}>

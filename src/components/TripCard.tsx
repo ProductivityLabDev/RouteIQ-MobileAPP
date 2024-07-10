@@ -150,7 +150,10 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   <AppButton
                     title="Start"
                     style={[styles.acceptButton, {width: '90%'}]}
-                    onPress={() => navigation.navigate('DriverInspection')}
+                    onPress={() => {
+                      setAccept(false);
+                      navigation.navigate('DriverInspection');
+                    }}
                   />
                 )}
               </View>
