@@ -7,7 +7,8 @@ const userSlice = createSlice({
     logout: false,
     role: '',
     driverHomeStatus: false,
-    selectedUserChatData: {}
+    selectedUserChatData: {},
+    showStartMileAgeSheet: false,
   },
   reducers: {
     saveToken: (state, {payload}) => {
@@ -25,9 +26,19 @@ const userSlice = createSlice({
     setSelectedUserChatData: (state, {payload}) => {
       state.selectedUserChatData = payload;
     },
+    setShowStartMileAgeSheet: (state, {payload}) => {
+      state.showStartMileAgeSheet = payload;
+    },
   },
 });
 
-export const {saveToken, setLogout, setRole, setDriverHomeStatus, setSelectedUserChatData} = userSlice.actions;
+export const {
+  saveToken,
+  setLogout,
+  setRole,
+  setDriverHomeStatus,
+  setSelectedUserChatData,
+  setShowStartMileAgeSheet,
+} = userSlice.actions;
 
 export default userSlice.reducer;

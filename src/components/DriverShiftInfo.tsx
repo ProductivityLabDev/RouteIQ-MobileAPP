@@ -58,7 +58,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
     const renderHeader = () => {
         return (
             <View style={[AppStyles.row, styles.header]}>
-                <TouchableOpacity onPress={() => { changeMonth(-1); handleScrollToNext() }}>
+                <TouchableOpacity disabled={true} onPress={() => { changeMonth(-1); handleScrollToNext() }}>
                     <GlobalIcon
                         library="FontAwesome5"
                         name="chevron-left"
@@ -66,10 +66,10 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                         size={hp(2.5)}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => dispatch(setDriverHomeStatus(false))}>
+                <TouchableOpacity disabled={true} onPress={() => dispatch(setDriverHomeStatus(false))}>
                     <Text style={styles.headerText}>{selectedDate.format('YYYY')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { changeMonth(1); handleScrollToNext() }}>
+                <TouchableOpacity disabled={true} onPress={() => { changeMonth(1); handleScrollToNext() }}>
                     <GlobalIcon
                         library="FontAwesome5"
                         name="chevron-right"

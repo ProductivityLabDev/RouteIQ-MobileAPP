@@ -16,8 +16,9 @@ import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
 import AlarmIcon from '../../assets/svgs/AlarmIcon';
 import {useNavigation} from '@react-navigation/native';
-import { Image } from 'react-native';
-import { useKeyboard } from '../../utils/keyboard';
+import {Image} from 'react-native';
+import {useKeyboard} from '../../utils/keyboard';
+import {useAppSelector} from '../../store/hooks';
 
 const DriverMapView = () => {
   const navigation = useNavigation();
@@ -25,8 +26,14 @@ const DriverMapView = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [endTrip, setEndTrip] = useState(false);
   const [tripEnd, setTripEnd] = useState(false);
+  const showStartMileAgeSheet = useAppSelector(
+    state => state.userSlices.showStartMileAgeSheet,
+  );
 
-  const snapPoints = useMemo(() => [keyboardHeight ? '58%' : '28%', '90%'], [keyboardHeight]);
+  const snapPoints = useMemo(
+    () => [keyboardHeight ? '58%' : '28%', '90%'],
+    [keyboardHeight],
+  );
   const openSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
@@ -61,8 +68,10 @@ const DriverMapView = () => {
   );
 
   useEffect(() => {
-    openSheet();
-  }, []);
+    if (showStartMileAgeSheet) {
+      openSheet();
+    }
+  }, [showStartMileAgeSheet]);
 
   return (
     <AppLayout
@@ -82,11 +91,13 @@ const DriverMapView = () => {
       <View style={[AppStyles.driverContainer, {paddingHorizontal: hp(0)}]}>
         {mapView()}
 
-
         <Pressable
-        style={[styles.bottomContainers, {bottom: hp(20), justifyContent: 'center'}]}>
-        <Image source={require('../../assets/images/mappic.png')} />
-      </Pressable>
+          style={[
+            styles.bottomContainers,
+            {bottom: hp(20), justifyContent: 'center'},
+          ]}>
+          <Image source={require('../../assets/images/mappic.png')} />
+        </Pressable>
 
         <View style={[styles.absoluteContainer]}>
           <View style={[AppStyles.rowBetween, {alignItems: 'flex-end'}]}>

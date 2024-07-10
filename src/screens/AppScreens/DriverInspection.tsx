@@ -20,9 +20,12 @@ import {front_inspection} from '../../utils/objects';
 import {size} from '../../utils/responsiveFonts';
 import {useNavigation} from '@react-navigation/native';
 import SquareCheckedIcon from '../../assets/svgs/SquareCheckedIcon';
+import { useAppDispatch } from '../../store/hooks';
+import { setShowStartMileAgeSheet } from '../../store/user/userSlices';
 
 const DriverInspection = () => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const [index, setIndex] = useState(0);
   const [isSwitchOn, setIsSwitchOn] = useState(true);
   const [isChecked, setIsChecked] = useState<any>({
@@ -119,10 +122,12 @@ const DriverInspection = () => {
                 <View style={[styles.lightsContainer, {marginTop: hp(5)}]}>
                   <AppCheckBox
                     isChecked={isBoxChecked.hazardLight}
-                    onClick={() => setIsBoxChecked((prev) => ({
-                      ...prev,
-                      hazardLight: !prev.hazardLight,
-                    }))}
+                    onClick={() =>
+                      setIsBoxChecked(prev => ({
+                        ...prev,
+                        hazardLight: !prev.hazardLight,
+                      }))
+                    }
                     rightText="Hazard light is not working"
                     checkedImage={<SquareCheckedIcon />}
                     unCheckedImage={<SquareCheckBoxIcon />}
@@ -131,10 +136,12 @@ const DriverInspection = () => {
                 <View style={styles.lightsContainer}>
                   <AppCheckBox
                     isChecked={isBoxChecked.headLight}
-                    onClick={() => setIsBoxChecked((prev) => ({
-                      ...prev,
-                      headLight: !prev.headLight,
-                    }))}
+                    onClick={() =>
+                      setIsBoxChecked(prev => ({
+                        ...prev,
+                        headLight: !prev.headLight,
+                      }))
+                    }
                     rightText="Headlight is not working"
                     checkedImage={<SquareCheckedIcon />}
                     unCheckedImage={<SquareCheckBoxIcon />}
@@ -143,10 +150,12 @@ const DriverInspection = () => {
                 <View style={[styles.lightsContainer]}>
                   <AppCheckBox
                     isChecked={isBoxChecked.workProperly}
-                    onClick={() => setIsBoxChecked((prev) => ({
-                      ...prev,
-                      workProperly: !prev.workProperly,
-                    }))}
+                    onClick={() =>
+                      setIsBoxChecked(prev => ({
+                        ...prev,
+                        workProperly: !prev.workProperly,
+                      }))
+                    }
                     rightText="Lights of light covers damaged (leaving hole or void), missing, or not working properly"
                     checkedImage={<SquareCheckedIcon />}
                     unCheckedImage={<SquareCheckBoxIcon />}
@@ -170,7 +179,9 @@ const DriverInspection = () => {
                       isOn={isSwitchOn}
                       onToggle={handleToggle}
                       onTitle=""
-                      switchBackgroundColor={isSwitchOn ? AppColors.red : '#e3e0e8'}
+                      switchBackgroundColor={
+                        isSwitchOn ? AppColors.red : '#e3e0e8'
+                      }
                       switchBackgroundStyle={styles.switchStyle}
                       outputRange={[hp(0.2), hp(2.4)]}
                       circleStyle={styles.circleStyle}
@@ -224,11 +235,14 @@ const DriverInspection = () => {
             <AppButton
               title={handleInspectionButtonTitle(index)}
               style={{width: '100%'}}
-              onPress={() =>
-                index <= 2
-                  ? setIndex(index + 1)
-                  : navigation.navigate('DriverMapView')
-              }
+              onPress={() => {
+                if (index <= 2) {
+                  setIndex(index + 1);
+                } else {
+                  navigation.navigate('DriverMapView');
+                  dispatch(setShowStartMileAgeSheet(true))
+                }
+              }}
             />
           </View>
         </View>

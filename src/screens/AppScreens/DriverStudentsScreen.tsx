@@ -1,5 +1,5 @@
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import AppHeader from '../../components/AppHeader';
 import AppLayout from '../../layout/AppLayout';
 import {AppColors} from '../../utils/color';
@@ -11,10 +11,16 @@ import GlobalIcon from '../../components/GlobalIcon';
 import GridIcon from '../../assets/svgs/GridIcon';
 import StudentCard from '../../components/StudentCard';
 import {studentsData} from '../../utils/DummyData';
+import { useIsFocused } from '@react-navigation/native';
 
 const DriverStudentsScreen = () => {
+  const isFocused = useIsFocused();
   const [grid, setGrid] = useState('row');
   const numColumns = grid === 'row' ? 2 : 1;
+
+  useEffect(() => {
+    setGrid('row')
+  }, [isFocused])
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}

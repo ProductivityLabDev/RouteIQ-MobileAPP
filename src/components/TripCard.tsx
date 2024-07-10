@@ -24,9 +24,12 @@ import AppBottomSheet from './AppBottomSheet';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AppInput from './AppInput';
 import {useNavigation} from '@react-navigation/native';
+import {setShowStartMileAgeSheet} from '../store/user/userSlices';
+import {useAppDispatch} from '../store/hooks';
 
 const TripCard: React.FC<TripCardProps> = ({item}) => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [declined, setDeclined] = useState(false);
@@ -112,7 +115,10 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   size={hp(2.6)}
                 />
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('DriverMapView')}
+                  onPress={() => {
+                    dispatch(setShowStartMileAgeSheet(false));
+                    navigation.navigate('DriverMapView');
+                  }}
                   style={{
                     marginLeft: hp(0.5),
                     padding: hp(0.5),

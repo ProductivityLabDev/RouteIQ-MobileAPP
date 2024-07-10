@@ -1,4 +1,4 @@
-import { PanResponder, Pressable, StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, PanResponder, Pressable, StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AppLayout from '../layout/AppLayout';
 import AppHeader from './AppHeader';
@@ -95,6 +95,10 @@ const DriverMapViewWidget = () => {
         <View style={[AppStyles.driverContainer, { paddingHorizontal: hp(0) }]}>
 
             {mapView()}
+
+            <View style={{position: 'absolute',left: hp(3)}}>
+                <Image source={require('../assets/images/map-direction.png')} />
+            </View>
 
             {/* <View style={[styles.absoluteContainer]}> */}
             {/* <View style={[AppStyles.rowBetween, { alignItems: 'flex-end' }]}> */}
