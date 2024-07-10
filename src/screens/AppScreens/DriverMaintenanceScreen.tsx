@@ -18,6 +18,7 @@ import DriverMapViewWidget from '../../components/DriverMapViewWidget';
 import Draggable from 'react-native-draggable';
 import { Animated } from 'react-native';
 import GlobalIcon from '../../components/GlobalIcon';
+import AnimatedDriverMapView from '../../components/AnimatedDriverMapView';
 
 
 const DriverMaintenanceScreen = () => {
@@ -98,7 +99,8 @@ const DriverMaintenanceScreen = () => {
           })}
         </View>
 
-        <Animated.View
+        <AnimatedDriverMapView />
+        {/* <Animated.View
           style={{
             position: 'relative',
             transform: [{ translateX: pan.x }, { translateY: pan.y }],
@@ -173,7 +175,7 @@ const DriverMaintenanceScreen = () => {
 
 
 
-        </Animated.View>
+        </Animated.View> */}
 
 
 
@@ -187,18 +189,18 @@ const DriverMaintenanceScreen = () => {
 export default DriverMaintenanceScreen;
 
 const styles = StyleSheet.create({
-  controlsContainer: {
-    flex: 1,
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
-    gap: hp(3),
-    justifyContent: 'flex-start',
-    position: 'absolute',
-    zIndex: 12,
-    backgroundColor: '#0000004c',
-  },
+  // controlsContainer: {
+  //   flex: 1,
+  //   top: 0,
+  //   bottom: 0,
+  //   right: 0,
+  //   left: 0,
+  //   gap: hp(3),
+  //   justifyContent: 'flex-start',
+  //   position: 'absolute',
+  //   zIndex: 12,
+  //   backgroundColor: '#0000004c',
+  // },
 
   cardContainer: {
     backgroundColor: AppColors.white,

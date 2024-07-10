@@ -17,6 +17,7 @@ import AppFonts from '../../utils/appFonts';
 import {size} from '../../utils/responsiveFonts';
 import {Image} from 'react-native';
 import CleaningCard from '../../components/CleaningCard';
+import AnimatedDriverMapView from '../../components/AnimatedDriverMapView';
 
 const DriverMaintenanceDetail = () => {
   const maintenanceDetail = useAppSelector(
@@ -30,7 +31,7 @@ const DriverMaintenanceDetail = () => {
         <AppInput
           label="Enter Current Mileage"
           value={mileage}
-          placeholder='e.g 201569'
+          placeholder="e.g 201569"
           onChangeText={(text: string) => setMileage(text)}
           keyboardType="number-pad"
           containerStyle={styles.containerStyle}
@@ -70,6 +71,8 @@ const DriverMaintenanceDetail = () => {
           )}
         </View>
       </ScrollView>
+
+      {maintenanceDetail == 'Cleaning' && <AnimatedDriverMapView />}
     </AppLayout>
   );
 };
