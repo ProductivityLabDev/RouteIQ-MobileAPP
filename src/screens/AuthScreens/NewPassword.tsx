@@ -17,9 +17,26 @@ import AppInput from '../../components/AppInput';
 import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
+import {Controller, useForm} from 'react-hook-form';
 
 const NewPassword = () => {
   const navigation = useNavigation();
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      new_password: '',
+      confirm_password: '',
+    },
+  });
+
+  const onSubmit = () => {
+    navigation.navigate('SuccessScreen');
+  };
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <AuthLayout>
@@ -38,46 +55,66 @@ const NewPassword = () => {
             </Text>
           </View>
           <View style={styles.setMargin}>
-            <AppInput
-              label="New Password"
-              placeholderTextColor={AppColors.inputGrey}
-              inputStyle={styles.inputStyle}
-              containerStyle={{marginBottom: hp(1.5)}}
-              container={styles.inputContainer}
-              labelStyle={styles.inputLabelStyle}
-              placeholder="Enter New Password"
-              togglePasswordVisibility={true}
-              secureTextEntry={true}
-              rightInnerIcon={
-                <GlobalIcon
-                  size={20}
-                  library="FontelloIcon"
-                  color={AppColors.inputGrey}
-                  name="-icon-_lock"
+            <Controller
+              name="new_password"
+              control={control}
+              rules={{required: 'New Password is required'}}
+              render={({field: {onChange, value}}) => (
+                <AppInput
+                  label="New Password"
+                  value={value}
+                  placeholderTextColor={AppColors.inputGrey}
+                  inputStyle={styles.inputStyle}
+                  containerStyle={{marginBottom: hp(1.5)}}
+                  container={styles.inputContainer}
+                  labelStyle={styles.inputLabelStyle}
+                  placeholder="Enter New Password"
+                  togglePasswordVisibility={true}
+                  secureTextEntry={true}
+                  onChangeText={text => onChange(text)}
+                  error={errors.new_password?.message}
+                  rightInnerIcon={
+                    <GlobalIcon
+                      size={20}
+                      library="FontelloIcon"
+                      color={AppColors.inputGrey}
+                      name="-icon-_lock"
+                    />
+                  }
                 />
-              }
+              )}
             />
-            <AppInput
-              label="Confirm Password"
-              placeholderTextColor={AppColors.inputGrey}
-              inputStyle={styles.inputStyle}
-              containerStyle={{marginBottom: hp(0)}}
-              container={styles.inputContainer}
-              labelStyle={styles.inputLabelStyle}
-              placeholder="Enter Confirm Password"
-              togglePasswordVisibility={true}
-              secureTextEntry={true}
-              rightInnerIcon={
-                <GlobalIcon
-                  size={20}
-                  library="FontelloIcon"
-                  color={AppColors.inputGrey}
-                  name="-icon-_lock"
+            <Controller
+              name="confirm_password"
+              control={control}
+              rules={{required: 'Confirm Password is required'}}
+              render={({field: {onChange, value}}) => (
+                <AppInput
+                  label="Confirm Password"
+                  value={value}
+                  placeholderTextColor={AppColors.inputGrey}
+                  inputStyle={styles.inputStyle}
+                  containerStyle={{marginBottom: hp(0)}}
+                  container={styles.inputContainer}
+                  labelStyle={styles.inputLabelStyle}
+                  placeholder="Enter Confirm Password"
+                  togglePasswordVisibility={true}
+                  secureTextEntry={true}
+                  onChangeText={text => onChange(text)}
+                  error={errors.confirm_password?.message}
+                  rightInnerIcon={
+                    <GlobalIcon
+                      size={20}
+                      library="FontelloIcon"
+                      color={AppColors.inputGrey}
+                      name="-icon-_lock"
+                    />
+                  }
                 />
-              }
+              )}
             />
             <AppButton
-              onPress={() => navigation.navigate('SuccessScreen')}
+              onPress={handleSubmit(onSubmit)}
               title="Update Password"
               style={{marginTop: hp(10)}}
             />

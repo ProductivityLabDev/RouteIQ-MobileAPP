@@ -1,5 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
+import {Controller, useForm} from 'react-hook-form';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
 import AppButton from '../../components/AppButton';
@@ -7,11 +8,11 @@ import AppHeader from '../../components/AppHeader';
 import AppInput from '../../components/AppInput';
 import AppLayout from '../../layout/AppLayout';
 import AppStyles from '../../styles/AppStyles';
-import {AppColors} from '../../utils/color';
-import {hp} from '../../utils/constants';
 import {UpdateGuardianProfileProps} from '../../types/types';
 import {updateGuardianDropdown} from '../../utils/DummyData';
 import AppFonts from '../../utils/appFonts';
+import {AppColors} from '../../utils/color';
+import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 
 const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
@@ -19,14 +20,38 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
 }) => {
   const route_data = route?.params;
   const navigation = useNavigation();
-  const [selected, setSelected] = React.useState('');
-  const [name, setName] = useState('Jacob Jones');
-  const [address, setAddress] = useState('E301, 20 Cooper Square');
-  const [city, setCity] = useState('New York');
-  const [state, setState] = useState('New York State');
-  const [zipCode, setZipCode] = useState('3132325');
-  const [phone, setPhone] = useState('+93123132325');
-  const [email, setEmail] = useState('jones234@gmail.com');
+
+  useEffect(() => {
+    setValue('name', 'Jacob Jones');
+    setValue('address', 'E301, 20 Cooper Square');
+    setValue('city', 'New York');
+    setValue('state', 'New York State');
+    setValue('zipCode', '3132325');
+    setValue('phone', '+93123132325');
+    setValue('email', 'jones234@gmail.com');
+  }, []);
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      name: '',
+      relationWithChild: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      phone: '',
+      email: '',
+    },
+  });
+
+  const onSubmit = () => {
+    navigation.goBack();
+  };
 
   return (
     <AppLayout>
@@ -45,94 +70,152 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
           },
         ]}>
         <View style={styles.container}>
-          <AppInput
-            containerStyle={styles.inputContainer}
-            label="Name"
-            value={name}
-            onChangeText={(text: string) => setName(text)}
-            editable={true}
+          <Controller
+            name="name"
+            control={control}
+            rules={{required: 'Name is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                containerStyle={styles.inputContainer}
+                label="Name"
+                editable={true}
+                error={errors.name?.message}
+              />
+            )}
           />
-
-          <AppInput
-            containerStyle={{marginBottom: hp(0)}}
-            label="Relation with Child"
-            container={{display: 'none'}}
+          <Controller
+            name="relationWithChild"
+            control={control}
+            // rules={{required: 'Relation with child is required'}}
+            render={({field: {onChange, value}}) => (
+              <>
+                <AppInput
+                  containerStyle={{marginBottom: hp(0)}}
+                  label="Relation with Child"
+                  container={{display: 'none'}}
+                />
+                <SelectList
+                  search={false}
+                  setSelected={(val: string) => onChange(val)}
+                  data={updateGuardianDropdown}
+                  save="value"
+                  placeholder="Select"
+                  boxStyles={styles.boxStyle}
+                  dropdownStyles={{
+                    backgroundColor: AppColors.white,
+                    borderColor: AppColors.black,
+                  }}
+                  dropdownTextStyles={{
+                    color: AppColors.black,
+                    fontSize: size.sl,
+                    fontFamily: AppFonts.NunitoSansSemiBold,
+                  }}
+                  inputStyles={{
+                    fontSize: size.sl,
+                    color: AppColors.black,
+                    fontFamily: AppFonts.NunitoSansSemiBold,
+                  }}
+                />
+              </>
+            )}
           />
-          <SelectList
-            search={false}
-            setSelected={(val: string) => setSelected(val)}
-            data={updateGuardianDropdown}
-            save="value"
-            placeholder="Select"
-            boxStyles={styles.boxStyle}
-            dropdownStyles={{
-              backgroundColor: AppColors.white,
-              borderColor: AppColors.black,
-            }}
-            dropdownTextStyles={{
-              color: AppColors.black,
-              fontSize: size.sl,
-              fontFamily: AppFonts.NunitoSansSemiBold,
-            }}
-            inputStyles={{
-              fontSize: size.sl,
-              color: AppColors.black,
-              fontFamily: AppFonts.NunitoSansSemiBold,
-            }}
+          <Controller
+            name="address"
+            control={control}
+            rules={{required: 'Address is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                containerStyle={styles.inputContainer}
+                label="Address"
+                editable={true}
+                error={errors.address?.message}
+              />
+            )}
           />
-
-          <AppInput
-            containerStyle={styles.inputContainer}
-            label="Address"
-            value={address}
-            onChangeText={(text: string) => setAddress(text)}
-            editable={true}
+          <Controller
+            name="city"
+            control={control}
+            rules={{required: 'City is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainer}
+                label="City"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                editable={true}
+                error={errors.city?.message}
+              />
+            )}
           />
-
-          <AppInput
-            containerStyle={styles.inputContainer}
-            label="City"
-            value={city}
-            onChangeText={(text: string) => setCity(text)}
-            editable={true}
+          <Controller
+            name="state"
+            control={control}
+            rules={{required: 'State is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainer}
+                label="State"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                editable={true}
+                error={errors.state?.message}
+              />
+            )}
           />
-
-          <AppInput
-            containerStyle={styles.inputContainer}
-            label="State"
-            value={state}
-            onChangeText={(text: string) => setState(text)}
-            editable={true}
+          <Controller
+            name="zipCode"
+            control={control}
+            rules={{required: 'Zip Code is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainer}
+                label="Zip Code"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                editable={true}
+                error={errors.zipCode?.message}
+              />
+            )}
           />
-
-          <AppInput
-            containerStyle={styles.inputContainer}
-            label="Zip Code"
-            value={zipCode}
-            onChangeText={(text: string) => setZipCode(text)}
-            editable={true}
+          <Controller
+            name="phone"
+            control={control}
+            rules={{required: 'Phone is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainer}
+                label="Phone"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                editable={true}
+                keyboardType="number-pad"
+                error={errors.phone?.message}
+              />
+            )}
           />
-
-          <AppInput
-            containerStyle={styles.inputContainer}
-            label="Phone"
-            value={phone}
-            onChangeText={(text: string) => setPhone(text)}
-            editable={true}
-            keyboardType="number-pad"
-          />
-
-          <AppInput
-            containerStyle={styles.inputContainer}
-            label="Email"
-            value={email}
-            onChangeText={(text: string) => setEmail(text)}
-            editable={true}
+          <Controller
+            name="email"
+            control={control}
+            rules={{required: 'Email is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainer}
+                label="Email"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                editable={true}
+                error={errors.email?.message}
+              />
+            )}
           />
         </View>
 
         <AppButton
-          onPress={() => navigation.goBack()}
+          onPress={handleSubmit(onSubmit)}
           title="Update"
           style={styles.button}
         />

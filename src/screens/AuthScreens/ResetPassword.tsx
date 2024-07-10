@@ -1,62 +1,81 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Controller, useForm} from 'react-hook-form';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import AppButton from '../../components/AppButton';
+import AppInput from '../../components/AppInput';
 import GlobalIcon from '../../components/GlobalIcon';
 import AuthLayout from '../../layout/AuthLayout';
 import AppStyles from '../../styles/AppStyles';
-import AppButton from '../../components/AppButton';
-import {hp, wp} from '../../utils/constants';
-import {useNavigation} from '@react-navigation/native';
-import AppInput from '../../components/AppInput';
-import {AppColors} from '../../utils/color';
-import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
+import {AppColors} from '../../utils/color';
+import {hp, wp} from '../../utils/constants';
+import {fontSize, size} from '../../utils/responsiveFonts';
 
 const ResetPassword = () => {
   const navigation = useNavigation();
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      email: '',
+    },
+  });
+
+  const onSubmit = () => {
+    navigation.navigate('VerificationCode');
+  };
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <AuthLayout>
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={AppStyles.titleHead}>Resetting Password</Text>
-            <Text
-              style={[
-                AppStyles.subHeading,
-                {marginBottom: hp(2), textAlign: 'center'},
-              ]}>
-              Enter your email for the verification process. We will send 4
-              digits code to your email.
-            </Text>
-            <View style={styles.setMargin}>
-              <AppInput
-                label="Email"
-                placeholderTextColor={AppColors.inputGrey}
-                inputStyle={styles.inputStyle}
-                placeholder="Enter Email Address"
-                container={styles.inputContainer}
-                labelStyle={styles.inputLabelStyle}
-                rightInnerIcon={
-                  <GlobalIcon
-                    size={20}
-                    library="FontelloIcon"
-                    color={AppColors.inputGrey}
-                    name="-icon-_email"
-                  />
-                }
-              />
-              <AppButton
-                onPress={() => navigation.navigate('VerificationCode')}
-                title="Continue"
-                style={{marginTop: hp(10)}}
-              />
-            </View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={AppStyles.titleHead}>Resetting Password</Text>
+          <Text
+            style={[
+              AppStyles.subHeading,
+              {marginBottom: hp(2), textAlign: 'center'},
+            ]}>
+            Enter your email for the verification process. We will send 4 digits
+            code to your email.
+          </Text>
+          <View style={styles.setMargin}>
+            <Controller
+              name="email"
+              control={control}
+              rules={{required: 'Email is required'}}
+              render={({field: {onChange, value}}) => (
+                <AppInput
+                  label="Email"
+                  value={value}
+                  placeholderTextColor={AppColors.inputGrey}
+                  inputStyle={styles.inputStyle}
+                  placeholder="Enter Email Address"
+                  container={styles.inputContainer}
+                  labelStyle={styles.inputLabelStyle}
+                  onChangeText={text => onChange(text)}
+                  error={errors.email?.message}
+                  rightInnerIcon={
+                    <GlobalIcon
+                      size={20}
+                      library="FontelloIcon"
+                      color={AppColors.inputGrey}
+                      name="-icon-_email"
+                    />
+                  }
+                />
+              )}
+            />
+            <AppButton
+              onPress={handleSubmit(onSubmit)}
+              title="Continue"
+              style={{marginTop: hp(10)}}
+            />
           </View>
+        </View>
       </AuthLayout>
     </ScrollView>
   );
@@ -75,7 +94,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     borderColor: '#cfcfcf',
-    borderWidth: 1
+    borderWidth: 1,
   },
   inputLabelStyle: {
     color: AppColors.lightBlack,

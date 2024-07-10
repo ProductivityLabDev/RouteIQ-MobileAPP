@@ -1,5 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
+import {Controller, useForm} from 'react-hook-form';
 import {Image, ScrollView, StyleSheet, View} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
 import AppButton from '../../components/AppButton';
@@ -7,17 +8,13 @@ import AppHeader from '../../components/AppHeader';
 import AppInput from '../../components/AppInput';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppLayout from '../../layout/AppLayout';
+import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
-import AppFonts from '../../utils/appFonts';
 
 export default function ChildProfile() {
   const navigation = useNavigation();
-  const [selected, setSelected] = useState('');
-  const [firstName, setFirstName] = useState('Jacob');
-  const [lastName, setLastName] = useState('Jones');
-  const [emergencyContact, setEmergencyContact] = useState('+93123132325');
 
   const data = [
     {key: '1', value: 'Bus'},
@@ -25,6 +22,33 @@ export default function ChildProfile() {
     {key: '3', value: 'Car'},
     {key: '4', value: 'Auto'},
   ];
+
+  useEffect(() => {
+    setValue('firstName', 'Jacob');
+    setValue('lastName', 'Jones');
+    setValue('emergencyContact', '+93123132325');
+  }, []);
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      emergencyContact: '',
+      medicalDetails: '',
+      note: '',
+      transportationPreference: '',
+    },
+  });
+
+  const onSubmit = () => {
+    navigation.goBack();
+  };
+
   return (
     <AppLayout>
       <AppHeader title="Child Profile" enableBack={true} rightIcon={false} />
@@ -45,7 +69,7 @@ export default function ChildProfile() {
               />
             </View>
             <View style={styles.cameraIcon}>
-              <View style={{marginTop: hp(.5)}}>
+              <View style={{marginTop: hp(0.5)}}>
                 <GlobalIcon
                   library="FontelloIcon"
                   name="group-183"
@@ -56,80 +80,131 @@ export default function ChildProfile() {
             </View>
           </View>
 
-          <AppInput
-            containerStyle={styles.inputContainerStyle}
-            label="First Name"
-            value={firstName}
-            onChangeText={(text: string) => setFirstName(text)}
-            inputStyle={{color: AppColors.black}}
-            editable={true}
+          <Controller
+            name="firstName"
+            control={control}
+            rules={{required: 'First Name is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainerStyle}
+                label="First Name"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                inputStyle={{color: AppColors.black}}
+                editable={true}
+                error={errors.firstName?.message}
+              />
+            )}
           />
-          <AppInput
-            containerStyle={styles.inputContainerStyle}
-            label="Last Name"
-            value={lastName}
-            onChangeText={(text: string) => setLastName(text)}
-            inputStyle={{color: AppColors.black}}
-            editable={true}
+          <Controller
+            name="lastName"
+            control={control}
+            rules={{required: 'Last Name is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainerStyle}
+                label="Last Name"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                inputStyle={{color: AppColors.black}}
+                editable={true}
+                error={errors.lastName?.message}
+              />
+            )}
           />
-          <AppInput
-            containerStyle={styles.inputContainerStyle}
-            label="Emergency Contacts"
-            value={emergencyContact}
-            onChangeText={(text: string) => setEmergencyContact(text)}
-            inputStyle={{color: AppColors.black}}
-            editable={true}
-            keyboardType="number-pad"
+          <Controller
+            name="emergencyContact"
+            control={control}
+            rules={{required: 'Emergency Contact is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainerStyle}
+                label="Emergency Contacts"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                inputStyle={{color: AppColors.black}}
+                editable={true}
+                keyboardType="number-pad"
+                error={errors.emergencyContact?.message}
+              />
+            )}
           />
-          <AppInput
-            containerStyle={styles.inputContainerStyle}
-            multiline
-            numberOfLines={7}
-            container={{height: hp(16)}}
-            label="Medical Details"
-            placeholder="Descripton"
-            inputStyle={{color: AppColors.black}}
-            editable={true}
+          <Controller
+            name="medicalDetails"
+            control={control}
+            rules={{required: 'Medical Details is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainerStyle}
+                multiline
+                numberOfLines={7}
+                value={value}
+                container={{height: hp(16)}}
+                label="Medical Details"
+                placeholder="Descripton"
+                onChangeText={(text: string) => onChange(text)}
+                inputStyle={{color: AppColors.black}}
+                editable={true}
+                error={errors.medicalDetails?.message}
+              />
+            )}
           />
-          <AppInput
-            containerStyle={styles.inputContainerStyle}
-            multiline
-            numberOfLines={7}
-            container={{height: hp(16)}}
-            label="Note"
-            placeholder="Descripton"
+          <Controller
+            name="note"
+            control={control}
+            rules={{required: 'Note is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainerStyle}
+                multiline
+                numberOfLines={7}
+                container={{height: hp(16)}}
+                label="Note"
+                placeholder="Note"
+                error={errors.note?.message}
+              />
+            )}
           />
-          <AppInput
-            containerStyle={{marginBottom: 0}}
-            label="Transportation Preference"
-            container={{display: 'none'}}
-          />
-          <SelectList
-            search={false}
-            setSelected={(val: string) => setSelected(val)}
-            data={data}
-            save="value"
-            placeholder="Select"
-            boxStyles={styles.boxStyle}
-            dropdownStyles={{
-              backgroundColor: AppColors.white,
-              borderColor: AppColors.black,
-            }}
-            dropdownTextStyles={{
-              color: AppColors.black,
-              fontSize: size.sl,
-              fontFamily: AppFonts.NunitoSansSemiBold,
-            }}
-            inputStyles={{
-              fontSize: size.sl,
-              color: AppColors.black,
-              fontFamily: AppFonts.NunitoSansSemiBold,
-            }}
+          <Controller
+            name="transportationPreference"
+            control={control}
+            // rules={{required: 'Transportation Preference is required'}}
+            render={({field: {onChange, value}}) => (
+              <>
+                <AppInput
+                  containerStyle={{marginBottom: 0}}
+                  label="Transportation Preference"
+                  container={{display: 'none'}}
+                />
+                <SelectList
+                  search={false}
+                  setSelected={(val: string) => onChange(val)}
+                  data={data}
+                  save="value"
+                  placeholder="Select"
+                  boxStyles={styles.boxStyle}
+                  dropdownStyles={{
+                    backgroundColor: AppColors.white,
+                    borderColor: AppColors.black,
+                  }}
+                  dropdownTextStyles={{
+                    color: AppColors.black,
+                    fontSize: size.sl,
+                    fontFamily: AppFonts.NunitoSansSemiBold,
+                  }}
+                  inputStyles={{
+                    fontSize: size.sl,
+                    color: AppColors.black,
+                    fontFamily: AppFonts.NunitoSansSemiBold,
+                  }}
+                />
+              </>
+            )}
           />
         </View>
 
         <AppButton
-          onPress={() => navigation.goBack()}
+          onPress={handleSubmit(onSubmit)}
           title="Update"
           style={{
             alignSelf: 'center',

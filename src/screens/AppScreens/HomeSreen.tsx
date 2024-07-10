@@ -29,6 +29,7 @@ import {hp, screenHeight, screenWidth} from '../../utils/constants';
 import {leaveDropdownData} from '../../utils/DummyData';
 import {size} from '../../utils/responsiveFonts';
 import AppCustomModal from '../../components/AppCustomModal';
+import {useForm} from 'react-hook-form';
 
 export default function HomeSreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -59,7 +60,19 @@ export default function HomeSreen() {
     bottomSheetModalRef.current?.close();
   }, []);
 
-  const handleSubmit = () => {
+  // const {
+  //   control,
+  //   handleSubmit,
+  //   formState: {errors},
+  // } = useForm({
+  //   defaultValues: {
+  //     current_password: '',
+  //     new_password: '',
+  //     confirm_password: '',
+  //   },
+  // });
+
+  const onSubmit = () => {
     if (selectAbsence == 'All Week') {
       if (reasonOfAbsence && getDates.length > 0 && !preview) {
         setPreview(true);
@@ -242,7 +255,8 @@ export default function HomeSreen() {
                 />
                 <AppButton
                   title="Submit"
-                  onPress={() => handleSubmit()}
+                  onPress={() => onSubmit()}
+                  // onPress={handleSubmit(onSubmit)}
                   style={styles.submitButton}
                 />
               </View>

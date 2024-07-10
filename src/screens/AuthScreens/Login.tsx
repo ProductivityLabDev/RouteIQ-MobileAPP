@@ -19,6 +19,7 @@ import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {saveToken, setLogout} from '../../store/user/userSlices';
+import {Controller, useForm} from 'react-hook-form';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -28,6 +29,23 @@ const Login = () => {
   useEffect(() => {
     dispatch(setLogout(false));
   }, []);
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = () => {
+    role == 'Driver'
+      ? navigation.navigate('DriverProfileInfo')
+      : dispatch(saveToken(1));
+  };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -59,62 +77,69 @@ const Login = () => {
               Enter your credential to login
             </Text>
             <View style={styles.setMargin}>
-              <AppInput
-                label="Email"
-                placeholderTextColor={AppColors.inputGrey}
-                inputStyle={styles.inputStyle}
-                placeholder="Enter Email Address"
-                container={styles.inputContainer}
-                labelStyle={styles.inputLabelStyle}
-                rightInnerIcon={
-                  <View style={{marginBottom: hp(-0.4)}}>
-                    <GlobalIcon
-                      size={20}
-                      library="FontelloIcon"
-                      color={AppColors.inputGrey}
-                      name="-icon-_email"
-                    />
-                  </View>
-                }
-              />
-              <AppInput
-                label="Password"
-                placeholderTextColor={AppColors.inputGrey}
-                inputStyle={styles.inputStyle}
-                containerStyle={{marginBottom: hp(0)}}
-                container={styles.inputContainer}
-                labelStyle={styles.inputLabelStyle}
-                placeholder="Enter Password"
-                togglePasswordVisibility={true}
-                secureTextEntry={true}
-                rightInnerIcon={
-                  <GlobalIcon
-                    size={20}
-                    library="FontelloIcon"
-                    color={AppColors.inputGrey}
-                    name="lock"
+              <Controller
+                name="email"
+                control={control}
+                rules={{required: 'Email is required'}}
+                render={({field: {onChange, value}}) => (
+                  <AppInput
+                    label="Email"
+                    value={value}
+                    placeholderTextColor={AppColors.inputGrey}
+                    inputStyle={styles.inputStyle}
+                    placeholder="Enter Email Address"
+                    container={styles.inputContainer}
+                    labelStyle={styles.inputLabelStyle}
+                    onChangeText={text => onChange(text)}
+                    error={errors.email?.message}
+                    rightInnerIcon={
+                      <View style={{marginBottom: hp(-0.4)}}>
+                        <GlobalIcon
+                          size={20}
+                          library="FontelloIcon"
+                          color={AppColors.inputGrey}
+                          name="-icon-_email"
+                        />
+                      </View>
+                    }
                   />
-                  // <GlobalIcon
-                  //   size={20}
-                  //   library="CustomIcon"
-                  //   color={AppColors.inputGrey}
-                  //   name="-icon-_lock"
-                  // />
-                }
+                )}
+              />
+              <Controller
+                name="password"
+                control={control}
+                rules={{required: 'Password is required'}}
+                render={({field: {onChange, value}}) => (
+                  <AppInput
+                    label="Password"
+                    value={value}
+                    placeholderTextColor={AppColors.inputGrey}
+                    inputStyle={styles.inputStyle}
+                    containerStyle={{marginBottom: hp(0)}}
+                    container={styles.inputContainer}
+                    labelStyle={styles.inputLabelStyle}
+                    placeholder="Enter Password"
+                    togglePasswordVisibility={true}
+                    secureTextEntry={true}
+                    onChangeText={text => onChange(text)}
+                    error={errors.password?.message}
+                    rightInnerIcon={
+                      <GlobalIcon
+                        size={20}
+                        library="FontelloIcon"
+                        color={AppColors.inputGrey}
+                        name="lock"
+                      />
+                    }
+                  />
+                )}
               />
               <TouchableOpacity
                 onPress={() => navigation.navigate('ResetPassword')}
                 style={styles.forgotPassword}>
                 <Text style={styles.forgotText}>Forgot Password?</Text>
               </TouchableOpacity>
-              <AppButton
-                onPress={() => {
-                  role == 'Driver'
-                    ? navigation.navigate('DriverProfileInfo')
-                    : dispatch(saveToken(1));
-                }}
-                title="Log In"
-              />
+              <AppButton onPress={handleSubmit(onSubmit)} title="Log In" />
             </View>
           </View>
         </View>

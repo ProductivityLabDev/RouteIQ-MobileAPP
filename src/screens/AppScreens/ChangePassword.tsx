@@ -9,9 +9,27 @@ import {hp, wp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 import AppButton from '../../components/AppButton';
 import {useNavigation} from '@react-navigation/native';
+import {Controller, useForm} from 'react-hook-form';
 
 const ChangePassword = () => {
   const navigation = useNavigation();
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      current_password: '',
+      new_password: '',
+      confirm_password: '',
+    },
+  });
+
+  const onSubmit = () => {
+    navigation.navigate('Settings');
+  };
+
   const rightIcon = () => (
     <Image source={require('../../assets/images/open_lock.png')} />
   );
@@ -23,39 +41,69 @@ const ChangePassword = () => {
           AppStyles.container,
           {backgroundColor: AppColors.white, paddingVertical: hp(3)},
         ]}>
-        <AppInput
-          placeholderTextColor={AppColors.brightGrey}
-          inputStyle={styles.inputStyle}
-          container={styles.inputContainer}
-          labelStyle={styles.inputLabelStyle}
-          placeholder="Current Password"
-          togglePasswordVisibility={true}
-          secureTextEntry={true}
-          rightInnerIcon={rightIcon()}
+        <Controller
+          name="current_password"
+          control={control}
+          rules={{required: 'Current Password is required'}}
+          render={({field: {onChange, value}}) => (
+            <AppInput
+              value={value}
+              onChangeText={(text: string) => onChange(text)}
+              placeholderTextColor={AppColors.brightGrey}
+              inputStyle={styles.inputStyle}
+              container={styles.inputContainer}
+              labelStyle={styles.inputLabelStyle}
+              placeholder="Current Password"
+              togglePasswordVisibility={true}
+              secureTextEntry={true}
+              rightInnerIcon={rightIcon()}
+              error={errors.current_password?.message}
+            />
+          )}
         />
-        <AppInput
-          placeholderTextColor={AppColors.brightGrey}
-          inputStyle={styles.inputStyle}
-          container={styles.inputContainer}
-          labelStyle={styles.inputLabelStyle}
-          placeholder="New Password"
-          togglePasswordVisibility={true}
-          secureTextEntry={true}
-          rightInnerIcon={rightIcon()}
+        <Controller
+          name="new_password"
+          control={control}
+          rules={{required: 'New Password is required'}}
+          render={({field: {onChange, value}}) => (
+            <AppInput
+              value={value}
+              onChangeText={(text: string) => onChange(text)}
+              placeholderTextColor={AppColors.brightGrey}
+              inputStyle={styles.inputStyle}
+              container={styles.inputContainer}
+              labelStyle={styles.inputLabelStyle}
+              placeholder="New Password"
+              togglePasswordVisibility={true}
+              secureTextEntry={true}
+              rightInnerIcon={rightIcon()}
+              error={errors.new_password?.message}
+            />
+          )}
         />
-        <AppInput
-          placeholderTextColor={AppColors.brightGrey}
-          inputStyle={styles.inputStyle}
-          container={styles.inputContainer}
-          labelStyle={styles.inputLabelStyle}
-          placeholder="Re-type New Password"
-          togglePasswordVisibility={true}
-          secureTextEntry={true}
-          rightInnerIcon={rightIcon()}
+        <Controller
+          name="confirm_password"
+          control={control}
+          rules={{required: 'Confirm New Password is required'}}
+          render={({field: {onChange, value}}) => (
+            <AppInput
+              value={value}
+              onChangeText={(text: string) => onChange(text)}
+              placeholderTextColor={AppColors.brightGrey}
+              inputStyle={styles.inputStyle}
+              container={styles.inputContainer}
+              labelStyle={styles.inputLabelStyle}
+              placeholder="Re-type New Password"
+              togglePasswordVisibility={true}
+              secureTextEntry={true}
+              rightInnerIcon={rightIcon()}
+              error={errors.confirm_password?.message}
+            />
+          )}
         />
         <AppButton
           title="Submit"
-          onPress={() => navigation.navigate('Settings')}
+          onPress={handleSubmit(onSubmit)}
           style={{
             width: '100%',
             backgroundColor: AppColors.black,
