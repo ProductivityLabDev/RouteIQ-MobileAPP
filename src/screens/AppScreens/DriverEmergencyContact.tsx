@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
@@ -12,12 +12,27 @@ import { size } from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import UploadDoc from '../../components/UploadDoc';
 import AppInput from '../../components/AppInput';
+import EmergencyContact from '../../components/EmergencyContact';
 
 const DriverEmergencyContact = () => {
     const navigation = useNavigation();
 
     const [editDetails1, setEditDetails1] = useState(false);
     const [editDetails2, setEditDetails2] = useState(false);
+
+const emergencyContact = [
+    {
+        name: 'Esther Howard',
+        relation: 'Aunty',
+        phone_number: '+1-424-271-8337'
+    },
+    {
+        name: 'Robert Fox',
+        relation: 'Grandpa',
+        phone_number: '+1-424-271-8337'
+    },
+]
+
     return (
         <AppLayout
             statusbackgroundColor={AppColors.red}
@@ -29,8 +44,10 @@ const DriverEmergencyContact = () => {
                 rightIcon={false}
             />
             <ScrollView style={[AppStyles.driverContainer, AppStyles.flex, { backgroundColor: AppColors.profileBg, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
+                {/* <EmergencyContact /> */}
 
-                <View style={{ backgroundColor: AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2) }}>
+                <FlatList data={emergencyContact} renderItem={({item, index}) => <EmergencyContact item={item} index={index} />} />
+                {/* <View style={{ backgroundColor: AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2) }}>
                     <View style={[AppStyles.rowBetween, { marginBottom: hp(2) }]}>
                         <Text style={[AppStyles.title, { fontSize: size.lg, fontFamily: AppFonts.NunitoSansBold }]}>Emergency Contact 1:</Text>
                         <Pressable onPress={() => setEditDetails1(!editDetails1)}>
@@ -91,13 +108,13 @@ const DriverEmergencyContact = () => {
                         }
                     </View>
 
-                </View>
+                </View> */}
 
 
 
 
 
-                <View style={{ backgroundColor: AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2), marginVertical: hp(1) }}>
+                {/* <View style={{ backgroundColor: AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2), marginVertical: hp(1) }}>
                     <View style={[AppStyles.rowBetween, { marginBottom: hp(2) }]}>
                         <Text style={[AppStyles.title, { fontSize: size.lg, fontFamily: AppFonts.NunitoSansBold }]}>Emergency Contact 2:</Text>
                         <Pressable onPress={() => setEditDetails2(!editDetails2)}>
@@ -160,7 +177,7 @@ const DriverEmergencyContact = () => {
 
 
 
-                </View>
+                </View> */}
 
                 <UploadDoc title='Add New' containerStyle={{ marginHorizontal: hp(2), alignSelf: 'center', width: '80%', borderRadius: 15 }} textStyle={{ fontSize: size.default, marginTop: hp(-3) }} />
 

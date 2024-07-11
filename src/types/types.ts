@@ -115,3 +115,8 @@ export interface DriverAllChatsProps {
   arrayData?: ChatItem[];
   setSchoolChattingScreen?: (value: boolean) => void;
 }
+
+export interface EmergencyContactProps {
+  item: any;
+  index: number
+}
