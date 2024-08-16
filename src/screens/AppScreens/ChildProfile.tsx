@@ -26,6 +26,7 @@ export default function ChildProfile() {
   useEffect(() => {
     setValue('firstName', 'Jacob');
     setValue('lastName', 'Jones');
+    setValue('emergencyContactName', 'Tanner');
     setValue('emergencyContact', '+93123132325');
   }, []);
 
@@ -38,6 +39,7 @@ export default function ChildProfile() {
     defaultValues: {
       firstName: '',
       lastName: '',
+      emergencyContactName: '',
       emergencyContact: '',
       medicalDetails: '',
       note: '',
@@ -60,8 +62,8 @@ export default function ChildProfile() {
           backgroundColor: AppColors.screenColor,
           justifyContent: 'space-between',
         }}>
-        <View>
-          <View style={{position: 'relative'}}>
+        <View style={{paddingTop: hp(3)}}>
+          {/* <View style={{position: 'relative'}}>
             <View style={styles.imageContainer}>
               <Image
                 style={styles.image}
@@ -78,7 +80,7 @@ export default function ChildProfile() {
                 />
               </View>
             </View>
-          </View>
+          </View> */}
 
           <Controller
             name="firstName"
@@ -113,13 +115,29 @@ export default function ChildProfile() {
             )}
           />
           <Controller
+            name="emergencyContactName"
+            control={control}
+            rules={{required: 'Emergency Contacts Name is required'}}
+            render={({field: {onChange, value}}) => (
+              <AppInput
+                containerStyle={styles.inputContainerStyle}
+                label="Emergency Contacts Name"
+                value={value}
+                onChangeText={(text: string) => onChange(text)}
+                inputStyle={{color: AppColors.black}}
+                editable={true}
+                error={errors.emergencyContactName?.message}
+              />
+            )}
+          />
+          <Controller
             name="emergencyContact"
             control={control}
             rules={{required: 'Emergency Contact is required'}}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={styles.inputContainerStyle}
-                label="Emergency Contacts"
+                label="Emergency Contacts No"
                 value={value}
                 onChangeText={(text: string) => onChange(text)}
                 inputStyle={{color: AppColors.black}}
@@ -140,7 +158,7 @@ export default function ChildProfile() {
                 numberOfLines={7}
                 value={value}
                 container={{height: hp(16)}}
-                label="Medical Details"
+                label="Medical Details (Optional)"
                 placeholder="Descripton"
                 onChangeText={(text: string) => onChange(text)}
                 inputStyle={{color: AppColors.black}}
@@ -159,8 +177,10 @@ export default function ChildProfile() {
                 multiline
                 numberOfLines={7}
                 container={{height: hp(16)}}
-                label="Note"
-                placeholder="Note"
+                label="Note (Optional)"
+                placeholder="Description"
+                value={value}
+                onChangeText={(text) => onChange(text)}
                 error={errors.note?.message}
               />
             )}
@@ -206,13 +226,7 @@ export default function ChildProfile() {
         <AppButton
           onPress={handleSubmit(onSubmit)}
           title="Update"
-          style={{
-            alignSelf: 'center',
-            width: '100%',
-            backgroundColor: AppColors.black,
-            marginTop: hp(2),
-            marginBottom: hp(5),
-          }}
+          style={styles.button}
         />
       </ScrollView>
     </AppLayout>
@@ -257,5 +271,12 @@ const styles = StyleSheet.create({
     height: hp(7),
     alignItems: 'center',
     borderColor: AppColors.black,
+  },
+  button: {
+    alignSelf: 'center',
+    width: '100%',
+    backgroundColor: AppColors.black,
+    marginTop: hp(4),
+    marginBottom: hp(5),
   },
 });

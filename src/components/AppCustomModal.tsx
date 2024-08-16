@@ -3,21 +3,21 @@ import {Modal, Pressable, StyleSheet} from 'react-native';
 
 interface AppCustomModalProps {
   visible?: boolean;
-  setVisible?: any;
+  onPress?: any;
   style?: any;
   children: any;
 }
 
 const AppCustomModal: React.FC<AppCustomModalProps> = ({
   visible,
-  setVisible,
+  onPress,
   style,
   children,
 }) => {
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
       <Pressable
-        onPress={() => setVisible(!visible)}
+        onPress={onPress}
         style={[style, {backgroundColor: 'rgba(0, 0, 0, 0.7)'}]}
       />
       {children}

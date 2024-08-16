@@ -10,6 +10,7 @@ const userSlice = createSlice({
     selectedUserChatData: {},
     showStartMileAgeSheet: false,
     mapViewRouteBackOn: 'DriverHomeScreen',
+    studentAbsentModal: false,
   },
   reducers: {
     saveToken: (state, {payload}) => {
@@ -33,6 +34,9 @@ const userSlice = createSlice({
     setMapViewRouteBackOn: (state, {payload}) => {
       state.mapViewRouteBackOn = payload;
     },
+    setStudentAbsentModal: (state, {payload}) => {
+      state.studentAbsentModal = payload;
+    },
   },
 });
 
@@ -44,6 +48,7 @@ export const {
   setSelectedUserChatData,
   setShowStartMileAgeSheet,
   setMapViewRouteBackOn,
+  setStudentAbsentModal,
 } = userSlice.actions;
 
 export default userSlice.reducer;

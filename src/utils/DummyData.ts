@@ -1,35 +1,41 @@
+import {Message} from 'react-native-gifted-chat';
+
 export const NotificationData = [
   {
     id: 1,
-    title: 'Bus will reach  at 08:00',
+    title: '',
+    message: 'Bus will reach  at 08:0',
     timeWhenArrived: '1 day ago',
   },
   {
     id: 2,
-    title: 'Your Bus is Approaching!',
+    title: '',
+    message: 'Your Bus is Approaching!',
     timeWhenArrived: '1 day ago',
   },
   {
     id: 3,
-    from: 'Driver',
-    title:
+    title: 'Driver',
+    message:
       'Adventure calling! Stay in the loop with real-time updates on your favorite outdoor activities.',
     timeWhenArrived: '1 day ago',
     new: true,
   },
   {
     id: 4,
-    title:
+    title: '',
+    message:
       'Adventure calling! Stay in the loop with real-time updates on your favorite outdoor activities',
     timeWhenArrived: '1 day ago',
   },
 ];
 
 export const updateGuardianDropdown = [
-  {key: '1', value: 'Guardian'},
-  {key: '2', value: 'Brother'},
-  {key: '3', value: 'Sister'},
-  {key: '4', value: 'Uncle'},
+  {key: '1', value: 'Parent'},
+  {key: '2', value: 'Guardian'},
+  {key: '3', value: 'Relative'},
+  {key: '4', value: 'Family Friend'},
+  {key: '5', value: 'Other'},
 ];
 
 export const leaveDropdownData = [
@@ -256,71 +262,70 @@ export const studentsData = [
   },
 ];
 
-
 export const chats_data = [
   {
     title: 'Marie Moores',
     message: 'Hi, Marie Moores',
-    time: '08:43'
+    time: '08:43',
   },
   {
     title: 'Bobby Langford',
     message: 'Will do, super, thank you',
-    time: 'Mon'
+    time: 'Mon',
   },
   {
     title: 'William Wiles',
     message: 'Uploaded file.',
-    time: '08:43'
+    time: '08:43',
   },
   {
     title: 'James Edelen',
     message: 'Here is another tutorial, if you...',
-    time: 'Tue'
+    time: 'Tue',
   },
   {
     title: 'Jose Farmer',
     message: 'Here is another tutorial, if you...',
-    time: '08:43'
+    time: '08:43',
   },
   {
     title: 'Frank Marten',
     message: 'Here is another tutorial, if you...',
-    time: 'Sun'
+    time: 'Sun',
   },
   {
     title: 'Marzena Klasa',
     message: 'Will do, super, thank you',
-    time: 'Fri'
+    time: 'Fri',
   },
   {
     title: 'James Edelen',
     message: 'Here is another tutorial, if you...',
-    time: '10:01'
+    time: '10:01',
   },
   {
     title: 'Jose Farmer',
     message: 'Will do, super, thank you',
-    time: '01:56'
+    time: '01:56',
   },
   {
     title: 'Frank Marten',
     message: 'Here is another tutorial, if you...',
-    time: '08:43'
+    time: '08:43',
   },
   {
     title: 'NYU STERN',
     message: 'Hi Bruce..',
-    time: '08:43'
+    time: '08:43',
   },
   {
     title: 'Taft Public School',
     message: 'Here is another tutorial, if you...',
-    time: 'Mon'
+    time: 'Mon',
   },
   {
     title: 'Berkeley Haas',
     message: 'Will do, super, thank you',
-    time: '08:43'
+    time: '08:43',
   },
 ];

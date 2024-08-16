@@ -2,9 +2,9 @@ import * as React from 'react';
 import {StyleSheet, useWindowDimensions} from 'react-native';
 import {TabBar, TabView} from 'react-native-tab-view';
 import {AppTabsViewProps} from '../types/types';
-import {AppColors} from '../utils/color';
-import {fontSize, size} from '../utils/responsiveFonts';
 import AppFonts from '../utils/appFonts';
+import {AppColors} from '../utils/color';
+import {fontSize} from '../utils/responsiveFonts';
 
 const AppTabsView: React.FC<AppTabsViewProps> = ({routes, renderScene}) => {
   const layout = useWindowDimensions();
@@ -16,7 +16,6 @@ const AppTabsView: React.FC<AppTabsViewProps> = ({routes, renderScene}) => {
         {...props}
         style={styles.container}
         indicatorStyle={styles.indicatorStyle}
-        indicatorContainerStyle={styles.indicatorContainerStyle}
         activeColor={AppColors.black}
         inactiveColor={AppColors.black}
         tabStyle={styles.tabStyle}
@@ -48,7 +47,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: AppColors.black,
   },
-  indicatorContainerStyle: {},
   tabStyle: {
     borderRadius: 10,
     padding: 0,
@@ -56,6 +54,7 @@ const styles = StyleSheet.create({
   labelStyle: {
     color: AppColors.black,
     fontSize: fontSize(14),
-    fontFamily: AppFonts.NunitoSansSemiBold
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    textTransform: 'capitalize',
   },
 });

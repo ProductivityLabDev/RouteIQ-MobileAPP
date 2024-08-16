@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {hp} from '../utils/constants';
 import {AppColors} from '../utils/color';
@@ -12,28 +12,37 @@ import {RangeProps} from '../types/types';
 const Range: React.FC<RangeProps> = ({onPress}) => {
   return (
     <View style={styles.bottomContainers}>
-      <View style={styles.firstContainer}>
-        <Text style={[styles.text, {fontFamily: AppFonts.NunitoSansBold}]}>
-          Distance Range
-        </Text>
+      <View style={[styles.firstContainer, AppStyles.rowBetween]}>
+        <View style={[AppStyles.center, {gap: 5, width: '20%'}]}>
+          <Image
+            style={styles.img}
+            source={require('../assets/images/driverProfile.png')}
+          />
+          <Text style={[AppStyles.title, {fontSize: size.s}]}>Wilson</Text>
+        </View>
         <View>
-          <View style={AppStyles.rowBetween}>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={1}
-              minimumTrackTintColor={AppColors.red}
-              maximumTrackTintColor={AppColors.lightPink}
-              thumbTintColor={AppColors.red}
-            />
-            <AppButton
-              title="Ok"
-              style={styles.button}
-              onPress={onPress}
-              titleStyle={{...styles.text, color: AppColors.white}}
-            />
+          <Text style={[styles.text, {fontFamily: AppFonts.NunitoSansBold}]}>
+            Distance Range
+          </Text>
+          <View>
+            <View style={AppStyles.rowBetween}>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={1}
+                minimumTrackTintColor={AppColors.red}
+                maximumTrackTintColor={AppColors.lightPink}
+                thumbTintColor={AppColors.red}
+              />
+              <AppButton
+                title="Ok"
+                style={styles.button}
+                onPress={onPress}
+                titleStyle={{...styles.text, color: AppColors.white}}
+              />
+            </View>
+            <Text style={styles.text}>0 km</Text>
           </View>
-          <Text style={styles.text}>0 km</Text>
         </View>
       </View>
     </View>
@@ -54,10 +63,11 @@ const styles = StyleSheet.create({
     bottom: hp(50),
     justifyContent: 'center',
   },
+  img: {height: hp(5), width: hp(5), borderRadius: hp(5)},
   firstContainer: {
     backgroundColor: AppColors.white,
-    width: hp(32),
-    paddingHorizontal: hp(2),
+    width: '95%',
+    paddingHorizontal: hp(1),
     paddingVertical: hp(1),
     borderRadius: hp(1),
     shadowColor: '#000',

@@ -1,5 +1,12 @@
 import React from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import GlobalIcon from '../../components/GlobalIcon';
 import {AppColors} from '../../utils/color';
 import AppHeader from '../../components/AppHeader';
@@ -10,8 +17,17 @@ import {NotificationData} from '../../utils/DummyData';
 import AppFonts from '../../utils/appFonts';
 import {hp, wp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
+import DeleteIcon from '../../assets/svgs/DeleteIcon';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
+import { useNavigation } from '@react-navigation/native';
 
 const Notifications = () => {
+  const navigation = useNavigation();
   const role = useAppSelector(state => state.userSlices.role);
   const [selected, setSelected] = React.useState<Array<number | string>>([3]);
 
@@ -30,7 +46,36 @@ const Notifications = () => {
           rightIcon={false}
         />
       ) : (
-        <AppHeader enableBack={true} rightIcon={false} title={`Notification`} />
+        <AppHeader
+          role="Create"
+          enableBack={true}
+          rightIcon={false}
+          title={`Notification`}
+          createRightIcon={
+            <Menu>
+              <MenuTrigger>
+                <View style={styles.icon}>
+                  <GlobalIcon
+                    library="Entypo"
+                    name="dots-three-vertical"
+                    color={AppColors.white}
+                    size={hp(3)}
+                  />
+                </View>
+              </MenuTrigger>
+              <MenuOptions optionsContainerStyle={styles.menuOptions}>
+                <MenuOption onSelect={() => console.log('Mark all as read')}>
+                  <Text style={AppStyles.title}>Mark all as read</Text>
+                </MenuOption>
+                <MenuOption
+                  style={{marginBottom: hp(2)}}
+                  onSelect={() => console.log('Delete all')}>
+                  <Text style={AppStyles.title}>Delete all</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+          }
+        />
       )}
       <View
         style={[
@@ -43,14 +88,13 @@ const Notifications = () => {
             paddingTop: hp(2),
           },
         ]}>
-        {NotificationData.length <= 0 ? (
+        {NotificationData.length >= 0 ? (
           <FlatList
             contentContainerStyle={{padding: hp(0)}}
             data={NotificationData}
             renderItem={({item}: {item: any}) => {
               return (
-                <TouchableOpacity
-                  onPress={() => {}}
+                <Pressable
                   style={[
                     styles.column,
                     {
@@ -59,22 +103,48 @@ const Notifications = () => {
                         : AppColors.white,
                     },
                   ]}>
-                  {item.from !== undefined && (
-                    <Text style={[styles.bigtext, {alignSelf: 'flex-start'}]}>
-                      {item?.from}
-                    </Text>
+                  {item.title && (
+                    <View style={AppStyles.rowBetween}>
+                      <Text
+                        style={[
+                          styles.bigtext,
+                          {
+                            alignSelf: 'flex-start',
+                            width: '90%',
+                          },
+                        ]}>
+                        {item?.title}
+                      </Text>
+                      <TouchableOpacity>
+                        <DeleteIcon />
+                      </TouchableOpacity>
+                    </View>
                   )}
 
                   <View style={styles.row2}>
-                    <View>
-                      <Text style={[styles.text, {marginRight: wp(20)}]}>
-                        {item.title}
+                    <View
+                      style={[
+                        AppStyles.rowBetween,
+                        AppStyles.widthFullPercent,
+                        {
+                          alignItems: 'flex-start',
+                        },
+                      ]}>
+                      <Text style={[styles.text, {width: '90%'}]}>
+                        {item.message}
                       </Text>
+                      {!item?.title && (
+                        <TouchableOpacity>
+                          <DeleteIcon />
+                        </TouchableOpacity>
+                      )}
                     </View>
                   </View>
 
                   {item.new === true && (
-                    <Text style={[styles.replyText]}>{'Reply'}</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')}>
+                      <Text style={[styles.replyText]}>{'Reply'}</Text>
+                    </TouchableOpacity>
                   )}
 
                   <View style={{}}>
@@ -86,20 +156,20 @@ const Notifications = () => {
                       {item.timeWhenArrived}
                     </Text>
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               );
             }}
           />
         ) : (
           <View style={styles.noNotifContainer}>
             <View style={{top: hp(4)}}>
-            <GlobalIcon
-              library="FontelloIcon"
-              name="checkmark-1"
-              color={role == 'Driver' ? AppColors.red : AppColors.black}
-              size={80}
+              <GlobalIcon
+                library="FontelloIcon"
+                name="checkmark-1"
+                color={role == 'Driver' ? AppColors.red : AppColors.black}
+                size={80}
               />
-              </View>
+            </View>
             <Text
               style={[
                 styles.textWhenEmptyNotifs,
@@ -193,12 +263,19 @@ const styles = StyleSheet.create({
   },
 
   noNotifContainer: {
-    flex: .9, //need fix here
+    flex: 0.9, //need fix here
     justifyContent: 'center',
     alignItems: 'center',
     gap: hp(1),
   },
+  icon: {padding: hp(1)},
+  menuOptions: {
+    marginTop: hp(2.5),
+    marginLeft: hp(-2.4),
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    borderRadius: 5,
+    paddingHorizontal: hp(1),
+    paddingVertical: hp(1.5),
+  },
 });
-
-
-

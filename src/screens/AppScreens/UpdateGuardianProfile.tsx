@@ -28,7 +28,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
     setValue('state', 'New York State');
     setValue('zipCode', '3132325');
     setValue('phone', '+93123132325');
-    setValue('email', 'jones234@gmail.com');
+    // setValue('email', 'jones234@gmail.com');
   }, []);
 
   const {
@@ -45,7 +45,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
       state: '',
       zipCode: '',
       phone: '',
-      email: '',
+      // email: '',
     },
   });
 
@@ -62,6 +62,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
       />
       <ScrollView
         scrollEnabled={true}
+        style={{flex: 1}}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           AppStyles.body,
@@ -129,7 +130,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
               <AppInput
                 value={value}
                 onChangeText={(text: string) => onChange(text)}
-                containerStyle={styles.inputContainer}
+                containerStyle={[styles.inputContainer, {marginTop: hp(1.6)}]}
                 label="Address"
                 editable={true}
                 error={errors.address?.message}
@@ -197,7 +198,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
               />
             )}
           />
-          <Controller
+          {/* <Controller
             name="email"
             control={control}
             rules={{required: 'Email is required'}}
@@ -211,7 +212,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
                 error={errors.email?.message}
               />
             )}
-          />
+          /> */}
         </View>
 
         <AppButton
@@ -235,10 +236,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     backgroundColor: AppColors.black,
+    marginTop: hp(4),
     marginBottom: hp(8),
   },
   boxStyle: {
-    marginBottom: hp(1.6),
     backgroundColor: AppColors.white,
     alignItems: 'center',
     borderColor: AppColors.black,

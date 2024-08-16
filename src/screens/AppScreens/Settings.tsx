@@ -1,6 +1,14 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet, Switch, Text, View} from 'react-native';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import AppButton from '../../components/AppButton';
 import AppHeader from '../../components/AppHeader';
 import GlobalIcon from '../../components/GlobalIcon';
@@ -13,6 +21,7 @@ import {size} from '../../utils/responsiveFonts';
 import GuardianIcon from '../../assets/svgs/GuardianIcon';
 import {useAppDispatch} from '../../store/hooks';
 import {saveToken, setLogout} from '../../store/user/userSlices';
+import {ImageBackground} from 'react-native';
 
 export default function Settings() {
   const navigation = useNavigation();
@@ -33,6 +42,7 @@ export default function Settings() {
       screen: 'ChildProfile',
       title: 'Child Profile',
       disabled: false,
+      styleStatus: false,
     },
     {
       leftIcon: (
@@ -46,18 +56,23 @@ export default function Settings() {
       screen: 'AttendanceHistory',
       title: 'Attendance History',
       disabled: false,
+      styleStatus: false,
     },
     {
       leftIcon: <GuardianIcon />,
       screen: 'UpdateGuardianProfile',
       title: 'Guardian 1',
+      headerTitle: 'Contact 1',
       disabled: false,
+      styleStatus: true,
     },
     {
       leftIcon: <GuardianIcon />,
       screen: 'UpdateGuardianProfile',
       title: 'Guardian 2',
+      headerTitle: 'Contact 2',
       disabled: false,
+      styleStatus: true,
     },
     {
       leftIcon: (
@@ -71,6 +86,7 @@ export default function Settings() {
       screen: 'ChangePassword',
       title: 'Change Password',
       disabled: false,
+      styleStatus: false,
     },
     {
       leftIcon: (
@@ -84,6 +100,7 @@ export default function Settings() {
       screen: 'ChildProfile',
       title: 'Push Notification',
       disabled: true,
+      styleStatus: false,
     },
   ];
 
@@ -92,25 +109,37 @@ export default function Settings() {
       <AppHeader title="Settings" enableBack={true} rightIcon={false} />
       <View
         style={[AppStyles.container, {backgroundColor: AppColors.screenColor}]}>
-        <View style={styles.imageContainer}>
-          <Image
-            style={styles.image}
-            source={require('../../assets/images/profile_image.webp')}
-          />
-        </View>
+        <ImageBackground
+          borderRadius={hp(15)}
+          style={styles.profileImage}
+          imageStyle={styles.image}
+          source={require('../../assets/images/profile_image.webp')}>
+          <View style={[AppStyles.alignJustifyCenter, styles.cameraIcon]}>
+            <GlobalIcon
+              library="FontelloIcon"
+              name="group-183"
+              color={AppColors.black}
+              size={hp(3)}
+            />
+          </View>
+        </ImageBackground>
 
         <View>
           {settingItems.map((item: any, index: number) => (
             <Pressable
               onPress={() =>
                 item.screen == 'UpdateGuardianProfile'
-                  ? navigation.navigate(item.screen, {title: item.title})
+                  ? navigation.navigate(item.screen, {title: item.headerTitle})
                   : navigation.navigate(item.screen)
               }
               disabled={item.disabled}
               key={index}
-              style={[AppStyles.rowBetween, styles.itemContainer]}>
-              <View style={[AppStyles.row, {top: hp(.2)}]}>
+              style={[
+                AppStyles.rowBetween,
+                styles.itemContainer,
+                item.styleStatus && {paddingVertical: hp(1.8)},
+              ]}>
+              <View style={[AppStyles.row, {top: hp(0.2)}]}>
                 {item.leftIcon}
                 <Text style={styles.title}>{item.title}</Text>
               </View>
@@ -150,16 +179,18 @@ export default function Settings() {
 const styles = StyleSheet.create({
   itemContainer: {
     backgroundColor: AppColors.inputColor,
-    padding: hp(1.5),
+    paddingVertical: hp(1),
     borderRadius: hp(1.5),
     marginVertical: hp(1),
+    paddingHorizontal: hp(1.5),
   },
-  imageContainer: {
-    height: hp(15),
-    width: hp(15),
-    borderRadius: hp(20),
+  profileImage: {
+    height: hp(18),
+    width: hp(18),
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    marginVertical: hp(2),
     alignSelf: 'center',
-    marginVertical: hp(4),
   },
   image: {
     height: '100%',
@@ -171,7 +202,7 @@ const styles = StyleSheet.create({
     marginLeft: hp(1),
     fontFamily: AppFonts.NunitoSansSemiBold,
     color: AppColors.black,
-    marginTop: hp(-.7)
+    marginTop: hp(-0.7),
   },
   button: {
     alignSelf: 'center',
@@ -179,5 +210,15 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.black,
     position: 'absolute',
     bottom: hp(4),
+  },
+  cameraIcon: {
+    borderColor: AppColors.black,
+    borderWidth: 1.5,
+    height: hp(5.2),
+    width: hp(5.2),
+    borderRadius: hp(8),
+    backgroundColor: AppColors.white,
+    paddingTop: hp(0.5),
+    marginRight: hp(1),
   },
 });

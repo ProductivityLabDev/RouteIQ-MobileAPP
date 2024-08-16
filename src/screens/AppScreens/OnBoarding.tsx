@@ -18,7 +18,7 @@ const OnBoarding = () => {
       case 0:
         return require('../../assets/images/mobile.png');
       case 1:
-        return require('../../assets/images/licenseAndRoute.png');
+        return require('../../assets/images/licenseandroute.png');
       case 2:
         return require('../../assets/images/boarding_bus.png');
     }

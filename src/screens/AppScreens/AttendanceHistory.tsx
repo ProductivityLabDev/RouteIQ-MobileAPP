@@ -7,32 +7,71 @@ import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
+import AppButton from '../../components/AppButton';
+import {useNavigation} from '@react-navigation/native';
+import {useAppDispatch} from '../../store/hooks';
+import {setStudentAbsentModal} from '../../store/user/userSlices';
 
 const AttendanceHistory = () => {
+  const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+
   const renderData = (type: any) => {
     return (
       <>
-      {type == 'Absent' ? 
-        <View style={[styles.container, {backgroundColor: AppColors.palePink}]}>
-        <Text style={styles.title}>{type}</Text>
-        <View style={styles.absentTitleContainer}>
-          <Text style={styles.absentTitle}>Reason:</Text>
-          <Text style={styles.absentSubTitle}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy.</Text>
-        </View>
-        <View style={[AppStyles.row, {gap: hp(1), marginTop: hp(1)}]}>
-          <Text style={[styles.subTitle, {backgroundColor: AppColors.red, color: AppColors.white }]}>8:00 AM</Text>
-          <Text style={[styles.subTitle, {backgroundColor: AppColors.red, color: AppColors.white }]}>Feb 25, 2024</Text>
-        </View>
-      </View>
-      : 
-      <View style={styles.container}>
-        <Text style={styles.title}>{type}</Text>
-        <View style={[AppStyles.row, {gap: hp(1), marginTop: hp(1)}]}>
-          <Text style={[styles.subTitle, type == 'Check In' || type == 'Check Out' ? {backgroundColor: AppColors.green, color: AppColors.white } : {backgroundColor: AppColors.yellow }]}>8:00 AM</Text>
-          <Text style={[styles.subTitle, type == 'Check In' || type == 'Check Out' ? {backgroundColor: AppColors.green, color: AppColors.white } : {backgroundColor: AppColors.yellow }]}>Feb 25, 2024</Text>
-        </View>
-      </View>
-      }
+        {type == 'Absent' ? (
+          <View
+            style={[styles.container, {backgroundColor: AppColors.palePink}]}>
+            <Text style={styles.title}>{type}</Text>
+            <View style={styles.absentTitleContainer}>
+              <Text style={styles.absentTitle}>Reason:</Text>
+              <Text style={styles.absentSubTitle}>
+                Due to a severe illness, Mark was unable to attend school and
+                was under medical care.
+              </Text>
+            </View>
+            <View style={[AppStyles.row, {gap: hp(1), marginTop: hp(1)}]}>
+              <Text
+                style={[
+                  styles.subTitle,
+                  {backgroundColor: AppColors.red, color: AppColors.white},
+                ]}>
+                8:00 AM
+              </Text>
+              <Text
+                style={[
+                  styles.subTitle,
+                  {backgroundColor: AppColors.red, color: AppColors.white},
+                ]}>
+                Feb 25, 2024
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.container}>
+            <Text style={styles.title}>{type}</Text>
+            <View style={[AppStyles.row, {gap: hp(1), marginTop: hp(1)}]}>
+              <Text
+                style={[
+                  styles.subTitle,
+                  type == 'Check In' || type == 'Check Out'
+                    ? {backgroundColor: AppColors.green, color: AppColors.white}
+                    : {backgroundColor: AppColors.yellow},
+                ]}>
+                8:00 AM
+              </Text>
+              <Text
+                style={[
+                  styles.subTitle,
+                  type == 'Check In' || type == 'Check Out'
+                    ? {backgroundColor: AppColors.green, color: AppColors.white}
+                    : {backgroundColor: AppColors.yellow},
+                ]}>
+                Feb 25, 2024
+              </Text>
+            </View>
+          </View>
+        )}
       </>
     );
   };
@@ -47,13 +86,24 @@ const AttendanceHistory = () => {
       <View
         style={[
           AppStyles.container,
-          {backgroundColor: AppColors.screenColor, paddingTop: hp(2)},
+          {backgroundColor: AppColors.offWhite, paddingTop: hp(2)},
         ]}>
-        {renderData('Check Out - Pending')}
-        {renderData('Check In')}
+        <AppButton
+          title="Total 23 Days Absent"
+          titleStyle={{color: AppColors.black}}
+          style={[AppStyles.widthFullPercent, styles.button]}
+          onPress={() => {
+            navigation.navigate('HomeSreen');
+            dispatch(setStudentAbsentModal(true));
+          }}
+        />
         {renderData('Absent')}
-        {renderData('Check Out')}
+        {renderData('Absent')}
+        {renderData('Absent')}
+        {/* {renderData('Check Out - Pending')}
         {renderData('Check In')}
+        {renderData('Check Out')}
+        {renderData('Check In')} */}
       </View>
     </AppLayout>
   );
@@ -87,16 +137,22 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansMedium,
   },
   absentTitle: {
-    color: '#560b10', 
-    fontFamily: AppFonts.NunitoSansBold, 
-    marginBottom: hp(1)
+    color: '#560b10',
+    fontFamily: AppFonts.NunitoSansBold,
+    marginBottom: hp(1),
   },
   absentSubTitle: {
-    color: AppColors.lightBlack, 
-    fontFamily: AppFonts.NunitoSansMedium, 
-    fontSize: size.sl
+    color: AppColors.lightBlack,
+    fontFamily: AppFonts.NunitoSansMedium,
+    fontSize: size.sl,
   },
   absentTitleContainer: {
-    marginTop: hp(1)
-  }
+    marginTop: hp(1),
+  },
+  button: {
+    backgroundColor: AppColors.transparent,
+    borderWidth: 2,
+    borderColor: AppColors.black,
+    marginBottom: hp(2),
+  },
 });

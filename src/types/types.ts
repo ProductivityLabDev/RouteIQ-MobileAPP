@@ -1,3 +1,4 @@
+import React from 'react';
 import {StyleProp, TextStyle, ViewStyle} from 'react-native';
 
 export interface AuthLayoutProps {
@@ -44,6 +45,7 @@ export interface AppHeaderProps {
   backFunctionEnable?: boolean;
   handleBack?: any;
   profile_image?: boolean;
+  createRightIcon?: React.ReactElement;
 }
 
 export interface AppButtonProps {
@@ -121,5 +123,5 @@ export interface DriverAllChatsProps {
 
 export interface EmergencyContactProps {
   item: any;
-  index: number
+  index: number;
 }

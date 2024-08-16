@@ -30,17 +30,24 @@ import {leaveDropdownData} from '../../utils/DummyData';
 import {size} from '../../utils/responsiveFonts';
 import AppCustomModal from '../../components/AppCustomModal';
 import {useForm} from 'react-hook-form';
+import ElephantIcon from '../../assets/svgs/ElephantIcon';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {setStudentAbsentModal} from '../../store/user/userSlices';
 
 export default function HomeSreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  const studentAbsentModal = useAppSelector(
+    state => state.userSlices.studentAbsentModal,
+  );
   const [isEnabled, setIsEnabled] = useState(false);
   const [selectAbsence, setSelectAbsence] = useState('');
   const [preview, setPreview] = useState(false);
   const [reasonOfAbsence, setReasonOfAbsence] = useState('');
   const [getDates, setGetDates] = useState([]);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-  const [modalVisible, setModalVisible] = useState(false);
+  // const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState({
     reason: '',
     calendar: '',
@@ -82,7 +89,8 @@ export default function HomeSreen() {
         setPreview(false);
         setReasonOfAbsence('');
         setSelectAbsence('');
-        setModalVisible(false);
+        // setModalVisible(false);
+        dispatch(setStudentAbsentModal(false));
       }
       // if (reasonOfAbsence && getDates.length > 0 && preview) {
       //   setGetDates([]);
@@ -96,7 +104,8 @@ export default function HomeSreen() {
       setPreview(false);
       setReasonOfAbsence('');
       setSelectAbsence('');
-      setModalVisible(false);
+      // setModalVisible(false);
+      dispatch(setStudentAbsentModal(false));
     }
   };
 
@@ -119,7 +128,10 @@ export default function HomeSreen() {
         />
         <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
           <View style={styles.headerTitle}>
-            <Text style={styles.headerSubTitle}>Bus No:</Text>
+            <View style={[AppStyles.rowCenter, {gap: 5}]}>
+              <Text style={styles.headerSubTitle}>Bus No:</Text>
+              <ElephantIcon />
+            </View>
             <Text
               style={[
                 AppStyles.subHeading,
@@ -170,7 +182,7 @@ export default function HomeSreen() {
           </Pressable>
           <AppButton
             title="Report Student Absence"
-            onPress={() => setModalVisible(true)}
+            onPress={() => dispatch(setStudentAbsentModal(true))}
             // onPress={() => openSheet()}
             style={{backgroundColor: AppColors.lightBlack}}
             titleStyle={{fontFamily: AppFonts.NunitoSansSemiBold}}
@@ -178,7 +190,9 @@ export default function HomeSreen() {
         </View>
       </View>
 
-      <AppCustomModal visible={modalVisible} setVisible={setModalVisible}>
+      <AppCustomModal
+        visible={studentAbsentModal}
+        onPress={() => dispatch(setStudentAbsentModal(false))}>
         <ScrollView contentContainerStyle={{flex: 1}}>
           <View style={{flex: 1, justifyContent: 'flex-end'}}>
             <View
@@ -244,7 +258,8 @@ export default function HomeSreen() {
                 <AppButton
                   title="Cancel"
                   onPress={() => {
-                    setModalVisible(false);
+                    // setModalVisible(false);
+                    dispatch(setStudentAbsentModal(false));
                     setGetDates([]);
                     setPreview(false);
                     setReasonOfAbsence('');

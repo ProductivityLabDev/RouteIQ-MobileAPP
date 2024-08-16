@@ -26,6 +26,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   backFunctionEnable = false,
   handleBack,
   profile_image,
+  createRightIcon,
 }) => {
   const navigation = useNavigation();
   const [isSwitchOn, setIsSwitchOn] = useState(true);
@@ -152,6 +153,44 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                   />
                 </Pressable>
               )}
+            </View>
+          </View>
+        </View>
+      )}
+
+      {role == 'Create' && (
+        <View style={[styles.mainContainer, containerStyle]}>
+          {greetTitle && <Text style={styles.greetTitle}>{greetTitle}</Text>}
+          <View style={AppStyles.rowBetween}>
+            <View style={styles.iconContainer}>
+              {!enableBack && (
+                <Pressable
+                  style={[styles.icon, {marginBottom: hp(-1)}]}
+                  onPress={onPressLeftIcon}>
+                  <GlobalIcon
+                    library="FontelloIcon"
+                    name="settings"
+                    color={AppColors.white}
+                    size={hp(3.5)}
+                  />
+                </Pressable>
+              )}
+              {enableBack && (
+                <Pressable
+                  onPress={() => navigation.goBack()}
+                  style={styles.icon}>
+                  <GlobalIcon
+                    library="Ionicons"
+                    name="chevron-back"
+                    color={AppColors.white}
+                    size={hp(3)}
+                  />
+                </Pressable>
+              )}
+            </View>
+            <Text style={[styles.title, titleStyle]}>{title}</Text>
+            <View style={[styles.iconContainer, {alignItems: 'flex-end'}]}>
+              {createRightIcon}
             </View>
           </View>
         </View>

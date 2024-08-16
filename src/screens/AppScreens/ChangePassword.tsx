@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import AppInput from '../../components/AppInput';
 import AppLayout from '../../layout/AppLayout';
@@ -10,6 +10,8 @@ import {size} from '../../utils/responsiveFonts';
 import AppButton from '../../components/AppButton';
 import {useNavigation} from '@react-navigation/native';
 import {Controller, useForm} from 'react-hook-form';
+import GlobalIcon from '../../components/GlobalIcon';
+import AppFonts from '../../utils/appFonts';
 
 const ChangePassword = () => {
   const navigation = useNavigation();
@@ -81,6 +83,39 @@ const ChangePassword = () => {
             />
           )}
         />
+        <View style={styles.suggestionContainer}>
+          <View style={[AppStyles.row, {gap: 5}]}>
+            <GlobalIcon
+              library="FontAwesome6"
+              name="check"
+              color={AppColors.brightGrey}
+              size={hp(2)}
+            />
+            <Text style={styles.suggestionText}>Minimum 8 character</Text>
+          </View>
+          <View style={[AppStyles.row, {gap: 5}]}>
+            <GlobalIcon
+              library="FontAwesome6"
+              name="check"
+              color={AppColors.brightGrey}
+              size={hp(2)}
+            />
+            <Text style={styles.suggestionText}>
+              At least 1 upper case & 1 lower case letter
+            </Text>
+          </View>
+          <View style={[AppStyles.row, {gap: 5}]}>
+            <GlobalIcon
+              library="FontAwesome6"
+              name="check"
+              color={AppColors.brightGrey}
+              size={hp(2)}
+            />
+            <Text style={styles.suggestionText}>
+              At least 1 special character
+            </Text>
+          </View>
+        </View>
         <Controller
           name="confirm_password"
           control={control}
@@ -130,5 +165,11 @@ const styles = StyleSheet.create({
   },
   inputLabelStyle: {
     color: AppColors.lightBlack,
+  },
+  suggestionContainer: {marginLeft: hp(2), marginBottom: hp(2), gap: 5},
+  suggestionText: {
+    fontSize: size.s,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    color: AppColors.brightGrey,
   },
 });
