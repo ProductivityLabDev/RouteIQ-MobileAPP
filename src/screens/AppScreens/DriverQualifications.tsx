@@ -21,8 +21,8 @@ import AppDoc from '../../components/AppDoc'
 
 
 export default function DriverQualifications() {
-    
-    
+
+
     const [docUploaded, setDocUploaded] = useState(false)
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const snapPoints = useMemo(() => ['34%', '90%'], []);
@@ -32,7 +32,7 @@ export default function DriverQualifications() {
     const closeSheet = useCallback(() => {
         bottomSheetModalRef.current?.close();
     }, []);
-    
+
     const bottomSheetModalRef2 = useRef<BottomSheetModal>(null);
     const snapPoints2 = useMemo(() => ['45%', '90%'], []);
     const openSheet2 = useCallback(() => {
@@ -41,15 +41,24 @@ export default function DriverQualifications() {
     const closeSheet2 = useCallback(() => {
         bottomSheetModalRef2.current?.close();
     }, []);
-    
-    
-    
+
+    const bottomSheetModalRef3 = useRef<BottomSheetModal>(null);
+    const snapPoints3 = useMemo(() => ['34%', '90%'], []);
+    const openSheet3 = useCallback(() => {
+        bottomSheetModalRef3.current?.present();
+    }, []);
+    const closeSheet3 = useCallback(() => {
+        bottomSheetModalRef3.current?.close();
+    }, []);
+
+
+
     const [selectAbsence, setSelectAbsence] = useState('');
-    
+
     const [selected, setSelected] = useState(false);
     const [selected1, setSelected1] = useState(false);
     const [selected2, setSelected2] = useState(false);
-    
+
 
 
 
@@ -63,7 +72,7 @@ export default function DriverQualifications() {
 
                 <View style={styles.experienceContainer}>
 
-                    <View style={[styles.dotnDashContainer, { }]} >
+                    <View style={[styles.dotnDashContainer, {}]} >
                         <View style={styles.circle}><View style={styles.innerCircle}></View></View>
 
                         <View style={styles.dashedLine}></View>
@@ -84,7 +93,7 @@ export default function DriverQualifications() {
 
                 <View style={styles.experienceContainer}>
 
-                    <View style={[styles.dotnDashContainer, {  }]} >
+                    <View style={[styles.dotnDashContainer, {}]} >
                         <View style={styles.circle}><View style={styles.innerCircle}></View></View>
 
                         <View style={styles.dashedLine}></View>
@@ -105,7 +114,7 @@ export default function DriverQualifications() {
 
                 <View style={styles.experienceContainer}>
 
-                    <View style={[styles.dotnDashContainer, {  }]} >
+                    <View style={[styles.dotnDashContainer, {}]} >
                         <View style={styles.circle}><View style={styles.innerCircle}></View></View>
 
                         <View style={styles.dashedLine}></View>
@@ -127,6 +136,24 @@ export default function DriverQualifications() {
 
 
             </View>
+
+            <AppButton
+                title="Upload CV"
+                onPress={() => openSheet3()}
+                style={{
+                    // width: '100%',
+                    width: '90%',
+                    backgroundColor: AppColors.red,
+                    // height: hp(6),
+                    marginHorizontal: wp(7),
+                    alignSelf: 'center',
+                    position: 'relative',
+                    top: 50
+                }}
+                titleStyle={{
+                    fontSize: size.md
+                }}
+            />
 
 
             <AppButton
@@ -310,6 +337,38 @@ export default function DriverQualifications() {
             />
 
             <AppBottomSheet
+                bottomSheetModalRef={bottomSheetModalRef3}
+                snapPoints={snapPoints3}
+                backdropComponent={({ style }) => (
+                    <Pressable
+                        onPress={() => closeSheet3()}
+                        style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
+                    />
+                )}>
+                <View style={AppStyles.center}>
+
+                    <View style={{ width: '90%' }}>
+
+                        <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
+                            Upload CV
+                        </Text>
+
+                        <UploadDoc title='Tap and Upload Files' containerStyle={{ marginHorizontal: hp(2), alignSelf: 'center', borderRadius: 15, backgroundColor: 'transparent' }} textStyle={{ fontSize: size.default }} />
+                    </View>
+
+                    <View style={[AppStyles.rowBetween, AppStyles.widthFullPercent]}>
+                        <AppButton
+                            title="Cancel"
+                            style={styles.backButton}
+                            titleStyle={{ color: AppColors.textLightGrey }}
+                            onPress={() => closeSheet3()}
+                        />
+                        <AppButton title="Upload" style={styles.submitButton} onPress={() => { closeSheet(); setDocUploaded(true) }} />
+                    </View>
+                </View>
+            </AppBottomSheet>
+
+            <AppBottomSheet
                 bottomSheetModalRef={bottomSheetModalRef}
                 snapPoints={snapPoints}
                 backdropComponent={({ style }) => (
@@ -336,7 +395,7 @@ export default function DriverQualifications() {
                             titleStyle={{ color: AppColors.textLightGrey }}
                             onPress={() => closeSheet()}
                         />
-                        <AppButton title="Upload" style={styles.submitButton} onPress={() => { closeSheet(); setDocUploaded(true)}} />
+                        <AppButton title="Upload" style={styles.submitButton} onPress={() => { closeSheet(); setDocUploaded(true) }} />
                     </View>
                 </View>
             </AppBottomSheet>
@@ -363,21 +422,24 @@ export default function DriverQualifications() {
             {...props}
             // pressColor={colors.blue}
             indicatorStyle={{ backgroundColor: AppColors.red }}
-            style={{ paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6),
+            style={{
+                paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6),
                 //  width: wp(100),
-                  margin:0 }}
+                margin: 0
+            }}
             labelStyle={[styles.subTitle]}
-            
+
             activeColor={AppColors.red}
             inactiveColor="#666"
-            
+
             renderLabel={({ route, focused, color }) => (
-                <Text style={[styles.subTitle, {padding:0, 
+                <Text style={[styles.subTitle, {
+                    padding: 0,
                     backgroundColor: 'transparent',
-                //  fontFamily: focused? AppFonts.NunitoSansBold : AppFonts.NunitoSansSemiBold,
-                fontFamily: AppFonts.NunitoSansBold,
-                  color: focused?  AppColors.red: AppColors.black
-                   }]}>
+                    //  fontFamily: focused? AppFonts.NunitoSansBold : AppFonts.NunitoSansSemiBold,
+                    fontFamily: AppFonts.NunitoSansBold,
+                    color: focused ? AppColors.red : AppColors.black
+                }]}>
                     {route.title}
                     {/* {route.title.split(' ').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ')} */}
                 </Text>
@@ -404,7 +466,7 @@ export default function DriverQualifications() {
 
 
                 <TabView
-                
+
                     style={{ width: '100%' }}
                     navigationState={{ index, routes }}
                     renderScene={renderScene}

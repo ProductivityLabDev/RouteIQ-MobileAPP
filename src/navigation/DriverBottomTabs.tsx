@@ -156,7 +156,7 @@ function DriverBottomTabs() {
                     return (
                       <BottomIcon
                         focused={focused}
-                        title="Tasks"
+                        title="Trips"
                         children={
                           focused ? (
                             <TaskIcon color={AppColors.red} />

@@ -8,19 +8,19 @@ import {
   Text,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
-import {AppColors} from '../../utils/color';
+import React, { useState } from 'react';
+import { AppColors } from '../../utils/color';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
-import {hp, screenHeight, screenWidth, wp} from '../../utils/constants';
-import {size} from '../../utils/responsiveFonts';
-import {useNavigation} from '@react-navigation/native';
+import { hp, screenHeight, screenWidth, wp } from '../../utils/constants';
+import { size } from '../../utils/responsiveFonts';
+import { useNavigation } from '@react-navigation/native';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppButton from '../../components/AppButton';
-import {useAppDispatch} from '../../store/hooks';
-import {saveToken, setLogout} from '../../store/user/userSlices';
+import { useAppDispatch } from '../../store/hooks';
+import { saveToken, setLogout } from '../../store/user/userSlices';
 
 const DriverProfile = () => {
   const dispatch = useAppDispatch();
@@ -129,6 +129,18 @@ const DriverProfile = () => {
     {
       leftIcon: (
         <GlobalIcon
+          library="MaterialCommunityIcons"
+          name="fuel"
+          color={AppColors.red}
+          size={hp(2.5)}
+        />
+      ),
+      title: 'Fuel Code',
+      subTitle: ''
+    },
+    {
+      leftIcon: (
+        <GlobalIcon
           library="FontelloIcon"
           name="lock"
           color={AppColors.red}
@@ -157,121 +169,121 @@ const DriverProfile = () => {
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{backgroundColor: AppColors.profileBg}}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{height: screenHeight}}>
-      <ImageBackground
-        style={styles.headerImage}
-        source={require('../../assets/images/redCurvedBorderBg.png')}>
-        <AppHeader
-          role="Driver"
-          title="Profile"
-          enableBack={false}
-          rightIcon={false}
-          containerStyle={{height: hp(11)}}
-        />
-        <View style={styles.imageContainer}>
-          <Image
-            style={styles.image}
-            source={require('../../assets/images/profile_image.webp')}
+      style={{ backgroundColor: AppColors.profileBg }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ height: screenHeight }}>
+        <ImageBackground
+          style={styles.headerImage}
+          source={require('../../assets/images/redCurvedBorderBg.png')}>
+          <AppHeader
+            role="Driver"
+            title="Profile"
+            enableBack={false}
+            rightIcon={false}
+            containerStyle={{ height: hp(11) }}
           />
-        </View>
+          <View style={styles.imageContainer}>
+            <Image
+              style={styles.image}
+              source={require('../../assets/images/profile_image.webp')}
+            />
+          </View>
 
-        <Text
-          style={[
-            AppStyles.subHeading,
-            {
-              color: AppColors.white,
-              fontFamily: AppFonts.NunitoSansBold,
+          <Text
+            style={[
+              AppStyles.subHeading,
+              {
+                color: AppColors.white,
+                fontFamily: AppFonts.NunitoSansBold,
+                alignSelf: 'center',
+                fontSize: size.lg,
+                marginTop: hp(1),
+              },
+            ]}>
+            Mark Tommay
+          </Text>
+
+          <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
+            <View style={styles.headerTitle}>
+              <Text style={styles.headerSubTitle}>Employee ID:</Text>
+              <Text
+                style={[
+                  AppStyles.subHeading,
+                  {
+                    color: AppColors.white,
+                    fontFamily: AppFonts.NunitoSansBold,
+                  },
+                ]}>
+                B456788
+              </Text>
+            </View>
+            <View style={styles.headerTitle}>
+              <Text
+                style={[
+                  styles.headerSubTitle,
+                  { fontFamily: AppFonts.NunitoSansSemiBold, textAlign: 'right' },
+                ]}>
+                Status:
+              </Text>
+              <Text
+                style={[
+                  AppStyles.subHeading,
+                  {
+                    color: AppColors.white,
+                    fontFamily: AppFonts.NunitoSansBold,
+                  },
+                ]}>
+                Part Time
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.mainItemsContainer}>
+            {settingItems.map((item, index) => (
+              <Pressable
+                onPress={() => handleRoute(item.title)}
+                key={index}
+                style={[AppStyles.rowBetween, styles.itemContainer]}>
+                <View style={[AppStyles.row]}>
+                  {item.leftIcon}
+                  <Text
+                    style={[
+                      AppStyles.title,
+                      {
+                        fontSize: size.default,
+                        marginLeft: hp(1),
+                        fontFamily: AppFonts.NunitoSansSemiBold,
+                        top: hp(-0.4),
+                      },
+                    ]}>
+                    {item.title}{item.subTitle && <Text style={{ color: AppColors.red }}>{item.subTitle}</Text>}
+                  </Text>
+                </View>
+                <GlobalIcon
+                  library="Entypo"
+                  name="chevron-small-right"
+                  color={AppColors.red}
+                  size={hp(3)}
+                />
+              </Pressable>
+            ))}
+          </View>
+
+          <AppButton
+            title="Logout"
+            onPress={() => { dispatch(setLogout(true)); dispatch(saveToken(null)) }}
+            style={{
+              // width: '100%',
+              width: '90%',
+              backgroundColor: AppColors.black,
+              height: hp(6),
+              marginHorizontal: wp(7),
               alignSelf: 'center',
-              fontSize: size.lg,
-              marginTop: hp(1),
-            },
-          ]}>
-          Mark Tommay
-        </Text>
-
-        <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
-          <View style={styles.headerTitle}>
-            <Text style={styles.headerSubTitle}>Employee ID:</Text>
-            <Text
-              style={[
-                AppStyles.subHeading,
-                {
-                  color: AppColors.white,
-                  fontFamily: AppFonts.NunitoSansBold,
-                },
-              ]}>
-              B456788
-            </Text>
-          </View>
-          <View style={styles.headerTitle}>
-            <Text
-              style={[
-                styles.headerSubTitle,
-                {fontFamily: AppFonts.NunitoSansSemiBold, textAlign: 'right'},
-              ]}>
-              Status:
-            </Text>
-            <Text
-              style={[
-                AppStyles.subHeading,
-                {
-                  color: AppColors.white,
-                  fontFamily: AppFonts.NunitoSansBold,
-                },
-              ]}>
-              Part Time
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.mainItemsContainer}>
-          {settingItems.map((item, index) => (
-            <Pressable
-              onPress={() => handleRoute(item.title)}
-              key={index}
-              style={[AppStyles.rowBetween, styles.itemContainer]}>
-              <View style={[AppStyles.row]}>
-                {item.leftIcon}
-                <Text
-                  style={[
-                    AppStyles.title,
-                    {
-                      fontSize: size.default,
-                      marginLeft: hp(1),
-                      fontFamily: AppFonts.NunitoSansSemiBold,
-                      top: hp(-0.4),
-                    },
-                  ]}>
-                  {item.title}{item.subTitle && <Text style={{color: AppColors.red}}>{item.subTitle}</Text>}
-                </Text>
-              </View>
-              <GlobalIcon
-                library="Entypo"
-                name="chevron-small-right"
-                color={AppColors.red}
-                size={hp(3)}
-              />
-            </Pressable>
-          ))}
-        </View>
-
-        <AppButton
-          title="Logout"
-          onPress={() => {dispatch(setLogout(true)); dispatch(saveToken(null))}}
-          style={{
-            // width: '100%',
-            width: '90%',
-            backgroundColor: AppColors.black,
-            height: hp(6),
-            marginHorizontal: wp(7),
-            alignSelf: 'center',
-            position: 'relative',
-            top: -5,
-          }}
-          titleStyle={{fontSize: size.md}}
-        />
-      </ImageBackground>
+              position: 'relative',
+              top: -5,
+            }}
+            titleStyle={{ fontSize: size.md }}
+          />
+        </ImageBackground>
       </ScrollView>
     </AppLayout>
   );
@@ -306,7 +318,7 @@ const styles = StyleSheet.create({
     paddingTop: hp(0),
     position: 'absolute',
   },
-  layoutContainer: {backgroundColor: 'rgba(16, 35, 53, 0)', paddingTop: 0},
+  layoutContainer: { backgroundColor: 'rgba(16, 35, 53, 0)', paddingTop: 0 },
   headerBottomContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: hp(2),
@@ -335,7 +347,7 @@ const styles = StyleSheet.create({
     elevation: 0,
     opacity: 1,
   },
-  headerTitle: {gap: hp(0.5), paddingTop: hp(1)},
+  headerTitle: { gap: hp(0.5), paddingTop: hp(1) },
   headerSubTitle: {
     fontFamily: AppFonts.NunitoSansMedium,
     fontSize: size.sl,
@@ -358,7 +370,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: hp(20),
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: -2},
+    shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
@@ -379,8 +391,8 @@ const styles = StyleSheet.create({
     height: hp(6),
     borderRadius: hp(0.5),
   },
-  cancelButton: {width: '35%', backgroundColor: AppColors.lightGrey},
-  submitButton: {width: '60%', backgroundColor: AppColors.black},
+  cancelButton: { width: '35%', backgroundColor: AppColors.lightGrey },
+  submitButton: { width: '60%', backgroundColor: AppColors.black },
   label: {
     marginBottom: 5,
     color: AppColors.black,

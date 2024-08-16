@@ -46,7 +46,7 @@ const emergencyContact = [
             <ScrollView style={[AppStyles.driverContainer, AppStyles.flex, { backgroundColor: AppColors.profileBg, paddingHorizontal: 0 }]} showsVerticalScrollIndicator={false}>
                 {/* <EmergencyContact /> */}
 
-                <FlatList data={emergencyContact} renderItem={({item, index}) => <EmergencyContact item={item} index={index} />} />
+                <FlatList scrollEnabled={false} data={emergencyContact} renderItem={({item, index}) => <EmergencyContact item={item} index={index} />} />
                 {/* <View style={{ backgroundColor: AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2) }}>
                     <View style={[AppStyles.rowBetween, { marginBottom: hp(2) }]}>
                         <Text style={[AppStyles.title, { fontSize: size.lg, fontFamily: AppFonts.NunitoSansBold }]}>Emergency Contact 1:</Text>

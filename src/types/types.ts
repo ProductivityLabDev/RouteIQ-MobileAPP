@@ -105,6 +105,9 @@ export interface StudentCardProps {
 export interface DriverShiftInfoProps {
   trackingDetails: Boolean;
 }
+export interface DriverHistoryInfoProps {
+  trackingDetails: Boolean;
+}
 
 interface ChatItem {
   title: string;

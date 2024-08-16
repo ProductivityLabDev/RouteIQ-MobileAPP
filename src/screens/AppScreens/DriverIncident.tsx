@@ -17,8 +17,48 @@ import { leaveDropdownData } from '../../utils/DummyData';
 import SelectDropdown from 'react-native-select-dropdown'
 import { useNavigation } from '@react-navigation/native'
 
+const emojis = [
+    'Ann Co',
+    'Yu Hin',
+    'Annie Harris'
+];
+
 const FirstRoute = () => (
+
+    
+
     <ScrollView contentContainerStyle={styles.subContainer}>
+      
+        <SelectDropdown
+            data={emojis}
+            onSelect={(selectedItem, index) => {
+                console.log(selectedItem, index);
+            }}
+            renderButton={(selectedItem, isOpen) => {
+                return (
+                    <View style={styles.dropdownButtonStyle}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: wp(2) }}>
+                            <Image source={require('../../assets/images/profile_image.webp')} resizeMode='cover' style={{ width: wp(7), height: wp(7), borderRadius: 100 }} />
+                            <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontSize: size.s }]}>{selectedItem || 'Mee Aao'}</Text>
+                        </View>
+                        <GlobalIcon library="Ionicons"
+                            name="chevron-down" size={20} color={AppColors.black} />
+                    </View>
+                );
+            }}
+            renderItem={(item, index, isSelected) => {
+                return (
+                    <View
+                        style={{
+                            ...styles.dropdownItemStyle,
+                            ...(isSelected && { backgroundColor: '#D2D9DF' }),
+                        }}>
+                        <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
+                    </View>
+                );
+            }}
+            dropdownStyle={styles.dropdownMenuStyle}
+        />
 
         <AppInput
             multiline
@@ -35,7 +75,7 @@ const FirstRoute = () => (
             }}
         />
 
-        <View style={{ width: '90%', alignSelf: 'center', marginBottom: hp(2)}}>
+        <View style={{ width: '90%', alignSelf: 'center', marginBottom: hp(2) }}>
             <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
                 Attachments
             </Text>
@@ -114,7 +154,7 @@ export default function DriverIncident() {
                 label="Description"
                 placeholder="Report Accident Details here..."
                 // placeholderTextColor={AppColors.black}
-                inputStyle={{fontFamily: AppFonts.NunitoSansMedium}}
+                inputStyle={{ fontFamily: AppFonts.NunitoSansMedium }}
 
                 labelStyle={{
                     marginBottom: hp(2),
@@ -148,12 +188,13 @@ export default function DriverIncident() {
             activeColor={AppColors.red}
             inactiveColor="#666"
             renderLabel={({ route, focused, color }) => (
-                <Text style={[styles.subTitle, { backgroundColor: 'transparent', 
-                    fontFamily:  AppFonts.NunitoSansBold,
-                        // fontFamily: focused? AppFonts.NunitoSansBold : AppFonts.NunitoSansSemiBold,
-                // fontFamily: AppFonts.NunitoSansBold,
-                color: focused?  AppColors.red: AppColors.black
-                 }]}>
+                <Text style={[styles.subTitle, {
+                    backgroundColor: 'transparent',
+                    fontFamily: AppFonts.NunitoSansBold,
+                    // fontFamily: focused? AppFonts.NunitoSansBold : AppFonts.NunitoSansSemiBold,
+                    // fontFamily: AppFonts.NunitoSansBold,
+                    color: focused ? AppColors.red : AppColors.black
+                }]}>
                     {route.title}
                     {/* {route.title.split(' ').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ')} */}
                 </Text>

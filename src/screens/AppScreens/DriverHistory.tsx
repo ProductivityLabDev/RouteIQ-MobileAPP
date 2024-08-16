@@ -7,12 +7,14 @@ import { AppColors } from '../../utils/color';
 import { hp, wp } from '../../utils/constants';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
+import DriverHistoryInfo from '../../components/DriverHistoryInfo';
 
 
 const DriverHistory = () => {
 
 
     const [Attendance, setAttendance] = useState(true);
+    const [pto, setPto] = useState(false);
 
 
 
@@ -79,7 +81,7 @@ const DriverHistory = () => {
                     AppStyles.container,
                     { backgroundColor: AppColors.profileBg, paddingTop: hp(2) },
                 ]}>
-                <Text style={styles.title}>Shift History</Text>
+                {/* <Text style={styles.title}>Shift History</Text> */}
 
                 <View style={styles.btnContainer}>
                     <Pressable onPress={() => setAttendance(!Attendance)} style={[styles.btn, { backgroundColor: Attendance ? AppColors.black : 'transparent' }]}><Text style={[styles.title, { color: Attendance ? AppColors.white : AppColors.black, fontFamily: AppFonts.NunitoSansSemiBold }]}>Attendance</Text></Pressable>
@@ -88,36 +90,71 @@ const DriverHistory = () => {
 
                 {Attendance ?
                     <>
-                        {renderData('Check Out - Pending')}
-                        {renderData('Check In')}
-                        {renderData('Absent')}
-                        {renderData('Check Out')}
-                        {renderData('Check In')}
-                        {renderData('Check Out')}
+                        <View style={[styles.daysInfoContainerBlack, { alignItems: 'center' }]}>
+                            <Text style={[AppStyles.titleHead, { fontSize: size.lg, textAlign: 'center' }]}>01 Days Absent</Text>
+                        </View>
+                        <Pressable
+                            onPress={() => setPto(prv => !prv)}
+                            style={[!pto ? styles.daysInfoContainer : styles.daysInfoContainerRed, { alignItems: 'center' }]}>
+                            <Text style={[AppStyles.titleHead, { fontSize: size.lg, textAlign: 'center', color: pto ? AppColors.white : AppColors.red }]}>15 Days PTO</Text>
+                        </Pressable>
+                        {
+                            !pto &&
+                            <>
+                                {renderData('Check Out - Pending')}
+                                {renderData('Check In')}
+                                {renderData('Absent')}
+                                {renderData('Check Out')}
+                                {renderData('Check In')}
+                                {renderData('Check Out')}
+                            </>
+                        }
+                        {
+                            pto &&
+                            <>
+                                <DriverHistoryInfo trackingDetails={true} />
+                            </>
+                        }
                     </>
                     :
-
-                    <FlatList
-                        data={feedbacks}
-                        renderItem={({ item }) =>
-                            <View style={[styles.container, { flexDirection: 'column', alignItems: 'flex-start' }]}>
-
-                                <View style={styles.imgNTextContainer}>
-                                    <Image source={item.profilePic} resizeMode='cover' style={{ width: wp(12), height: wp(12), borderRadius: 100 }} />
-                                    <Text style={[styles.title, { backgroundColor: 'transparent' }]}>{item.name}</Text>
-                                </View>
-
-                                <Text style={[styles.subTitle, { backgroundColor: 'transparent', lineHeight: 20.72, marginTop: 7 }]}>
-                                    {item.response}
-                                </Text>
-
+                    <>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <View style={styles.daysInfoContainer}>
+                                <Text style={[AppStyles.titleHead, { fontSize: size.lg }]}>School</Text>
                             </View>
+                            <View style={styles.daysInfoContainer}>
+                                <Text style={[AppStyles.titleHead, { fontSize: size.lg }]}>Vendor</Text>
+                            </View>
+                            <View style={styles.daysInfoContainer}>
+                                <Text style={[AppStyles.titleHead, { fontSize: size.lg }]}>Parent</Text>
+                            </View>
+                        </View>
 
-                        }
-                    />
+
+                        <FlatList
+                            data={feedbacks}
+                            renderItem={({ item }) =>
+                                <>
+
+                                    <View style={[styles.container, { flexDirection: 'column', alignItems: 'flex-start' }]}>
 
 
+                                        <View style={styles.imgNTextContainer}>
+                                            <Image source={item.profilePic} resizeMode='cover' style={{ width: wp(12), height: wp(12), borderRadius: 100 }} />
+                                            <Text style={[styles.title, { backgroundColor: 'transparent' }]}>{item.name}</Text>
+                                        </View>
 
+                                        <Text style={[styles.subTitle, { backgroundColor: 'transparent', lineHeight: 20.72, marginTop: 7 }]}>
+                                            {item.response}
+                                        </Text>
+
+                                    </View>
+
+                                </>
+
+                            }
+                        />
+                    </>
                 }
 
             </View>
@@ -144,6 +181,57 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 3,
     },
+    daysInfoContainer: {
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        // width: hp(13),
+        height: hp(6.2),
+        paddingHorizontal: hp(2),
+        // paddingVertical: hp(2),
+        elevation: 10,
+        borderLeftWidth: 5,
+        borderColor: AppColors.red,
+        shadowColor: AppColors.gradientGrey,
+        backgroundColor: AppColors.white,
+        borderRadius: 15,
+        gap: hp(0.5),
+        marginVertical: hp(3)
+    },
+    daysInfoContainerBlack: {
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        // width: hp(13),
+        height: hp(6.2),
+        paddingHorizontal: hp(2),
+        // paddingVertical: hp(2),
+        borderWidth: 1,
+        elevation: 10,
+        // borderLeftWidth: 5,
+        borderColor: AppColors.black,
+        shadowColor: AppColors.gradientGrey,
+        backgroundColor: AppColors.white,
+        borderRadius: 4,
+        gap: hp(0.5),
+        // marginVertical: hp(3)
+    },
+    daysInfoContainerRed: {
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        // width: hp(13),
+        height: hp(6.2),
+        paddingHorizontal: hp(2),
+        // paddingVertical: hp(2),
+        borderWidth: 1,
+        elevation: 10,
+        // borderLeftWidth: 5,
+        borderColor: AppColors.red,
+        shadowColor: AppColors.gradientGrey,
+        backgroundColor: AppColors.red,
+        borderRadius: 4,
+        gap: hp(0.5),
+        marginVertical: hp(3)
+    },
+
     title: {
         fontFamily: AppFonts.NunitoSansBold,
         color: AppColors.black,
