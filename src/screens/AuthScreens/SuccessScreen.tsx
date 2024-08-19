@@ -10,9 +10,12 @@ import {size} from '../../utils/responsiveFonts';
 import {hp} from '../../utils/constants';
 import AppButton from '../../components/AppButton';
 import {useNavigation} from '@react-navigation/native';
+import { useAppSelector } from '../../store/hooks';
 
 const SuccessScreen = () => {
   const navigation = useNavigation();
+  const type = useAppSelector(state => state.userSlices.forgotType);
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <AuthLayout>
@@ -25,7 +28,7 @@ const SuccessScreen = () => {
           <View style={{marginVertical: hp(2)}}>
             <Text style={styles.heading}>Successfully</Text>
             <Text style={styles.subTitle}>
-              Your password has been reset successfully
+              Your {type} has been reset successfully
             </Text>
           </View>
 

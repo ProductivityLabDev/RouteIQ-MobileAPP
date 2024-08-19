@@ -25,6 +25,7 @@ import Modal from "react-native-modal";
 import { size } from '../../utils/responsiveFonts';
 import { useNavigation } from '@react-navigation/native';
 import { setChatTabIndex } from '../../store/driver/driverSlices';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const DriverStudentDetail = () => {
   const navigation = useNavigation();
@@ -33,8 +34,9 @@ const DriverStudentDetail = () => {
   const studentDetail = useAppSelector(
     state => state.driverSlices.studentDetail,
   );
-
-  const snapPoints = useMemo(() => ['38%', '90%'], []);
+  const [value, setValue] = useState(null);
+  
+  const snapPoints = useMemo(() => ['50%', '90%'], []);
   const openSheet = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
@@ -49,13 +51,21 @@ const DriverStudentDetail = () => {
   };
 
   const handleSubmitFeedBack = () => {
-    closeSheet(); 
+    closeSheet();
     toggleModal()
 
     setTimeout(() => {
       setModalVisible(false)
     }, 2000)
   }
+
+  const data = [
+    { label: 'School', value: '1' },
+    { label: 'Vendor', value: '2' },
+    { label: 'Guardian', value: '3' },
+    { label: 'All', value: '4' },
+  ];
+
 
   return (
     <AppLayout
@@ -69,7 +79,7 @@ const DriverStudentDetail = () => {
         rightIcon={false}
       />
 
-      
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={[AppStyles.driverContainer, { paddingHorizontal: 0 }]}>
           <View style={[AppStyles.alignJustifyCenter, { marginBottom: hp(2) }]}>
@@ -211,7 +221,7 @@ const DriverStudentDetail = () => {
               onPress={() => openSheet()}
             />
             <AppButton
-            onPress={()=> {dispatch(setChatTabIndex(1)); navigation.navigate('DriverChats')} }
+              onPress={() => { dispatch(setChatTabIndex(1)); navigation.navigate('DriverChats') }}
               title="Message Guardian"
               style={AppStyles.widthFullPercent}
             />
@@ -230,14 +240,46 @@ const DriverStudentDetail = () => {
           />
         )}>
 
-
-
+        <Text style={[AppStyles.title, {fontFamily: AppFonts.NunitoSansBold, marginBottom: hp(1)}]}>Sent To</Text>
+        <Dropdown
+          style={[styles.dropdown]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          containerStyle={{
+            borderWidth: .5,
+            borderColor: AppColors.black,
+            borderRadius: hp(1)
+          }}
+          itemContainerStyle={{
+            borderRadius: hp(1)
+          }}
+          data={data}
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={'Select'}
+          searchPlaceholder="Search..."
+          value={value}
+          onChange={item => {
+            setValue(item.value);
+          }}
+          renderRightIcon={() => (
+            <GlobalIcon
+              library='Entypo'
+              color={AppColors.black}
+              name="chevron-down"
+              size={20}
+            />
+          )}
+        />
 
         <AppInput
           multiline
           numberOfLines={8}
           container={{ height: hp(16), borderRadius: hp(0.5), marginBottom: hp(2) }}
-          label="Add Feedback"
+          label="Feedback"
           placeholder="Descripton"
 
           labelStyle={{
@@ -267,10 +309,10 @@ const DriverStudentDetail = () => {
       </AppBottomSheet>
 
 
-  
+
 
       <Modal isVisible={isModalVisible}
-      backdropTransitionInTiming={0}
+        backdropTransitionInTiming={0}
         coverScreen={true}
         animationIn={'fadeInRightBig'}
         backdropOpacity={0.5}
@@ -282,8 +324,8 @@ const DriverStudentDetail = () => {
         onBackdropPress={() => setModalVisible(false)}
         style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
         <View style={{ width: '70%', height: '40%', backgroundColor: AppColors.white, justifyContent: 'center', alignItems: 'center', borderRadius: 10 }}>
-          <GlobalIcon name={'group-(6)'} library='FontelloIcon' color={AppColors.red} 
-          size={hp(8)} 
+          <GlobalIcon name={'group-(6)'} library='FontelloIcon' color={AppColors.red}
+            size={hp(8)}
           />
           <Text style={[AppStyles.titleHead,
           { fontFamily: AppFonts.NunitoSansBold, marginTop: hp(3) }]}>Thankyou</Text>
@@ -292,7 +334,7 @@ const DriverStudentDetail = () => {
         </View>
       </Modal>
 
-      
+
     </AppLayout>
   );
 };
@@ -314,4 +356,42 @@ const styles = StyleSheet.create({
   textContainer: { alignItems: 'flex-start', marginBottom: hp(2) },
   backButton: { width: '36%', backgroundColor: AppColors.screenColor },
   submitButton: { width: '60%' },
+  dropdowncontainer: {
+    backgroundColor: 'white',
+    padding: 16,
+  },
+  dropdown: {
+    height: 50,
+    borderColor: 'black',
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    marginBottom: hp(2),
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
 });

@@ -248,8 +248,8 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails, time
                     </ScrollView>
                     {timeOff &&
                         <>
-                            <View style={{alignSelf:'center'}}>
-                                <AppButton onPress={openSheet2}  style={{backgroundColor:AppColors.secondary, width:wp(90),marginTop:hp(2)}} title={'Request Time Off'} />
+                            <View style={{ alignSelf: 'center' }}>
+                                <AppButton onPress={openSheet2} style={{ backgroundColor: AppColors.secondary, width: wp(90), marginTop: hp(2) }} title={'Request Time Off'} />
                             </View>
                         </>
                     }
@@ -318,69 +318,75 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails, time
                     </AppBottomSheet>
 
                     <AppBottomSheet
-                bottomSheetModalRef={bottomSheetModalRef2}
-                snapPoints={snapPoints2}
-                backdropComponent={({ style }) => (
-                    <Pressable
-                        onPress={() => closeSheet()}
-                        style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
-                    />
-                )}>
-                <View
-                    style={{
-                        backgroundColor: AppColors.white,
-                        paddingHorizontal: hp(2),
-                        paddingVertical: hp(2),
-                        borderTopRightRadius: hp(2),
-                        borderTopLeftRadius: hp(2),
-                    }}>
+                        bottomSheetModalRef={bottomSheetModalRef2}
+                        snapPoints={snapPoints2}
+                        backdropComponent={({ style }) => (
+                            <Pressable
+                                onPress={() => closeSheet()}
+                                style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
+                            />
+                        )}>
+                        <View
+                            style={{
+                                backgroundColor: AppColors.white,
+                                paddingHorizontal: hp(2),
+                                paddingVertical: hp(2),
+                                borderTopRightRadius: hp(2),
+                                borderTopLeftRadius: hp(2),
+                            }}>
 
-                    <AppInput
-                        // multiline
-                        numberOfLines={1}
-                        container={{ height: hp(6), borderRadius: hp(0.5), marginBottom: hp(2) }}
-                        label="Request Time Off"
-                        placeholder="Select Date"
-                        labelStyle={{
-                            marginBottom: hp(2),
-                            fontFamily: AppFonts.NunitoSansBold,
-                        }}
-                        // error={error.reason}
-                    />
+                            <AppInput
+                                // multiline
+                                numberOfLines={1}
+                                container={{ height: hp(6), borderRadius: hp(0.5), marginBottom: hp(2) }}
+                                label="Request Time Off"
+                                placeholder="Select Date"
+                                labelStyle={{
+                                    marginBottom: hp(2),
+                                    fontFamily: AppFonts.NunitoSansBold,
+                                }}
+                                leftInnerIcon={<View style={{top: 10}}><GlobalIcon
+                                    library="CustomIcon"
+                                    name="Group-2002"
+                                    color={AppColors.red}
+                                    size={hp(3)}
+                                /></View>}
+                            // error={error.reason}
+                            />
 
 
 
-                    <AppInput
-                        multiline
-                        numberOfLines={7}
-                        container={{ height: hp(12), borderRadius: hp(0.5), marginBottom: hp(2) }}
-                        label="Reason"
-                        placeholder="Descripton"
+                            <AppInput
+                                multiline
+                                numberOfLines={7}
+                                container={{ height: hp(12), borderRadius: hp(0.5), marginBottom: hp(2) }}
+                                label="Reason"
+                                placeholder="Descripton"
 
-                        labelStyle={{
-                            marginBottom: hp(2),
-                            fontFamily: AppFonts.NunitoSansBold,
-                        }}
-                        // error={error.reason}
-                    />
+                                labelStyle={{
+                                    marginBottom: hp(2),
+                                    fontFamily: AppFonts.NunitoSansBold,
+                                }}
+                            // error={error.reason}
+                            />
 
-                    <View style={[AppStyles.rowBetween, { width: '100%' }]}>
-                        <AppButton
-                            title="Cancel"
-                            onPress={() => {
-                                closeSheet()
-                            }}
-                            style={styles.cancelButton}
-                            titleStyle={{ color: AppColors.textLightGrey }}
-                        />
-                        <AppButton
-                            title="Submit"
-                            onPress={() => closeSheet()}
-                            style={styles.submitButton}
-                        />
-                    </View>
-                </View>
-            </AppBottomSheet>
+                            <View style={[AppStyles.rowBetween, { width: '100%' }]}>
+                                <AppButton
+                                    title="Cancel"
+                                    onPress={() => {
+                                        closeSheet()
+                                    }}
+                                    style={styles.cancelButton}
+                                    titleStyle={{ color: AppColors.textLightGrey }}
+                                />
+                                <AppButton
+                                    title="Submit"
+                                    onPress={() => closeSheet()}
+                                    style={styles.submitButton}
+                                />
+                            </View>
+                        </View>
+                    </AppBottomSheet>
 
                 </View>
             }

@@ -135,3 +135,7 @@ export interface EmergencyContactProps {
   item: any;
   index: number;
 }
+
+export interface CleaningCollapsableCardProps {
+  item: any
+}

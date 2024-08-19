@@ -5,6 +5,7 @@ import {AppColors} from '../../utils/color';
 import {useAppSelector} from '../../store/hooks';
 import AppStyles from '../../styles/AppStyles';
 import {
+  FlatList,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -12,12 +13,14 @@ import {
   View,
 } from 'react-native';
 import AppInput from '../../components/AppInput';
-import {hp} from '../../utils/constants';
+import {hp, screenHeight} from '../../utils/constants';
 import AppFonts from '../../utils/appFonts';
 import {size} from '../../utils/responsiveFonts';
 import {Image} from 'react-native';
 import CleaningCard from '../../components/CleaningCard';
 import AnimatedDriverMapView from '../../components/AnimatedDriverMapView';
+import CleaningCollapsableCard from '../../components/CleaningCollapsableCard';
+import { cleaningCollapsedCard } from '../../utils/DummyData';
 
 const DriverMaintenanceDetail = () => {
   const maintenanceDetail = useAppSelector(
@@ -65,7 +68,8 @@ const DriverMaintenanceDetail = () => {
       <ScrollView>
         <View style={[AppStyles.driverContainer, {paddingTop: hp(4)}]}>
           {maintenanceDetail == 'Fuel' && fuelItem()}
-          {maintenanceDetail == 'Cleaning' && <CleaningCard />}
+          {/* {maintenanceDetail == 'Cleaning' && <CleaningCard />} */}
+          {maintenanceDetail == 'Cleaning' && <FlatList data={cleaningCollapsedCard} renderItem={({item}) => <CleaningCollapsableCard item={item} />} contentContainerStyle={{gap: hp(2)}} />}
           {maintenanceDetail == 'Mileage Record' && (
             <CleaningCard mileage={true} />
           )}

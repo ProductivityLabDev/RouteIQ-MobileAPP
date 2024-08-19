@@ -344,3 +344,30 @@ export const childDropDown = [
     image: require('../assets/images/child3.jpg'),
   },
 ];
+
+export const cleaningCollapsedCard = [
+  {
+    title: 'Outside',
+    options: ["Scrub the front  using bugzz", "Scrub the back with scrub brush", "Run green machine around the outside"]
+  },
+  {
+    title: 'Ceiling',
+    options: ["Wipe down the entire ceiling", "Emergency roof hatch"]
+  },
+  {
+    title: 'Side Walls/Back Walls',
+    options: ["Scrub the front  using bugzz", "Scrub the back with scrub brush", "Run green machine around the outside"]
+  },
+  {
+    title: 'Seats',
+    options: ["Wipe down the entire ceiling", "Emergency roof hatch"]
+  },
+  {
+    title: 'Front/Driver Area',
+    options: ["Scrub the front  using bugzz", "Scrub the back with scrub brush", "Run green machine around the outside"]
+  },
+  {
+    title: 'Floor',
+    options: ["Wipe down the entire ceiling", "Emergency roof hatch"]
+  },
+]

@@ -30,7 +30,8 @@ interface AppInputProps extends TextInputProps {
   iconColor?: any;
   rightInnerIcon?: React.ReactElement;
   container?: StyleProp<ViewStyle>;
-  error?: string
+  error?: string;
+  leftInnerIcon?: any
 }
 
 const AppInput: React.FC<AppInputProps> = ({
@@ -51,6 +52,7 @@ const AppInput: React.FC<AppInputProps> = ({
   rightInnerIcon,
   container,
   error,
+  leftInnerIcon,
   ...props
 }) => {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
@@ -97,6 +99,7 @@ const AppInput: React.FC<AppInputProps> = ({
             />
           </TouchableOpacity>
         )}
+          {leftInnerIcon}
       </View>
       {error && <Text style={{color: AppColors.red}}>{error}</Text>}
     </View>
