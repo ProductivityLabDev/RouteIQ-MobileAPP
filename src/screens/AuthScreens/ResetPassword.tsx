@@ -11,8 +11,10 @@ import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp, wp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
+import {useAppSelector} from '../../store/hooks';
 
-const ResetPassword = () => {
+const ResetPassword = ({route}: any) => {
+  const type = useAppSelector(state => state.userSlices.forgotType);
   const navigation = useNavigation();
 
   const {
@@ -33,7 +35,9 @@ const ResetPassword = () => {
     <ScrollView showsVerticalScrollIndicator={false}>
       <AuthLayout>
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text style={AppStyles.titleHead}>Resetting Password</Text>
+          <Text style={[AppStyles.titleHead, {textTransform: 'capitalize'}]}>
+            Resetting {type}
+          </Text>
           <Text
             style={[
               AppStyles.subHeading,

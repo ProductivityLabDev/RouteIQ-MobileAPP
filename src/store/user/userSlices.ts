@@ -1,5 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
-import { childDropDown } from '../../utils/DummyData';
+import {childDropDown} from '../../utils/DummyData';
 
 const userSlice = createSlice({
   name: 'users',
@@ -13,6 +13,7 @@ const userSlice = createSlice({
     mapViewRouteBackOn: 'DriverHomeScreen',
     studentAbsentModal: false,
     selectedChild: {},
+    forgotType: '',
   },
   reducers: {
     saveToken: (state, {payload}) => {
@@ -42,6 +43,9 @@ const userSlice = createSlice({
     setSelectedChild: (state, {payload}) => {
       state.selectedChild = payload;
     },
+    setForgotType: (state, {payload}) => {
+      state.forgotType = payload;
+    },
   },
 });
 
@@ -55,6 +59,7 @@ export const {
   setMapViewRouteBackOn,
   setStudentAbsentModal,
   setSelectedChild,
+  setForgotType,
 } = userSlice.actions;
 
 export default userSlice.reducer;

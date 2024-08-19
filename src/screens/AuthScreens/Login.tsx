@@ -18,7 +18,7 @@ import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {saveToken, setLogout} from '../../store/user/userSlices';
+import {saveToken, setForgotType, setLogout} from '../../store/user/userSlices';
 import {Controller, useForm} from 'react-hook-form';
 
 const Login = () => {
@@ -92,6 +92,7 @@ const Login = () => {
                     labelStyle={styles.inputLabelStyle}
                     onChangeText={text => onChange(text)}
                     error={errors.email?.message}
+                    containerStyle={{marginBottom: hp(0)}}
                     rightInnerIcon={
                       <View style={{marginBottom: hp(-0.4)}}>
                         <GlobalIcon
@@ -105,6 +106,19 @@ const Login = () => {
                   />
                 )}
               />
+              {role == 'Driver' && (
+                <TouchableOpacity
+                  onPress={() => {
+                    dispatch(setForgotType('username'));
+                    navigation.navigate('ResetPassword');
+                  }}
+                  style={[
+                    styles.forgotPassword,
+                    {marginTop: 0, marginBottom: 0},
+                  ]}>
+                  <Text style={styles.forgotText}>Forgot Username?</Text>
+                </TouchableOpacity>
+              )}
               <Controller
                 name="password"
                 control={control}
@@ -135,7 +149,10 @@ const Login = () => {
                 )}
               />
               <TouchableOpacity
-                onPress={() => navigation.navigate('ResetPassword')}
+                onPress={() => {
+                  dispatch(setForgotType('password'));
+                  navigation.navigate('ResetPassword');
+                }}
                 style={styles.forgotPassword}>
                 <Text style={styles.forgotText}>Forgot Password?</Text>
               </TouchableOpacity>
