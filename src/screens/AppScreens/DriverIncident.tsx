@@ -25,10 +25,11 @@ const emojis = [
 
 const FirstRoute = () => (
 
-    
+
 
     <ScrollView contentContainerStyle={styles.subContainer}>
-      
+
+        <Text style={[AppStyles.title]}>Sent To</Text>
         <SelectDropdown
             data={emojis}
             onSelect={(selectedItem, index) => {
@@ -112,7 +113,38 @@ export default function DriverIncident() {
     const SecondRoute = () => (
         <ScrollView contentContainerStyle={styles.subContainer}>
 
-
+            <Text style={[AppStyles.title]}>Select Student</Text>
+            <SelectDropdown
+                data={emojis}
+                onSelect={(selectedItem, index) => {
+                    console.log(selectedItem, index);
+                }}
+                renderButton={(selectedItem, isOpen) => {
+                    return (
+                        <View style={styles.dropdownButtonStyle}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: wp(2) }}>
+                                <Image source={require('../../assets/images/profile_image.webp')} resizeMode='cover' style={{ width: wp(7), height: wp(7), borderRadius: 100 }} />
+                                <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontSize: size.s }]}>{selectedItem || 'Mee Aao'}</Text>
+                            </View>
+                            <GlobalIcon library="Ionicons"
+                                name="chevron-down" size={20} color={AppColors.black} />
+                        </View>
+                    );
+                }}
+                renderItem={(item, index, isSelected) => {
+                    return (
+                        <View
+                            style={{
+                                ...styles.dropdownItemStyle,
+                                ...(isSelected && { backgroundColor: '#D2D9DF' }),
+                            }}>
+                            <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
+                        </View>
+                    );
+                }}
+                dropdownStyle={styles.dropdownMenuStyle}
+            />
+            <Text style={[AppStyles.title]}>Sent To</Text>
 
             <SelectDropdown
                 data={emojis}
@@ -263,7 +295,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: hp(1),
         paddingHorizontal: 12,
-        marginVertical: hp(2),
+        // marginVertical: hp(2),
         backgroundColor: AppColors.white,
         borderRadius: 5,
         borderWidth: 1,

@@ -34,6 +34,8 @@ export type RootStackParamList = {
   DriverHistory: undefined;
   DriverIncident: undefined;
   DriverMaintenanceDetail: undefined;
+  FuelRecordsScreen: undefined;
+  FuelCodeScreen: undefined;
   AlertScreen: undefined;
   DriverEmergencyContact: undefined;
   DriverQualifications: undefined;

@@ -24,17 +24,28 @@ import AppBottomSheet from './AppBottomSheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import AppButton from './AppButton';
 import UploadDoc from './UploadDoc';
+import AppInput from './AppInput';
 
-const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) => {
+const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails, timeOff }) => {
     const dispatch = useAppDispatch();
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+    const bottomSheetModalRef2 = useRef<BottomSheetModal>(null);
     const snapPoints = useMemo(() => ['12%', '55%'], []);
+    const snapPoints2 = useMemo(() => ['45%', '55%'], []);
     const openSheet = useCallback(() => {
         bottomSheetModalRef.current?.present();
     }, []);
     const closeSheet = useCallback(() => {
         bottomSheetModalRef.current?.close();
     }, []);
+
+    const openSheet2 = useCallback(() => {
+        bottomSheetModalRef2.current?.present();
+    }, []);
+    const closeSheet2 = useCallback(() => {
+        bottomSheetModalRef2.current?.close();
+    }, []);
+
     useEffect(() => {
         if (trackingDetails === true) {
             openSheet();
@@ -170,7 +181,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                 style={[
                     AppStyles.row,
                     styles.dayContainer,
-                    { backgroundColor: AppColors.white, justifyContent: 'center', gap: wp(4), paddingHorizontal:0, paddingBottom: monthss.length - 1 == index ? hp(5) : hp(1) },
+                    { backgroundColor: AppColors.white, justifyContent: 'center', gap: wp(4), paddingHorizontal: 0, paddingBottom: monthss.length - 1 == index ? hp(5) : hp(1) },
                 ]}
                 key={day.format('D')}>
 
@@ -232,18 +243,24 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                         backgroundColor: AppColors.white,
                     }}>
 
-                    <ScrollView style={[styles.daysContainer, { height: hp(64), alignSelf: 'center', paddingHorizontal: wp(1)}]}>
+                    <ScrollView style={[styles.daysContainer, { height: hp(53), alignSelf: 'center', paddingHorizontal: wp(1) }]}>
                         {renderDays()}
                     </ScrollView>
-
+                    {timeOff &&
+                        <>
+                            <View style={{alignSelf:'center'}}>
+                                <AppButton onPress={openSheet2}  style={{backgroundColor:AppColors.secondary, width:wp(90),marginTop:hp(2)}} title={'Request Time Off'} />
+                            </View>
+                        </>
+                    }
                     <AppBottomSheet
                         bottomSheetModalRef={bottomSheetModalRef}
                         enablePanDownToClose={false}
                         // contentContainerStyle={{ backgroundColor: AppColors.red, borderRadius: 10, }}
-                        contentContainerStyle={{borderRadius: 10, paddingHorizontal: hp(5), backgroundColor: AppColors.red, marginHorizontal: hp(2)}}
+                        contentContainerStyle={{ borderRadius: 10, paddingHorizontal: hp(5), backgroundColor: AppColors.red, marginHorizontal: hp(2) }}
                         snapPoints={snapPoints}
                         // ContainerStyle={{ marginHorizontal: wp(5), borderRadius: 10, elevation: 10, shadowColor: AppColors.transparent }}
-                        ContainerStyle={{borderRadius: 10}}
+                        ContainerStyle={{ borderRadius: 10 }}
                         backdropComponent={({ style }) => (
                             <>
                             </>
@@ -254,7 +271,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                             <View style={{ width: '95%', paddingTop: hp(2) }}>
 
 
-                                <Pressable  style={styles.lastLine}>
+                                <Pressable style={styles.lastLine}>
                                     <Text style={[AppStyles.titleHead, styles.salaryBreakdownTitles, styles.salaryHeading]}>Salary Details</Text>
                                     <GlobalIcon name={'arrowright'} library='AntDesign' />
                                 </Pressable>
@@ -299,6 +316,71 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails }) =>
                             </View>
                         </View>
                     </AppBottomSheet>
+
+                    <AppBottomSheet
+                bottomSheetModalRef={bottomSheetModalRef2}
+                snapPoints={snapPoints2}
+                backdropComponent={({ style }) => (
+                    <Pressable
+                        onPress={() => closeSheet()}
+                        style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
+                    />
+                )}>
+                <View
+                    style={{
+                        backgroundColor: AppColors.white,
+                        paddingHorizontal: hp(2),
+                        paddingVertical: hp(2),
+                        borderTopRightRadius: hp(2),
+                        borderTopLeftRadius: hp(2),
+                    }}>
+
+                    <AppInput
+                        // multiline
+                        numberOfLines={1}
+                        container={{ height: hp(6), borderRadius: hp(0.5), marginBottom: hp(2) }}
+                        label="Request Time Off"
+                        placeholder="Select Date"
+                        labelStyle={{
+                            marginBottom: hp(2),
+                            fontFamily: AppFonts.NunitoSansBold,
+                        }}
+                        // error={error.reason}
+                    />
+
+
+
+                    <AppInput
+                        multiline
+                        numberOfLines={7}
+                        container={{ height: hp(12), borderRadius: hp(0.5), marginBottom: hp(2) }}
+                        label="Reason"
+                        placeholder="Descripton"
+
+                        labelStyle={{
+                            marginBottom: hp(2),
+                            fontFamily: AppFonts.NunitoSansBold,
+                        }}
+                        // error={error.reason}
+                    />
+
+                    <View style={[AppStyles.rowBetween, { width: '100%' }]}>
+                        <AppButton
+                            title="Cancel"
+                            onPress={() => {
+                                closeSheet()
+                            }}
+                            style={styles.cancelButton}
+                            titleStyle={{ color: AppColors.textLightGrey }}
+                        />
+                        <AppButton
+                            title="Submit"
+                            onPress={() => closeSheet()}
+                            style={styles.submitButton}
+                        />
+                    </View>
+                </View>
+            </AppBottomSheet>
 
                 </View>
             }
@@ -359,8 +441,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: hp(1),
         borderBottomWidth: 1,
         borderBottomColor: '#E2E2E9',
-        
-        
+
+
     },
     dateContainer: {
         borderRadius: 5,
@@ -440,7 +522,9 @@ const styles = StyleSheet.create({
     salaryHeading: {
         fontSize: size.xlg,
         fontFamily: AppFonts.NunitoSansBold
-    }
+    },
+    cancelButton: { width: '35%', backgroundColor: AppColors.lightGrey },
+    submitButton: { width: '60%', backgroundColor: AppColors.red },
 });
 
 export default DriverShiftInfo;

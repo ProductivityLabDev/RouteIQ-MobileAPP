@@ -43,14 +43,17 @@ const DriverMaintenanceScreen = () => {
   const maintenance_data = [
     {
       title: 'Fuel',
+      name: 'FuelRecordsScreen',
       icon: <FuelIcon />,
     },
     {
       title: 'Cleaning',
+      name: 'DriverMaintenanceDetail',
       icon: <CleanBusIcon />,
     },
     {
       title: 'Mileage Record',
+      name: 'DriverMaintenanceDetail',
       icon: <MeterIcon />,
     },
   ];
@@ -81,13 +84,13 @@ const DriverMaintenanceScreen = () => {
             },
           ]}>
 
-          {maintenance_data.map((item, index) => {
+          {maintenance_data.map((item : any , index) => {
             return (
               <Pressable
                 key={index}
                 onPress={() => {
                   dispatch(setMaintenanceDetail(item?.title));
-                  navigation.navigate('DriverMaintenanceDetail');
+                  navigation.navigate(item.name);
                 }}
                 style={styles.cardContainer}>
                 <Text style={[AppStyles.titleHead, { fontSize: size.lg }]}>

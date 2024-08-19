@@ -1,16 +1,16 @@
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import HomeIcon from '../assets/svgs/HomeIcon';
 import ProfileIcon from '../assets/svgs/ProfileIcon';
 import StudentIcon from '../assets/svgs/StudentIcon';
 import TaskIcon from '../assets/svgs/TaskIcon';
 import GlobalIcon from '../components/GlobalIcon';
-import {useAppSelector} from '../store/hooks';
+import { useAppSelector } from '../store/hooks';
 import AppFonts from '../utils/appFonts';
-import {AppColors} from '../utils/color';
-import {hp} from '../utils/constants';
-import {size} from '../utils/responsiveFonts';
+import { AppColors } from '../utils/color';
+import { hp } from '../utils/constants';
+import { size } from '../utils/responsiveFonts';
 import {
   ChatStack,
   HomeStack,
@@ -96,15 +96,15 @@ function DriverBottomTabs() {
         tabBarActiveTintColor: '#16E6EF',
         tabBarHideOnKeyboard: true,
       }}>
-      {screens.map(({name, component, headerShown, label}, index) => {
+      {screens.map(({ name, component, headerShown, label }, index) => {
         return (
           <Tab.Screen
             key={`bottom-tabs-${index}`}
             name={name}
             component={component}
-            options={({route}) => {
+            options={({ route }) => {
               console.log(route, 'route');
-              
+
               return {
                 headerShown,
                 tabBarLabel: label,
@@ -124,7 +124,9 @@ function DriverBottomTabs() {
                     'DriverShiftTracking',
                     'DriverShiftTrackingDetails',
                     'DriverChangePassword',
-                    'DriverChats'
+                    'DriverChats',
+                    'FuelCodeScreen',
+                    // 'FuelRecordsScreen',
                   ].includes(getFocusedRouteNameFromRoute(route) as any)
                     ? 'none'
                     : 'flex',
@@ -136,7 +138,7 @@ function DriverBottomTabs() {
                   backgroundColor: AppColors.white,
                   paddingHorizontal: hp(1),
                 },
-                tabBarIcon: ({color, focused}: any) => {
+                tabBarIcon: ({ color, focused }: any) => {
                   if (name.includes('HomeStack')) {
                     return (
                       <BottomIcon
@@ -268,5 +270,5 @@ const styles = StyleSheet.create({
     width: hp(3),
     borderRadius: hp(3),
   },
-  activeTab: {borderTopWidth: 2, borderTopColor: AppColors.red},
+  activeTab: { borderTopWidth: 2, borderTopColor: AppColors.red },
 });

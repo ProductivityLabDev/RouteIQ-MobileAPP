@@ -23,6 +23,8 @@ import DriverShiftTrackingDetails from '../screens/AppScreens/DriverShiftTrackin
 import AlertScreen from '../screens/AppScreens/AlertScreen';
 import Notifications from '../screens/AppScreens/Notification';
 import UpdateDriveProfile from '../screens/AppScreens/UpdateDriveProfile';
+import FuelCodeScreen from '../screens/AppScreens/FuelCodeScreen';
+import FuelRecordsScreen from '../screens/AppScreens/FuelRecordsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,6 +45,8 @@ export const TasksStack = () => {
       <Stack.Screen name="DriverMaintenanceDetail" component={DriverMaintenanceDetail} />
       <Stack.Screen name="DriverInspection" component={DriverInspection} />
       <Stack.Screen name="DriverMapView" component={DriverMapView} />
+      <Stack.Screen name="FuelRecordsScreen" component={FuelRecordsScreen} />
+
     </Stack.Navigator>
   );
 };
@@ -84,6 +88,10 @@ export const StudentStack = () => {
         <Stack.Screen name="DriverShiftTrackingDetails" component={DriverShiftTrackingDetails} />
         <Stack.Screen name="DriverChats" component={DriverChats} />
         <Stack.Screen name="DriverAllChats" component={DriverAllChats} />
+
+        <Stack.Screen name="FuelCodeScreen" component={FuelCodeScreen} />
+
+
       </Stack.Navigator>
     );
   };

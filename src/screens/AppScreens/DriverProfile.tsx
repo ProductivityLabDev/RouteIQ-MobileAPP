@@ -163,6 +163,7 @@ const DriverProfile = () => {
       navigation.navigate('DriverMedicalRecord');
     if (name == 'History') navigation.navigate('DriverHistory');
     if (name == 'Incident') navigation.navigate('DriverIncident');
+    if (name == 'Fuel Code') navigation.navigate('FuelCodeScreen');
     if (name == 'Shift Tracking') navigation.navigate('DriverShiftTracking');
   };
 

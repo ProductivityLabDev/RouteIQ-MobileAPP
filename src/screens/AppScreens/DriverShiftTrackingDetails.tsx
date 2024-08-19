@@ -15,7 +15,9 @@ export default function DriverShiftTrackingDetails() {
         rightIcon={false} />
 
 
-    <DriverShiftInfo trackingDetails={true} />
+    <DriverShiftInfo timeOff={true} trackingDetails={true} />
+
+    
 
     </AppLayout>
   )

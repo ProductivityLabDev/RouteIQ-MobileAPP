@@ -106,6 +106,16 @@ export interface StudentCardProps {
 
 export interface DriverShiftInfoProps {
   trackingDetails: Boolean;
+  timeOff?: Boolean;
+}
+
+export interface FuelCardProps {
+  glNumber: string;
+  date: string;
+  price: number;
+  gallons: number;
+  pricePerGallon: number;
+  location: string;
 }
 export interface DriverHistoryInfoProps {
   trackingDetails: Boolean;
