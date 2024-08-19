@@ -61,7 +61,7 @@ export default function Settings() {
     {
       leftIcon: <GuardianIcon />,
       screen: 'UpdateGuardianProfile',
-      title: 'Guardian 1',
+      title: 'Contact 1',
       headerTitle: 'Contact 1',
       disabled: false,
       styleStatus: true,
@@ -69,7 +69,7 @@ export default function Settings() {
     {
       leftIcon: <GuardianIcon />,
       screen: 'UpdateGuardianProfile',
-      title: 'Guardian 2',
+      title: 'Contact 2',
       headerTitle: 'Contact 2',
       disabled: false,
       styleStatus: true,
