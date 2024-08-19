@@ -329,3 +329,18 @@ export const chats_data = [
     time: '08:43',
   },
 ];
+
+export const childDropDown = [
+  {
+    title: 'Esther Tommay',
+    image: require('../assets/images/profile_image.webp'),
+  },
+  {
+    title: 'Cameron Tommay',
+    image: require('../assets/images/child2.jpg'),
+  },
+  {
+    title: 'Jhon Tommay',
+    image: require('../assets/images/child3.jpg'),
+  },
+];

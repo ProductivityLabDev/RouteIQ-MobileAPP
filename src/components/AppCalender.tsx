@@ -7,12 +7,19 @@ import {hp} from '../utils/constants';
 interface AppCalendarProps {
   setDates?: any;
   error?: string;
+  selectionDays?: string;
 }
 
-const AppCalender: React.FC<AppCalendarProps> = ({setDates, error}) => {
+const AppCalender: React.FC<AppCalendarProps> = ({
+  setDates,
+  error,
+  selectionDays,
+}) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [markedDates, setMarkedDates] = useState({});
+  const [selectedDate, setSelectedDate] = useState<any>(null);
+  const today = new Date().toISOString().split('T')[0];
 
   const onDayPress = (day: any) => {
     const red = AppColors.red;
@@ -52,11 +59,36 @@ const AppCalender: React.FC<AppCalendarProps> = ({setDates, error}) => {
     }
   };
 
-  useEffect(() => {
-    if (startDate && endDate) {
-      setDates([startDate, endDate]);
+  const onOneDayPress = (day: any) => {
+    const red = AppColors.red;
+    const newMarkedDates: any = {};
+
+    if (selectedDate) {
+      newMarkedDates[selectedDate] = {
+        startingDay: false,
+        endingDay: false,
+        color: 'transparent',
+      };
     }
-  }, [startDate, endDate]);
+
+    newMarkedDates[day.dateString] = {
+      startingDay: true,
+      endingDay: true,
+      color: red,
+      textColor: 'white',
+    };
+
+    setSelectedDate(day.dateString);
+    setDates && setDates(day.dateString);
+  };
+
+  useEffect(() => {
+    if (startDate && endDate && selectionDays == 'All Week') {
+      setDates([startDate, endDate]);
+    } else {
+      setDates(selectedDate);
+    }
+  }, [startDate, endDate, selectedDate]);
 
   return (
     <>
@@ -64,11 +96,22 @@ const AppCalender: React.FC<AppCalendarProps> = ({setDates, error}) => {
         style={styles.calendar}
         headerStyle={styles.headerStyle}
         current={Date()}
-        minDate={'2020-01-01'}
+        minDate={today}
         maxDate={'2030-12-31'}
-        onDayPress={onDayPress}
+        onDayPress={selectionDays == 'All Week' ? onDayPress : onOneDayPress}
         markingType={'period'}
-        markedDates={markedDates}
+        markedDates={
+          selectionDays != 'All Week'
+            ? {
+                [selectedDate]: {
+                  startingDay: true,
+                  endingDay: true,
+                  color: AppColors.red,
+                  textColor: 'white',
+                },
+              }
+            : markedDates
+        }
         hideExtraDays
         theme={{
           calendarBackground: 'white',

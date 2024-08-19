@@ -1,7 +1,7 @@
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {useNavigation} from '@react-navigation/native';
 import moment from 'moment';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Image,
   ImageBackground,
@@ -26,7 +26,7 @@ import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp, screenHeight, screenWidth} from '../../utils/constants';
-import {leaveDropdownData} from '../../utils/DummyData';
+import {childDropDown, leaveDropdownData} from '../../utils/DummyData';
 import {size} from '../../utils/responsiveFonts';
 import AppCustomModal from '../../components/AppCustomModal';
 import {useForm} from 'react-hook-form';
@@ -41,11 +41,12 @@ export default function HomeSreen() {
   const studentAbsentModal = useAppSelector(
     state => state.userSlices.studentAbsentModal,
   );
+  const selectedChild = useAppSelector(state => state.userSlices.selectedChild);
   const [isEnabled, setIsEnabled] = useState(false);
   const [selectAbsence, setSelectAbsence] = useState('');
   const [preview, setPreview] = useState(false);
   const [reasonOfAbsence, setReasonOfAbsence] = useState('');
-  const [getDates, setGetDates] = useState([]);
+  const [getDates, setGetDates] = useState<any>([]);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   // const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState({
@@ -80,37 +81,34 @@ export default function HomeSreen() {
   // });
 
   const onSubmit = () => {
-    if (selectAbsence == 'All Week') {
-      if (reasonOfAbsence && getDates.length > 0 && !preview) {
-        setPreview(true);
-        setSelectAbsence('');
-      } else {
-        setGetDates([]);
-        setPreview(false);
-        setReasonOfAbsence('');
-        setSelectAbsence('');
-        // setModalVisible(false);
-        dispatch(setStudentAbsentModal(false));
-      }
-      // if (reasonOfAbsence && getDates.length > 0 && preview) {
-      //   setGetDates([]);
-      //   setPreview(false);
-      //   setReasonOfAbsence('');
-      //   setSelectAbsence('');
-      //   setModalVisible(false);
-      // }
-    } else {
-      setGetDates([]);
-      setPreview(false);
-      setReasonOfAbsence('');
+    if (reasonOfAbsence == '') {
+      setError({
+        ...error,
+        reason: 'Reason is Required',
+      });
+      return;
+    }
+    if (reasonOfAbsence && (getDates || getDates?.length > 0) && !preview) {
+      setPreview(true);
       setSelectAbsence('');
-      // setModalVisible(false);
+    }
+    if (preview) {
       dispatch(setStudentAbsentModal(false));
+      setPreview(false);
+      setSelectAbsence('');
+      setGetDates([]);
+      setReasonOfAbsence('');
+      setError({
+        reason: '',
+        calendar: '',
+      });
     }
   };
 
   return (
-    <AppLayout style={styles.layoutContainer}>
+    <AppLayout
+      style={styles.layoutContainer}
+      statusbackgroundColor={AppColors.lightBlack}>
       <View style={{height: screenHeight, width: screenWidth}}>
         <AppMapView />
       </View>
@@ -118,6 +116,7 @@ export default function HomeSreen() {
         style={styles.headerImage}
         source={require('../../assets/images/rectangle.png')}>
         <AppHeader
+          role="ParentsDropDown"
           title="Mark Tommay"
           rightIcon={true}
           onPressLeftIcon={() => {
@@ -146,11 +145,28 @@ export default function HomeSreen() {
           <View style={styles.imageContainer}>
             <Image
               style={styles.image}
-              source={require('../../assets/images/profile_image.webp')}
+              source={selectedChild?.image || childDropDown[0]?.image}
+              // source={require('../../assets/images/profile_image.webp')}
             />
           </View>
-          <View style={styles.headerTitle}>
+          <View style={[styles.headerTitle, {paddingTop: hp(0.2)}]}>
+            <View style={[AppStyles.rowCenter, {gap: 5}]}>
+              <Image
+                style={styles.driverProfile}
+                source={require('../../assets/images/driverHomeProfile.png')}
+              />
+            </View>
             <Text
+              style={[
+                AppStyles.subHeading,
+                {
+                  color: AppColors.white,
+                  fontFamily: AppFonts.NunitoSansBold,
+                },
+              ]}>
+              Wilson
+            </Text>
+            {/* <Text
               style={[
                 styles.headerSubTitle,
                 {fontFamily: AppFonts.NunitoSansSemiBold},
@@ -163,7 +179,7 @@ export default function HomeSreen() {
               trackColor={{false: '#767577', true: AppColors.red}}
               thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
               style={{transform: [{scale: 1.3}]}}
-            />
+            /> */}
           </View>
         </View>
       </ImageBackground>
@@ -211,27 +227,60 @@ export default function HomeSreen() {
                   fontFamily: AppFonts.NunitoSansBold,
                 }}
               />
-              <SelectList
-                search={false}
-                setSelected={(val: string) => setSelectAbsence(val)}
-                data={leaveDropdownData}
-                save="value"
-                placeholder="Select"
-                boxStyles={styles.boxStyle}
-                dropdownTextStyles={{color: AppColors.black}}
-              />
+              <View
+                style={[
+                  AppStyles.row,
+                  {alignItems: 'flex-start', width: '100%'},
+                ]}>
+                <SelectList
+                  search={false}
+                  setSelected={(val: string) => {
+                    setPreview(false);
+                    setSelectAbsence(val);
+                  }}
+                  data={leaveDropdownData}
+                  save="value"
+                  placeholder="Select"
+                  boxStyles={{
+                    ...styles.boxStyle,
+                    width: selectAbsence != '' ? '90%' : '100%',
+                  }}
+                  dropdownTextStyles={{color: AppColors.black}}
+                  dropdownStyles={{marginBottom: hp(1), marginTop: hp(-1)}}
+                />
+                {selectAbsence != '' && (
+                  <View style={{left: hp(-1), width: '10%'}}>
+                    <GlobalIcon
+                      library="CustomIcon"
+                      name="Group-2002"
+                      color={AppColors.red}
+                      size={hp(4)}
+                    />
+                  </View>
+                )}
+              </View>
               {preview && (
                 <AppInput
                   value={
-                    moment(getDates[0]).format('Do MMMM YYYY') +
-                    ' - ' +
-                    moment(getDates[1]).format('Do MMMM YYYY')
+                    typeof getDates == 'string'
+                      ? moment(getDates).format('Do MMMM YYYY')
+                      : moment(getDates[0]).format('Do MMMM YYYY') +
+                        ' - ' +
+                        moment(getDates[1]).format('Do MMMM YYYY')
                   }
+                  editable={false}
                 />
               )}
-              {selectAbsence == 'All Week' && !preview && (
-                <AppCalender setDates={setGetDates} error={error.calendar} />
+              {selectAbsence != '' && !preview && (
+                <AppCalender
+                  setDates={setGetDates}
+                  error={error.calendar}
+                  selectionDays={selectAbsence}
+                />
               )}
+              {/* {selectAbsence == 'All Week' && !preview && (
+                <AppCalender setDates={setGetDates} error={error.calendar} />
+              )} */}
               {!preview ? (
                 <AppInput
                   multiline
@@ -264,6 +313,10 @@ export default function HomeSreen() {
                     setPreview(false);
                     setReasonOfAbsence('');
                     setSelectAbsence('');
+                    setError({
+                      reason: '',
+                      calendar: '',
+                    });
                   }}
                   style={styles.cancelButton}
                   titleStyle={{color: AppColors.textLightGrey}}
@@ -384,6 +437,7 @@ const styles = StyleSheet.create({
     height: hp(15),
     width: hp(15),
   },
+  driverProfile: {height: hp(4), width: hp(4), borderRadius: hp(4)},
   container: {
     flex: 1,
     width: '100%',
