@@ -204,7 +204,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 </Pressable>
               )}
               {profile_image && (
-                <Pressable style={styles.icon}>
+                <Pressable onPress={() => navigation.navigate('DriverProfile')} style={styles.icon}>
                   <Image
                     style={{height: hp(5), width: hp(5), borderRadius: 50}}
                     source={require('../assets/images/profile_image.webp')}

@@ -23,6 +23,8 @@ import { RootStackParamList } from '../types/navigationTypes';
 import DriverBottomTabs from './DriverBottomTabs';
 import AlertScreen from '../screens/AppScreens/AlertScreen';
 import FuelRecordsScreen from '../screens/AppScreens/FuelRecordsScreen';
+import DriverChats from '../screens/AppScreens/DriverChats';
+import DriverAllChats from '../screens/AppScreens/DriverAllChats';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -66,7 +68,8 @@ export const DriverStack = () => {
       <Stack.Screen name="DriverBottomTabs" component={DriverBottomTabs} />
       <Stack.Screen name="AlertScreen" component={AlertScreen} />
       <Stack.Screen name="Notification" component={Notification} />
-
+      <Stack.Screen name="DriverChats" component={DriverChats} />
+      <Stack.Screen name="DriverAllChats" component={DriverAllChats} />
       {/* <Stack.Screen name="DriverProfile" component={DriverProfile} />
       <Stack.Screen name="DriverProfileInfo" component={DriverProfileInfo} />
       <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />

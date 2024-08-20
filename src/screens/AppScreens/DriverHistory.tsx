@@ -71,7 +71,7 @@ const DriverHistory = () => {
         );
     };
     return (
-        <AppLayout>
+        <AppLayout statusbackgroundColor={AppColors.red}>
             <AppHeader role="Driver"
                 title={'History'}
                 enableBack={true}

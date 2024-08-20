@@ -74,7 +74,7 @@ export default function DriverChats() {
 
     const [routes] = React.useState([
         { key: 'first', title: 'Vendor' },
-        { key: 'second', title: 'Parent' },
+        { key: 'second', title: 'Guardian' },
         { key: 'third', title: 'School' },
     ]);
 

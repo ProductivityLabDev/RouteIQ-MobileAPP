@@ -56,7 +56,6 @@ export const StudentStack = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="DriverStudentsScreen" component={DriverStudentsScreen} />
         <Stack.Screen name="DriverStudentDetail" component={DriverStudentDetail} />
-        <Stack.Screen name="DriverChats" component={DriverChats} />
       </Stack.Navigator>
     );
   };
@@ -86,8 +85,8 @@ export const StudentStack = () => {
         <Stack.Screen name="DriverQualifications" component={DriverQualifications} />
         <Stack.Screen name="DriverShiftTracking" component={DriverShiftTracking} />
         <Stack.Screen name="DriverShiftTrackingDetails" component={DriverShiftTrackingDetails} />
-        <Stack.Screen name="DriverChats" component={DriverChats} />
-        <Stack.Screen name="DriverAllChats" component={DriverAllChats} />
+        {/* <Stack.Screen name="DriverChats" component={DriverChats} /> */}
+        {/* <Stack.Screen name="DriverAllChats" component={DriverAllChats} /> */}
 
         <Stack.Screen name="FuelCodeScreen" component={FuelCodeScreen} />
 

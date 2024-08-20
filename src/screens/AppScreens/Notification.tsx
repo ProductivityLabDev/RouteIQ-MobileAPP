@@ -24,7 +24,7 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const Notifications = () => {
   const navigation = useNavigation();
@@ -40,10 +40,36 @@ const Notifications = () => {
       }}>
       {role == 'Driver' ? (
         <AppHeader
-          role="Driver"
+          role="Create"
           title="Notification"
           enableBack={true}
           rightIcon={false}
+          containerStyle={styles.driverHeader}
+          titleStyle={styles.titleStyle}
+          createRightIcon={
+            <Menu>
+              <MenuTrigger>
+                <View style={styles.icon}>
+                  <GlobalIcon
+                    library="Entypo"
+                    name="dots-three-vertical"
+                    color={AppColors.white}
+                    size={hp(3)}
+                  />
+                </View>
+              </MenuTrigger>
+              <MenuOptions optionsContainerStyle={styles.menuOptions}>
+                <MenuOption onSelect={() => console.log('Mark all as read')}>
+                  <Text style={AppStyles.title}>Mark all as read</Text>
+                </MenuOption>
+                <MenuOption
+                  style={{marginBottom: hp(2)}}
+                  onSelect={() => console.log('Delete all')}>
+                  <Text style={AppStyles.title}>Delete all</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+          }
         />
       ) : (
         <AppHeader
@@ -142,7 +168,8 @@ const Notifications = () => {
                   </View>
 
                   {item.new === true && (
-                    <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')}>
+                    <TouchableOpacity
+                      onPress={() => role == 'Driver' ? navigation.navigate('DriverChats') : navigation.navigate('ChatScreen')}>
                       <Text style={[styles.replyText]}>{'Reply'}</Text>
                     </TouchableOpacity>
                   )}
@@ -277,5 +304,19 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: hp(1),
     paddingVertical: hp(1.5),
+  },
+  driverHeader: {
+    width: '100%',
+    height: hp(11),
+    backgroundColor: AppColors.red,
+    paddingHorizontal: hp(1),
+    justifyContent: 'center',
+    marginTop: hp(0),
+  },
+  titleStyle: {
+    textAlign: 'center',
+    fontSize: size.lg,
+    color: AppColors.white,
+    fontFamily: AppFonts.NunitoSansBold,
   },
 });

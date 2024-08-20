@@ -321,10 +321,11 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails, time
                         bottomSheetModalRef={bottomSheetModalRef2}
                         snapPoints={snapPoints2}
                         backdropComponent={({ style }) => (
-                            <Pressable
-                                onPress={() => closeSheet()}
-                                style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
-                            />
+                            <></>
+                            // <Pressable
+                            //     onPress={() => closeSheet()}
+                            //     style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
+                            // />
                         )}>
                         <View
                             style={{
@@ -338,7 +339,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails, time
                             <AppInput
                                 // multiline
                                 numberOfLines={1}
-                                container={{ height: hp(6), borderRadius: hp(0.5), marginBottom: hp(2) }}
+                                container={{ height: hp(6), borderRadius: hp(0.5), }}
                                 label="Request Time Off"
                                 placeholder="Select Date"
                                 labelStyle={{
@@ -374,14 +375,14 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({ trackingDetails, time
                                 <AppButton
                                     title="Cancel"
                                     onPress={() => {
-                                        closeSheet()
+                                        closeSheet2()
                                     }}
                                     style={styles.cancelButton}
                                     titleStyle={{ color: AppColors.textLightGrey }}
                                 />
                                 <AppButton
                                     title="Submit"
-                                    onPress={() => closeSheet()}
+                                    onPress={() => {closeSheet2();}}
                                     style={styles.submitButton}
                                 />
                             </View>

@@ -99,7 +99,7 @@ const DriverHistoryInfo: React.FC<DriverHistoryInfoProps> = ({ trackingDetails }
 
     return (
         <View style={[styles.container, ]}>
-            <ScrollView style={[styles.daysContainer, {  alignSelf: 'center', paddingHorizontal: wp(1) }]}>
+            <ScrollView showsVerticalScrollIndicator={false} style={[styles.daysContainer, {  alignSelf: 'center' }]}>
                 {renderDays()}
             </ScrollView>
         </View>
@@ -150,7 +150,6 @@ const styles = StyleSheet.create({
     },
     daysContainer: {
         flexWrap: 'wrap',
-
     },
     dayContainer: {
         width: '100%',
