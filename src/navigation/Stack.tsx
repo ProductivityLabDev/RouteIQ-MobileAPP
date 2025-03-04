@@ -25,6 +25,8 @@ import AlertScreen from '../screens/AppScreens/AlertScreen';
 import FuelRecordsScreen from '../screens/AppScreens/FuelRecordsScreen';
 import DriverChats from '../screens/AppScreens/DriverChats';
 import DriverAllChats from '../screens/AppScreens/DriverAllChats';
+import Signup from '../screens/AuthScreens/Signup';
+import RetailBottomTabs from './RetailBottomTabs';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -51,6 +53,7 @@ export const AuthStack = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       {!logout && <Stack.Screen name="OnBoarding" component={OnBoarding} />}
       <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="LoginAs" component={LoginAs} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
       <Stack.Screen name="VerificationCode" component={VerificationCode} />
@@ -89,3 +92,14 @@ export const DriverStack = () => {
     </Stack.Navigator>
   );
 };
+
+export const RetailStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="RetailBottomTabs" component={RetailBottomTabs} />
+      
+     
+    </Stack.Navigator>
+  );
+};
+

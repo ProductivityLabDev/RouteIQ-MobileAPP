@@ -9,10 +9,14 @@ import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { saveToken } from '../../store/user/userSlices';
 
 const VerificationCode = () => {
   const navigation = useNavigation();
   const [otp, setOtp] = useState('');
+    const dispatch = useAppDispatch();
+    const role = useAppSelector(state => state.userSlices.role);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -20,14 +24,15 @@ const VerificationCode = () => {
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <View style={{marginHorizontal: hp(3)}}>
             <Text style={[AppStyles.titleHead, {textAlign: 'center'}]}>
-              Verification
+             Verify Code
             </Text>
             <Text
               style={[
                 AppStyles.subHeading,
                 {marginBottom: hp(2), textAlign: 'center'},
               ]}>
-              Enter your 4 digits code that you received on your email.
+              Please enter code we have just sent to email.
+              email@example.com
             </Text>
           </View>
           <View style={[styles.setMargin, {alignItems: 'center'}]}>
@@ -40,16 +45,24 @@ const VerificationCode = () => {
               selectionColor={AppColors.black}
               onCodeFilled={(text: string) => setOtp(text)}
             />
-            <Text style={styles.timerText}>00:30</Text>
+            {/* <Text style={styles.timerText}>00:30</Text> */}
             <AppButton
-              onPress={() => navigation.navigate('NewPassword')}
-              title="Continue"
-              style={{marginTop: hp(10)}}
+              onPress={() => {
+                if (role === 'Retail') {
+                  navigation.navigate('HomeSreen');
+                  dispatch(saveToken(true))
+                } else {
+                  navigation.navigate('NewPassword');
+                }
+              }}
+              title="Verify"
+              style={{marginTop: hp(2)}}
             />
-            <Text style={{textAlign: 'center', marginTop: hp(1)}}>
-              If you didn’t receive a code!{' '}
+
+            <Text style={{textAlign: 'center', marginTop: hp(1), color: AppColors.lightBlack}}>
+              Didn’t receive OTP? {' '}
               <Text onPress={() => setOtp('')} style={styles.timerText}>
-                Resend
+                Resend code
               </Text>
             </Text>
           </View>
@@ -63,7 +76,7 @@ export default VerificationCode;
 
 const styles = StyleSheet.create({
   setMargin: {
-    marginTop: hp(3),
+    marginTop: hp(1),
   },
   timerText: {
     color: AppColors.red,
@@ -72,17 +85,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   otpContainer: {
-    width: '75%',
+    width: '80%',
     height: hp(8),
   },
   underlineStyleBase: {
-    width: hp(7),
-    height: hp(7),
+    width: hp(6),
+    height: hp(5),
     color: AppColors.black,
-    borderRadius: 6,
+    borderRadius: 12,
     fontSize: size.slg,
     backgroundColor: AppColors.transparent,
-    borderColor: '#cfcfcf',
+    borderColor: '#6B6A6A',
     borderWidth: 1,
     fontFamily: AppFonts.NunitoSansSemiBold,
   },

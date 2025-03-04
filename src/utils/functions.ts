@@ -11,6 +11,10 @@ export const handleSetRole = (role: string, navigation: any, dispatch: any) => {
       dispatch(setRole('Parents'));
       navigation.navigate('Login');
       return;
+      case 'Retail':
+        dispatch(setRole('Retail'));
+        navigation.navigate('Login');
+        return;
   }
 };
 

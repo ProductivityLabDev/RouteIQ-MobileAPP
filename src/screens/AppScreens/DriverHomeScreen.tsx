@@ -12,38 +12,108 @@ import AppWeeklyCalendar from '../../components/AppWeeklyCalendar';
 import AppLayout from '../../layout/AppLayout';
 import AppStyles from '../../styles/AppStyles';
 import {AppColors} from '../../utils/color';
-import {hp} from '../../utils/constants';
-import {fontSize} from '../../utils/responsiveFonts';
+import {hp, wp} from '../../utils/constants';
+import {fontSize, size} from '../../utils/responsiveFonts';
 import TripCard from '../../components/TripCard';
 import {tripData} from '../../utils/DummyData';
 import {dayScene} from '../../utils/objects';
 import DriverMonthlyCalendar from '../../components/DriverMonthlyCalendar';
-import {useAppSelector} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import AppInput from '../../components/AppInput';
+import {Controller, useForm} from 'react-hook-form';
+import GlobalIcon from '../../components/GlobalIcon';
+import AppFonts from '../../utils/appFonts';
 
 const DriverHomeScreen = () => {
   const driverHomeStatus = useAppSelector(
     state => state.userSlices.driverHomeStatus,
   );
   const [selectedScene, setSelectedScene] = useState(2);
+  const dispatch = useAppDispatch();
+  const role = useAppSelector(state => state.userSlices.role);
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      search: '',
+    },
+  });
 
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
       style={{backgroundColor: AppColors.driverScreen}}
       alarmIcon={false}>
-      <AppHeader
-        role="Driver"
-        enableBack={false}
-        rightIcon={true}
-        switchIcon={true}
-      />
+      {role == 'Retail' ? (
+        <AppHeader
+          role="Driver"
+          enableBack={false}
+          rightIcon={true}
+          switchIcon={false}
+          title="Home"
+        />
+      ) : (
+        <AppHeader
+          role="Driver"
+          enableBack={false}
+          rightIcon={true}
+          switchIcon={true}
+        />
+      )}
+
       <View style={{flex: 1}}>
         {driverHomeStatus ? (
           <DriverMonthlyCalendar />
         ) : (
           <>
             <AppWeeklyCalendar />
+            
             <ScrollView>
+
+            {role=='Retail' && (
+              <View style={styles.setMargin}>
+              <Controller
+                name="search"
+                control={control}
+                render={({field: {onChange, value}}) => (
+                  <AppInput
+                    value={value}
+                    placeholderTextColor={AppColors.inputGrey}
+                    inputStyle={styles.inputStyle}
+                    placeholder="Search"
+                    container={styles.inputContainer}
+                    onChangeText={text => onChange(text)}
+                    containerStyle={{marginBottom: hp(0)}}
+                    rightInnerIcon={
+                      <GlobalIcon
+                        size={20}
+                        library="Fontisto"
+                        color={AppColors.black}
+                        name="search"
+                      />
+                    }
+                  />
+                )}
+              />
+              </View>
+            )}
+            
+            {role=='Retail' && (
+                <View style={styles.tripView}>
+                <View style={styles.tripBg}>
+                <Text style={styles.tripNumber}>89</Text>
+                <Text style={styles.tripText}>Total Trip</Text>
+                </View>
+                <View style={styles.tripBg}>
+                <Text style={styles.tripNumber}>08</Text>
+                <Text style={styles.tripText}>Pending Trip</Text>
+                </View>
+               </View>
+            )}
+          
               <View style={AppStyles.driverContainer}>
                 <View style={AppStyles.rowBetween}>
                   <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
@@ -112,4 +182,43 @@ const styles = StyleSheet.create({
     borderColor: AppColors.graySuit,
     borderWidth: 0.5,
   },
+  inputStyle: {
+    height: hp(6),
+    marginLeft: wp(2),
+    fontSize: size.md,
+  },
+  inputContainer: {
+    borderColor: '#cfcfcf',
+    borderWidth: 1,
+  },
+  setMargin: {
+    marginTop: hp(2),
+    width: '95%',
+    alignSelf:'center'
+  },
+  tripView:{
+    flexDirection:'row',
+    justifyContent:'space-evenly',
+    alignItems: 'center',
+    textAlign:'center',
+  },
+  tripBg:{
+    backgroundColor:AppColors.white,
+    width: '40%',
+    padding: 6,
+    borderRadius: 10,
+    marginTop: hp(2)
+  },
+  tripNumber:{
+    color: AppColors.red,
+    fontSize: 24,
+    fontFamily: AppFonts.NunitoSansBold,
+    textAlign: 'center'
+  },
+  tripText:{
+    color: AppColors.red,
+    fontSize: 16,
+    fontFamily: AppFonts.NunitoSansBold,
+    textAlign: 'center'
+  }
 });

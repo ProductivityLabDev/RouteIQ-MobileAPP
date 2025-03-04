@@ -42,7 +42,7 @@ const DriverMaintenanceScreen = () => {
   const dispatch = useAppDispatch();
   const maintenance_data = [
     {
-      title: 'Fuel',
+      title: 'Fuel Log',
       name: 'FuelRecordsScreen',
       icon: <FuelIcon />,
     },

@@ -171,7 +171,7 @@ const DriverProfile = () => {
     <AppLayout
       statusbackgroundColor={AppColors.red}
       style={{ backgroundColor: AppColors.profileBg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ height: screenHeight }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ height: screenHeight}}>
         <ImageBackground
           style={styles.headerImage}
           source={require('../../assets/images/redCurvedBorderBg.png')}>
@@ -180,7 +180,7 @@ const DriverProfile = () => {
             title="Profile"
             enableBack={false}
             rightIcon={false}
-            containerStyle={{ height: hp(11) }}
+            containerStyle={{ height: hp(9) }}
           />
           <View style={styles.imageContainer}>
             <Image
@@ -298,7 +298,6 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(4),
     borderRadius: hp(3),
     backgroundColor: AppColors.white,
-    paddingVertical: hp(2),
     position: 'relative',
     top: hp(-1.3),
     borderColor: AppColors.lightGrey,

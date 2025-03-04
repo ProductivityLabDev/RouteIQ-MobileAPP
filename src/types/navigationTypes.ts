@@ -2,6 +2,7 @@ export type RootStackParamList = {
   SplashScreen: undefined;
   LoginAs: undefined;
   Login: undefined;
+  Signup: undefined;
   HomeSreen: undefined;
   Settings: undefined;
   ChildProfile: undefined;
@@ -44,7 +45,13 @@ export type RootStackParamList = {
   DriverShiftTrackingDetails: undefined;
   DriverChats: undefined;
   DriverAllChats: undefined;
+
+
+ // Retail Stack
+  RetailBottomTabs:undefined;
 };
+
+
 
 declare global {
   namespace ReactNavigation {

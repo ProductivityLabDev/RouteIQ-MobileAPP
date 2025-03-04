@@ -42,10 +42,16 @@ const Login = () => {
   });
 
   const onSubmit = () => {
-    role == 'Driver'
-      ? navigation.navigate('DriverProfileInfo')
-      : dispatch(saveToken(1));
+    if (role === 'Driver') {
+      navigation.navigate('DriverProfileInfo');
+    } else if (role === 'Retail') {
+      navigation.navigate('DriverHomeScreen');
+       dispatch(saveToken(1));
+    } else {
+       dispatch(saveToken(1));
+    }
   };
+  
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -72,7 +78,7 @@ const Login = () => {
             <View></View>
           </View>
           <View style={AppStyles.center}>
-            <Text style={AppStyles.titleHead}>Log In</Text>
+            <Text style={AppStyles.titleHead}>Log in</Text>
             <Text style={[AppStyles.subHeading, {marginBottom: hp(2)}]}>
               Enter your credential to login
             </Text>
@@ -83,11 +89,11 @@ const Login = () => {
                 rules={{required: 'Email is required'}}
                 render={({field: {onChange, value}}) => (
                   <AppInput
-                    label="Email"
+                    label="Email / Username"
                     value={value}
                     placeholderTextColor={AppColors.inputGrey}
                     inputStyle={styles.inputStyle}
-                    placeholder="Enter Email Address"
+                    placeholder="Email Address"
                     container={styles.inputContainer}
                     labelStyle={styles.inputLabelStyle}
                     onChangeText={text => onChange(text)}
@@ -156,7 +162,22 @@ const Login = () => {
                 style={styles.forgotPassword}>
                 <Text style={styles.forgotText}>Forgot Password?</Text>
               </TouchableOpacity>
+
               <AppButton onPress={handleSubmit(onSubmit)} title="Log In" />
+
+              {role == 'Retail' && (
+              <TouchableOpacity
+                onPress={() => {
+                  dispatch(setForgotType('password'));
+                  navigation.navigate('Signup');
+                }}
+                style={styles.DontHaveAc}>
+                <Text style={styles.DontAcText}>
+                Didn’t have an account? {' '}
+                  <Text style={styles.signupText}>Signup</Text>
+                </Text>
+              </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
@@ -195,4 +216,19 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: fontSize(14),
   },
+  signupText:{
+    color: AppColors.red,
+    fontFamily: AppFonts.NunitoSansBold,
+    fontSize: fontSize(14),
+  },
+  DontHaveAc:{
+    marginTop:hp(1)
+  },
+  DontAcText:{
+    color: AppColors.lightBlack,
+    fontFamily: AppFonts.NunitoSansRegular,
+    fontSize: fontSize(14),
+    textAlign:'center',
+    alignSelf:'center'
+  }
 });

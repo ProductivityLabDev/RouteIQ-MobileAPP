@@ -8,6 +8,7 @@ const userSlice = createSlice({
     logout: false,
     role: '',
     driverHomeStatus: false,
+    retailHomeStatus: false,
     selectedUserChatData: {},
     showStartMileAgeSheet: false,
     mapViewRouteBackOn: 'DriverHomeScreen',
@@ -28,6 +29,11 @@ const userSlice = createSlice({
     setDriverHomeStatus: (state, {payload}) => {
       state.driverHomeStatus = payload;
     },
+
+    setRetailHomeStatus: (state, {payload}) => {
+      state.retailHomeStatus = payload;
+    },
+
     setSelectedUserChatData: (state, {payload}) => {
       state.selectedUserChatData = payload;
     },
@@ -54,6 +60,7 @@ export const {
   setLogout,
   setRole,
   setDriverHomeStatus,
+  setRetailHomeStatus,
   setSelectedUserChatData,
   setShowStartMileAgeSheet,
   setMapViewRouteBackOn,

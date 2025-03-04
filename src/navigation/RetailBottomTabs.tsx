@@ -17,7 +17,7 @@ import {
   ProfileStack,
   StudentStack,
   TasksStack,
-} from './DriverTabStack';
+} from './RetailTabStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -51,9 +51,9 @@ const BottomIcon: React.FC<DriverBottomTabsProps> = ({
   );
 };
 
-function DriverBottomTabs() {
-  const driverHomeStatus = useAppSelector(
-    state => state.userSlices.driverHomeStatus,
+function RetailBottomTabs() {
+  const retailHomeStatus = useAppSelector(
+    state => state.userSlices.retailHomeStatus,
   );
   const screens = [
     {
@@ -68,12 +68,7 @@ function DriverBottomTabs() {
       headerShown: false,
       label: '',
     },
-    {
-      name: 'StudentStack',
-      component: StudentStack,
-      headerShown: false,
-      label: '',
-    },
+ 
     {
       name: 'ChatStack',
       component: ChatStack,
@@ -111,22 +106,8 @@ function DriverBottomTabs() {
                 tabBarStyle: {
                   display: [
                     'DriverInspection',
-                    driverHomeStatus == true && 'DriverHomeScreen',
-                    'DriverStudentDetail',
-                    'DriverProfileInfo',
-                    'UpdateDriveProfile',
-                    'DriverEmergencyContact',
-                    'DriverQualifications',
-                    'DriverCertification',
-                    'DriverMedicalRecord',
-                    'DriverHistory',
-                    'DriverIncident',
-                    'DriverShiftTracking',
-                    'DriverShiftTrackingDetails',
-                    'DriverChangePassword',
-                    'DriverChats',
-                    'FuelCodeScreen',
-                    // 'FuelRecordsScreen',
+                    retailHomeStatus == true && 'DriverHomeScreen',
+                    
                   ].includes(getFocusedRouteNameFromRoute(route) as any)
                     ? 'none'
                     : 'flex',
@@ -158,27 +139,12 @@ function DriverBottomTabs() {
                     return (
                       <BottomIcon
                         focused={focused}
-                        title="Maintenance"
+                        title="RFQ"
                         children={
                           focused ? (
                             <TaskIcon color={AppColors.red} />
                           ) : (
                             <TaskIcon />
-                          )
-                        }
-                      />
-                    );
-                  }
-                  if (name.includes('StudentStack')) {
-                    return (
-                      <BottomIcon
-                        focused={focused}
-                        title="Students"
-                        children={
-                          focused ? (
-                            <StudentIcon color={AppColors.red} />
-                          ) : (
-                            <StudentIcon />
                           )
                         }
                       />
@@ -213,7 +179,7 @@ function DriverBottomTabs() {
                     return (
                       <BottomIcon
                         focused={focused}
-                        title="My Profile"
+                        title="ACCOUNT"
                         children={
                           focused ? (
                             <ProfileIcon color={AppColors.red} />
@@ -234,7 +200,7 @@ function DriverBottomTabs() {
   );
 }
 
-export default DriverBottomTabs;
+export default RetailBottomTabs;
 
 const styles = StyleSheet.create({
   textStyle: {

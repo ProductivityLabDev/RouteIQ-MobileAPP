@@ -128,13 +128,6 @@ export default function DriverQualifications() {
 
                 </View>
 
-
-
-
-
-
-
-
             </View>
 
             <AppButton
@@ -148,7 +141,7 @@ export default function DriverQualifications() {
                     marginHorizontal: wp(7),
                     alignSelf: 'center',
                     position: 'relative',
-                    top: 50
+                    top: 30
                 }}
                 titleStyle={{
                     fontSize: size.md

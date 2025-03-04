@@ -17,7 +17,7 @@ const LoginAs = () => {
       <View>
         <Image
           style={styles.image}
-          source={require('../../assets/images/Splash_icon.png')}
+          source={require('../../assets/images/logo.png')}
         />
         <View style={[AppStyles.center, {marginTop: hp(3)}]}>
           <Text style={AppStyles.titleHead}>Log In As</Text>
@@ -42,6 +42,19 @@ const LoginAs = () => {
               style={{paddingTop: hp(0.9)}}
               leftIcon={
                 <GlobalIcon library="FontelloIcon" name="group1" size={20} />
+              }
+            />
+            <AppButton
+              onPress={() => handleSetRole('Retail', navigation, dispatch)}
+              title="Retail"
+              titleStyle={{marginTop: hp(-1)}}
+              style={{paddingTop: hp(0.9)}}
+              leftIcon={
+                <GlobalIcon
+                  library="FontelloIcon"
+                  name="group-1961"
+                  size={20}
+                />
               }
             />
           </View>
