@@ -1,14 +1,9 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../types/navigationTypes';
 import DriverHomeScreen from '../screens/AppScreens/DriverHomeScreen';
-import DriverStudentsScreen from '../screens/AppScreens/DriverStudentsScreen';
 import DriverProfile from '../screens/AppScreens/DriverProfile';
 import DriverInspection from '../screens/AppScreens/DriverInspection';
 import DriverMapView from '../screens/AppScreens/DriverMapView';
-import DriverMaintenanceDetail from '../screens/AppScreens/DriverMaintenanceDetail';
-import DriverMaintenanceScreen from '../screens/AppScreens/DriverMaintenanceScreen';
-import DriverStudentDetail from '../screens/AppScreens/DriverStudentDetail';
-import DriverAllChats from '../screens/AppScreens/DriverAllChats';
 import DriverCertification from '../screens/AppScreens/DriverCertification';
 import DriverChangePassword from '../screens/AppScreens/DriverChangePassword';
 import DriverChats from '../screens/AppScreens/DriverChats';
@@ -24,7 +19,7 @@ import AlertScreen from '../screens/AppScreens/AlertScreen';
 import Notifications from '../screens/AppScreens/Notification';
 import UpdateDriveProfile from '../screens/AppScreens/UpdateDriveProfile';
 import FuelCodeScreen from '../screens/AppScreens/FuelCodeScreen';
-import FuelRecordsScreen from '../screens/AppScreens/FuelRecordsScreen';
+import RetailRFQ from '../screens/AppScreens/RetailRFQ';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,15 +33,10 @@ export const HomeStack = () => {
   );
 };
 
-export const TasksStack = () => {
+export const RFQStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="DriverMaintenanceScreen" component={DriverMaintenanceScreen} />
-      <Stack.Screen name="DriverMaintenanceDetail" component={DriverMaintenanceDetail} />
-      <Stack.Screen name="DriverInspection" component={DriverInspection} />
-      <Stack.Screen name="DriverMapView" component={DriverMapView} />
-      <Stack.Screen name="FuelRecordsScreen" component={FuelRecordsScreen} />
-
+      <Stack.Screen name="RetailRFQ" component={RetailRFQ} />
     </Stack.Navigator>
   );
 };

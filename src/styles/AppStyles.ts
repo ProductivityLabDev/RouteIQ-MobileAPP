@@ -7,7 +7,7 @@ import {fontSize, size} from '../utils/responsiveFonts';
 const AppStyles = StyleSheet.create({
   body: {
     paddingHorizontal: hp(2),
-    backgroundColor: AppColors.screenColor,
+    backgroundColor: AppColors.veryLightGrey,
   },
   container: {
     flex: 1,

@@ -60,12 +60,57 @@ export const HighSchoolData = [
 
 export const tripData = [
   {
-    title: 'TRIP 1',
+    title: 'Trip#11187',
     time: '8:30 AM',
     date: '28/MAR/24',
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
-    trip_no: '2346677',
+    trip_no: '2346',
+    trip_plan: [
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Pre-Trip',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Spot',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff1',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff2',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Return',
+      },
+    ],
+  },
+  {
+    title: 'Trip#11187',
+    time: '8:30 AM',
+    date: '28/MAR/24',
+    start_location: 'Hoover Elementary School',
+    end_location: 'WI State Capital',
+    trip_no: '2346',
     trip_plan: [
       {
         time: '8:30 AM',
@@ -98,50 +143,12 @@ export const tripData = [
     ],
   },
   {
-    title: 'TRIP 2',
+    title: 'Trip#11187',
     time: '8:30 AM',
     date: '28/MAR/24',
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
-    trip_no: '2346677',
-    trip_plan: [
-      {
-        time: '8:30 AM',
-        date: '28/MAR/24',
-        title: 'Hoover Elementary School',
-        location: '950 Hunt Ave Neenah, WI 54956',
-        status: 'Pre-Trip',
-      },
-      {
-        time: '8:30 AM',
-        date: '28/MAR/24',
-        title: 'Hoover Elementary School',
-        location: '950 Hunt Ave Neenah, WI 54956',
-        status: 'Spot',
-      },
-      {
-        time: '8:30 AM',
-        date: '28/MAR/24',
-        title: 'WI State Capital',
-        location: '2E. Main St Madison, WI 53703',
-        status: 'Dropoff',
-      },
-      {
-        time: '8:30 AM',
-        date: '28/MAR/24',
-        title: 'WI State Capital',
-        location: '2E. Main St Madison, WI 53703',
-        status: 'Pickup',
-      },
-    ],
-  },
-  {
-    title: 'TRIP 3',
-    time: '8:30 AM',
-    date: '28/MAR/24',
-    start_location: 'Hoover Elementary School',
-    end_location: 'WI State Capital',
-    trip_no: '2346677',
+    trip_no: '2346',
     trip_plan: [
       {
         time: '8:30 AM',
@@ -371,3 +378,32 @@ export const cleaningCollapsedCard = [
     options: ["Wipe down the entire ceiling", "Emergency roof hatch"]
   },
 ]
+
+export const RetailRequestQuoteData  = [
+  {key: '1', value: 'Motorcoach (56 Passenger)'},
+  {key: '2', value: 'Motorcoach (47 Passenger)'},
+  {key: '3', value: 'Motorcoach (22 Passenger)'},
+  {key: '4', value: 'School Bus (50 Passenger 2/seat)'},
+  {key: '5', value: 'School Bus (15-29 Passenger 3/seat)'},
+  {key: '6', value: 'Mini Van (4 Passengers)'},
+];
+
+export const RoundTrip = [
+  {key: '1', value: 'One way'},
+  {key: '2', value: 'Shuttle'},
+
+];
+
+export const BusType  = [
+  {key: '1', value: 'a. Motorcoach (56 Passenger)'},
+  {key: '2', value: 'b. Motorcoach (47 Passenger)'},
+  {key: '3', value: 'c. Motorcoach (22 Passenger)'},
+  {key: '4', value: 'd. School Bus (50 Passenger 2/seat)'},
+  {key: '5', value: 'e. School Bus (15-29 Passenger 3/seat)'},
+  {key: '6', value: 'f. Mini Van (4 Passengers)'},
+];
+
+
+
+
+

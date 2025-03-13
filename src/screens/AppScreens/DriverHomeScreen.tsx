@@ -81,7 +81,7 @@ const DriverHomeScreen = () => {
                 render={({field: {onChange, value}}) => (
                   <AppInput
                     value={value}
-                    placeholderTextColor={AppColors.inputGrey}
+                    placeholderTextColor={AppColors.black}
                     inputStyle={styles.inputStyle}
                     placeholder="Search"
                     container={styles.inputContainer}
@@ -115,48 +115,50 @@ const DriverHomeScreen = () => {
             )}
           
               <View style={AppStyles.driverContainer}>
-                <View style={AppStyles.rowBetween}>
-                  <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
-                    Morning route starts at 8 AM
-                  </Text>
-                  <View style={AppStyles.row}>
-                    {dayScene?.map((item, index) => {
-                      return (
-                        <Pressable
-                          onPress={() => setSelectedScene(index)}
-                          key={index}
-                          style={[
-                            styles.daySceneContainer,
-                            {
-                              backgroundColor:
-                                selectedScene == index
-                                  ? AppColors.black
-                                  : AppColors.white,
-                              borderTopLeftRadius: index == 0 ? 5 : 0,
-                              borderTopRightRadius: index == 2 ? 5 : 0,
-                              borderBottomLeftRadius: index == 0 ? 5 : 0,
-                              borderBottomRightRadius: index == 2 ? 5 : 0,
-                            },
-                          ]}>
-                          <Text
-                            style={[
-                              AppStyles.title,
-                              {
-                                fontSize: fontSize(14),
-                                color:
-                                  selectedScene == index
-                                    ? AppColors.white
-                                    : AppColors.black,
-                              },
-                            ]}>
-                            {item}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                </View>
-                <View style={{marginTop: hp(1)}}>
+               {role=='Driver' && (
+                 <View style={AppStyles.rowBetween}>
+                 <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
+                   Morning route starts at 8 AM
+                 </Text>
+                 <View style={AppStyles.row}>
+                   {dayScene?.map((item, index) => {
+                     return (
+                       <Pressable
+                         onPress={() => setSelectedScene(index)}
+                         key={index}
+                         style={[
+                           styles.daySceneContainer,
+                           {
+                             backgroundColor:
+                               selectedScene == index
+                                 ? AppColors.black
+                                 : AppColors.white,
+                             borderTopLeftRadius: index == 0 ? 5 : 0,
+                             borderTopRightRadius: index == 2 ? 5 : 0,
+                             borderBottomLeftRadius: index == 0 ? 5 : 0,
+                             borderBottomRightRadius: index == 2 ? 5 : 0,
+                           },
+                         ]}>
+                         <Text
+                           style={[
+                             AppStyles.title,
+                             {
+                               fontSize: fontSize(14),
+                               color:
+                                 selectedScene == index
+                                   ? AppColors.white
+                                   : AppColors.black,
+                             },
+                           ]}>
+                           {item}
+                         </Text>
+                       </Pressable>
+                     );
+                   })}
+                 </View>
+               </View>
+               )}
+                <View>
                   <FlatList
                     scrollEnabled={false}
                     data={tripData}
@@ -186,10 +188,12 @@ const styles = StyleSheet.create({
     height: hp(6),
     marginLeft: wp(2),
     fontSize: size.md,
+    fontFamily: AppFonts.NunitoSansRegular
   },
   inputContainer: {
     borderColor: '#cfcfcf',
     borderWidth: 1,
+    backgroundColor: AppColors.diffGrey
   },
   setMargin: {
     marginTop: hp(2),
@@ -198,13 +202,13 @@ const styles = StyleSheet.create({
   },
   tripView:{
     flexDirection:'row',
-    justifyContent:'space-evenly',
+    justifyContent:'space-around',
     alignItems: 'center',
     textAlign:'center',
   },
   tripBg:{
     backgroundColor:AppColors.white,
-    width: '40%',
+    width: '35%',
     padding: 6,
     borderRadius: 10,
     marginTop: hp(2)

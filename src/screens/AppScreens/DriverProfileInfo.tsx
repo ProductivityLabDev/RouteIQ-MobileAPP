@@ -14,6 +14,7 @@ const DriverProfileInfo = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const token = useAppSelector(state => state.userSlices.token);
+  const role = useAppSelector(state => state.userSlices.role);
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
@@ -57,23 +58,27 @@ const DriverProfileInfo = () => {
             </Text>
           </View>
         </View>
-        <View>
-          <AppButton
-            onPress={() => navigation.navigate('UpdateDriveProfile')}
-            title="Edit Info"
-            style={styles.button}
-            titleStyle={styles.buttonTitle}
-          />
-          <AppButton
-            title="Confirm"
-            style={{alignSelf: 'center', width: '100%'}}
-            onPress={() => {
-              console.log(token, "token");
-              
-              token || token == 1 ? navigation.goBack() : dispatch(saveToken(1));
-            }}
-          />
-        </View>
+        {role === 'Driver' && (
+          <View>
+            <AppButton
+              onPress={() => navigation.navigate('UpdateDriveProfile')}
+              title="Edit Info"
+              style={styles.button}
+              titleStyle={styles.buttonTitle}
+            />
+            <AppButton
+              title="Confirm"
+              style={{alignSelf: 'center', width: '100%'}}
+              onPress={() => {
+                console.log(token, 'token');
+
+                token || token == 1
+                  ? navigation.goBack()
+                  : dispatch(saveToken(1));
+              }}
+            />
+          </View>
+        )}
       </View>
     </AppLayout>
   );

@@ -27,6 +27,8 @@ import DriverChats from '../screens/AppScreens/DriverChats';
 import DriverAllChats from '../screens/AppScreens/DriverAllChats';
 import Signup from '../screens/AuthScreens/Signup';
 import RetailBottomTabs from './RetailBottomTabs';
+import RetailRequestQuote from '../screens/AppScreens/RetailRequestQuote';
+import RetailInvoice from '../screens/AppScreens/RetailInvoice';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -97,6 +99,11 @@ export const RetailStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="RetailBottomTabs" component={RetailBottomTabs} />
+      <Stack.Screen name="RetailRequestQuote" component={RetailRequestQuote} />
+      <Stack.Screen name="RetailInvoice" component={RetailInvoice} />
+      <Stack.Screen name="Notification" component={Notification} />
+      
+      
       
      
     </Stack.Navigator>

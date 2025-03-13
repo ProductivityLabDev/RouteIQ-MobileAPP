@@ -4,174 +4,74 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
-import { AppColors } from '../../utils/color';
+import React, {useState} from 'react';
+import {AppColors} from '../../utils/color';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
-import { hp, screenHeight, screenWidth, wp } from '../../utils/constants';
-import { size } from '../../utils/responsiveFonts';
-import { useNavigation } from '@react-navigation/native';
+import {hp, screenHeight, screenWidth, wp} from '../../utils/constants';
+import {size} from '../../utils/responsiveFonts';
+import {useNavigation} from '@react-navigation/native';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppButton from '../../components/AppButton';
-import { useAppDispatch } from '../../store/hooks';
-import { saveToken, setLogout } from '../../store/user/userSlices';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {saveToken, setLogout} from '../../store/user/userSlices';
 
 const DriverProfile = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
-  const [isEnabled, setIsEnabled] = useState(false);
-
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const role = useAppSelector(state => state.userSlices.role);
 
   const settingItems = [
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-2022"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Profile Info',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-2019"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Emergency Contact',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-2020"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Qualification',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-2021"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Certification',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-289239"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Medical Record',
-      subTitle: ' (Optional)'
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-2023"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'History',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-2024"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Incident',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="group-2025"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Shift Tracking',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="MaterialCommunityIcons"
-          name="fuel"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Fuel Code',
-      subTitle: ''
-    },
-    {
-      leftIcon: (
-        <GlobalIcon
-          library="FontelloIcon"
-          name="lock"
-          color={AppColors.red}
-          size={hp(2.5)}
-        />
-      ),
-      title: 'Change Password',
-      subTitle: ''
-    },
+    {title: 'Profile Info', icon: 'group-2022'},
+    {title: 'Emergency Contact', icon: 'group-2019'},
+    {title: 'Qualification', icon: 'group-2020'},
+    {title: 'Certification', icon: 'group-2021'},
+    {title: 'Medical Record', icon: 'group-289239', subTitle: ' (Optional)'},
+    {title: 'History', icon: 'group-2023'},
+    {title: 'Incident', icon: 'group-2024'},
+    {title: 'Shift Tracking', icon: 'group-2025'},
+    {title: 'Fuel Code', icon: 'fuel', library: 'MaterialCommunityIcons'},
+    {title: 'Change Password', icon: 'lock'},
   ];
 
+  // Role-based filtering
+  const filteredSettingItems =
+    role === 'Retail'
+      ? settingItems.filter(
+          item => item.title === 'Profile Info' || item.title === 'History',
+        )
+      : settingItems;
+
   const handleRoute = (name: string) => {
-    if (name == 'Profile Info') navigation.navigate('DriverProfileInfo');
-    if (name == 'Emergency Contact')
-      navigation.navigate('DriverEmergencyContact');
-    if (name == 'Qualification') navigation.navigate('DriverQualifications');
-    if (name == 'Certification') navigation.navigate('DriverCertification');
-    if (name == 'Change Password') navigation.navigate('DriverChangePassword');
-    if (name == 'Medical Record')
-      navigation.navigate('DriverMedicalRecord');
-    if (name == 'History') navigation.navigate('DriverHistory');
-    if (name == 'Incident') navigation.navigate('DriverIncident');
-    if (name == 'Fuel Code') navigation.navigate('FuelCodeScreen');
-    if (name == 'Shift Tracking') navigation.navigate('DriverShiftTracking');
+    const routes = {
+      'Profile Info': 'DriverProfileInfo',
+      'Emergency Contact': 'DriverEmergencyContact',
+      Qualification: 'DriverQualifications',
+      Certification: 'DriverCertification',
+      'Change Password': 'DriverChangePassword',
+      'Medical Record': 'DriverMedicalRecord',
+      History: 'DriverHistory',
+      Incident: 'DriverIncident',
+      'Fuel Code': 'FuelCodeScreen',
+      'Shift Tracking': 'DriverShiftTracking',
+    };
+    if (routes[name]) {
+      navigation.navigate(routes[name]);
+    }
   };
 
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{ backgroundColor: AppColors.profileBg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ height: screenHeight}}>
+      style={{backgroundColor: AppColors.profileBg}}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{height: screenHeight}}>
         <ImageBackground
           style={styles.headerImage}
           source={require('../../assets/images/redCurvedBorderBg.png')}>
@@ -180,7 +80,7 @@ const DriverProfile = () => {
             title="Profile"
             enableBack={false}
             rightIcon={false}
-            containerStyle={{ height: hp(9) }}
+            containerStyle={{height: hp(9)}}
           />
           <View style={styles.imageContainer}>
             <Image
@@ -189,74 +89,53 @@ const DriverProfile = () => {
             />
           </View>
 
-          <Text
-            style={[
-              AppStyles.subHeading,
-              {
-                color: AppColors.white,
-                fontFamily: AppFonts.NunitoSansBold,
-                alignSelf: 'center',
-                fontSize: size.lg,
-                marginTop: hp(1),
-              },
-            ]}>
+          <Text style={[AppStyles.subHeading, styles.userName]}>
             Mark Tommay
           </Text>
 
-          <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
-            <View style={styles.headerTitle}>
-              <Text style={styles.headerSubTitle}>Employee ID:</Text>
-              <Text
-                style={[
-                  AppStyles.subHeading,
-                  {
-                    color: AppColors.white,
-                    fontFamily: AppFonts.NunitoSansBold,
-                  },
-                ]}>
-                B456788
-              </Text>
+          {role === 'Driver' && (
+            <View style={[AppStyles.rowBetween, styles.headerBottomContainer]}>
+              <View style={styles.headerTitle}>
+                <Text style={styles.headerSubTitle}>Employee ID:</Text>
+                <Text style={[AppStyles.subHeading, styles.whiteText]}>
+                  B456788
+                </Text>
+              </View>
+              <View style={styles.headerTitle}>
+                <Text style={[styles.headerSubTitle, styles.textRight]}>
+                  Status:
+                </Text>
+                <Text style={[AppStyles.subHeading, styles.whiteText]}>
+                  Part Time
+                </Text>
+              </View>
             </View>
-            <View style={styles.headerTitle}>
-              <Text
-                style={[
-                  styles.headerSubTitle,
-                  { fontFamily: AppFonts.NunitoSansSemiBold, textAlign: 'right' },
-                ]}>
-                Status:
-              </Text>
-              <Text
-                style={[
-                  AppStyles.subHeading,
-                  {
-                    color: AppColors.white,
-                    fontFamily: AppFonts.NunitoSansBold,
-                  },
-                ]}>
-                Part Time
-              </Text>
-            </View>
-          </View>
+          )}
 
-          <View style={styles.mainItemsContainer}>
-            {settingItems.map((item, index) => (
+          <View
+            style={[
+              styles.mainItemsContainer,
+              role === 'Retail' && {marginTop: hp(12)},
+            ]}>
+            {filteredSettingItems.map((item, index) => (
               <Pressable
                 onPress={() => handleRoute(item.title)}
                 key={index}
                 style={[AppStyles.rowBetween, styles.itemContainer]}>
                 <View style={[AppStyles.row]}>
-                  {item.leftIcon}
-                  <Text
-                    style={[
-                      AppStyles.title,
-                      {
-                        fontSize: size.default,
-                        marginLeft: hp(1),
-                        fontFamily: AppFonts.NunitoSansSemiBold,
-                        top: hp(-0.4),
-                      },
-                    ]}>
-                    {item.title}{item.subTitle && <Text style={{ color: AppColors.red }}>{item.subTitle}</Text>}
+                  <GlobalIcon
+                    library={item.library || 'FontelloIcon'}
+                    name={item.icon}
+                    color={AppColors.red}
+                    size={hp(2.5)}
+                  />
+                  <Text style={[AppStyles.title, styles.itemTitle]}>
+                    {item.title}
+                    {item.subTitle && (
+                      <Text style={{color: AppColors.red}}>
+                        {item.subTitle}
+                      </Text>
+                    )}
                   </Text>
                 </View>
                 <GlobalIcon
@@ -271,18 +150,15 @@ const DriverProfile = () => {
 
           <AppButton
             title="Logout"
-            onPress={() => { dispatch(setLogout(true)); dispatch(saveToken(null)) }}
-            style={{
-              // width: '100%',
-              width: '90%',
-              backgroundColor: AppColors.black,
-              height: hp(6),
-              marginHorizontal: wp(7),
-              alignSelf: 'center',
-              position: 'relative',
-              top: -5,
+            onPress={() => {
+              dispatch(setLogout(true));
+              dispatch(saveToken(null));
             }}
-            titleStyle={{ fontSize: size.md }}
+            style={[
+              styles.logoutButton,
+              role === 'Retail' && {marginTop: hp(31), backgroundColor:AppColors.red},
+            ]}
+            titleStyle={{fontSize: size.md}}
           />
         </ImageBackground>
       </ScrollView>
@@ -294,36 +170,35 @@ export default DriverProfile;
 
 const styles = StyleSheet.create({
   mainItemsContainer: {
-    paddingHorizontal: wp(4),
+    paddingHorizontal: wp(6),
     marginHorizontal: wp(4),
-    borderRadius: hp(3),
+    borderRadius: hp(2),
     backgroundColor: AppColors.white,
-    position: 'relative',
     top: hp(-1.3),
     borderColor: AppColors.lightGrey,
     borderWidth: 1,
     elevation: 5,
   },
-
   itemContainer: {
     backgroundColor: AppColors.white,
     paddingHorizontal: hp(1),
     paddingVertical: hp(1.2),
-    marginVertical: hp(0),
   },
-
+  itemTitle: {
+    fontSize: size.default,
+    marginLeft: hp(1),
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    top: hp(-0.4),
+  },
   headerImage: {
     height: 400,
     width: screenWidth,
-    paddingTop: hp(0),
     position: 'absolute',
   },
-  layoutContainer: { backgroundColor: 'rgba(16, 35, 53, 0)', paddingTop: 0 },
   headerBottomContainer: {
     alignItems: 'flex-start',
     paddingHorizontal: hp(2),
     height: hp(10),
-    marginTop: hp(0),
     zIndex: 1,
   },
   imageContainer: {
@@ -331,79 +206,41 @@ const styles = StyleSheet.create({
     width: hp(9),
     alignSelf: 'center',
   },
-  container: {
-    flex: 1,
+  image: {
     width: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    zIndex: 0,
+    height: '100%',
+    borderRadius: hp(10),
+    borderColor: AppColors.white,
+    borderWidth: 1,
   },
-  reactangleIcon: {
-    height: 100,
-    width: screenWidth,
-    backgroundColor: 'rgba(16, 35, 53, 0)',
-    position: 'absolute',
-    top: 60,
-    elevation: 0,
-    opacity: 1,
+  userName: {
+    color: AppColors.white,
+    fontFamily: AppFonts.NunitoSansBold,
+    alignSelf: 'center',
+    fontSize: size.lg,
+    marginTop: hp(1),
   },
-  headerTitle: { gap: hp(0.5), paddingTop: hp(1) },
+  whiteText: {
+    color: AppColors.white,
+    fontFamily: AppFonts.NunitoSansBold,
+  },
+  headerTitle: {gap: hp(0.5), paddingTop: hp(1)},
   headerSubTitle: {
     fontFamily: AppFonts.NunitoSansMedium,
     fontSize: size.sl,
     lineHeight: 20,
     color: AppColors.white,
   },
-  image: {
-    width: '100%',
-    height: '100%',
-    borderRadius: hp(10),
-    position: 'static',
-    borderColor: AppColors.white,
-    borderWidth: 1,
-  },
-  bottomContainer: {
-    zIndex: 1,
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    backgroundColor: 'white',
-    height: hp(20),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 10,
-    paddingHorizontal: hp(2),
-  },
-  bottomButton: {
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: AppColors.black,
-    height: hp(6),
-    width: hp(6),
-  },
-  boxStyle: {
-    marginBottom: hp(1.6),
-    backgroundColor: AppColors.white,
-    alignItems: 'center',
-    borderColor: AppColors.black,
-    height: hp(6),
-    borderRadius: hp(0.5),
-  },
-  cancelButton: { width: '35%', backgroundColor: AppColors.lightGrey },
-  submitButton: { width: '60%', backgroundColor: AppColors.black },
-  label: {
-    marginBottom: 5,
-    color: AppColors.black,
-    fontSize: size.md,
-    alignSelf: 'flex-start',
+  textRight: {
     fontFamily: AppFonts.NunitoSansSemiBold,
+    textAlign: 'right',
   },
-  reasonContainer: {
-    padding: hp(2),
-    backgroundColor: '#dddde1',
-    borderRadius: hp(1),
-    marginBottom: hp(3),
+  logoutButton: {
+    width: '90%',
+    backgroundColor: AppColors.black,
+    height: hp(6),
+    marginHorizontal: wp(7),
+    alignSelf: 'center',
+    top: -5,
   },
 });

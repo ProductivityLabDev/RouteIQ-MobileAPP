@@ -16,6 +16,10 @@ export interface UpdateGuardianProfileProps {
   route: any;
 }
 
+export interface RetailRequestQuote {
+  route: any;
+}
+
 export interface AppTabsViewProps {
   routes?: any;
   renderScene?: any;

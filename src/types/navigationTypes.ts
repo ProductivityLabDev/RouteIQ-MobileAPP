@@ -49,6 +49,9 @@ export type RootStackParamList = {
 
  // Retail Stack
   RetailBottomTabs:undefined;
+  RetailRFQ: undefined;
+  RetailRequestQuote:undefined;
+  RetailInvoice: undefined;
 };
 
 

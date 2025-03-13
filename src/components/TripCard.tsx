@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   FlatList,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -25,7 +26,7 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AppInput from './AppInput';
 import {useNavigation} from '@react-navigation/native';
 import {setMapViewRouteBackOn, setShowStartMileAgeSheet} from '../store/user/userSlices';
-import {useAppDispatch} from '../store/hooks';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
 
 const TripCard: React.FC<TripCardProps> = ({item}) => {
   const navigation = useNavigation();
@@ -34,6 +35,8 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [declined, setDeclined] = useState(false);
   const [accept, setAccept] = useState(false);
+  const role = useAppSelector(state => state.userSlices.role);
+
 
   const snapPoints = useMemo(() => ['38%', '90%'], []);
   const openSheet = useCallback(() => {
@@ -99,14 +102,15 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                     top: -5,
                   },
                 ]}>
-                TRIP NO.
+                Bus No.
               </Text>
               <Text style={AppStyles.whiteTitle}>{item?.trip_no}</Text>
             </View>
           </View>
           {!declined && (
             <View style={AppStyles.rowBetween}>
-              <View style={[AppStyles.row, {width: '30%'}]}>
+            
+            <View style={[AppStyles.row, {width: '30%'}]}>
                 {/* <MapViewIcon /> */}
                 <GlobalIcon
                   library="FontelloIcon"
@@ -134,11 +138,19 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View
+
+              {role=='Retail' ? (
+                 <View style={styles.retailView}>
+                 <Image source={require('../assets/images/retailProfile.png')} style={styles.retailImg}/>
+                 <Text style={styles.retailName}>Esther Howard</Text>
+               </View>
+              ): (
+                <View
                 style={[
                   AppStyles.row,
                   {width: '70%', justifyContent: 'flex-end'},
                 ]}>
+                  
                 {!accept ? (
                   <>
                     <AppButton
@@ -165,9 +177,11 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   />
                 )}
               </View>
+              )}
             </View>
           )}
         </View>
+       
         <Pressable
           onPress={() => setIsCollapsed(!isCollapsed)}
           style={[AppStyles.rowBetween, styles.detailIcon]}>
@@ -191,7 +205,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                     library="FontelloIcon"
                     name="group-(1)"
                     color={handleSetColor(trip?.status)}
-                    size={hp(4.5)}
+                    size={hp(3)}
                   />
                   {/* <BusIcon color={handleSetColor(trip?.status)} /> */}
                   <Text
@@ -199,7 +213,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                       AppStyles.title,
                       {
                         fontFamily: AppFonts.NunitoSansBold,
-                        marginTop: hp(-1.5),
+                        marginTop: hp(-1),
                       },
                     ]}>
                     {trip?.status}
@@ -238,6 +252,13 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
               </View>
             )}
           />
+          {role=='Retail' && (
+            <>
+            <Text style={styles.specialNote}>Special Notes:</Text>
+             <Text style={styles.specialDropof}>Drop off at Door C</Text>
+             </>
+          ) }
+         
         </View>
       </Collapsible>
 
@@ -366,8 +387,8 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.screenColor,
     justifyContent: 'center',
     alignItems: 'center',
-    height: hp(16),
-    width: hp(12),
+    height: hp(14),
+    width: hp(10),
     borderRadius: 5,
     gap: 5,
   },
@@ -393,4 +414,32 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderRadius: 5,
   },
+  retailView:{
+    flexDirection:'row',
+    justifyContent:'center',
+    alignItems:'center',
+    gap: 10,
+    
+  },
+  retailImg:{
+    width: 50,
+    height: 50
+  },
+  retailName:{
+    color: AppColors.white,
+    fontSize: 16,
+    fontFamily: AppFonts.NunitoSansBold,
+    lineHeight: 23
+  },
+  specialNote:{
+    color: AppColors.black,
+    fontSize: size.md,
+    fontFamily: AppFonts.NunitoSansSemiBold
+  },
+  specialDropof:{
+    color: AppColors.black,
+    fontSize: 14,
+    fontFamily: AppFonts.NunitoSansRegular,
+    lineHeight: 20
+  }
 });

@@ -3,7 +3,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import HomeIcon from '../assets/svgs/HomeIcon';
 import ProfileIcon from '../assets/svgs/ProfileIcon';
-import StudentIcon from '../assets/svgs/StudentIcon';
+
 import TaskIcon from '../assets/svgs/TaskIcon';
 import GlobalIcon from '../components/GlobalIcon';
 import { useAppSelector } from '../store/hooks';
@@ -15,8 +15,7 @@ import {
   ChatStack,
   HomeStack,
   ProfileStack,
-  StudentStack,
-  TasksStack,
+  RFQStack,
 } from './RetailTabStack';
 
 const Tab = createBottomTabNavigator();
@@ -63,8 +62,8 @@ function RetailBottomTabs() {
       label: '',
     },
     {
-      name: 'TasksStack',
-      component: TasksStack,
+      name: 'RFQStack',
+      component: RFQStack,
       headerShown: false,
       label: '',
     },
@@ -135,7 +134,7 @@ function RetailBottomTabs() {
                       />
                     );
                   }
-                  if (name.includes('TasksStack')) {
+                  if (name.includes('RFQStack')) {
                     return (
                       <BottomIcon
                         focused={focused}
