@@ -29,6 +29,13 @@ import Signup from '../screens/AuthScreens/Signup';
 import RetailBottomTabs from './RetailBottomTabs';
 import RetailRequestQuote from '../screens/AppScreens/RetailRequestQuote';
 import RetailInvoice from '../screens/AppScreens/RetailInvoice';
+import DriverShiftTrackingDetails from '../screens/AppScreens/DriverShiftTrackingDetails';
+import DriverMaintenanceDetail from '../screens/AppScreens/DriverMaintenanceDetail';
+import DriverStudentDetail from '../screens/AppScreens/DriverStudentDetail';
+import RetailDetail from '../screens/AppScreens/RetailDetail';
+import EditRetailDetail from '../screens/AppScreens/EditRetailDetail';
+import RetailPayment from '../screens/AppScreens/RetailPayment';
+import RetailHistory from '../screens/AppScreens/RetailHistory';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -102,6 +109,10 @@ export const RetailStack = () => {
       <Stack.Screen name="RetailRequestQuote" component={RetailRequestQuote} />
       <Stack.Screen name="RetailInvoice" component={RetailInvoice} />
       <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="RetailDetail" component={RetailDetail} />
+      <Stack.Screen name="EditRetailDetail" component={EditRetailDetail} />
+      <Stack.Screen name="RetailPayment" component={RetailPayment} />
+      <Stack.Screen name="RetailHistory" component={RetailHistory} />
       
       
       

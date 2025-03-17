@@ -14,8 +14,10 @@ import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppHeader from '../../components/AppHeader';
 import AppButton from '../../components/AppButton';
+import { useNavigation } from '@react-navigation/native';
 
 const InvoiceScreen = () => {
+  const navigation = useNavigation();
   return (
     <>
       <AppHeader
@@ -140,7 +142,11 @@ const InvoiceScreen = () => {
           />
         </View>
 
-        <AppButton title="Pay" style={styles.payButton} />
+        <AppButton 
+          title="Pay" 
+          style={styles.payButton} 
+          onPress={()=>navigation.navigate('RetailPayment')}
+          />
       </ScrollView>
     </>
   );

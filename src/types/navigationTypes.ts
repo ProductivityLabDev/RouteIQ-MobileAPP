@@ -52,6 +52,11 @@ export type RootStackParamList = {
   RetailRFQ: undefined;
   RetailRequestQuote:undefined;
   RetailInvoice: undefined;
+  RetailDetail:undefined;
+  EditRetailDetail: undefined;
+  RetailPayment:undefined;
+  RetailHistory:undefined;
+
 };
 
 

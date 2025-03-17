@@ -55,7 +55,7 @@ const DriverProfile = () => {
       Certification: 'DriverCertification',
       'Change Password': 'DriverChangePassword',
       'Medical Record': 'DriverMedicalRecord',
-      History: 'DriverHistory',
+      History: 'RetailHistory',
       Incident: 'DriverIncident',
       'Fuel Code': 'FuelCodeScreen',
       'Shift Tracking': 'DriverShiftTracking',

@@ -18,6 +18,7 @@ const AppStyles = StyleSheet.create({
     paddingVertical: hp(2),
     paddingHorizontal: hp(2),
   },
+
   rowCenter: {
     flexDirection: 'row',
     justifyContent: 'center',

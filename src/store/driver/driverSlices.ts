@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 const driverSlice = createSlice({
   name: 'driver',
@@ -6,7 +6,7 @@ const driverSlice = createSlice({
     maintenanceDetail: null,
     chatTabIndex: 0,
     studentDetail: {
-      name: 'Jane Cooper',
+      name: 'Jonney Barbo',
       image: require('../../assets/images/child1.jpg'),
       age: 5,
       emergency_contact: '8978675634',
@@ -26,21 +26,22 @@ const driverSlice = createSlice({
         },
       ],
     },
+ 
   },
   reducers: {
-    setMaintenanceDetail: (state, {payload}) => {
+    setMaintenanceDetail: (state, { payload }) => {
       state.maintenanceDetail = payload;
     },
-    setStudentDetail: (state, {payload}) => {
+    setStudentDetail: (state, { payload }) => {
       state.studentDetail = payload;
     },
-    setChatTabIndex: (state, {payload}) => {
+    setChatTabIndex: (state, { payload }) => {
       state.chatTabIndex = payload;
     },
+   
   },
 });
 
-export const {setMaintenanceDetail, setStudentDetail, setChatTabIndex} =
-  driverSlice.actions;
+export const { setMaintenanceDetail, setStudentDetail, setChatTabIndex } = driverSlice.actions;
 
 export default driverSlice.reducer;

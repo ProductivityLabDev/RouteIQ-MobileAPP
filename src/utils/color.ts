@@ -37,5 +37,7 @@ export const AppColors = {
   darkRed: '#9A131D',
   diffGrey: '#EFEFEF',
   offWhite: '#f0f0f0',
-  springG:' #2CD671'
+  springG:' #2CD671',
+  charcoalGray:'#2C2F32'
+  
 };

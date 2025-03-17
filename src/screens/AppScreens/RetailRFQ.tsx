@@ -32,11 +32,11 @@ const RetailRFQ = () => {
         </View>
       </View>
       <View style={styles.actionRow}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('RetailDetail')}>
           <Text style={styles.actionText}>View Details</Text>
         </TouchableOpacity>
         {item.status !== 'ACCEPTED' ? (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('EditRetailDetail')}>
             <Text style={styles.actionText}>Edit</Text>
           </TouchableOpacity>
         ) : (

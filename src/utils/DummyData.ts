@@ -269,6 +269,19 @@ export const studentsData = [
   },
 ];
 
+
+export const retailDetailData = 
+  {
+    name: 'Jonney Barbo',
+    PhoneNumber: '012 022 1531',
+    emailAddress: 'ab@gmail.com',
+    roundTrip: 'Shuttle',
+    isWheelChairLift:'Yes',
+    nameOfLocaton: 'Oakwood Elementary School',
+    additionalDestination: 'Oakwood Elementary School',
+    specialInstructions: 'Oakwood Elementary School'
+  }
+
 export const chats_data = [
   {
     title: 'Marie Moores',
