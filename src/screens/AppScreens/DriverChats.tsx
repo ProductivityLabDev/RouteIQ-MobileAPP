@@ -1,10 +1,10 @@
-import {View, Text, StyleSheet, useWindowDimensions} from 'react-native';
-import React, {useEffect, useMemo, useState} from 'react';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import AppHeader from '../../components/AppHeader';
 import AppLayout from '../../layout/AppLayout';
-import {hp, wp} from '../../utils/constants';
-import {AppColors} from '../../utils/color';
-import {size} from '../../utils/responsiveFonts';
+import { hp, wp } from '../../utils/constants';
+import { AppColors } from '../../utils/color';
+import { size } from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import {
   TabView,
@@ -14,12 +14,13 @@ import {
   Route,
   SceneRendererProps,
 } from 'react-native-tab-view';
-import {chats_data} from '../../utils/DummyData';
+import { chats_data, groups_data } from '../../utils/DummyData';
 import VendorChat from '../../components/VendorChat';
 import DriverAllChats from './DriverAllChats';
-import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {setChatTabIndex} from '../../store/driver/driverSlices';
+import { useNavigation } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { setChatTabIndex } from '../../store/driver/driverSlices';
+import GroupChat from '../../components/GroupChat';
 
 export default function DriverChats() {
   const navigation = useNavigation();
@@ -30,7 +31,8 @@ export default function DriverChats() {
 
   const [SchoolChattingScreen, setSchoolChattingScreen] = useState(false);
   const layout = useWindowDimensions();
-  const [index, setIndex] = useState(chatTabIndex);
+  const [index, setIndex] = useState(0);
+  
 
   useEffect(() => {
     setIndex(chatTabIndex);
@@ -39,16 +41,19 @@ export default function DriverChats() {
   const filteredRoutes = useMemo(() => {
     if (role === 'Retail') {
       return [
-        {key: 'first', title: 'Vendor'},
-        {key: 'second', title: 'Driver'},
+        { key: 'first', title: 'Vendor' },
+        { key: 'second', title: 'Driver' },
       ];
     }
     return [
-      {key: 'first', title: 'Vendor'},
-      {key: 'second', title: 'Guardian'},
-      {key: 'third', title: 'School'},
+      { key: 'first', title: 'Vendor' },
+      { key: 'second', title: 'Guardian' },
+      { key: 'third', title: 'School' },
+      { key: 'fourth', title: 'Groups' }, 
     ];
   }, [role]);
+
+  
 
   const FirstRoute = useMemo(() => () => <VendorChat />, []);
 
@@ -62,7 +67,7 @@ export default function DriverChats() {
           setSchoolChattingScreen={setSchoolChattingScreen}
         />
       ),
-    [SchoolChattingScreen],
+    [SchoolChattingScreen]
   );
 
   const ThirdRoute = useMemo(
@@ -75,8 +80,11 @@ export default function DriverChats() {
           setSchoolChattingScreen={setSchoolChattingScreen}
         />
       ),
-    [SchoolChattingScreen],
+    [SchoolChattingScreen]
   );
+
+
+  const FourthRoute = useMemo(() => () => <GroupChat arrayData={groups_data} />, []);
 
   const handleTabChange = (newIndex: number) => {
     setIndex(newIndex);
@@ -87,14 +95,15 @@ export default function DriverChats() {
     first: FirstRoute,
     second: SecondRoute,
     third: ThirdRoute,
+    fourth: FourthRoute, 
   });
 
   const renderTabBar = (
-    props: SceneRendererProps & {navigationState: NavigationState<Route>},
+    props: SceneRendererProps & { navigationState: NavigationState<Route> }
   ) => (
     <TabBar
       {...props}
-      indicatorStyle={{backgroundColor: AppColors.red}}
+      indicatorStyle={{ backgroundColor: AppColors.red }}
       style={{
         paddingVertical: 0,
         backgroundColor: AppColors.white,
@@ -104,7 +113,7 @@ export default function DriverChats() {
       labelStyle={styles.subTitle}
       activeColor={AppColors.red}
       inactiveColor="#666"
-      renderLabel={({route, focused}) => (
+      renderLabel={({ route, focused }) => (
         <Text
           style={[
             styles.subTitle,
@@ -113,7 +122,8 @@ export default function DriverChats() {
               fontFamily: AppFonts.NunitoSansBold,
               color: focused ? AppColors.red : AppColors.black,
             },
-          ]}>
+          ]}
+        >
           {route.title}
         </Text>
       )}
@@ -123,7 +133,8 @@ export default function DriverChats() {
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{backgroundColor: AppColors.veryLightGrey}}>
+      style={{ backgroundColor: AppColors.veryLightGrey }}
+    >
       <AppHeader
         role="Driver"
         title={'Chat'}
@@ -142,11 +153,11 @@ export default function DriverChats() {
 
       <View style={styles.container}>
         <TabView
-          style={{width: '100%'}}
-          navigationState={{index, routes: filteredRoutes}}
+          style={{ width: '100%' }}
+          navigationState={{ index, routes: filteredRoutes }}
           renderScene={renderScene}
           onIndexChange={handleTabChange}
-          initialLayout={{width: layout.width}}
+          initialLayout={{ width: layout.width }}
           renderTabBar={renderTabBar}
         />
       </View>

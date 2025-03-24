@@ -40,14 +40,14 @@ const FuelRecordsScreen = () => {
 
             <AppHeader
                 role="Driver"
-                title={'Fuel'}
+                title={'Fuel Log'}
                 enableBack={true}
                 rightIcon={true}
             />
             <View style={AppStyles.flex}>
                 <ScrollView>
                     <View style={{ paddingHorizontal: wp(3), paddingTop: hp(2) }}>
-                        <AppInput placeholder='Search' />
+                        <AppInput placeholder='Search' rightInnerIcon={<GlobalIcon library='Fontisto' name='search' size={20} color={AppColors.black}/>}/>
                     </View>
                     <FuelCard
                         glNumber="GL#112-01"

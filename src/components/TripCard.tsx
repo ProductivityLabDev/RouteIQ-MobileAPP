@@ -340,6 +340,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
+    
   },
   innerContainer: {paddingHorizontal: hp(2), paddingTop: hp(2)},
   tripHead: {

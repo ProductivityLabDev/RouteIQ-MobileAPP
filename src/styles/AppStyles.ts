@@ -15,7 +15,7 @@ const AppStyles = StyleSheet.create({
   },
   driverContainer: {
     flex: 1,
-    paddingVertical: hp(2),
+    paddingVertical: hp(1.5),
     paddingHorizontal: hp(2),
   },
 

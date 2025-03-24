@@ -45,6 +45,7 @@ export type RootStackParamList = {
   DriverShiftTrackingDetails: undefined;
   DriverChats: undefined;
   DriverAllChats: undefined;
+  DriverGroupChatSelectedList:undefined;
 
 
  // Retail Stack
@@ -56,6 +57,7 @@ export type RootStackParamList = {
   EditRetailDetail: undefined;
   RetailPayment:undefined;
   RetailHistory:undefined;
+  
 
 };
 

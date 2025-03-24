@@ -71,7 +71,15 @@ const DriverMaintenanceDetail = () => {
           {/* {maintenanceDetail == 'Cleaning' && <CleaningCard />} */}
           {maintenanceDetail == 'Cleaning' && <FlatList data={cleaningCollapsedCard} renderItem={({item}) => <CleaningCollapsableCard item={item} />} contentContainerStyle={{gap: hp(2)}} />}
           {maintenanceDetail == 'Mileage Record' && (
+            <>
             <CleaningCard mileage={true} />
+            <View style={{marginTop:hp(2)}}>
+            <CleaningCard mileage={true} />
+            </View>
+            <View style={{marginTop:hp(2)}}>
+            <CleaningCard mileage={true} />
+            </View>
+            </>
           )}
         </View>
       </ScrollView>

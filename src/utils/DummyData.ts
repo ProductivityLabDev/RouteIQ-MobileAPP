@@ -350,6 +350,18 @@ export const chats_data = [
   },
 ];
 
+export const groups_data = [
+  {
+    id: 1,
+    title: 'Guardian / School',
+    message: 'Hi, Bruce..',
+    time: '08:43',
+  },
+  
+];
+
+
+
 export const childDropDown = [
   {
     title: 'Esther Tommay',

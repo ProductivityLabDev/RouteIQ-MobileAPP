@@ -1,118 +1,77 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
-import React, {useState} from 'react';
-import {hp} from '../utils/constants';
-import {AppColors} from '../utils/color';
+import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { hp } from '../utils/constants';
+import { AppColors } from '../utils/color';
 import AppButton from './AppButton';
-import {fontSize, size} from '../utils/responsiveFonts';
+import { fontSize, size } from '../utils/responsiveFonts';
 import AppStyles from '../styles/AppStyles';
-import {StudentCardProps} from '../types/types';
+import { StudentCardProps } from '../types/types';
 import AppFonts from '../utils/appFonts';
-import {truncateString} from '../utils/functions';
-import {useNavigation} from '@react-navigation/native';
-import {useAppDispatch} from '../store/hooks';
-import {setStudentDetail} from '../store/driver/driverSlices';
-import {studentsData} from '../utils/DummyData';
+import { truncateString } from '../utils/functions';
+import { useNavigation } from '@react-navigation/native';
+import { useAppDispatch } from '../store/hooks';
+import { setStudentDetail } from '../store/driver/driverSlices';
+import { studentsData } from '../utils/DummyData';
+import GlobalIcon from './GlobalIcon';
 
-const StudentCard: React.FC<StudentCardProps> = ({position, item, index}) => {
+const StudentCard: React.FC<StudentCardProps> = ({ position, item, index }) => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
-  const [present, setPresent] = useState(false);
-  const [absent, setAbsent] = useState(false);
-  const lastIndex = studentsData.length - 1 == index;
+  const [status, setStatus] = useState<'present' | 'absent' | null>(null);
+  const lastIndex = studentsData.length - 1 === index;
 
   return (
     <View
       style={[
         styles.container,
-        position == 'row' ? styles.rowContainer : styles.columnContainer,
+        position === 'row' ? styles.rowContainer : styles.columnContainer,
       ]}>
       <View
         style={
-          position == 'row' ? styles.imgContainer : styles.columnImgContainer
+          position === 'row' ? styles.imgContainer : styles.columnImgContainer
         }>
         <Image style={styles.img} source={item?.image} />
-        {present && (
-          <View
-            style={[
-              AppStyles.widthHeightFullPercent,
-              styles.transparentContainer,
-            ]}>
-            <AppButton
-              disabled={true}
-              title="Present"
-              style={styles.button}
-              titleStyle={styles.buttonTitle}
-            />
+        {status === 'present' && (
+          <View style={[styles.overlay, { backgroundColor: 'rgba(34, 139, 34, 0.4)' }]}>
+            <AppButton disabled={true} title="Present" style={styles.overlayBtn} titleStyle={styles.presentText} />
           </View>
         )}
-        {absent && (
-          <View
-            style={[
-              AppStyles.widthHeightFullPercent,
-              styles.transparentContainer,
-              {
-                backgroundColor: 'rgba(255, 0, 0, 0.4)',
-              },
-            ]}>
-            <AppButton
-              disabled={true}
-              title="Absent"
-              style={styles.absentButton}
-              titleStyle={[styles.buttonTitle, {color: AppColors.red}]}
-            />
+        
+        {status === 'absent' && (
+          <View style={[styles.overlay, { backgroundColor: 'rgba(255, 0, 0, 0.4)' }]}>
+            <AppButton disabled={true} title="Absent" style={styles.overlayBtn} titleStyle={styles.absentText} />
           </View>
         )}
       </View>
-      <View
-        style={
-          position == 'row'
-            ? {height: hp(18), gap: 8, paddingTop: hp(0.5)}
-            : {marginLeft: hp(1)}
-        }>
-        <View
-          style={
-            position == 'row' ? AppStyles.alignJustifyCenter : {bottom: 10}
-          }>
-          <Text style={[AppStyles.titleHead, {fontSize: size.md}]}>
-            {position == 'row'
-              ? truncateString(item?.name, 12)
-              : truncateString(item?.name, 20)}
+
+      <View style={position === 'row' ? { height: hp(18), gap: 8, paddingTop: hp(0.5) } : { marginLeft: hp(1) }}>
+        <View style={position === 'row' ? AppStyles.alignJustifyCenter : { bottom: 10 }}>
+          <Text style={[AppStyles.titleHead, { fontSize: size.md }]}>
+            {position === 'row' ? truncateString(item?.name, 12) : truncateString(item?.name, 20)}
           </Text>
-          <Text style={[AppStyles.whiteSubTitle, {color: AppColors.dimGray}]}>
-            {item?.age} years
-          </Text>
+          <Text style={[AppStyles.whiteSubTitle, { color: AppColors.dimGray }]}>{item?.age} years</Text>
         </View>
-        <View
-          style={
-            position == 'row' ? styles.btnContainer : styles.columnBtnContainer
-          }>
-          {!present && !absent && (
-            <AppButton
-              title={lastIndex ? 'Absent' : 'Present'}
-              style={[
-                position == 'row'
-                  ? {...styles.presentBtn}
-                  : {...styles.presentColumnBtn},
-                lastIndex ? {backgroundColor: AppColors.red} : {},
-              ]}
-              titleStyle={styles.presentTitle}
-              onPress={() => (lastIndex ? setAbsent(true) : setPresent(true))}
-            />
-          )}
-          <AppButton
-            title="Details"
-            style={
-              position == 'row'
-                ? styles.detailBtn
-                : {...styles.detailColumnBtn, width: present || absent ? '100%' : '48%'}
-            }
-            titleStyle={styles.detailTitle}
-            onPress={() => {
-              dispatch(setStudentDetail(item));
-              navigation.navigate('DriverStudentDetail');
-            }}
-          />
+
+        <View style={position === 'row' ? styles.btnContainer : styles.columnBtnContainer}>
+          <TouchableOpacity onPress={() => setStatus('present')} style={[styles.statusButton, { backgroundColor: AppColors.green }]}>
+            <GlobalIcon library='FontAwesome' name='check' size={24} color={AppColors.white}/>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => setStatus('absent')} style={[styles.statusButton, { backgroundColor: AppColors.red }]}>
+          <GlobalIcon library='Entypo' name='cross' size={30} color={AppColors.white}/>
+          </TouchableOpacity>
         </View>
+
+        {/* Details Button */}
+        <AppButton
+          title="Details"
+          style={position === 'row' ? styles.detailBtn : { ...styles.detailColumnBtn }}
+          titleStyle={styles.detailTitle}
+          onPress={() => {
+            dispatch(setStudentDetail(item));
+            navigation.navigate('DriverStudentDetail');
+          }}
+        />
       </View>
     </View>
   );
@@ -141,16 +100,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(1.5),
     paddingVertical: hp(1.5),
   },
-  btnContainer: {
-    width: '100%',
-    marginTop: hp(1),
-  },
-  columnBtnContainer: {
-    width: '80%',
-    top: hp(2),
-    flexDirection: 'row',
-    gap: 5,
-  },
   imgContainer: {
     height: hp(13),
     width: '100%',
@@ -165,22 +114,55 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: 8,
   },
-  presentBtn: {
+  overlay: {
+    position: 'absolute',
     width: '100%',
-    height: hp(4),
-    borderRadius: 5,
-    backgroundColor: AppColors.green,
+    height: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    borderRadius: 8,
   },
-  presentColumnBtn: {
-    width: '48%',
-    height: hp(4),
-    borderRadius: 5,
-    backgroundColor: AppColors.green,
+  overlayBtn: {
+    backgroundColor: AppColors.white,
+    borderRadius: 50,
+    borderWidth: 1.5,
+    height: hp(3.5),
+    bottom: hp(0.5),
+    width: hp(9),
   },
-  presentTitle: {
+  presentText: {
+    color: AppColors.green,
+    fontSize: size.sl,
+    fontFamily: AppFonts.NunitoSansBold,
+  },
+  absentText: {
+    color: AppColors.red,
+    fontSize: size.sl,
+    fontFamily: AppFonts.NunitoSansBold,
+  },
+  btnContainer: {
     width: '100%',
-    textAlign: 'center',
-    fontSize: fontSize(14),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: hp(1),
+  },
+  columnBtnContainer: {
+    width: '80%',
+    top: hp(2),
+    flexDirection: 'row',
+    gap: 5,
+  },
+  statusButton: {
+    width: 70,
+    height: 30,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    tintColor: 'white',
   },
   detailBtn: {
     width: '100%',
@@ -189,52 +171,20 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.transparent,
     borderWidth: 1,
     borderColor: AppColors.dimGray,
-    marginBottom: 0,
+    marginTop: 8,
   },
   detailColumnBtn: {
-    width: '48%',
+    width: '100%',
     height: hp(4),
     borderRadius: 5,
     backgroundColor: AppColors.transparent,
     borderWidth: 1,
     borderColor: AppColors.dimGray,
-    marginBottom: 0,
   },
   detailTitle: {
     width: '100%',
     textAlign: 'center',
     fontSize: fontSize(14),
     color: AppColors.black,
-  },
-  transparentContainer: {
-    position: 'absolute',
-    backgroundColor: 'rgba(34, 139, 34, 0.4)',
-    zIndex: 1,
-    borderRadius: 8,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: AppColors.white,
-    borderColor: AppColors.green,
-    borderWidth: 1.5,
-    borderRadius: 50,
-    height: hp(3.5),
-    bottom: hp(0.5),
-    width: hp(9),
-  },
-  absentButton: {
-    backgroundColor: AppColors.white,
-    borderColor: AppColors.red,
-    borderWidth: 1.5,
-    borderRadius: 50,
-    height: hp(3.5),
-    bottom: hp(0.5),
-    width: hp(9),
-  },
-  buttonTitle: {
-    color: AppColors.green,
-    fontSize: size.sl,
-    fontFamily: AppFonts.NunitoSansBold,
   },
 });

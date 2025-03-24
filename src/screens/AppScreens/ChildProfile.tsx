@@ -191,7 +191,7 @@ export default function ChildProfile() {
             // rules={{required: 'Transportation Preference is required'}}
             render={({field: {onChange, value}}) => (
               <>
-                <AppInput
+                {/* <AppInput
                   containerStyle={{marginBottom: 0}}
                   label="Transportation Preference"
                   container={{display: 'none'}}
@@ -217,7 +217,7 @@ export default function ChildProfile() {
                     color: AppColors.black,
                     fontFamily: AppFonts.NunitoSansSemiBold,
                   }}
-                />
+                /> */}
               </>
             )}
           />

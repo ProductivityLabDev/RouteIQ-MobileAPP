@@ -1,10 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 
 const driverSlice = createSlice({
   name: 'driver',
   initialState: {
     maintenanceDetail: null,
     chatTabIndex: 0,
+    showCreateGroup: false,
+    showGroup: false,
     studentDetail: {
       name: 'Jonney Barbo',
       image: require('../../assets/images/child1.jpg'),
@@ -26,22 +28,32 @@ const driverSlice = createSlice({
         },
       ],
     },
- 
   },
   reducers: {
-    setMaintenanceDetail: (state, { payload }) => {
+    setMaintenanceDetail: (state, {payload}) => {
       state.maintenanceDetail = payload;
     },
-    setStudentDetail: (state, { payload }) => {
+    setStudentDetail: (state, {payload}) => {
       state.studentDetail = payload;
     },
-    setChatTabIndex: (state, { payload }) => {
+    setChatTabIndex: (state, {payload}) => {
       state.chatTabIndex = payload;
     },
-   
+    setShowCreateGroup: (state, {payload}) => {
+      state.chatTabIndex = payload;
+    },
+    setShowGroup: (state, {payload}) => {
+      state.chatTabIndex = payload;
+    },
   },
 });
 
-export const { setMaintenanceDetail, setStudentDetail, setChatTabIndex } = driverSlice.actions;
+export const {
+  setMaintenanceDetail,
+  setStudentDetail,
+  setChatTabIndex,
+  setShowGroup,
+  setShowCreateGroup,
+} = driverSlice.actions;
 
 export default driverSlice.reducer;
