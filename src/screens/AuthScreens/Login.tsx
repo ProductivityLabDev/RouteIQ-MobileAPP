@@ -46,12 +46,11 @@ const Login = () => {
       navigation.navigate('DriverProfileInfo');
     } else if (role === 'Retail') {
       navigation.navigate('DriverHomeScreen');
-       dispatch(saveToken(1));
+      dispatch(saveToken(1));
     } else {
-       dispatch(saveToken(1));
+      dispatch(saveToken(1));
     }
   };
-  
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -89,7 +88,11 @@ const Login = () => {
                 rules={{required: 'Email is required'}}
                 render={({field: {onChange, value}}) => (
                   <AppInput
-                    label="Email / Username"
+                    label={
+                      role === 'Driver' || role === 'Retail'
+                        ? 'Email / Username'
+                        : 'Email'
+                    }
                     value={value}
                     placeholderTextColor={AppColors.inputGrey}
                     inputStyle={styles.inputStyle}
@@ -112,7 +115,7 @@ const Login = () => {
                   />
                 )}
               />
-              {role == 'Driver' && (
+              {(role === 'Driver' || role === 'Retail') && (
                 <TouchableOpacity
                   onPress={() => {
                     dispatch(setForgotType('username'));
@@ -166,17 +169,17 @@ const Login = () => {
               <AppButton onPress={handleSubmit(onSubmit)} title="Log In" />
 
               {role == 'Retail' && (
-              <TouchableOpacity
-                onPress={() => {
-                  dispatch(setForgotType('password'));
-                  navigation.navigate('Signup');
-                }}
-                style={styles.DontHaveAc}>
-                <Text style={styles.DontAcText}>
-                Didn’t have an account? {' '}
-                  <Text style={styles.signupText}>Signup</Text>
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    dispatch(setForgotType('password'));
+                    navigation.navigate('Signup');
+                  }}
+                  style={styles.DontHaveAc}>
+                  <Text style={styles.DontAcText}>
+                    Didn’t have an account?{' '}
+                    <Text style={styles.signupText}>Signup</Text>
+                  </Text>
+                </TouchableOpacity>
               )}
             </View>
           </View>
@@ -216,19 +219,19 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: fontSize(14),
   },
-  signupText:{
+  signupText: {
     color: AppColors.red,
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: fontSize(14),
   },
-  DontHaveAc:{
-    marginTop:hp(1)
+  DontHaveAc: {
+    marginTop: hp(1),
   },
-  DontAcText:{
+  DontAcText: {
     color: AppColors.lightBlack,
     fontFamily: AppFonts.NunitoSansRegular,
     fontSize: fontSize(14),
-    textAlign:'center',
-    alignSelf:'center'
-  }
+    textAlign: 'center',
+    alignSelf: 'center',
+  },
 });

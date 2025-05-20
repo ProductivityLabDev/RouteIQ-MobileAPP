@@ -53,7 +53,7 @@ const NewPassword = () => {
                 AppStyles.subHeading,
                 { marginBottom: hp(2), textAlign: 'center' },
               ]}>
-              Set the new password for your account so you can login and access
+              Set the new {type} for your account so you can login and access
               all features.
             </Text>
           </View>
@@ -78,12 +78,7 @@ const NewPassword = () => {
                     onChangeText={text => onChange(text)}
                     error={errors.username?.message}
                     rightInnerIcon={
-                      <GlobalIcon
-                        size={20}
-                        library="FontelloIcon"
-                        color={AppColors.inputGrey}
-                        name="-icon-_lock"
-                      />
+                     <GlobalIcon library='FontAwesome' name='user' size={24} color={AppColors.lightGrey}/>
                     }
                   />
                 )}
@@ -172,13 +167,16 @@ const styles = StyleSheet.create({
     height: hp(6),
     marginLeft: wp(2),
     fontSize: size.md,
+    fontFamily:AppFonts.NunitoSansRegular
   },
   inputContainer: {
     borderColor: '#cfcfcf',
     borderWidth: 1,
   },
   inputLabelStyle: {
-    color: AppColors.lightBlack,
+    color: AppColors.secondary,
+    fontSize: 16,
+    fontFamily:AppFonts.NunitoSansSemiBold
   },
   forgotPassword: {
     marginBottom: hp(2.5),

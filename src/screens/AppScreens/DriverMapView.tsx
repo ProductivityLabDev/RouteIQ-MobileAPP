@@ -24,15 +24,19 @@ const DriverMapView = () => {
   const navigation = useNavigation();
   const keyboardHeight = useKeyboard();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const mapViewRouteBackOn = useAppSelector(state => state.userSlices.mapViewRouteBackOn);
+  const mapViewRouteBackOn = useAppSelector(
+    state => state.userSlices.mapViewRouteBackOn,
+  );
   const [endTrip, setEndTrip] = useState(false);
   const [tripEnd, setTripEnd] = useState(false);
   const showStartMileAgeSheet = useAppSelector(
     state => state.userSlices.showStartMileAgeSheet,
   );
 
+   const role = useAppSelector(state => state.userSlices.role);
+
   const snapPoints = useMemo(
-    () => [keyboardHeight ? '58%' : '28%', '90%'],
+    () => [keyboardHeight ? '30%' : '23%', '10%'],
     [keyboardHeight],
   );
   const openSheet = useCallback(() => {
@@ -82,7 +86,7 @@ const DriverMapView = () => {
         role="Driver"
         title="Map View"
         enableBack={true}
-        rightIcon={false}
+        rightIcon={true}
       />
       <View style={[AppStyles.row, styles.durationContainer]}>
         <Text style={AppStyles.whiteSubTitle}>Duration: 37 min</Text>
@@ -104,8 +108,9 @@ const DriverMapView = () => {
           <View style={[AppStyles.rowBetween, {alignItems: 'flex-end'}]}>
             <View style={{gap: 10}}>
               <View style={styles.firstContainer}>
-                <Text style={styles.boardTitle}>Students</Text>
-                <Text style={styles.boardTitle}>on board:</Text>
+                <Text style={styles.boardTitle}>Trip# 03</Text>
+                <Text style={styles.boardTitle}>Students on board</Text>
+                {/* <Text style={styles.boardTitle}>on board:</Text> */}
                 <Text style={styles.boardDate}>10 / 12</Text>
               </View>
               {!endTrip && (
@@ -124,12 +129,23 @@ const DriverMapView = () => {
               )}
             </View>
             <Pressable
-              onPress={() => setEndTrip(true)}
+              onPress={() => navigation.navigate('AlertScreen')}
               style={AppStyles.alarmIcon}>
               <AlarmIcon />
             </Pressable>
           </View>
-          {endTrip && (
+          {role === 'Driver' && 
+          <AppButton
+            title="End Trip"
+            onPress={() => {
+              setTripEnd(true);
+              openSheet();
+            }}
+            style={{width: '100%', marginTop: hp(2)}}
+          />
+          }
+          
+          {/* {endTrip && (
             <AppButton
               title="End Trip"
               onPress={() => {
@@ -138,7 +154,7 @@ const DriverMapView = () => {
               }}
               style={{width: '100%', marginTop: hp(2)}}
             />
-          )}
+          )} */}
         </View>
       </View>
 
@@ -152,12 +168,12 @@ const DriverMapView = () => {
           />
         )}>
         <View style={AppStyles.center}>
-          <Text style={[AppStyles.titleHead, {fontSize: size.xlg}]}>
-            {endTrip ? ' Enter End Mileage' : ' Enter Start Mileage'}
+          <Text style={[AppStyles.titleHead, {fontSize: size.xlg, marginTop: hp(2)}]}>
+            {tripEnd ? ' Enter End Mileage*' : ' Enter Start Mileage*'}
           </Text>
           <AppInput
             placeholder={
-              endTrip ? ' Enter End Mileage' : ' Enter Start Mileage'
+              tripEnd ? ' Enter End Mileage' : ' Enter Start Mileage'
             }
             textAlignVertical="center"
             container={styles.inputContainer}
@@ -175,12 +191,13 @@ const DriverMapView = () => {
               title="Submit"
               style={styles.submitButton}
               onPress={() => {
-                if (endTrip) {
-                  closeSheet();
-                  navigation.navigate(mapViewRouteBackOn || 'DriverHomeScreen');
-                } else {
-                  closeSheet();
-                }
+                navigation.navigate('DriverHomeScreen');
+                // if (endTrip) {
+                //   closeSheet();
+                //   navigation.navigate(mapViewRouteBackOn || 'DriverHomeScreen');
+                // } else {
+                //   closeSheet();
+                // }
               }}
             />
           </View>
@@ -200,7 +217,7 @@ const styles = StyleSheet.create({
   },
   firstContainer: {
     backgroundColor: AppColors.black,
-    width: hp(12),
+    width: hp(20),
     paddingHorizontal: hp(1),
     paddingVertical: hp(1),
     borderRadius: hp(1),
@@ -218,7 +235,7 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansSemiBold,
   },
   boardTitle: {
-    fontSize: fontSize(14),
+    fontSize:14,
     color: AppColors.white,
     fontFamily: AppFonts.NunitoSansMedium,
   },
@@ -249,7 +266,11 @@ const styles = StyleSheet.create({
   inputStyle: {
     textAlign: 'center',
   },
-  backButton: {width: '36%', backgroundColor: AppColors.screenColor},
+  backButton: {
+    width: '36%', 
+    backgroundColor: AppColors.screenColor,
+  },
+
   submitButton: {width: '60%'},
   bottomContainers: {
     position: 'absolute',

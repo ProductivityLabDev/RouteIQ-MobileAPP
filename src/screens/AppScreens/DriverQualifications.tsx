@@ -160,7 +160,7 @@ export default function DriverQualifications() {
                     marginHorizontal: wp(7),
                     alignSelf: 'center',
                     position: 'relative',
-                    top: -10
+                    top: -40
                 }}
                 titleStyle={{
                     fontSize: size.md

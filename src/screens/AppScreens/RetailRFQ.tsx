@@ -21,10 +21,23 @@ const rfqData: RFQItem[] = [
 ];
 
 const RetailRFQ = () => {
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
 
   const renderItem = ({ item }: { item: RFQItem }) => (
-    <View style={[styles.rfqItem, styles[item.status.toLowerCase()]]}>
+    <View
+      style={[
+        styles.rfqItem,
+        {
+          borderTopWidth: 2,
+          borderTopColor:
+            item.status === 'ACCEPTED'
+              ? '#2CD671'
+              : item.status === 'REVIEWED'
+              ? '#FED743'
+              : AppColors.red,
+        },
+      ]}
+    >
       <View style={styles.rfqHeader}>
         <Text style={styles.rfqText}>RFQ#{item.id}</Text>
         <View style={[styles.statusBadge, styles[item.status.toLowerCase() + 'Badge']]}>
@@ -70,14 +83,14 @@ const RetailRFQ = () => {
       />
 
       <View style={styles.btnView}>
-        <AppButton 
-          title="New Request for Quote" 
-          onPress={() => navigation.navigate('RetailRequestQuote')} 
-          style={styles.QuoteBtn} 
+        <AppButton
+          title="New Request for Quote"
+          onPress={() => navigation.navigate('RetailRequestQuote')}
+          style={styles.QuoteBtn}
         />
-        <AppButton 
-          title="Import Terms & condition" 
-          style={styles.TermsConditionBtn} 
+        <AppButton
+          title="Import Terms & condition"
+          style={styles.TermsConditionBtn}
         />
       </View>
     </AppLayout>
@@ -124,6 +137,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     backgroundColor: AppColors.white,
     marginTop: hp(2),
+    borderRadius: 1,
   },
   rfqHeader: {
     flexDirection: 'row',

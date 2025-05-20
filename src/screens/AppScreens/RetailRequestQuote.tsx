@@ -20,6 +20,7 @@ import {hp, wp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 import AppCheckBox from '../../components/AppCheckBox';
 import GlobalIcon from '../../components/GlobalIcon';
+import CalendarPicker from '../../components/CalendarPicker';
 
 const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
   const navigation = useNavigation();
@@ -110,13 +111,19 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
                 <SelectList
                   search={false}
                   setSelected={(val: string) => onChange(val)}
-                  data={RetailRequestQuoteData} // Updated variable name
+                  data={RetailRequestQuoteData}
                   save="value"
                   placeholder="Select"
-                  boxStyles={styles.boxStyle}
+                  boxStyles={[
+                    styles.boxStyle,
+                    {
+                      borderRadius: 4,
+                    },
+                  ]}
                   dropdownStyles={{
                     backgroundColor: AppColors.white,
                     borderColor: AppColors.black,
+                    borderRadius: 4,
                   }}
                   dropdownTextStyles={{
                     color: AppColors.black,
@@ -201,7 +208,12 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
                   data={RoundTrip} // Updated variable name
                   save="value"
                   placeholder="Select"
-                  boxStyles={styles.boxStyle}
+                  boxStyles={[
+                    styles.boxStyle,
+                    {
+                      borderRadius: 4,
+                    },
+                  ]}
                   dropdownStyles={{
                     backgroundColor: AppColors.white,
                     borderColor: AppColors.black,
@@ -272,7 +284,12 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
                   data={BusType} // Updated variable name
                   save="value"
                   placeholder="Select"
-                  boxStyles={styles.boxStyle}
+                  boxStyles={[
+                    styles.boxStyle,
+                    {
+                      borderRadius: 4,
+                    },
+                  ]}
                   dropdownStyles={{
                     backgroundColor: AppColors.white,
                     borderColor: AppColors.black,
@@ -295,16 +312,12 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
             name="pickupdate"
             control={control}
             rules={{required: 'Pickup Date is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                containerStyle={styles.inputContainer}
+            render={({field: {onChange, value}, fieldState: {error}}) => (
+              <CalendarPicker
+                selectedDate={value}
+                setDates={(date: string) => onChange(date)}
+                error={error?.message}
                 label="Pickup Date"
-                labelStyle={styles.labelStyle}
-                placeholder="Enter instruction"
-                value={value}
-                onChangeText={(text: string) => onChange(text)}
-                editable={true}
-                error={errors.pickupdate?.message}
               />
             )}
           />
@@ -327,7 +340,7 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
             )}
           />
 
-          <Controller
+          {/* <Controller
             name="returndate"
             control={control}
             rules={{required: 'Phone is required'}}
@@ -341,6 +354,20 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
                 onChangeText={(text: string) => onChange(text)}
                 editable={true}
                 error={errors.returndate?.message}
+              />
+            )}
+          /> */}
+
+          <Controller
+            name="returndate"
+            control={control}
+            rules={{required: 'Return Date is required'}}
+            render={({field: {onChange, value}, fieldState: {error}}) => (
+              <CalendarPicker
+                selectedDate={value}
+                setDates={(date: string) => onChange(date)}
+                error={error?.message}
+                label="Return Date"
               />
             )}
           />
@@ -501,6 +528,14 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
                 labelStyle={styles.labelStyle}
                 placeholder="Enter destination"
                 value={value}
+                leftInnerIcon={
+                  <GlobalIcon
+                    library="Entypo"
+                    name="plus"
+                    size={24}
+                    color={AppColors.red}
+                  />
+                }
                 onChangeText={(text: string) => onChange(text)}
                 editable={true}
                 error={errors.addadditionaldestinations?.message}
@@ -639,9 +674,7 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
                 </View>
               }
             />
-            <Text style={styles.textStyle}>
-              Terms and Conditions
-            </Text>
+            <Text style={styles.textStyle}>Terms and Conditions</Text>
           </View>
         </View>
 
@@ -706,14 +739,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#BEBEBE',
     borderRadius: 4,
-    backgroundColor:'#D9D9D9'
+    backgroundColor: '#D9D9D9',
   },
-  textStyle:{
-    marginLeft: wp(2), 
-    fontSize: 16, 
+  textStyle: {
+    marginLeft: wp(2),
+    fontSize: 16,
     color: AppColors.red,
-    fontFamily:AppFonts.NunitoSansSemiBold,
-    textDecorationLine:'underline',
-  }
-  
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    textDecorationLine: 'underline',
+  },
 });

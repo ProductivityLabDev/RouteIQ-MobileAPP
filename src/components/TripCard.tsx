@@ -25,7 +25,10 @@ import AppBottomSheet from './AppBottomSheet';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AppInput from './AppInput';
 import {useNavigation} from '@react-navigation/native';
-import {setMapViewRouteBackOn, setShowStartMileAgeSheet} from '../store/user/userSlices';
+import {
+  setMapViewRouteBackOn,
+  setShowStartMileAgeSheet,
+} from '../store/user/userSlices';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 
 const TripCard: React.FC<TripCardProps> = ({item}) => {
@@ -36,7 +39,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
   const [declined, setDeclined] = useState(false);
   const [accept, setAccept] = useState(false);
   const role = useAppSelector(state => state.userSlices.role);
-
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const snapPoints = useMemo(() => ['38%', '90%'], []);
   const openSheet = useCallback(() => {
@@ -102,15 +105,14 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                     top: -5,
                   },
                 ]}>
-                Bus No.
+                {item?.trip_name}
               </Text>
               <Text style={AppStyles.whiteTitle}>{item?.trip_no}</Text>
             </View>
           </View>
           {!declined && (
             <View style={AppStyles.rowBetween}>
-            
-            <View style={[AppStyles.row, {width: '30%'}]}>
+              <View style={[AppStyles.row, {width: '30%'}]}>
                 {/* <MapViewIcon /> */}
                 <GlobalIcon
                   library="FontelloIcon"
@@ -139,54 +141,61 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                 </TouchableOpacity>
               </View>
 
-              {role=='Retail' ? (
-                 <View style={styles.retailView}>
-                 <Image source={require('../assets/images/retailProfile.png')} style={styles.retailImg}/>
-                 <Text style={styles.retailName}>Esther Howard</Text>
-               </View>
-              ): (
-                <View
-                style={[
-                  AppStyles.row,
-                  {width: '70%', justifyContent: 'flex-end'},
-                ]}>
-                  
-                {!accept ? (
-                  <>
-                    <AppButton
-                      title="Decline"
-                      style={styles.declineButton}
-                      titleStyle={{color: AppColors.black}}
-                      onPress={() => openSheet()}
-                    />
-                    <AppButton
-                      title="Accept"
-                      style={styles.acceptButton}
-                      onPress={() => setAccept(true)}
-                    />
-                  </>
-                ) : (
-                  <AppButton
-                    title="Start"
-                    style={[styles.acceptButton, {width: '90%'}]}
-                    onPress={() => {
-                      setAccept(false);
-                      dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
-                      navigation.navigate('DriverInspection');
-                    }}
+              {role == 'Retail' ? (
+                <View style={styles.retailView}>
+                  <Image
+                    source={require('../assets/images/retailProfile.png')}
+                    style={styles.retailImg}
                   />
-                )}
-              </View>
+                  <Text style={styles.retailName}>Esther Howard</Text>
+                </View>
+              ) : (
+                <View
+                  style={[
+                    AppStyles.row,
+                    {width: '70%', justifyContent: 'flex-end'},
+                  ]}>
+                  {!accept ? (
+                    <>
+                      <AppButton
+                        title="Decline"
+                        style={styles.declineButton}
+                        titleStyle={{color: AppColors.black}}
+                        onPress={() => openSheet()}
+                      />
+                      <AppButton
+                        title="Accept"
+                        style={styles.acceptButton}
+                        onPress={() => setAccept(true)}
+                      />
+                    </>
+                  ) : (
+                    <AppButton
+                      title="Start"
+                      style={[styles.acceptButton, {width: '90%'}]}
+                      onPress={() => {
+                        setAccept(false);
+                        dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
+                        navigation.navigate('DriverInspection');
+                      }}
+                    />
+                  )}
+                </View>
               )}
             </View>
           )}
         </View>
-       
+
         <Pressable
           onPress={() => setIsCollapsed(!isCollapsed)}
           style={[AppStyles.rowBetween, styles.detailIcon]}>
           <Text style={AppStyles.whiteSubTitle}>Details</Text>
-          <GlobalIcon library="AntDesign" name="down" />
+          <GlobalIcon
+            library="FontAwesome6"
+            name={isCollapsed ? 'angle-up' : 'angle-down'}
+            size={24}
+            color={AppColors.white}
+          />
         </Pressable>
       </View>
       <Collapsible collapsed={!isCollapsed}>
@@ -252,13 +261,12 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
               </View>
             )}
           />
-          {role=='Retail' && (
+          {role == 'Retail' && (
             <>
-            <Text style={styles.specialNote}>Special Notes:</Text>
-             <Text style={styles.specialDropof}>Drop off at Door C</Text>
-             </>
-          ) }
-         
+              <Text style={styles.specialNote}>Special Notes:</Text>
+              <Text style={styles.specialDropof}>Drop off at Door C</Text>
+            </>
+          )}
         </View>
       </Collapsible>
 
@@ -340,7 +348,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
-    
   },
   innerContainer: {paddingHorizontal: hp(2), paddingTop: hp(2)},
   tripHead: {
@@ -415,32 +422,31 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderRadius: 5,
   },
-  retailView:{
-    flexDirection:'row',
-    justifyContent:'center',
-    alignItems:'center',
+  retailView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 10,
-    
   },
-  retailImg:{
+  retailImg: {
     width: 50,
-    height: 50
+    height: 50,
   },
-  retailName:{
+  retailName: {
     color: AppColors.white,
     fontSize: 16,
     fontFamily: AppFonts.NunitoSansBold,
-    lineHeight: 23
+    lineHeight: 23,
   },
-  specialNote:{
+  specialNote: {
     color: AppColors.black,
     fontSize: size.md,
-    fontFamily: AppFonts.NunitoSansSemiBold
+    fontFamily: AppFonts.NunitoSansSemiBold,
   },
-  specialDropof:{
+  specialDropof: {
     color: AppColors.black,
     fontSize: 14,
     fontFamily: AppFonts.NunitoSansRegular,
-    lineHeight: 20
-  }
+    lineHeight: 20,
+  },
 });

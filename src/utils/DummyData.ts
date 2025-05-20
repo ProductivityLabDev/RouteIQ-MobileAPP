@@ -60,11 +60,139 @@ export const HighSchoolData = [
 
 export const tripData = [
   {
+    title: 'Trip1',
+    time: '8:30 AM',
+    date: '28/MAR/24',
+    start_location: 'Hoover Elementary School',
+    end_location: 'WI State Capital',
+    trip_name: 'TRIP NO',
+    trip_no: '2346',
+    trip_plan: [
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Pre-Trip',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Spot',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff1',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff2',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Return',
+      },
+    ],
+  },
+  {
+    title: 'Trip 2',
+    time: '8:30 AM',
+    date: '28/MAR/24',
+    start_location: 'Hoover Elementary School',
+    end_location: 'WI State Capital',
+    trip_no: '2346',
+    trip_name: 'TRIP NO',
+    trip_plan: [
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Pre-Trip',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Spot',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Pickup',
+      },
+    ],
+  },
+  {
+    title: 'Trip 3',
+    time: '8:30 AM',
+    date: '28/MAR/24',
+    start_location: 'Hoover Elementary School',
+    end_location: 'WI State Capital',
+    trip_name: 'TRIP NO',
+    trip_no: '2346',
+    trip_plan: [
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Pre-Trip',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Spot',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Pickup',
+      },
+    ],
+  },
+];
+
+export const homeTripData = [
+  {
     title: 'Trip#11187',
     time: '8:30 AM',
     date: '28/MAR/24',
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
+    trip_name: 'Bus No.',
     trip_no: '2346',
     trip_plan: [
       {
@@ -111,6 +239,7 @@ export const tripData = [
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
     trip_no: '2346',
+    trip_name: 'Bus No.',
     trip_plan: [
       {
         time: '8:30 AM',
@@ -148,6 +277,136 @@ export const tripData = [
     date: '28/MAR/24',
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
+    trip_name: 'Bus No.',
+    trip_no: '2346',
+    trip_plan: [
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Pre-Trip',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Spot',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Pickup',
+      },
+    ],
+  },
+];
+
+
+
+export const routeData = [
+  {
+    title: 'Route 1',
+    time: '8:30 AM',
+    date: '28/MAR/24',
+    start_location: 'Hoover Elementary School',
+    end_location: 'WI State Capital',
+    trip_name: 'Bus No.', 
+    trip_no: '2346',
+    trip_plan: [
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Pre-Trip',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Spot',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff1',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff2',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Return',
+      },
+    ],
+  },
+  {
+    title: 'Route 2',
+    time: '8:30 AM',
+    date: '28/MAR/24',
+    start_location: 'Hoover Elementary School',
+    end_location: 'WI State Capital',
+    trip_name: 'Bus No.', 
+    trip_no: '2346',
+    trip_plan: [
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Pre-Trip',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'Hoover Elementary School',
+        location: '950 Hunt Ave Neenah, WI 54956',
+        status: 'Spot',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Dropoff',
+      },
+      {
+        time: '8:30 AM',
+        date: '28/MAR/24',
+        title: 'WI State Capital',
+        location: '2E. Main St Madison, WI 53703',
+        status: 'Pickup',
+      },
+    ],
+  },
+  {
+    title: 'Route 3',
+    time: '8:30 AM',
+    date: '28/MAR/24',
+    start_location: 'Hoover Elementary School',
+    end_location: 'WI State Capital',
+    trip_name: 'Bus No.', 
     trip_no: '2346',
     trip_plan: [
       {

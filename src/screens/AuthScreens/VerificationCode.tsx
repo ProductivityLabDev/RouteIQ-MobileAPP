@@ -7,16 +7,16 @@ import AuthLayout from '../../layout/AuthLayout';
 import AppStyles from '../../styles/AppStyles';
 import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
-import {hp} from '../../utils/constants';
+import {hp, wp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { saveToken } from '../../store/user/userSlices';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {saveToken} from '../../store/user/userSlices';
 
 const VerificationCode = () => {
   const navigation = useNavigation();
   const [otp, setOtp] = useState('');
-    const dispatch = useAppDispatch();
-    const role = useAppSelector(state => state.userSlices.role);
+  const dispatch = useAppDispatch();
+  const role = useAppSelector(state => state.userSlices.role);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -24,15 +24,14 @@ const VerificationCode = () => {
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <View style={{marginHorizontal: hp(3)}}>
             <Text style={[AppStyles.titleHead, {textAlign: 'center'}]}>
-             Verify Code
+              Verification
             </Text>
             <Text
               style={[
                 AppStyles.subHeading,
                 {marginBottom: hp(2), textAlign: 'center'},
               ]}>
-              Please enter code we have just sent to email.
-              email@example.com
+              Enter your 4 digits code that you received on your email.
             </Text>
           </View>
           <View style={[styles.setMargin, {alignItems: 'center'}]}>
@@ -45,24 +44,29 @@ const VerificationCode = () => {
               selectionColor={AppColors.black}
               onCodeFilled={(text: string) => setOtp(text)}
             />
-            {/* <Text style={styles.timerText}>00:30</Text> */}
+            <Text style={styles.timerText}>00:30</Text>
             <AppButton
               onPress={() => {
-                if (role === 'Retail') {
-                  navigation.navigate('HomeSreen');
-                  dispatch(saveToken(true))
-                } else {
-                  navigation.navigate('NewPassword');
-                }
+                // if (role === 'Retail') {
+                //   navigation.navigate('HomeSreen');
+                //   dispatch(saveToken(true));
+                // } else {
+                   navigation.navigate('NewPassword');
+                // }
               }}
-              title="Verify"
-              style={{marginTop: hp(2)}}
+              title="Continue"
+              style={{marginTop: hp(10)}}
             />
 
-            <Text style={{textAlign: 'center', marginTop: hp(1), color: AppColors.lightBlack}}>
-              Didn’t receive OTP? {' '}
+            <Text
+              style={{
+                textAlign: 'center',
+                marginTop: hp(1),
+                color: AppColors.lightBlack,
+              }}>
+              If you didn’t receive a code!{' '}
               <Text onPress={() => setOtp('')} style={styles.timerText}>
-                Resend code
+                Resend
               </Text>
             </Text>
           </View>
@@ -80,22 +84,24 @@ const styles = StyleSheet.create({
   },
   timerText: {
     color: AppColors.red,
-    fontFamily: AppFonts.NunitoSansBold,
-    fontSize: fontSize(14),
+    fontFamily: AppFonts.NunitoSansRegular,
+    fontSize: fontSize(16),
     textAlign: 'center',
+    marginTop: hp(2)
   },
   otpContainer: {
-    width: '80%',
     height: hp(8),
+    marginTop: hp(2),
+    width: '90%'
   },
   underlineStyleBase: {
-    width: hp(6),
-    height: hp(5),
+    width: wp(18),
+    height: hp(8),
     color: AppColors.black,
-    borderRadius: 12,
+    borderRadius: 5,
     fontSize: size.slg,
     backgroundColor: AppColors.transparent,
-    borderColor: '#6B6A6A',
+    borderColor: '#9BADCA',
     borderWidth: 1,
     fontFamily: AppFonts.NunitoSansSemiBold,
   },

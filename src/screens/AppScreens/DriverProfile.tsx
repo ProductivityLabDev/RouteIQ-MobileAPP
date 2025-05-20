@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React from 'react';
 import {AppColors} from '../../utils/color';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
@@ -36,6 +36,7 @@ const DriverProfile = () => {
     {title: 'Incident', icon: 'group-2024'},
     {title: 'Shift Tracking', icon: 'group-2025'},
     {title: 'Fuel Code', icon: 'fuel', library: 'MaterialCommunityIcons'},
+    {title: 'Account No', icon: 'lock'},
     {title: 'Change Password', icon: 'lock'},
   ];
 
@@ -48,18 +49,28 @@ const DriverProfile = () => {
       : settingItems;
 
   const handleRoute = (name: string) => {
+    if (name === 'History') {
+      if (role === 'Driver') {
+        navigation.navigate('DriverHistory');
+      } else {
+        navigation.navigate('RetailHistory');
+      }
+      return;
+    }
+
     const routes = {
-      'Profile Info': 'DriverProfileInfo',
+     'Profile Info': role === 'Driver' ? 'DriverProfileInfo' : 'RetailProfileInfo',
       'Emergency Contact': 'DriverEmergencyContact',
       Qualification: 'DriverQualifications',
       Certification: 'DriverCertification',
       'Change Password': 'DriverChangePassword',
       'Medical Record': 'DriverMedicalRecord',
-      History: 'RetailHistory',
       Incident: 'DriverIncident',
       'Fuel Code': 'FuelCodeScreen',
+      'Account No': 'DriverAccountNo',
       'Shift Tracking': 'DriverShiftTracking',
     };
+
     if (routes[name]) {
       navigation.navigate(routes[name]);
     }
@@ -115,7 +126,7 @@ const DriverProfile = () => {
           <View
             style={[
               styles.mainItemsContainer,
-              role === 'Retail' && {marginTop: hp(12)},
+              role === 'Retail' && {marginTop: hp(15)},
             ]}>
             {filteredSettingItems.map((item, index) => (
               <Pressable
@@ -156,7 +167,10 @@ const DriverProfile = () => {
             }}
             style={[
               styles.logoutButton,
-              role === 'Retail' && {marginTop: hp(31), backgroundColor:AppColors.red},
+              role === 'Retail' && {
+                marginTop: hp(35),
+                backgroundColor: AppColors.red,
+              },
             ]}
             titleStyle={{fontSize: size.md}}
           />
@@ -224,9 +238,12 @@ const styles = StyleSheet.create({
     color: AppColors.white,
     fontFamily: AppFonts.NunitoSansBold,
   },
-  headerTitle: {gap: hp(0.5), paddingTop: hp(1)},
+  headerTitle: {
+    gap: hp(0.5),
+    paddingTop: hp(1),
+  },
   headerSubTitle: {
-    fontFamily: AppFonts.NunitoSansMedium,
+    fontFamily: AppFonts.NunitoSansRegular,
     fontSize: size.sl,
     lineHeight: 20,
     color: AppColors.white,

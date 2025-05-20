@@ -26,11 +26,16 @@ const OnBoarding = () => {
   return (
     <AuthLayout>
       <View style={styles.container}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           disabled={index != 2 ? false : true}
           onPress={() => setIndex(index + 1)}
           style={styles.skipContainer}>
           {index != 2 && <Text style={styles.skipTitle}>SKIP</Text>}
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          style={styles.skipContainer}
+          onPress={() => navigation.navigate('LoginAs')}>
+          <Text style={styles.skipTitle}>SKIP</Text>
         </TouchableOpacity>
         <View style={styles.imageContainer}>
           <Image

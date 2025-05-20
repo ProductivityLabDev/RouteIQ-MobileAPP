@@ -60,12 +60,12 @@ const AppStyles = StyleSheet.create({
   titleHead: {
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: size.xxvlg,
-    color: AppColors.black,
+    color: AppColors.secondary,
   },
   subHeading: {
     fontFamily: AppFonts.NunitoSansRegular,
     fontSize: size.md,
-    color: AppColors.black,
+    color: AppColors.secondary,
   },
   title: {
     fontFamily: AppFonts.NunitoSansSemiBold,

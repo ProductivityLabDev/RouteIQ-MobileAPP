@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   gridIcon: {
     backgroundColor: AppColors.white,
     borderRadius: 10,
-    height: hp(6),
+    height: hp(5.7),
     width: hp(6),
     justifyContent: 'center',
     alignItems: 'center',

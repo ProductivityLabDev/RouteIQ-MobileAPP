@@ -10,7 +10,7 @@ export const fontSize = (size: any) => {
 const size = {
   xs: fontSize(10),
   s: fontSize(12),
-  sl: fontSize(13),
+  sl: fontSize(14),
   default: fontSize(15),
   md: fontSize(16),
   lg: fontSize(18),

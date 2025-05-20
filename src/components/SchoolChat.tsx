@@ -192,7 +192,7 @@ const SchoolChat = () => {
                 : currentMessage.position === 'left'
                 ? AppColors.inputColor
                 : AppColors.red,
-            marginBottom: 20,
+              marginBottom: 20,
             fontFamily: AppFonts.NunitoSansMedium,
             alignSelf:
               currentMessage.type == 'date'

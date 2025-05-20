@@ -31,7 +31,7 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
       enablePanDownToClose={enablePanDownToClose}
       // enableDismissOnClose={false}
       // enableContentPanningGesture={false}
-      
+      handleComponent={() => null} 
       ref={bottomSheetModalRef}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"

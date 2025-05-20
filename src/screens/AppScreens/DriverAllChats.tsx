@@ -29,9 +29,9 @@ const DriverAllChats: React.FC<DriverAllChatsProps> = ({arrayData, setSchoolChat
       <Pressable style={styles.headerCenterItem}>
       <AppInput
               placeholder="Search..."
-              container={[ {borderWidth: 0,  backgroundColor: AppColors.diffGrey}]}
+              container={[ {borderWidth: 0,  backgroundColor: AppColors.profileBg}]}
               inputStyle={{paddingLeft: hp(1), paddingVertical: hp(1.8) }}
-              containerStyle={{marginBottom: 0, }}
+              containerStyle={{marginBottom: hp(-1), }}
               rightInnerIcon={
                 <GlobalIcon
                   library="Fontisto"

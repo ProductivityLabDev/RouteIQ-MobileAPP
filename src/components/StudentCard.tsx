@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: hp(1),
+    gap: 3
   },
   columnBtnContainer: {
     width: '80%',
@@ -153,11 +154,11 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   statusButton: {
-    width: 70,
-    height: 30,
+    width: '50%',
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    
   },
   icon: {
     width: 24,
@@ -174,12 +175,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   detailColumnBtn: {
-    width: '100%',
+    width: '82%',
     height: hp(4),
     borderRadius: 5,
     backgroundColor: AppColors.transparent,
     borderWidth: 1,
     borderColor: AppColors.dimGray,
+    marginTop: hp(3)
   },
   detailTitle: {
     width: '100%',

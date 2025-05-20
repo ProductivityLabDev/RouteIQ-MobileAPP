@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   giftedContainer: {
     backgroundColor: AppColors.screenColor,
-    height: 40,
+    height: 50,
     borderRadius: hp(10),
   },
   inputToolbarContainer: {

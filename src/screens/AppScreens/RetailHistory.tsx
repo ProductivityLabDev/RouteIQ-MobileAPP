@@ -6,18 +6,18 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
-import { Swipeable } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Feather';
 import AppHeader from '../../components/AppHeader';
 import AppLayout from '../../layout/AppLayout';
 import { AppColors } from '../../utils/color';
 import {
-    Menu,
-    MenuOptions,
-    MenuOption,
-    MenuTrigger,
-  } from 'react-native-popup-menu';
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppStyles from '../../styles/AppStyles';
 import { hp } from '../../utils/constants';
@@ -34,31 +34,40 @@ const RetailHistory = () => {
     setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
   };
 
+  const confirmDelete = (id: string) => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this trip?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => handleDelete(id) },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <Swipeable
-        renderRightActions={() => (
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => handleDelete(item.id)}>
-            <Icon name="trash" size={20} color="#000" />
-          </TouchableOpacity>
-        )}>
-        <View style={[styles.card, item.daysAgo.includes('01') && styles.redCard]}>
+      <View style={[styles.card, item.daysAgo.includes('01') && styles.redCard]}>
+        <TouchableOpacity style={styles.deleteButton} onPress={() => confirmDelete(item.id)}>
+          <GlobalIcon library='AntDesign' name='delete' size={24} color={AppColors.black}/>
+        </TouchableOpacity>
+        <View style={styles.cardContent}>
           <View>
             <Text style={styles.tripText}>Trip {item.trip}</Text>
             <Text style={styles.priceText}>{item.price}</Text>
           </View>
           <Text style={styles.dateText}>{item.daysAgo}</Text>
         </View>
-      </Swipeable>
+        
+      </View>
     );
   };
 
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{backgroundColor: AppColors.white}}>
+      style={{ backgroundColor: AppColors.white }}>
       <AppHeader
         role="Retail"
         title="History"
@@ -81,35 +90,33 @@ const RetailHistory = () => {
                 <Text style={AppStyles.title}>Mark all as read</Text>
               </MenuOption>
               <MenuOption
-                style={{marginBottom: hp(2)}}
+                style={{ marginBottom: hp(2) }}
                 onSelect={() => console.log('Delete all')}>
                 <Text style={AppStyles.title}>Delete all</Text>
               </MenuOption>
             </MenuOptions>
           </Menu>
         }
-        
-    
       />
-    <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search"
-          value={search}
-          onChangeText={setSearch}
+      <View style={styles.container}>
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search"
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
+
+        {/* Trip History List */}
+        <FlatList
+          data={history}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
         />
       </View>
-
-      {/* Trip History List */}
-      <FlatList
-        data={history}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-      />
-    </View>
     </AppLayout>
   );
 };
@@ -119,7 +126,7 @@ export default RetailHistory;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f2e8', // Light beige background
+    backgroundColor: '#f5f2e8',
     padding: 10,
   },
   searchContainer: {
@@ -135,25 +142,28 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: hp(2),
   },
   card: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     backgroundColor: '#f5f2e8',
     padding: 15,
     borderRadius: 8,
     marginVertical: 5,
   },
   redCard: {
-    backgroundColor: '#f8d7da', // Light red background
+    backgroundColor: '#f8d7da',
+  },
+  cardContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   tripText: {
     fontSize: 16,
     fontWeight: 'bold',
   },
   priceText: {
-    color: 'red',
+    color: AppColors.red,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -162,14 +172,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   deleteButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8d7da',
-    paddingHorizontal: 20,
-    marginVertical: 5,
-    borderRadius: 8,
+    alignSelf: 'flex-end',
+    marginTop: 10,
+    alignItems: 'flex-end',
   },
-  icon: {padding: hp(1)},
+  icon: {
+    padding: hp(1),
+  },
   menuOptions: {
     marginTop: hp(2.5),
     marginLeft: hp(-2.4),

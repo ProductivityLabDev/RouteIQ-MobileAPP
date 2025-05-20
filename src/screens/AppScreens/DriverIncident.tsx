@@ -1,378 +1,307 @@
-import { View, Text, StyleSheet, useWindowDimensions, PressableAndroidRippleConfig, StyleProp, TextStyle, ViewStyle, Image, ScrollView } from 'react-native'
-import React, { useState } from 'react'
-import AppHeader from '../../components/AppHeader'
-import AppLayout from '../../layout/AppLayout'
-import AppButton from '../../components/AppButton'
-import { hp, wp } from '../../utils/constants'
-import { AppColors } from '../../utils/color'
-import { size } from '../../utils/responsiveFonts'
-import AppFonts from '../../utils/appFonts'
-import AppInput from '../../components/AppInput'
-import AppStyles from '../../styles/AppStyles'
-import GlobalIcon from '../../components/GlobalIcon'
-import { TabView, SceneMap, TabBar, NavigationState, Route, SceneRendererProps, TabBarIndicatorProps, TabBarItemProps } from 'react-native-tab-view';
-import { Scene, Event } from 'react-native-tab-view/lib/typescript/src/types'
-import { SelectList } from 'react-native-dropdown-select-list'
-import { leaveDropdownData } from '../../utils/DummyData';
-import SelectDropdown from 'react-native-select-dropdown'
-import { useNavigation } from '@react-navigation/native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  PressableAndroidRippleConfig,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+  ScrollView,
+  Image,
+} from 'react-native';
+import React, {useState} from 'react';
+import AppHeader from '../../components/AppHeader';
+import AppLayout from '../../layout/AppLayout';
+import AppButton from '../../components/AppButton';
+import {hp, wp} from '../../utils/constants';
+import {AppColors} from '../../utils/color';
+import {size} from '../../utils/responsiveFonts';
+import AppFonts from '../../utils/appFonts';
+import AppInput from '../../components/AppInput';
+import AppStyles from '../../styles/AppStyles';
+import GlobalIcon from '../../components/GlobalIcon';
+import {
+  TabView,
+  SceneMap,
+  TabBar,
+  NavigationState,
+  Route,
+  SceneRendererProps,
+  TabBarIndicatorProps,
+  TabBarItemProps,
+} from 'react-native-tab-view';
+import {useNavigation} from '@react-navigation/native';
+import AppDropdown from '../../components/AppDropDown'
 
-const emojis = [
-    'Ann Co',
-    'Yu Hin',
-    'Annie Harris'
+// Dummy Data
+const selecteStudentData = [
+  {label: 'Ann Co', value: 'ann-co'},
+  {label: 'Yu Hin', value: 'yu-hin'},
+  {label: 'Annie Harris', value: 'annie-harris'},
 ];
 
-const FirstRoute = () => (
+const sentToData = [
+  {label: 'School', value: 'school'},
+  {label: 'Vendor', value: 'vendor'},
+  {label: 'Guardian', value: 'guardian'},
+  {label: 'All', value: 'all'},
+];
 
-
-
-    <ScrollView contentContainerStyle={styles.subContainer}>
-
-        <Text style={[AppStyles.title]}>Sent To</Text>
-        <SelectDropdown
-            data={emojis}
-            onSelect={(selectedItem, index) => {
-                console.log(selectedItem, index);
-            }}
-            renderButton={(selectedItem, isOpen) => {
-                return (
-                    <View style={styles.dropdownButtonStyle}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: wp(2) }}>
-                            <Image source={require('../../assets/images/profile_image.webp')} resizeMode='cover' style={{ width: wp(7), height: wp(7), borderRadius: 100 }} />
-                            <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontSize: size.s }]}>{selectedItem || 'Mee Aao'}</Text>
-                        </View>
-                        <GlobalIcon library="Ionicons"
-                            name="chevron-down" size={20} color={AppColors.black} />
-                    </View>
-                );
-            }}
-            renderItem={(item, index, isSelected) => {
-                return (
-                    <View
-                        style={{
-                            ...styles.dropdownItemStyle,
-                            ...(isSelected && { backgroundColor: '#D2D9DF' }),
-                        }}>
-                        <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
-                    </View>
-                );
-            }}
-            dropdownStyle={styles.dropdownMenuStyle}
+// --- Routes ---
+const FirstRoute = ({
+  sentTo,
+  setSentTo,
+}: {
+  sentTo: string;
+  setSentTo: React.Dispatch<React.SetStateAction<string>>;
+}) => (
+  <ScrollView contentContainerStyle={styles.subContainer}>
+    <AppDropdown
+      label="Sent To"
+      labelStyle={AppStyles.title}
+      placeholder="Select"
+      data={sentToData}
+      value={sentTo}
+      onChangeText={setSentTo}
+      style={styles.dropdown}
+    />
+    <AppInput
+      multiline
+      numberOfLines={11}
+      container={{
+        height: hp(25),
+        borderRadius: hp(0.5),
+        marginBottom: hp(2),
+        borderColor: AppColors.grey,
+      }}
+      label="Description"
+      placeholder="Report Accident Details here..."
+      placeholderTextColor={AppColors.black}
+      labelStyle={{
+        marginBottom: hp(2),
+        fontFamily: AppFonts.NunitoSansBold,
+      }}
+    />
+    <View style={{width: '100%', alignSelf: 'center', marginBottom: hp(2)}}>
+      <Text
+        style={[
+          AppStyles.titleHead,
+          {fontSize: size.lg, alignSelf: 'flex-start'},
+        ]}>
+        Attachments
+      </Text>
+      <View style={styles.uploadDocBox}>
+        <GlobalIcon
+          library="FontelloIcon"
+          name={'group-(5)'}
+          color={AppColors.red}
+          size={40}
         />
-
-        <AppInput
-            multiline
-            numberOfLines={11}
-            container={{ height: hp(25), borderRadius: hp(0.5), marginBottom: hp(2), borderColor: AppColors.grey }}
-
-            label="Description"
-            placeholder="Report Accident Details here..."
-            placeholderTextColor={AppColors.black}
-
-            labelStyle={{
-                marginBottom: hp(2),
-                fontFamily: AppFonts.NunitoSansBold,
-            }}
-        />
-
-        <View style={{ width: '90%', alignSelf: 'center', marginBottom: hp(2) }}>
-            <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
-                Attachments
-            </Text>
-
-            <View style={styles.uploadDocBox}>
-                <GlobalIcon library='FontelloIcon' name={'group-(5)'} color={AppColors.red} size={40} />
-                <Text style={styles.tapText} >Tap and Upload Files</Text>
-            </View>
-
-
-        </View>
-
-
-    </ScrollView>
+        <Text style={styles.tapText}>Tap and Upload Files/Picture</Text>
+      </View>
+    </View>
+  </ScrollView>
 );
 
-
-
-
-
-
-
-export default function DriverIncident() {
-    const navigation = useNavigation();
-    const [selectAbsence, setSelectAbsence] = useState('');
-
-    const emojis = [
-        'Ann Co',
-        'Yu Hin',
-        'Annie Harris'
-    ];
-
-
-    const SecondRoute = () => (
-        <ScrollView contentContainerStyle={styles.subContainer}>
-
-            <Text style={[AppStyles.title]}>Select Student</Text>
-            <SelectDropdown
-                data={emojis}
-                onSelect={(selectedItem, index) => {
-                    console.log(selectedItem, index);
-                }}
-                renderButton={(selectedItem, isOpen) => {
-                    return (
-                        <View style={styles.dropdownButtonStyle}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: wp(2) }}>
-                                <Image source={require('../../assets/images/profile_image.webp')} resizeMode='cover' style={{ width: wp(7), height: wp(7), borderRadius: 100 }} />
-                                <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontSize: size.s }]}>{selectedItem || 'Mee Aao'}</Text>
-                            </View>
-                            <GlobalIcon library="Ionicons"
-                                name="chevron-down" size={20} color={AppColors.black} />
-                        </View>
-                    );
-                }}
-                renderItem={(item, index, isSelected) => {
-                    return (
-                        <View
-                            style={{
-                                ...styles.dropdownItemStyle,
-                                ...(isSelected && { backgroundColor: '#D2D9DF' }),
-                            }}>
-                            <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
-                        </View>
-                    );
-                }}
-                dropdownStyle={styles.dropdownMenuStyle}
-            />
-            <Text style={[AppStyles.title]}>Sent To</Text>
-
-            <SelectDropdown
-                data={emojis}
-                onSelect={(selectedItem, index) => {
-                    console.log(selectedItem, index);
-                }}
-                renderButton={(selectedItem, isOpen) => {
-                    return (
-                        <View style={styles.dropdownButtonStyle}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: wp(2) }}>
-                                <Image source={require('../../assets/images/profile_image.webp')} resizeMode='cover' style={{ width: wp(7), height: wp(7), borderRadius: 100 }} />
-                                <Text style={[styles.subTitle, { backgroundColor: 'transparent', fontSize: size.s }]}>{selectedItem || 'Mee Aao'}</Text>
-                            </View>
-                            <GlobalIcon library="Ionicons"
-                                name="chevron-down" size={20} color={AppColors.black} />
-                        </View>
-                    );
-                }}
-                renderItem={(item, index, isSelected) => {
-                    return (
-                        <View
-                            style={{
-                                ...styles.dropdownItemStyle,
-                                ...(isSelected && { backgroundColor: '#D2D9DF' }),
-                            }}>
-                            <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
-                        </View>
-                    );
-                }}
-                dropdownStyle={styles.dropdownMenuStyle}
-            />
-
-
-            <AppInput
-                multiline
-                numberOfLines={11}
-                container={{ height: hp(25), borderRadius: hp(0.5), marginBottom: hp(4), borderColor: AppColors.grey }}
-
-                label="Description"
-                placeholder="Report Accident Details here..."
-                // placeholderTextColor={AppColors.black}
-                inputStyle={{ fontFamily: AppFonts.NunitoSansMedium }}
-
-                labelStyle={{
-                    marginBottom: hp(2),
-                    fontFamily: AppFonts.NunitoSansBold,
-                }}
-            />
-        </ScrollView>
-    );
-
-    const layout = useWindowDimensions();
-
-
-    const [index, setIndex] = React.useState(0);
-    const [routes] = React.useState([
-        { key: 'first', title: 'Report Accident' },
-        { key: 'second', title: 'Disciplinary Issues' },
-    ]);
-
-    const renderScene = SceneMap({
-        first: FirstRoute,
-        second: SecondRoute,
-    });
-
-    const renderTabBar = (props: React.JSX.IntrinsicAttributes & SceneRendererProps & { navigationState: NavigationState<Route>; scrollEnabled?: boolean | undefined; bounces?: boolean | undefined; activeColor?: string | undefined; inactiveColor?: string | undefined; pressColor?: string | undefined; pressOpacity?: number | undefined; getLabelText?: ((scene: Scene<Route>) => string | undefined) | undefined; getAccessible?: ((scene: Scene<Route>) => boolean | undefined) | undefined; getAccessibilityLabel?: ((scene: Scene<Route>) => string | undefined) | undefined; getTestID?: ((scene: Scene<Route>) => string | undefined) | undefined; renderLabel?: ((scene: Scene<Route> & { focused: boolean; color: string }) => React.ReactNode) | undefined; renderIcon?: ((scene: Scene<Route> & { focused: boolean; color: string }) => React.ReactNode) | undefined; renderBadge?: ((scene: Scene<Route>) => React.ReactNode) | undefined; renderIndicator?: ((props: TabBarIndicatorProps<Route>) => React.ReactNode) | undefined; renderTabBarItem?: ((props: TabBarItemProps<Route> & { key: string }) => React.ReactElement<any, string | React.JSXElementConstructor<any>>) | undefined; onTabPress?: ((scene: Scene<Route> & Event) => void) | undefined; onTabLongPress?: ((scene: Scene<Route>) => void) | undefined; tabStyle?: StyleProp<ViewStyle>; indicatorStyle?: StyleProp<ViewStyle>; indicatorContainerStyle?: StyleProp<ViewStyle>; labelStyle?: StyleProp<TextStyle>; contentContainerStyle?: StyleProp<ViewStyle>; style?: StyleProp<ViewStyle>; gap?: number | undefined; testID?: string | undefined; android_ripple?: PressableAndroidRippleConfig | undefined }) => (
-        <TabBar
-            {...props}
-            // pressColor={colors.blue}
-            indicatorStyle={{ backgroundColor: AppColors.red }}
-            style={{ paddingVertical: 0, backgroundColor: AppColors.white, height: hp(6), width: wp(100) }}
-            labelStyle={styles.subTitle}
-            activeColor={AppColors.red}
-            inactiveColor="#666"
-            renderLabel={({ route, focused, color }) => (
-                <Text style={[styles.subTitle, {
-                    backgroundColor: 'transparent',
-                    fontFamily: AppFonts.NunitoSansBold,
-                    // fontFamily: focused? AppFonts.NunitoSansBold : AppFonts.NunitoSansSemiBold,
-                    // fontFamily: AppFonts.NunitoSansBold,
-                    color: focused ? AppColors.red : AppColors.black
-                }]}>
-                    {route.title}
-                    {/* {route.title.split(' ').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ')} */}
-                </Text>
-            )}
+const SecondRoute = ({
+  sentTo,
+  setSentTo,
+  selectStudent,
+  setSelectStudent,
+}: {
+  sentTo: string;
+  setSentTo: React.Dispatch<React.SetStateAction<string>>;
+  selectStudent: string;
+  setSelectStudent: React.Dispatch<React.SetStateAction<string>>;
+}) => (
+  <ScrollView contentContainerStyle={styles.subContainer}>
+    <AppDropdown
+      label="Select Student"
+      labelStyle={AppStyles.title}
+      placeholder="Select"
+      data={selecteStudentData}
+      value={selectStudent}
+      onChangeText={setSelectStudent}
+      style={styles.dropdown}
+    />
+    <AppDropdown
+      label="Sent To"
+      labelStyle={AppStyles.title}
+      placeholder="Select"
+      data={sentToData}
+      value={sentTo}
+      onChangeText={setSentTo}
+      style={styles.dropdown}
+    />
+    <AppInput
+      multiline
+      numberOfLines={11}
+      container={{
+        height: hp(25),
+        borderRadius: hp(0.5),
+        marginBottom: hp(4),
+        borderColor: AppColors.grey,
+      }}
+      label="Description"
+      placeholder="Report Accident Details here..."
+      inputStyle={{fontFamily: AppFonts.NunitoSansMedium}}
+      labelStyle={{
+        marginBottom: hp(2),
+        fontFamily: AppFonts.NunitoSansBold,
+      }}
+    />
+    <View style={{width: '100%', alignSelf: 'center', marginBottom: hp(2)}}>
+      <Text
+        style={[
+          AppStyles.titleHead,
+          {fontSize: size.lg, alignSelf: 'flex-start'},
+        ]}>
+        Attachments
+      </Text>
+      <View style={styles.uploadDocBox}>
+        <GlobalIcon
+          library="FontelloIcon"
+          name={'group-(5)'}
+          color={AppColors.red}
+          size={40}
         />
-    );
+        <Text style={styles.tapText}>Tap and Upload Files/Picture</Text>
+      </View>
+    </View>
+  </ScrollView>
+);
 
+// --- Main Component ---
+export default function DriverIncident() {
+  const navigation = useNavigation();
+  const layout = useWindowDimensions();
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    {key: 'first', title: 'Report Accident'},
+    {key: 'second', title: 'Disciplinary Issues'},
+  ]);
 
-    return (
-        <AppLayout statusbackgroundColor={AppColors.red}
-            style={{ backgroundColor: AppColors.profileBg }}>
-            <AppHeader role="Driver"
-                title={'Incident'}
-                enableBack={true}
-                rightIcon={false} />
+  const [sentTo, setSentTo] = useState('');
+  const [selectStudent, setSelectStudent] = useState('');
 
+  const renderScene = SceneMap({
+    first: () => <FirstRoute sentTo={sentTo} setSentTo={setSentTo} />,
+    second: () => (
+      <SecondRoute
+        sentTo={sentTo}
+        setSentTo={setSentTo}
+        selectStudent={selectStudent}
+        setSelectStudent={setSelectStudent}
+      />
+    ),
+  });
 
+  const renderTabBar = (
+    props: SceneRendererProps & {navigationState: NavigationState<Route>},
+  ) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{backgroundColor: AppColors.red}}
+      style={{
+        paddingVertical: 0,
+        backgroundColor: AppColors.white,
+        height: hp(6),
+        width: wp(100),
+      }}
+      labelStyle={styles.subTitle}
+      activeColor={AppColors.red}
+      inactiveColor="#666"
+      renderLabel={({route, focused}) => (
+        <Text
+          style={[
+            styles.subTitle,
+            {
+              fontFamily: AppFonts.NunitoSansBold,
+              color: focused ? AppColors.red : AppColors.black,
+            },
+          ]}>
+          {route.title}
+        </Text>
+      )}
+    />
+  );
 
-            <ScrollView contentContainerStyle={styles.container}>
-
-
-                <TabView
-                    style={{ width: '100%' }}
-                    navigationState={{ index, routes }}
-                    renderScene={renderScene}
-                    onIndexChange={setIndex}
-                    initialLayout={{ width: layout.width }}
-                    renderTabBar={renderTabBar}
-                />
-
-
-
-
-
-                <AppButton
-                    title="Send"
-                    onPress={() => navigation.goBack()}
-                    style={{
-                        // width: '100%',
-                        width: '90%',
-                        backgroundColor: AppColors.red,
-                        height: hp(6),
-                        marginHorizontal: wp(7),
-                        alignSelf: 'center',
-                        position: 'relative',
-                        bottom: 10
-                    }}
-                    titleStyle={{
-                        fontSize: size.md
-                    }}
-                />
-
-            </ScrollView>
-
-
-        </AppLayout>
-    )
+  return (
+    <AppLayout
+      statusbackgroundColor={AppColors.red}
+      style={{backgroundColor: AppColors.profileBg}}>
+      <AppHeader
+        role="Driver"
+        title={'Incident'}
+        enableBack={true}
+        rightIcon={false}
+      />
+      <ScrollView contentContainerStyle={styles.container}>
+        <TabView
+          style={{width: '100%'}}
+          navigationState={{index, routes}}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{width: layout.width}}
+          renderTabBar={renderTabBar}
+        />
+        <AppButton
+          title="Send"
+          onPress={() => navigation.goBack()}
+          style={{
+            width: '92%',
+            backgroundColor: AppColors.red,
+            height: hp(6),
+            marginHorizontal: wp(7),
+            alignSelf: 'center',
+            bottom: 5,
+          }}
+          titleStyle={{fontSize: size.md}}
+        />
+      </ScrollView>
+    </AppLayout>
+  );
 }
 
-
+// --- Styles ---
 const styles = StyleSheet.create({
-    dropdownButtonStyle: {
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: hp(1),
-        paddingHorizontal: 12,
-        // marginVertical: hp(2),
-        backgroundColor: AppColors.white,
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: AppColors.grey
-    },
-    dropdownItemStyle: {
-        width: '100%',
-        flexDirection: 'row',
-        paddingHorizontal: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#B1BDC8',
-    },
-    dropdownItemTxtStyle: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#151E26',
-        textAlign: 'center',
-    },
-
-    dropdownMenuStyle: {
-        backgroundColor: '#E9ECEF',
-        borderRadius: 8,
-        height: 150,
-    },
-    title: {
-        fontFamily: AppFonts.NunitoSansBold,
-        color: AppColors.black,
-        fontSize: size.default,
-    },
-    subTitle: {
-        backgroundColor: AppColors.yellow,
-        padding: hp(0.5),
-        borderRadius: hp(1),
-        color: AppColors.black,
-        fontSize: size.s,
-        fontFamily: AppFonts.NunitoSansMedium,
-    },
-
-    container: {
-        flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexDirection: 'column',
-    },
-    subContainer: {
-        width: '100%',
-        justifyContent: 'center',
-        marginTop: hp(3),
-        gap: hp(2),
-        paddingHorizontal: wp(5)
-    },
-    uploadDocBox: {
-        width: '100%',
-        marginVertical: hp(3),
-        marginTop: hp(2),
-        height: hp(15),
-        // gap: hp(1),
-        borderRadius: 2,
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        borderColor: AppColors.red,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: AppColors.veryLightPink
-    },
-
-    tapText: {
-
-        fontFamily: AppFonts.NunitoSansSemiBold,
-        fontSize: size.s,
-        lineHeight: 20,
-        color: AppColors.red,
-        alignSelf: 'center',
-    },
-
-})
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  subContainer: {
+    width: '100%',
+    justifyContent: 'center',
+    marginTop: hp(3),
+    gap: hp(2),
+    paddingHorizontal: wp(5),
+  },
+  dropdown: {
+    marginBottom: hp(2),
+  },
+  uploadDocBox: {
+    width: '100%',
+    marginVertical: hp(3),
+    height: hp(20),
+    backgroundColor: '#f5f5f5',
+    borderRadius: hp(1),
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tapText: {
+    marginTop: hp(1),
+    fontSize: size.s,
+    fontFamily: AppFonts.NunitoSansMedium,
+    color: AppColors.black,
+  },
+  subTitle: {
+    color: AppColors.black,
+    fontSize: size.s,
+    fontFamily: AppFonts.NunitoSansMedium,
+  },
+});

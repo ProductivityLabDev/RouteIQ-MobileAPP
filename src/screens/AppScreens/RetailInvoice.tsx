@@ -157,7 +157,7 @@ export default InvoiceScreen;
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: AppColors.lightGrey,
+    backgroundColor: AppColors.profileBg,
     alignItems: 'center',
     paddingBottom: hp(5),
   },

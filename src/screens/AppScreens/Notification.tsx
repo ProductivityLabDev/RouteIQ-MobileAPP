@@ -33,14 +33,14 @@ const Notifications = () => {
 
   return (
     <AppLayout
-      statusbackgroundColor={role == 'Driver' ? AppColors.red : AppColors.black}
+      statusbackgroundColor={role == 'Driver' ? AppColors.red : AppColors.red}
       style={{
         backgroundColor:
           role == 'Driver' ? AppColors.driverScreen : AppColors.black,
       }}>
       {role == 'Driver' ? (
         <AppHeader
-          role="Create"
+          role="Retail"
           title="Notification"
           enableBack={true}
           rightIcon={false}
@@ -73,10 +73,12 @@ const Notifications = () => {
         />
       ) : (
         <AppHeader
-          role="Create"
+          role="Retail"
+          title="Notification"
           enableBack={true}
           rightIcon={false}
-          title={`Notification`}
+          containerStyle={styles.driverHeader}
+          titleStyle={styles.titleStyle}
           createRightIcon={
             <Menu>
               <MenuTrigger>
@@ -110,8 +112,9 @@ const Notifications = () => {
             flex: 1,
             paddingHorizontal: 0,
             backgroundColor:
-              role == 'Driver' ? AppColors.driverScreen : AppColors.white,
+              role == 'Driver' || role== 'Retail' ? AppColors.profileBg : AppColors.white,
             paddingTop: hp(2),
+            marginTop: hp(-2)
           },
         ]}>
         {NotificationData.length >= 0 ? (
@@ -126,7 +129,7 @@ const Notifications = () => {
                     {
                       backgroundColor: selected.includes(item.id)
                         ? AppColors.lightRed
-                        : AppColors.white,
+                        : AppColors.profileBg,
                     },
                   ]}>
                   {item.title && (

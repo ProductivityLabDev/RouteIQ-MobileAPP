@@ -37,6 +37,9 @@ import EditRetailDetail from '../screens/AppScreens/EditRetailDetail';
 import RetailPayment from '../screens/AppScreens/RetailPayment';
 import RetailHistory from '../screens/AppScreens/RetailHistory';
 import DriverGroupChatSelectedList from '../screens/AppScreens/DriverGroupChatSelectedList';
+import DriverAccountNo from '../screens/AppScreens/DriverAccountNo';
+import UpdateAccountNo from '../screens/AppScreens/UpdateAccountNo';
+import RetailProfileInfo from '../screens/AppScreens/RetailProfileInfo';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -54,6 +57,7 @@ export const AppStack = () => {
       <Stack.Screen name="ParentFeedback" component={ParentFeedback} />
       <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
       <Stack.Screen name="ChangePassword" component={ChangePassword} />
+      
     </Stack.Navigator>
   );
 };
@@ -85,6 +89,11 @@ export const DriverStack = () => {
       <Stack.Screen name="DriverChats" component={DriverChats} />
       <Stack.Screen name="DriverAllChats" component={DriverAllChats} />
       <Stack.Screen name="DriverGroupChatSelectedList" component={DriverGroupChatSelectedList} />
+      <Stack.Screen name="DriverAccountNo" component={DriverAccountNo} />
+      <Stack.Screen name="UpdateAccountNo" component={UpdateAccountNo} />
+
+     
+      
       {/* <Stack.Screen name="DriverProfile" component={DriverProfile} />
       <Stack.Screen name="DriverProfileInfo" component={DriverProfileInfo} />
       <Stack.Screen name="UpdateDriveProfile" component={UpdateDriveProfile} />
@@ -116,6 +125,8 @@ export const RetailStack = () => {
       <Stack.Screen name="EditRetailDetail" component={EditRetailDetail} />
       <Stack.Screen name="RetailPayment" component={RetailPayment} />
       <Stack.Screen name="RetailHistory" component={RetailHistory} />
+      <Stack.Screen name="AlertScreen" component={AlertScreen} />
+      <Stack.Screen name="RetailProfileInfo" component={RetailProfileInfo} />
       
 
 

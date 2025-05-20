@@ -46,6 +46,9 @@ export type RootStackParamList = {
   DriverChats: undefined;
   DriverAllChats: undefined;
   DriverGroupChatSelectedList:undefined;
+  DriverAccountNo: undefined;
+  UpdateAccountNo: undefined;
+  RetailProfileInfo:undefined;
 
 
  // Retail Stack

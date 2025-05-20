@@ -19,7 +19,7 @@ const AlertScreen = () => {
         role="Driver"
         title="Alert"
         enableBack={true}
-        rightIcon={false}
+        rightIcon={true}
       />
       <View
         style={[AppStyles.driverContainer, {justifyContent: 'space-between'}]}>

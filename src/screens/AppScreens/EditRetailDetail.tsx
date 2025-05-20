@@ -31,22 +31,20 @@ const EditRetailDetail = () => {
       phoneNumber: '',
       email: '',
       roundTrip: '',
-      isWheelchairLift:'',
-      nameOfLocaton:'',
-      additionalDestination:'',
-      specialInstructions:'',
-
-
+      isWheelchairLift: '',
+      nameOfLocaton: '',
+      additionalDestination: '',
+      specialInstructions: '',
     },
   });
 
-//   useEffect(() => {
-//     setValue('name', 'Mark Tommay');
-//     setValue('age', '32');
-//     setValue('email', 'marktommay@gmail.com');
-//     setValue('phoneNumber', '+1-424-271-8337');
-//     setValue('address', '802 E Frierson Ave, Tampa, FL 33603');
-//   }, []);
+  //   useEffect(() => {
+  //     setValue('name', 'Mark Tommay');
+  //     setValue('age', '32');
+  //     setValue('email', 'marktommay@gmail.com');
+  //     setValue('phoneNumber', '+1-424-271-8337');
+  //     setValue('address', '802 E Frierson Ave, Tampa, FL 33603');
+  //   }, []);
 
   const onSubmit = () => {
     navigation.goBack();
@@ -55,7 +53,7 @@ const EditRetailDetail = () => {
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
-      style={{backgroundColor: AppColors.white}}>
+      style={{backgroundColor: AppColors.profileBg}}>
       <AppHeader
         role="Driver"
         title="Edit Details"
@@ -63,20 +61,24 @@ const EditRetailDetail = () => {
         rightIcon={true}
       />
       <ScrollView
-        contentContainerStyle={[
-          AppStyles.driverContainer,
-          AppStyles.flexBetween,
-        ]}>
-        <View>
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: hp(10),
+           paddingTop: hp(2),
+        }}
+        showsVerticalScrollIndicator={false}>
+        <View style={{paddingHorizontal: hp(2)}}>
           <View style={[AppStyles.rowBetween]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Company/Group Name</Text>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
+              Company/Group Name
+            </Text>
             <Controller
               name="name"
               control={control}
               rules={{required: 'Name is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                  placeholder='Jonney Barbo'
+                  placeholder="Jonney Barbo"
                   value={value}
                   containerStyle={AppStyles.halfWidth}
                   container={[styles.inputContainer, {height: 40}]}
@@ -88,14 +90,16 @@ const EditRetailDetail = () => {
             />
           </View>
           <View style={[AppStyles.rowBetween]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Phone Number</Text>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
+              Phone Number
+            </Text>
             <Controller
               name="phoneNumber"
               control={control}
               rules={{required: 'Age is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                  placeholder='012 022 1531'
+                  placeholder="012 022 1531"
                   value={value}
                   containerStyle={AppStyles.halfWidth}
                   keyboardType="number-pad"
@@ -108,14 +112,16 @@ const EditRetailDetail = () => {
             />
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Email Address</Text>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
+              Email Address
+            </Text>
             <Controller
               name="email"
               control={control}
               rules={{required: 'Email is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                  placeholder='ab@gmail.com'
+                  placeholder="ab@gmail.com"
                   value={value}
                   containerStyle={[AppStyles.halfWidth]}
                   container={[styles.inputContainer, {height: 40}]}
@@ -129,7 +135,7 @@ const EditRetailDetail = () => {
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
             <Text style={[AppStyles.title, AppStyles.halfWidth]}>
-            Round Trip
+              Round Trip
             </Text>
             <Controller
               name="roundTrip"
@@ -137,7 +143,7 @@ const EditRetailDetail = () => {
               rules={{required: 'Phone Number is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                  placeholder='Shuttle'
+                  placeholder="Shuttle"
                   value={value}
                   containerStyle={AppStyles.halfWidth}
                   keyboardType="number-pad"
@@ -150,14 +156,16 @@ const EditRetailDetail = () => {
             />
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Is a Wheelchair lift required?</Text>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
+              Is a Wheelchair lift required?
+            </Text>
             <Controller
               name="isWheelchairLift"
               control={control}
               rules={{required: 'Address is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                 placeholder='Yes'
+                  placeholder="Yes"
                   value={value}
                   containerStyle={[AppStyles.halfWidth]}
                   container={[styles.inputContainer, {height: 40}]}
@@ -170,14 +178,16 @@ const EditRetailDetail = () => {
             />
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Name of Locaton</Text>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
+              Name of Locaton
+            </Text>
             <Controller
               name="nameOfLocaton"
               control={control}
               rules={{required: 'Name Of Locaton is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                  placeholder='Oakwood Elementary School'
+                  placeholder="Oakwood Elementary School"
                   value={value}
                   containerStyle={[AppStyles.halfWidth]}
                   container={styles.inputContainer}
@@ -190,14 +200,16 @@ const EditRetailDetail = () => {
             />
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Additional Destination</Text>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
+              Additional Destination
+            </Text>
             <Controller
               name="additionalDestination"
               control={control}
               rules={{required: 'Additional Destination is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                  placeholder='Oakwood Elementary School'
+                  placeholder="Oakwood Elementary School"
                   value={value}
                   containerStyle={[AppStyles.halfWidth]}
                   container={styles.inputContainer}
@@ -210,14 +222,16 @@ const EditRetailDetail = () => {
             />
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Special Instructions</Text>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
+              Special Instructions
+            </Text>
             <Controller
               name="specialInstructions"
               control={control}
               rules={{required: 'Special Instructions is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
-                  placeholder='Oakwood Elementary School'
+                  placeholder="Oakwood Elementary School"
                   value={value}
                   containerStyle={[AppStyles.halfWidth]}
                   container={styles.inputContainer}
@@ -230,7 +244,7 @@ const EditRetailDetail = () => {
             />
           </View>
         </View>
-        <View>
+        <View style={{width: '90%', alignSelf:'center'}}>
           <AppButton
             title="Update"
             style={{width: '100%', alignSelf: 'center'}}
@@ -260,5 +274,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     borderRadius: 5,
   },
-  inputStyle: {color: AppColors.graySuit},
+  inputStyle: {color: AppColors.black},
 });

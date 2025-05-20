@@ -71,7 +71,7 @@ const DriverMaintenanceScreen = () => {
         profile_image={true}
       />
       <View style={AppStyles.driverContainer}>
-        <Text style={[AppStyles.titleHead, { fontSize: size.vxlg }]}>
+        <Text style={[AppStyles.titleHead, { fontSize: size.lg }]}>
           Inspections & Maintenance Tasks
         </Text>
 
