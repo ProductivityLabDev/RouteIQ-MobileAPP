@@ -124,7 +124,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   onPress={() => {
                     dispatch(setShowStartMileAgeSheet(false));
                     dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
-                    navigation.navigate('DriverMapView');
+                    navigation.navigate('DriverMapView', {fromMapView: false}); // ✅ use fromMapView
                   }}
                   style={{
                     marginLeft: hp(0.5),
@@ -155,30 +155,29 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                     AppStyles.row,
                     {width: '70%', justifyContent: 'flex-end'},
                   ]}>
-                  {!accept ? (
+                  {!accept && (
                     <>
                       <AppButton
+                        title="Start"
+                        style={[styles.acceptButton, {width: '90%'}]}
+                        onPress={() => {
+                          setAccept(false);
+                          dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
+                          navigation.navigate('DriverInspection');
+                        }}
+                      />
+                      {/* <AppButton
                         title="Decline"
                         style={styles.declineButton}
                         titleStyle={{color: AppColors.black}}
                         onPress={() => openSheet()}
-                      />
-                      <AppButton
+                      /> */}
+                      {/* <AppButton
                         title="Accept"
                         style={styles.acceptButton}
                         onPress={() => setAccept(true)}
-                      />
+                      /> */}
                     </>
-                  ) : (
-                    <AppButton
-                      title="Start"
-                      style={[styles.acceptButton, {width: '90%'}]}
-                      onPress={() => {
-                        setAccept(false);
-                        dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
-                        navigation.navigate('DriverInspection');
-                      }}
-                    />
                   )}
                 </View>
               )}

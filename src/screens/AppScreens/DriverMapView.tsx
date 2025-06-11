@@ -15,7 +15,7 @@ import {mapCustomStyle} from '../../utils/mapConfig';
 import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
 import AlarmIcon from '../../assets/svgs/AlarmIcon';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {Image} from 'react-native';
 import {useKeyboard} from '../../utils/keyboard';
 import {useAppSelector} from '../../store/hooks';
@@ -32,8 +32,16 @@ const DriverMapView = () => {
   const showStartMileAgeSheet = useAppSelector(
     state => state.userSlices.showStartMileAgeSheet,
   );
+  const [tripStarted, setTripStarted] = useState(false); // new
 
-   const role = useAppSelector(state => state.userSlices.role);
+  const route = useRoute();
+  const isFromMapView = route.params?.FromMapView ?? false;
+
+  useEffect(() => {
+    console.log('Route params:', route.params);
+  }, []);
+
+  const role = useAppSelector(state => state.userSlices.role);
 
   const snapPoints = useMemo(
     () => [keyboardHeight ? '30%' : '23%', '10%'],
@@ -44,6 +52,7 @@ const DriverMapView = () => {
   }, []);
   const closeSheet = useCallback(() => {
     bottomSheetModalRef.current?.close();
+    navigation.navigate('DriverInspection')
   }, []);
 
   const startLocation = {
@@ -134,7 +143,7 @@ const DriverMapView = () => {
               <AlarmIcon />
             </Pressable>
           </View>
-          {role === 'Driver' && 
+          {/* {role === 'Driver' && 
           <AppButton
             title="End Trip"
             onPress={() => {
@@ -143,8 +152,30 @@ const DriverMapView = () => {
             }}
             style={{width: '100%', marginTop: hp(2)}}
           />
-          }
-          
+          } */}
+
+          {role === 'Driver' && !isFromMapView && !tripStarted && (
+            <AppButton
+              title="Start Trip"
+              onPress={() => {
+                setTripStarted(true);
+                openSheet();
+              }}
+              style={{width: '100%', marginTop: hp(2)}}
+            />
+          )}
+
+          {role === 'Driver' && !isFromMapView && tripStarted && (
+            <AppButton
+              title="End Trip"
+              onPress={() => {
+                setTripEnd(true);
+                openSheet();
+              }}
+              style={{width: '100%', marginTop: hp(2)}}
+            />
+          )}
+
           {/* {endTrip && (
             <AppButton
               title="End Trip"
@@ -168,7 +199,11 @@ const DriverMapView = () => {
           />
         )}>
         <View style={AppStyles.center}>
-          <Text style={[AppStyles.titleHead, {fontSize: size.xlg, marginTop: hp(2)}]}>
+          <Text
+            style={[
+              AppStyles.titleHead,
+              {fontSize: size.xlg, marginTop: hp(2)},
+            ]}>
             {tripEnd ? ' Enter End Mileage*' : ' Enter Start Mileage*'}
           </Text>
           <AppInput
@@ -191,13 +226,14 @@ const DriverMapView = () => {
               title="Submit"
               style={styles.submitButton}
               onPress={() => {
-                navigation.navigate('DriverHomeScreen');
-                // if (endTrip) {
-                //   closeSheet();
-                //   navigation.navigate(mapViewRouteBackOn || 'DriverHomeScreen');
-                // } else {
-                //   closeSheet();
-                // }
+                if (tripEnd) {
+                  // Ending trip
+                  navigation.navigate('DriverHomeScreen');
+                } else {
+                  // Starting trip
+                  setTripStarted(true);
+                  closeSheet(); // close and stay on map
+                }
               }}
             />
           </View>
@@ -235,7 +271,7 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansSemiBold,
   },
   boardTitle: {
-    fontSize:14,
+    fontSize: 14,
     color: AppColors.white,
     fontFamily: AppFonts.NunitoSansMedium,
   },
@@ -267,7 +303,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   backButton: {
-    width: '36%', 
+    width: '36%',
     backgroundColor: AppColors.screenColor,
   },
 

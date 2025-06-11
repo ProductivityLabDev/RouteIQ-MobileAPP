@@ -8,7 +8,10 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ImageBackground,
 } from 'react-native';
+import {launchImageLibrary} from 'react-native-image-picker';
+
 import AppButton from '../../components/AppButton';
 import AppHeader from '../../components/AppHeader';
 import GlobalIcon from '../../components/GlobalIcon';
@@ -21,13 +24,27 @@ import {size} from '../../utils/responsiveFonts';
 import GuardianIcon from '../../assets/svgs/GuardianIcon';
 import {useAppDispatch} from '../../store/hooks';
 import {saveToken, setLogout} from '../../store/user/userSlices';
-import {ImageBackground} from 'react-native';
+import {Alert} from 'react-native';
 
 export default function Settings() {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
+
+  const openGallery = () => {
+    launchImageLibrary({mediaType: 'photo'}, response => {
+      if (
+        !response.didCancel &&
+        !response.errorCode &&
+        response.assets?.length
+      ) {
+        setProfileImageUri(response.assets[0].uri || null);
+      }
+    });
+  };
 
   const settingItems = [
     {
@@ -109,20 +126,26 @@ export default function Settings() {
       <AppHeader title="Settings" enableBack={true} rightIcon={false} />
       <View
         style={[AppStyles.container, {backgroundColor: AppColors.screenColor}]}>
-        <ImageBackground
-          borderRadius={hp(15)}
-          style={styles.profileImage}
-          imageStyle={styles.image}
-          source={require('../../assets/images/profile_image.webp')}>
-          <View style={[AppStyles.alignJustifyCenter, styles.cameraIcon]}>
-            <GlobalIcon
-              library="FontelloIcon"
-              name="group-183"
-              color={AppColors.black}
-              size={hp(3)}
-            />
-          </View>
-        </ImageBackground>
+        <TouchableOpacity onPress={openGallery}>
+          <ImageBackground
+            borderRadius={hp(15)}
+            style={styles.profileImage}
+            imageStyle={styles.image}
+            source={
+              profileImageUri
+                ? {uri: profileImageUri}
+                : require('../../assets/images/profile_image.webp')
+            }>
+            <View style={[AppStyles.alignJustifyCenter, styles.cameraIcon]}>
+              <GlobalIcon
+                library="FontelloIcon"
+                name="group-183"
+                color={AppColors.black}
+                size={hp(3)}
+              />
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
 
         <View>
           {settingItems.map((item: any, index: number) => (
@@ -163,12 +186,39 @@ export default function Settings() {
           ))}
         </View>
 
-        <AppButton
+        {/* <AppButton
           onPress={() => {
             dispatch(setLogout(true));
             dispatch(saveToken(null));
           }}
           title="Logout"
+          style={styles.button}
+        /> */}
+
+        <AppButton
+          title="Logout"
+          onPress={() => {
+            Alert.alert(
+              'Logout',
+              'Are you sure you want to logout?',
+              [
+                {
+                  text: 'Cancel',
+                  onPress: () => console.log('Logout cancelled'),
+                  style: 'cancel',
+                },
+                {
+                  text: 'Yes',
+                  onPress: () => {
+                    dispatch(setLogout(true));
+                    dispatch(saveToken(null));
+                  },
+                },
+              ],
+              {cancelable: true},
+            );
+          }}
+          titleStyle={{fontSize: size.md}}
           style={styles.button}
         />
       </View>

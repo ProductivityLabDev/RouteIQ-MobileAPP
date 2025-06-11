@@ -24,6 +24,8 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 
 export default function DriverShiftTracking() {
   const navigation = useNavigation();
+  const [showPay, setShowPay] = React.useState(false);
+
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
@@ -56,9 +58,24 @@ export default function DriverShiftTracking() {
         <Text style={[AppStyles.title, {fontSize: size.default}]}>
           Van Driver
         </Text>
-        <Text style={[AppStyles.title, {fontSize: size.default}]}>
+        {/* <Text style={[AppStyles.title, {fontSize: size.default}]}>
           Basic Pay: Hourly $20 <Text style={styles.hideText} onPress={()=>navigation.navigate('DriverShiftTrackingDetails')}>Hide</Text>
-        </Text>
+        </Text> */}
+        {showPay ? (
+          <Text style={[AppStyles.title, {fontSize: size.default}]}>
+            Basic Pay: Hourly $20{' '}
+            <Text style={styles.hideText} onPress={() => setShowPay(false)}>
+              Hide
+            </Text>
+          </Text>
+        ) : (
+          <Text style={[AppStyles.title, {fontSize: size.default}]}>
+            Basic Pay: {'\u2022\u2022\u2022\u2022\u2022'}{' '}
+            <Text style={styles.hideText} onPress={() => setShowPay(true)}>
+              Show
+            </Text>
+          </Text>
+        )}
         <TouchableOpacity
           onPress={() => navigation.navigate('DriverShiftTrackingDetails')}
           activeOpacity={0.8}>

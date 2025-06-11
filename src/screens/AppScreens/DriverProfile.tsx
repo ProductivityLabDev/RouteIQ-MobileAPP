@@ -20,6 +20,7 @@ import GlobalIcon from '../../components/GlobalIcon';
 import AppButton from '../../components/AppButton';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {saveToken, setLogout} from '../../store/user/userSlices';
+import {Alert} from 'react-native';
 
 const DriverProfile = () => {
   const dispatch = useAppDispatch();
@@ -59,7 +60,8 @@ const DriverProfile = () => {
     }
 
     const routes = {
-     'Profile Info': role === 'Driver' ? 'DriverProfileInfo' : 'RetailProfileInfo',
+      'Profile Info':
+        role === 'Driver' ? 'DriverProfileInfo' : 'RetailProfileInfo',
       'Emergency Contact': 'DriverEmergencyContact',
       Qualification: 'DriverQualifications',
       Certification: 'DriverCertification',
@@ -159,11 +161,44 @@ const DriverProfile = () => {
             ))}
           </View>
 
-          <AppButton
+          {/* <AppButton
             title="Logout"
             onPress={() => {
               dispatch(setLogout(true));
               dispatch(saveToken(null));
+            }}
+            style={[
+              styles.logoutButton,
+              role === 'Retail' && {
+                marginTop: hp(35),
+                backgroundColor: AppColors.red,
+              },
+            ]}
+            titleStyle={{fontSize: size.md}}
+          /> */}
+
+          <AppButton
+            title="Logout"
+            onPress={() => {
+              Alert.alert(
+                'Logout',
+                'Are you sure you want to logout?',
+                [
+                  {
+                    text: 'Cancel',
+                    onPress: () => console.log('Logout cancelled'),
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Yes',
+                    onPress: () => {
+                      dispatch(setLogout(true));
+                      dispatch(saveToken(null));
+                    },
+                  },
+                ],
+                {cancelable: true},
+              );
             }}
             style={[
               styles.logoutButton,

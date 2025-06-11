@@ -1,42 +1,58 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+} from 'react-native';
 import moment from 'moment';
 import GlobalIcon from './GlobalIcon';
 import {AppColors} from '../utils/color';
-import {hp} from '../utils/constants';
+import {hp, wp} from '../utils/constants';
 import AppFonts from '../utils/appFonts';
 import {fontSize, size} from '../utils/responsiveFonts';
 import {useAppDispatch} from '../store/hooks';
 import {setDriverHomeStatus} from '../store/user/userSlices';
 
-const AppWeeklyCalendar = () => {
+const AppMonthlyCalendar = () => {
   const dispatch = useAppDispatch();
-  const [currentWeek, setCurrentWeek] = useState(moment());
+  const [currentMonth, setCurrentMonth] = useState(moment());
+  const [selectedDay, setSelectedDay] = useState(moment());
   const today = moment();
 
-  const generateWeek = (date: any) => {
-    const startOfWeek = date.startOf('week');
+  const generateDaysInMonth = (date: any) => {
+    const startOfMonth = date.clone().startOf('month');
+    const endOfMonth = date.clone().endOf('month');
     const days = [];
-    for (let i = 0; i < 7; i++) {
-      days.push(moment(startOfWeek).add(i, 'days'));
+    let current = startOfMonth.clone();
+
+    while (current.isSameOrBefore(endOfMonth, 'day')) {
+      days.push(current.clone());
+      current.add(1, 'day');
     }
+
     return days;
   };
 
-  const nextWeek = () => {
-    setCurrentWeek(currentWeek.clone().add(1, 'weeks'));
+  const nextMonth = () => {
+    const next = currentMonth.clone().add(1, 'months');
+    setCurrentMonth(next);
+    setSelectedDay(next.clone().startOf('month'));
   };
 
-  const previousWeek = () => {
-    setCurrentWeek(currentWeek.clone().subtract(1, 'weeks'));
+  const previousMonth = () => {
+    const prev = currentMonth.clone().subtract(1, 'months');
+    setCurrentMonth(prev);
+    setSelectedDay(prev.clone().startOf('month'));
   };
 
-  const daysOfWeek = generateWeek(currentWeek);
+  const daysOfMonth = generateDaysInMonth(currentMonth);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={{padding: hp(1)}} onPress={previousWeek}>
+        <TouchableOpacity style={{padding: hp(1)}} onPress={previousMonth}>
           <GlobalIcon
             library="FontAwesome5"
             name="chevron-left"
@@ -46,10 +62,10 @@ const AppWeeklyCalendar = () => {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => dispatch(setDriverHomeStatus(true))}>
           <Text style={styles.monthText}>
-            {currentWeek.format('MMMM YYYY')}
+            {currentMonth.format('MMMM YYYY')}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{padding: hp(1)}} onPress={nextWeek}>
+        <TouchableOpacity style={{padding: hp(1)}} onPress={nextMonth}>
           <GlobalIcon
             library="FontAwesome5"
             name="chevron-right"
@@ -58,27 +74,47 @@ const AppWeeklyCalendar = () => {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.weekContainer}>
-        {daysOfWeek.map((day, index) => {
+
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={daysOfMonth}
+        keyExtractor={(item) => item.format('YYYY-MM-DD')}
+        contentContainerStyle={styles.scrollContainer}
+        renderItem={({item: day}) => {
           const isToday = day.isSame(today, 'day');
+          const isSelected = day.isSame(selectedDay, 'day');
+
           return (
-            <View
-              key={index}
+            <TouchableOpacity
               style={[
                 styles.dayContainer,
-                isToday && styles.highlightedDayContainer,
-              ]}>
+                (isToday || isSelected) && styles.highlightedDayContainer,
+              ]}
+              onPress={() => setSelectedDay(day)}>
               <Text
                 style={[
                   styles.dateText,
-                  {color: isToday ? AppColors.red : AppColors.black},
+                  {
+                    color: isSelected
+                      ? AppColors.white
+                      : isToday
+                      ? AppColors.white
+                      : AppColors.black,
+                  },
                 ]}>
                 {day.format('DD')}
               </Text>
               <Text
                 style={[
                   styles.dayText,
-                  {color: isToday ? AppColors.red : AppColors.black},
+                  {
+                    color: isSelected
+                      ? AppColors.white
+                      : isToday
+                      ? AppColors.white
+                      : AppColors.black,
+                  },
                 ]}>
                 {day.format('ddd')}
               </Text>
@@ -86,13 +122,18 @@ const AppWeeklyCalendar = () => {
                 style={[
                   styles.dot,
                   {
-                    backgroundColor: isToday ? AppColors.red : AppColors.white,
+                    backgroundColor: isSelected
+                      ? AppColors.white
+                      : isToday
+                      ? AppColors.white
+                      : AppColors.white,
                   },
-                ]}></View>
-            </View>
+                ]}
+              />
+            </TouchableOpacity>
           );
-        })}
-      </View>
+        }}
+      />
     </View>
   );
 };
@@ -101,7 +142,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     paddingHorizontal: hp(1.5),
-    paddingTop: hp(.5),
+    paddingTop: hp(0.5),
     paddingBottom: hp(1.5),
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -115,35 +156,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: hp(1),
   },
-  arrow: {
-    fontSize: 20,
-    color: '#333',
-  },
   monthText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: AppColors.black,
   },
-  weekContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  scrollContainer: {
+    paddingHorizontal: wp(2),
   },
   dayContainer: {
     alignItems: 'center',
-    flex: 1,
-    height: hp(10),
-    gap: 4,
     justifyContent: 'center',
+    marginHorizontal: wp(1),
+    width: wp(14),
+    height: hp(10),
+    borderRadius: 8,
+    gap: 4,
   },
   dateText: {
     fontSize: size.md,
     fontFamily: AppFonts.NunitoSansBold,
-    color: AppColors.black,
   },
   dayText: {
     fontSize: fontSize(14),
     fontFamily: AppFonts.NunitoSansSemiBold,
-    color: AppColors.black,
   },
   dot: {
     height: hp(1),
@@ -151,9 +187,8 @@ const styles = StyleSheet.create({
     borderRadius: hp(1),
   },
   highlightedDayContainer: {
-    backgroundColor: AppColors.lightRed,
-    borderRadius: 5,
+    backgroundColor: AppColors.red,
   },
 });
 
-export default AppWeeklyCalendar;
+export default AppMonthlyCalendar;

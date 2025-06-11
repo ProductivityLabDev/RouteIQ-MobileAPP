@@ -21,9 +21,14 @@ import {setDriverHomeStatus} from '../store/user/userSlices';
 const DriverMonthlyCalendar = () => {
   const dispatch = useAppDispatch();
   const [selectedDate, setSelectedDate] = useState(moment());
+  const [selectedDay, setSelectedDay] = useState(moment()); 
 
   const changeMonth = (direction: any) => {
     setSelectedDate(prev => moment(prev).add(direction, 'months'));
+  };
+
+  const selectDate = (date: any) => {
+    setSelectedDay(date);
   };
 
   const renderHeader = () => {
@@ -55,19 +60,23 @@ const DriverMonthlyCalendar = () => {
   const renderMonthSwitcher = () => {
     const months = moment.monthsShort();
     return (
-      <View style={AppStyles.rowBetween}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.monthScrollContainer}
+        style={styles.monthScrollView}
+      >
         {months.map((month, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() => setSelectedDate(moment().month(month))}
+            onPress={() => {
+              const newDate = moment().year(selectedDate.year()).month(index);
+              setSelectedDate(newDate);
+            }}
             style={
               selectedDate.format('MMM') === month
                 ? styles.selectedMonthView
-                : {
-                    paddingVertical: hp(1),
-                    paddingHorizontal: hp(0.5),
-                    marginHorizontal: hp(1),
-                  }
+                : styles.monthView
             }>
             <Text
               style={[
@@ -90,7 +99,7 @@ const DriverMonthlyCalendar = () => {
               ]}></View>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     );
   };
 
@@ -109,10 +118,26 @@ const DriverMonthlyCalendar = () => {
           {backgroundColor: index % 2 == 0 ? '#E2E2E9' : AppColors.transparent},
         ]}
         key={day.format('D')}>
-        <View style={styles.dateContainer}>
-          <Text style={styles.dayText}>{day.format('DD')}</Text>
-          <Text style={styles.dayName}>{day.format('ddd')}</Text>
-        </View>
+        <TouchableOpacity 
+          style={[
+            styles.dateContainer,
+            selectedDay.isSame(day, 'day') && styles.selectedDateContainer
+          ]}
+          onPress={() => selectDate(day)}
+        >
+          <Text style={[
+            styles.dayText,
+            selectedDay.isSame(day, 'day') && styles.selectedDayText
+          ]}>
+            {day.format('DD')}
+          </Text>
+          <Text style={[
+            styles.dayName,
+            selectedDay.isSame(day, 'day') && styles.selectedDayText
+          ]}>
+            {day.format('ddd')}
+          </Text>
+        </TouchableOpacity>
         <View style={[AppStyles.rowBetween, styles.tasksContainer]}>
           {renderTaskBlocksForDay(day)}
         </View>
@@ -200,6 +225,21 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansBold,
     color: AppColors.black,
   },
+  monthScrollView: {
+    maxHeight: hp(8),
+  },
+  monthScrollContainer: {
+    paddingHorizontal: hp(2),
+    alignItems: 'center',
+  },
+  monthView: {
+    paddingVertical: hp(1),
+    paddingHorizontal: hp(0.5),
+    marginHorizontal: hp(1),
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: hp(6),
+  },
   monthText: {
     fontSize: size.md,
     padding: 5,
@@ -217,6 +257,7 @@ const styles = StyleSheet.create({
     marginHorizontal: hp(1),
     justifyContent: 'center',
     alignItems: 'center',
+    minWidth: hp(6),
   },
   timeSlotsRow: {
     marginBottom: 10,
@@ -233,12 +274,19 @@ const styles = StyleSheet.create({
   dayContainer: {
     width: '100%',
     paddingVertical: hp(1),
+    paddingHorizontal: hp(1),
     borderBottomWidth: 1,
     borderBottomColor: '#E2E2E9',
   },
   dateContainer: {
     width: '15%',
     alignItems: 'center',
+    paddingVertical: hp(0.5),
+  },
+  selectedDateContainer: {
+    backgroundColor: AppColors.red,
+    borderRadius: 8,
+    marginHorizontal: hp(1)
   },
   dayText: {
     fontSize: size.lg,
@@ -249,6 +297,9 @@ const styles = StyleSheet.create({
     fontSize: fontSize(14),
     color: AppColors.black,
     fontFamily: AppFonts.NunitoSansSemiBold,
+  },
+  selectedDayText: {
+    color: AppColors.white,
   },
   tasksContainer: {
     width: '80%',

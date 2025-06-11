@@ -47,12 +47,12 @@ const VerificationCode = () => {
             <Text style={styles.timerText}>00:30</Text>
             <AppButton
               onPress={() => {
-                // if (role === 'Retail') {
-                //   navigation.navigate('HomeSreen');
-                //   dispatch(saveToken(true));
-                // } else {
-                   navigation.navigate('NewPassword');
-                // }
+                if (role === 'Retail') {
+                  navigation.navigate('HomeSreen');
+                  dispatch(saveToken(true));
+                } else {
+                   
+                }
               }}
               title="Continue"
               style={{marginTop: hp(10)}}

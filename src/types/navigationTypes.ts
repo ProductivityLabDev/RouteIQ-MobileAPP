@@ -60,6 +60,7 @@ export type RootStackParamList = {
   EditRetailDetail: undefined;
   RetailPayment:undefined;
   RetailHistory:undefined;
+  UpdateRetailDetail: undefined;
   
 
 };

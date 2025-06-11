@@ -66,15 +66,19 @@ export default function DriverHomeScreen() {
         <View style={AppStyles.driverContainer}>
           {role === 'Driver' && (
             <View style={AppStyles.rowBetween}>
-              {/* LEFT side: fixed width view to preserve layout */}
               <View style={{minWidth: 180}}>
                 {dayScene[selectedScene] === 'AM' ? (
                   <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
-                    Morning route starts at 8 AM
+                    School starts at 8:00AM
                   </Text>
-                ) : (
-                  <Text> </Text> // 👈 Empty Text component to avoid error
-                )}
+                ) 
+                : 
+                  dayScene[selectedScene] === 'PM' ? (
+                  <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
+                   School dismissal is 3:00pm
+                  </Text>
+                 
+                ):null}
               </View>
 
               {/* RIGHT side: Buttons */}
@@ -134,10 +138,10 @@ export default function DriverHomeScreen() {
       <AppWeeklyCalendar />
       <ScrollView>
         <View style={AppStyles.driverContainer}>
-          {role == 'Driver' && (
+          {/* {role == 'Driver' && (
             <View style={AppStyles.rowBetween}>
               <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
-                {/* Morning route starts at 8 AM */}
+                Morning route starts at 8 AM
               </Text>
               <View style={AppStyles.row}>
                 {dayScene?.map((item, index) => {
@@ -176,7 +180,7 @@ export default function DriverHomeScreen() {
                 })}
               </View>
             </View>
-          )}
+          )} */}
         </View>
         <FlatList
           data={homeTripData}

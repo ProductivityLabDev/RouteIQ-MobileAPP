@@ -88,6 +88,17 @@ const RetailDetail = () => {
           </View> */}
           <View style={styles.container}>
             <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>Select Current Trip</Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.slectCurrentTrip}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
               <Text style={[AppStyles.halfWidth, AppStyles.title]}>Company/Group Name</Text>
               <Text
                 style={[
@@ -137,6 +148,19 @@ const RetailDetail = () => {
                 {retailDetailData?.roundTrip}
               </Text>
             </View>
+             <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+                Number of Passengers
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.numberOfPassengers}
+              </Text>
+            </View>
             <View style={[AppStyles.rowBetween, styles.textContainer]}>
               <Text style={[AppStyles.halfWidth, AppStyles.title]}>
                   Is a Wheelchair lift required?
@@ -152,7 +176,7 @@ const RetailDetail = () => {
             </View>
             <View style={[AppStyles.rowBetween, styles.textContainer]}>
               <Text style={[AppStyles.halfWidth, AppStyles.title]}>
-              Name of Locaton
+              Bus Type
               </Text>
               <Text
                 style={[
@@ -160,13 +184,13 @@ const RetailDetail = () => {
                   AppStyles.subTitle,
                   { color: AppColors.charcoalGray },
                 ]}>
-                {retailDetailData?.nameOfLocaton}
+                {retailDetailData?.busType}
               </Text>
             </View>
 
             <View style={[AppStyles.rowBetween, styles.textContainer]}>
               <Text style={[AppStyles.halfWidth, AppStyles.title]}>
-              Additional Destination
+              Pickup Date
               </Text>
               <Text
                 style={[
@@ -174,13 +198,13 @@ const RetailDetail = () => {
                   AppStyles.subTitle,
                   { color: AppColors.charcoalGray },
                 ]}>
-                {retailDetailData?.additionalDestination}
+                {retailDetailData?.pickupDate}
               </Text>
             </View>
 
             <View style={[AppStyles.rowBetween, styles.textContainer]}>
               <Text style={[AppStyles.halfWidth, AppStyles.title]}>
-              Special Instructions
+              Pickup Time
               </Text>
               <Text
                 style={[
@@ -188,9 +212,223 @@ const RetailDetail = () => {
                   AppStyles.subTitle,
                   { color: AppColors.charcoalGray },
                 ]}>
-                {retailDetailData?.specialInstructions}
+                {retailDetailData?.pickupTime}
               </Text>
             </View>
+             <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Return Date
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.returnDate}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Return Time
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.returnTime}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Type Of Group
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.typeOfGroup}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Pickup Location
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.pickupLocation}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Name
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.sName}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Pickup Address
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.pickupAddress}
+              </Text>
+            </View>
+             <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Pickup City
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.pickupCity}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Pickup State
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.pickupState}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Pickup Zip
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.pickupZip}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Add Additional Destinations
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.addAdditionalDestinations}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Destination Location
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.destinationLocation}
+              </Text>
+            </View>
+             <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Destination Address
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.destinationAddress}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Destination City
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.destinationCity}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Destination State
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.destinationState}
+              </Text>
+            </View>
+            <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+              Destination Zip
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.destinationZip}
+              </Text>
+            </View>
+             <View style={[AppStyles.rowBetween, styles.textContainer]}>
+              <Text style={[AppStyles.halfWidth, AppStyles.title]}>
+               How Were you referred to us?
+              </Text>
+              <Text
+                style={[
+                  AppStyles.halfWidth,
+                  AppStyles.subTitle,
+                  { color: AppColors.charcoalGray },
+                ]}>
+                {retailDetailData?.howWereYouReferredToUs}
+              </Text>
+            </View>
+             <AppButton
+              onPress={() => navigation.navigate('UpdateRetailDetail')}
+              title="Edit Info"
+              style={styles.button}
+              titleStyle={styles.buttonTitle}
+            />
           </View>
         </View>
 
@@ -359,5 +597,16 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+   button: {
+    width: '100%',
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.red,
+    borderWidth: 1.5,
+    marginBottom: hp(2),
+    alignSelf: 'center',
+  },
+  buttonTitle: {
+    color: AppColors.black,
   },
 });

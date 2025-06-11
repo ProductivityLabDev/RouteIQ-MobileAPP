@@ -25,6 +25,8 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AppButton from './AppButton';
 import UploadDoc from './UploadDoc';
 import AppInput from './AppInput';
+import { Controller, useForm } from 'react-hook-form';
+import CalendarPicker from './CalendarPicker';
 
 const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({
   trackingDetails,
@@ -67,6 +69,23 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({
   const changeMonth = (direction: any) => {
     setSelectedDate(prev => moment(prev).add(direction, 'months'));
   };
+
+   const {
+      control,
+      handleSubmit,
+      setValue,
+      formState: {errors},
+    } = useForm({
+      defaultValues: {
+       selectdate: '',
+      
+      },
+    });
+  
+    const onSubmit = () => {
+      // navigation.goBack();
+    };
+  
 
   const renderHeader = () => {
     return (
@@ -461,7 +480,21 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({
                 borderTopRightRadius: hp(2),
                 borderTopLeftRadius: hp(2),
               }}>
-              <AppInput
+              <Controller 
+                name="selectdate"
+                control={control}
+                rules={{required: 'Date is required'}}
+                render={({field: {onChange, value}, fieldState: {error}}) => (
+                  <CalendarPicker
+                    selectedDate={value}
+                    setDates={(date: string) => onChange(date)}
+                    error={error?.message}
+                    label="Request Time Off"
+                  />
+                )}
+              />
+
+              {/* <AppInput
                 // multiline
                 numberOfLines={1}
                 container={{height: hp(6), borderRadius: hp(0.5)}}
@@ -482,7 +515,7 @@ const DriverShiftInfo: React.FC<DriverShiftInfoProps> = ({
                   </View>
                 }
                 // error={error.reason}
-              />
+              /> */}
 
               <AppInput
                 multiline

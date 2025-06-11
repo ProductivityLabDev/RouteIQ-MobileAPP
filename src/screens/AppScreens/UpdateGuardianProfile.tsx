@@ -1,7 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
 import AppButton from '../../components/AppButton';
 import AppHeader from '../../components/AppHeader';
@@ -40,6 +40,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
     defaultValues: {
       name: '',
       relationWithChild: '',
+      otherRelation:'',
       address: '',
       city: '',
       state: '',
@@ -89,7 +90,7 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
           <Controller
             name="relationWithChild"
             control={control}
-            // rules={{required: 'Relation with child is required'}}
+            rules={{required: 'Required*'}}
             render={({field: {onChange, value}}) => (
               <>
                 <AppInput
@@ -119,9 +120,34 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
                     fontFamily: AppFonts.NunitoSansSemiBold,
                   }}
                 />
+                {errors.relationWithChild?.message && (
+                  <Text style={styles.errorText}>
+                    {errors.relationWithChild.message}
+                  </Text>
+                )}
+
+                {/* Show input field if "Other" is selected */}
+                {value === 'Other' && (
+                  <Controller
+                    name="otherRelation"
+                    control={control}
+                    rules={{required: 'Please specify your relationship'}}
+                    render={({field: {onChange, value}}) => (
+                      <AppInput
+                        containerStyle={styles.inputContainerStyle}
+                        label="Specify Relationship"
+                        value={value}
+                        onChangeText={onChange}
+                        inputStyle={{color: AppColors.black}}
+                        error={errors.otherRelation?.message}
+                      />
+                    )}
+                  />
+                )}
               </>
             )}
           />
+
           <Controller
             name="address"
             control={control}
@@ -185,15 +211,25 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
           <Controller
             name="phone"
             control={control}
-            rules={{required: 'Phone is required'}}
+            rules={{
+              required: 'Phone is required',
+              pattern: {
+                value: /^[0-9]{11}$/,
+                message: 'Phone number must be 11 digits',
+              },
+            }}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={styles.inputContainer}
                 label="Phone"
                 value={value}
-                onChangeText={(text: string) => onChange(text)}
+                onChangeText={(text: string) => {
+                  const numericText = text.replace(/[^0-9]/g, '');
+                  onChange(numericText);
+                }}
                 editable={true}
                 keyboardType="number-pad"
+                maxLength={11}
                 error={errors.phone?.message}
               />
             )}
@@ -244,4 +280,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: AppColors.black,
   },
+  errorText: {
+    color: AppColors.red,
+    fontSize: size.sl,
+    fontFamily: AppFonts.NunitoSansRegular,
+    marginTop: hp(0.5),
+    marginLeft: hp(0.5),
+  },
+  inputContainerStyle:{
+    marginTop:hp(2)
+  }
 });

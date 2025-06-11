@@ -84,7 +84,7 @@ const DriverMaintenanceDetail = () => {
         </View>
       </ScrollView>
 
-      {maintenanceDetail == 'Cleaning' && <AnimatedDriverMapView />}
+      {/* {maintenanceDetail == 'Cleaning' && <AnimatedDriverMapView />} */}
     </AppLayout>
   );
 };

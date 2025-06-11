@@ -13,6 +13,7 @@ import GlobalIcon from '../../components/GlobalIcon';
 const DriverHistory = () => {
   const [Attendance, setAttendance] = useState(true);
   const [pto, setPto] = useState(false);
+  const [feedbackType, setFeedbackType] = useState('School');
 
   const feedbacks = [
     {
@@ -34,6 +35,73 @@ const DriverHistory = () => {
         'Studies show being critiqued can feel threatening, triggering the fight-flight-freeze stress response.',
     },
   ];
+
+  const schoolFeedbacks = [
+    {
+      profilePic: require('../../assets/images/JacobJones.png'),
+      name: 'Jacob Jones',
+      response: 'School feedback: punctual and responsible driver.',
+    },
+    {
+      profilePic: require('../../assets/images/MeeAo.png'),
+      name: 'Mee Ao',
+      response: 'School feedback: maintains bus cleanliness.',
+    },
+    {
+      profilePic: require('../../assets/images/ShonaMor.png'),
+      name: 'Shona Mor',
+      response: 'School feedback: great with kids.',
+    },
+  ];
+
+  const vendorFeedbacks = [
+    {
+      profilePic: require('../../assets/images/JacobJones.png'),
+      name: 'Vendor 1',
+      response: 'Vendor feedback: always on time with reports.',
+    },
+    {
+      profilePic: require('../../assets/images/MeeAo.png'),
+      name: 'Vendor 2',
+      response: 'Vendor feedback: communicates delays well.',
+    },
+    {
+      profilePic: require('../../assets/images/ShonaMor.png'),
+      name: 'Vendor 3',
+      response: 'Vendor feedback: professional attitude.',
+    },
+  ];
+
+  const parentFeedbacks = [
+    {
+      profilePic: require('../../assets/images/JacobJones.png'),
+      name: 'Parent A',
+      response: 'Parent feedback: very polite driver.',
+    },
+    {
+      profilePic: require('../../assets/images/MeeAo.png'),
+      name: 'Parent B',
+      response: 'Parent feedback: helps kids board safely.',
+    },
+    {
+      profilePic: require('../../assets/images/ShonaMor.png'),
+      name: 'Parent C',
+      response: 'Parent feedback: always greets with a smile.',
+    },
+  ];
+
+  const getCurrentFeedbacks = () => {
+    switch (feedbackType) {
+      case 'School':
+        return schoolFeedbacks;
+      case 'Vendor':
+        return vendorFeedbacks;
+      case 'Parent':
+        return parentFeedbacks;
+      default:
+        return [];
+    }
+  };
 
   const renderData = (type: any) => {
     return (
@@ -170,15 +238,13 @@ const DriverHistory = () => {
                 {alignItems: 'center'},
               ]}>
               <View style={styles.btnIconView}>
-                <View style={{position:'relative', right: hp(12)}}>
-
-                <GlobalIcon
-                  library="FontAwesome6"
-                  name="angle-up"
-                  size={24}
-                  color={AppColors.white}
-                
-                />
+                <View style={{position: 'relative', right: hp(12)}}>
+                  <GlobalIcon
+                    library="FontAwesome6"
+                    name="angle-up"
+                    size={24}
+                    color={AppColors.white}
+                  />
                 </View>
 
                 <Text
@@ -192,9 +258,6 @@ const DriverHistory = () => {
                   ]}>
                   15 Days PTO
                 </Text>
-
-
-                
               </View>
             </Pressable>
             {!pto && (
@@ -217,64 +280,56 @@ const DriverHistory = () => {
           <>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <View style={styles.daysInfoContainer}>
-                <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
-                  School
-                </Text>
-              </View>
-              <View style={styles.daysInfoContainer}>
-                <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
-                  Vendor
-                </Text>
-              </View>
-              <View style={styles.daysInfoContainer}>
-                <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
-                  Parent
-                </Text>
-              </View>
+              {['School', 'Vendor', 'Parent'].map(type => (
+                <Pressable
+                  key={type}
+                  onPress={() => setFeedbackType(type)}
+                  style={[
+                    styles.daysInfoContainer,
+                    feedbackType === type && {borderColor: AppColors.black},
+                  ]}>
+                  <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
+                    {type}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
-
             <FlatList
-              data={feedbacks}
+              data={getCurrentFeedbacks()}
+              keyExtractor={(item, index) => index.toString()}
               renderItem={({item}) => (
-                <>
-                  <View
-                    style={[
-                      styles.container,
-                      {flexDirection: 'column', alignItems: 'flex-start'},
-                    ]}>
-                    <View style={styles.imgNTextContainer}>
-                      <Image
-                        source={item.profilePic}
-                        resizeMode="cover"
-                        style={{
-                          width: wp(12),
-                          height: wp(12),
-                          borderRadius: 100,
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.title,
-                          {backgroundColor: 'transparent'},
-                        ]}>
-                        {item.name}
-                      </Text>
-                    </View>
-
+                <View
+                  style={[
+                    styles.container,
+                    {flexDirection: 'column', alignItems: 'flex-start'},
+                  ]}>
+                  <View style={styles.imgNTextContainer}>
+                    <Image
+                      source={item.profilePic}
+                      resizeMode="cover"
+                      style={{
+                        width: wp(12),
+                        height: wp(12),
+                        borderRadius: 100,
+                      }}
+                    />
                     <Text
-                      style={[
-                        styles.subTitle,
-                        {
-                          backgroundColor: 'transparent',
-                          lineHeight: 20.72,
-                          marginTop: 7,
-                        },
-                      ]}>
-                      {item.response}
+                      style={[styles.title, {backgroundColor: 'transparent'}]}>
+                      {item.name}
                     </Text>
                   </View>
-                </>
+                  <Text
+                    style={[
+                      styles.subTitle,
+                      {
+                        backgroundColor: 'transparent',
+                        lineHeight: 20.72,
+                        marginTop: 7,
+                      },
+                    ]}>
+                    {item.response}
+                  </Text>
+                </View>
               )}
             />
           </>
@@ -397,8 +452,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: wp(3),
   },
-btnIconView:{
-    flexDirection: 'row', 
-    justifyContent: 'center'
-}
+  btnIconView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
 });

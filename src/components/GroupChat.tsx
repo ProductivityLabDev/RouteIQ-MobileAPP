@@ -97,7 +97,11 @@ const GroupChat = ({arrayData}) => {
                     color={AppColors.grey}
                   />
                 </TouchableOpacity>
-                <Text style={styles.selectedUserName}>{item.name}</Text>
+                <Text style={styles.selectedUserName}>
+                  {item.name.length > 4
+                    ? item.name.slice(0, 4) + '...'
+                    : item.name}
+                </Text>
               </View>
             )}
           />
@@ -137,7 +141,11 @@ const GroupChat = ({arrayData}) => {
             <AppInput
               placeholder="Group Name"
               container={[styles.inputContainer]}
-              inputStyle={{fontSize: 18, paddingVertical: 10, fontFamily: AppFonts.NunitoSansBold}}
+              inputStyle={{
+                fontSize: 18,
+                paddingVertical: 10,
+                fontFamily: AppFonts.NunitoSansBold,
+              }}
             />
           </View>
 
@@ -152,7 +160,11 @@ const GroupChat = ({arrayData}) => {
                   source={localImages[item.avatar]}
                   style={styles.avatar}
                 />
-                <Text style={styles.userName}>{item.name}</Text>
+                <Text style={styles.userName}>
+                  {item.name.length > 4
+                    ? item.name.substring(0, 4) + '...'
+                    : item.name}
+                </Text>
                 <TouchableOpacity
                   onPress={() => toggleSelection(item)}
                   style={styles.removeButtonGroupIcon}>
@@ -311,28 +323,28 @@ const styles = StyleSheet.create({
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 12
+    marginVertical: 12,
   },
   avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 10,
-    alignItems:'center'
+    alignItems: 'center',
   },
   userName: {
     fontSize: 16,
     color: AppColors.black,
     fontFamily: AppFonts.NunitoSansBold,
   },
-  selectedUserName:{
+  selectedUserName: {
     fontSize: 16,
     color: AppColors.black,
     fontFamily: AppFonts.NunitoSansBold,
-     position: 'relative',
-     bottom:14
+    position: 'relative',
+    bottom: 14,
   },
- 
+
   selectedItem: {
     alignItems: 'center',
     marginRight: 10,
@@ -381,9 +393,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
   },
-  chatItemStyle:{
+  chatItemStyle: {
     flexDirection: 'row',
     gap: hp(14),
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });

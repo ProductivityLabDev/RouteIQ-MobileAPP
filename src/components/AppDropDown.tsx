@@ -10,16 +10,17 @@ interface AppDropdownProps {
   label?: string;
   optional?: boolean;
   placeholder?: string;
-  value?: string;
-  onChangeText?: (text: string) => void;
+  value?: string | string[];
+  onChangeText?: (value: string | string[]) => void;
   style?: StyleProp<ViewStyle>;
-  data?: any;
+  data?: any[];
   onConfirmSelectItem?: any;
-  error?: any;
+  error?: string;
   labelContainer?: ViewStyle;
   labelStyle?: TextStyle;
   inputStyle?: any;
-  labelType?: boolean
+  labelType?: boolean;
+  multiple?: boolean;
 }
 
 const AppDropdown: React.FC<AppDropdownProps> = ({
@@ -29,22 +30,25 @@ const AppDropdown: React.FC<AppDropdownProps> = ({
   value,
   onChangeText,
   style = {},
-  data,
+  data = [],
   onConfirmSelectItem,
   error,
   labelContainer,
   labelStyle,
   inputStyle,
-  labelType = false
+  labelType = false,
+  multiple = false,
 }) => {
   return (
     <View style={[styles.container, style]}>
-      {label && <View style={[styles.labelContainer, labelContainer]}>
-        <Text style={[styles.label, labelStyle]}>
-          {label}
-          {optional && <Text style={{color: 'red'}}>*</Text>}
-        </Text>
-      </View>}
+      {label && (
+        <View style={[styles.labelContainer, labelContainer]}>
+          <Text style={[styles.label, labelStyle]}>
+            {label}
+            {optional && <Text style={{color: 'red'}}>*</Text>}
+          </Text>
+        </View>
+      )}
       <Dropdown
         iconStyle={{marginRight: hp(1)}}
         placeholderStyle={{
@@ -53,14 +57,15 @@ const AppDropdown: React.FC<AppDropdownProps> = ({
         style={[styles.input, inputStyle]}
         data={data}
         maxHeight={300}
-        labelField={data ? 'label' : 'label'}
-        valueField={labelType ? "label" : "value"}
+        labelField="label"
+        valueField={labelType ? 'label' : 'value'}
         placeholder={placeholder}
-        onConfirmSelectItem={onConfirmSelectItem}
+        multiple={multiple}
         value={value}
+        onChange={onChangeText}
         selectedTextStyle={{color: AppColors.black}}
         showsVerticalScrollIndicator={false}
-        onChange={onChangeText}
+        onConfirmSelectItem={onConfirmSelectItem}
       />
       {error && <Text style={styles.error}>{error}</Text>}
     </View>
@@ -75,16 +80,13 @@ const styles = StyleSheet.create({
     marginVertical: hp(2),
   },
   labelContainer: {
-    marginTop:hp(1)
+    marginTop: hp(1),
   },
   label: {
     color: AppColors.black,
     fontSize: size.md,
     alignSelf: 'flex-start',
     fontFamily: AppFonts.NunitoSansBold,
-  },
-  labelFocused: {
-    color: 'blue',
   },
   input: {
     width: '100%',

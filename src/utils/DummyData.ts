@@ -45,6 +45,23 @@ export const leaveDropdownData = [
   {key: '4', value: 'PM'},
 ];
 
+export const selectedChildData = [
+  {
+    key: '1',
+    value: 'Mark Tommy',
+    image: require('../assets/images/JacobJones.png'),
+  },
+  {
+    key: '2',
+    value: 'Lisa Tommy',
+    image: require('../assets/images/ShonaMor.png'),
+  },
+  {
+    key: '3',
+    value: 'Cheng Tommy',
+    image: require('../assets/images/JacobJones.png'),
+  },
+];
 export const DegreeData = [
   {key: '1', value: 'Computer Science'},
   {key: '2', value: 'Mechanical'},
@@ -531,14 +548,34 @@ export const studentsData = [
 
 export const retailDetailData = 
   {
+    slectCurrentTrip: 'Motorcoach (56 Passenger)',
     name: 'Jonney Barbo',
     PhoneNumber: '012 022 1531',
     emailAddress: 'ab@gmail.com',
     roundTrip: 'Shuttle',
+    numberOfPassengers: 70,
     isWheelChairLift:'Yes',
-    nameOfLocaton: 'Oakwood Elementary School',
-    additionalDestination: 'Oakwood Elementary School',
-    specialInstructions: 'Oakwood Elementary School'
+    busType: 'Motorcoach',
+    pickupDate: '03/06/2025',
+    pickupTime: '08:00',
+    returnDate: '09/07/2025',
+    returnTime: '12:00',
+    typeOfGroup: 'Test',
+    pickupLocation: 'Oakwood Elementary School',
+    sName: 'Mark Tommay',
+    pickupAddress: 'Oakwood Elementary School',
+    pickupCity: 'Los Angeles',
+    pickupState: 'California',
+    pickupZip: '90001',
+    addAdditionalDestinations:'Oakwood Elementary School',
+    destinationLocation: 'Oakwood Elementary School',
+    destinationAddress: 'Oakwood Elementary School',
+    destinationCity: 'Los Angeles',
+    destinationState: 'California',
+    destinationZip: '90002',
+    howWereYouReferredToUs: 'Test'
+
+
   }
 
 export const chats_data = [

@@ -1,7 +1,17 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {Image, ScrollView, StyleSheet, View} from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  View,
+  PermissionsAndroid,
+  Platform,
+  Pressable,
+  Alert,
+} from 'react-native';
+import {launchImageLibrary} from 'react-native-image-picker';
 import {SelectList} from 'react-native-dropdown-select-list';
 import AppButton from '../../components/AppButton';
 import AppHeader from '../../components/AppHeader';
@@ -15,6 +25,7 @@ import {size} from '../../utils/responsiveFonts';
 
 export default function ChildProfile() {
   const navigation = useNavigation();
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const data = [
     {key: '1', value: 'Bus'},
@@ -22,13 +33,6 @@ export default function ChildProfile() {
     {key: '3', value: 'Car'},
     {key: '4', value: 'Auto'},
   ];
-
-  useEffect(() => {
-    setValue('firstName', 'Jacob');
-    setValue('lastName', 'Jones');
-    setValue('emergencyContactName', 'Tanner');
-    setValue('emergencyContact', '+93123132325');
-  }, []);
 
   const {
     control,
@@ -47,6 +51,83 @@ export default function ChildProfile() {
     },
   });
 
+  useEffect(() => {
+    setValue('firstName', 'Jacob');
+    setValue('lastName', 'Jones');
+    setValue('emergencyContactName', 'Tanner');
+    setValue('emergencyContact', '+93123132325');
+  }, []);
+
+  const requestGalleryPermission = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        if (Platform.Version >= 33) {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+            {
+              title: 'Gallery Permission',
+              message: 'App needs access to your gallery.',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            },
+          );
+          return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } else {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+            {
+              title: 'Storage Permission',
+              message: 'App needs access to your storage.',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            },
+          );
+          return granted === PermissionsAndroid.RESULTS.GRANTED;
+        }
+      }
+      return true; // iOS handled automatically
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
+  const openGallery = async () => {
+    const hasPermission = await requestGalleryPermission();
+    if (!hasPermission) {
+      Alert.alert(
+        'Permission Denied',
+        'Cannot open gallery without permission',
+      );
+      return;
+    }
+
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        maxWidth: 300,
+        maxHeight: 300,
+        quality: 0.8,
+      },
+      response => {
+        console.log('Image Picker Response: ', response);
+
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorCode) {
+          console.log('Image Picker Error: ', response.errorMessage);
+        } else {
+          const source = response.assets?.[0]?.uri;
+          if (source) {
+            setProfileImage(source);
+          }
+        }
+      },
+    );
+  };
+
   const onSubmit = () => {
     navigation.goBack();
   };
@@ -63,25 +144,31 @@ export default function ChildProfile() {
           justifyContent: 'space-between',
         }}>
         <View style={{paddingTop: hp(3)}}>
-          {/* <View style={{position: 'relative'}}>
-            <View style={styles.imageContainer}>
-              <Image
-                style={styles.image}
-                source={require('../../assets/images/profile_image.webp')}
-              />
-            </View>
-            <View style={styles.cameraIcon}>
-              <View style={{marginTop: hp(0.5)}}>
-                <GlobalIcon
-                  library="FontelloIcon"
-                  name="group-183"
-                  color={AppColors.black}
-                  size={hp(2.5)}
+          <View style={{position: 'relative'}}>
+            <Pressable onPress={openGallery}>
+              <View style={styles.imageContainer}>
+                <Image
+                  style={styles.image}
+                  source={
+                    profileImage
+                      ? {uri: profileImage}
+                      : require('../../assets/images/profile_image.webp')
+                  }
                 />
               </View>
+            </Pressable>
+            <View style={styles.cameraIcon}>
+              <GlobalIcon
+                library="FontelloIcon"
+                name="group-183"
+                color={AppColors.black}
+                size={hp(2.5)}
+                onPress={openGallery}
+              />
             </View>
-          </View> */}
+          </View>
 
+          {/* All your inputs (no changes needed) */}
           <Controller
             name="firstName"
             control={control}
@@ -133,13 +220,27 @@ export default function ChildProfile() {
           <Controller
             name="emergencyContact"
             control={control}
-            rules={{required: 'Emergency Contact is required'}}
+            rules={{
+              required: 'Emergency Contact is required',
+              maxLength: {
+                value: 11,
+                message: 'Emergency Contact must be 11 digits or fewer',
+              },
+              pattern: {
+                value: /^[0-9]*$/,
+                message: 'Only numeric digits are allowed',
+              },
+            }}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={styles.inputContainerStyle}
                 label="Emergency Contacts No"
                 value={value}
-                onChangeText={(text: string) => onChange(text)}
+                onChangeText={(text: string) => {
+                  // Allow only numeric input and max 11 digits
+                  const filtered = text.replace(/[^0-9]/g, '').slice(0, 11);
+                  onChange(filtered);
+                }}
                 inputStyle={{color: AppColors.black}}
                 editable={true}
                 keyboardType="number-pad"
@@ -150,7 +251,6 @@ export default function ChildProfile() {
           <Controller
             name="medicalDetails"
             control={control}
-            rules={{required: 'Medical Details is required'}}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={styles.inputContainerStyle}
@@ -159,18 +259,16 @@ export default function ChildProfile() {
                 value={value}
                 container={{height: hp(16)}}
                 label="Medical Details (Optional)"
-                placeholder="Descripton"
+                placeholder="Description"
                 onChangeText={(text: string) => onChange(text)}
                 inputStyle={{color: AppColors.black}}
                 editable={true}
-                error={errors.medicalDetails?.message}
               />
             )}
           />
           <Controller
             name="note"
             control={control}
-            rules={{required: 'Note is required'}}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={styles.inputContainerStyle}
@@ -180,18 +278,16 @@ export default function ChildProfile() {
                 label="Note (Optional)"
                 placeholder="Description"
                 value={value}
-                onChangeText={(text) => onChange(text)}
-                error={errors.note?.message}
+                onChangeText={text => onChange(text)}
               />
             )}
           />
-          <Controller
+          {/* <Controller
             name="transportationPreference"
             control={control}
-            // rules={{required: 'Transportation Preference is required'}}
             render={({field: {onChange, value}}) => (
               <>
-                {/* <AppInput
+                <AppInput
                   containerStyle={{marginBottom: 0}}
                   label="Transportation Preference"
                   container={{display: 'none'}}
@@ -217,10 +313,10 @@ export default function ChildProfile() {
                     color: AppColors.black,
                     fontFamily: AppFonts.NunitoSansSemiBold,
                   }}
-                /> */}
+                />
               </>
             )}
-          />
+          /> */}
         </View>
 
         <AppButton
@@ -234,18 +330,13 @@ export default function ChildProfile() {
 }
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    backgroundColor: AppColors.inputColor,
-    padding: hp(1.5),
-    borderRadius: hp(1.5),
-    marginVertical: hp(1),
-  },
   imageContainer: {
     height: hp(18),
     width: hp(18),
     borderRadius: hp(20),
     alignSelf: 'center',
     marginVertical: hp(4),
+    overflow: 'hidden',
   },
   image: {
     height: '100%',
@@ -266,7 +357,6 @@ const styles = StyleSheet.create({
   },
   inputContainerStyle: {marginBottom: hp(1.4)},
   boxStyle: {
-    // marginBottom: hp(3),
     backgroundColor: AppColors.white,
     height: hp(7),
     alignItems: 'center',

@@ -6,6 +6,7 @@ import {
   Image,
   ImageBackground,
   Pressable,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -33,6 +34,7 @@ import {useForm} from 'react-hook-form';
 import ElephantIcon from '../../assets/svgs/ElephantIcon';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {setStudentAbsentModal} from '../../store/user/userSlices';
+import MultiSelectDropdown from '../../components/MultiSelectDropdown';
 
 export default function HomeSreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -46,7 +48,30 @@ export default function HomeSreen() {
   const [selectAbsence, setSelectAbsence] = useState('');
   const [preview, setPreview] = useState(false);
   const [reasonOfAbsence, setReasonOfAbsence] = useState('');
-  const [getDates, setGetDates] = useState<any>([]);
+  // const [getDates, setGetDates] = useState<any>([]);
+  const [getDates, setGetDates] = useState<string | Date[] | null>(null);
+  const [showCalendar, setShowCalendar] = useState(true);
+
+  const handleSetDates = (dates: string | Date[]) => {
+    setGetDates(dates);
+
+    if (typeof dates === 'string') {
+      if (dates.trim() !== '') {
+        setShowCalendar(false);
+      } else {
+        setShowCalendar(true); 
+      }
+    } else if (Array.isArray(dates)) {
+      if (dates.length === 2 && dates[0] && dates[1]) {
+        setShowCalendar(false); 
+      } else {
+        setShowCalendar(true); 
+      }
+    } else {
+      setShowCalendar(true);
+    }
+  };
+
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   // const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState({
@@ -104,6 +129,13 @@ export default function HomeSreen() {
       });
     }
   };
+
+  useEffect(() => {
+    if (selectAbsence) {
+      setShowCalendar(true);
+      setGetDates([]);
+    }
+  }, [selectAbsence]);
 
   return (
     <AppLayout
@@ -259,7 +291,8 @@ export default function HomeSreen() {
                   </View>
                 )}
               </View>
-              {preview && (
+
+              {/* {preview && (
                 <AppInput
                   value={
                     typeof getDates == 'string'
@@ -270,17 +303,30 @@ export default function HomeSreen() {
                   }
                   editable={false}
                 />
+              )} */}
+              {getDates && getDates.length !== 0 && (
+                <AppInput
+                  value={
+                    typeof getDates === 'string'
+                      ? moment(getDates).format('Do MMMM YYYY')
+                      : moment(getDates[0]).format('Do MMMM YYYY') +
+                        ' - ' +
+                        moment(getDates[1]).format('Do MMMM YYYY')
+                  }
+                  editable={false}
+                />
               )}
-              {selectAbsence != '' && !preview && (
+
+              {selectAbsence !== '' && !preview && showCalendar && (
                 <AppCalender
-                  setDates={setGetDates}
+                  setDates={handleSetDates}
                   error={error.calendar}
                   selectionDays={selectAbsence}
                 />
               )}
-              {/* {selectAbsence == 'All Week' && !preview && (
-                <AppCalender setDates={setGetDates} error={error.calendar} />
-              )} */}
+
+              <MultiSelectDropdown />
+             
               {!preview ? (
                 <AppInput
                   multiline
