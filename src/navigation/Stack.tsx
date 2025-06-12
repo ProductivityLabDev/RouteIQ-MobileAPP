@@ -41,6 +41,7 @@ import DriverAccountNo from '../screens/AppScreens/DriverAccountNo';
 import UpdateAccountNo from '../screens/AppScreens/UpdateAccountNo';
 import RetailProfileInfo from '../screens/AppScreens/RetailProfileInfo';
 import UpdateRetailDetail from '../screens/AppScreens/UpdateRetailDetail';
+import UpdateRetailProfile from '../screens/AppScreens/UpdateRetailProfile';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -129,6 +130,8 @@ export const RetailStack = () => {
       <Stack.Screen name="AlertScreen" component={AlertScreen} />
       <Stack.Screen name="RetailProfileInfo" component={RetailProfileInfo} />
       <Stack.Screen name="UpdateRetailDetail" component={UpdateRetailDetail} />
+       <Stack.Screen name="UpdateRetailProfile" component={UpdateRetailProfile} />
+      
       
       
 

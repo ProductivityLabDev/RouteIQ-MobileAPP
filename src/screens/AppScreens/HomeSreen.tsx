@@ -48,9 +48,9 @@ export default function HomeSreen() {
   const [selectAbsence, setSelectAbsence] = useState('');
   const [preview, setPreview] = useState(false);
   const [reasonOfAbsence, setReasonOfAbsence] = useState('');
-  // const [getDates, setGetDates] = useState<any>([]);
   const [getDates, setGetDates] = useState<string | Date[] | null>(null);
   const [showCalendar, setShowCalendar] = useState(true);
+  const [isEditingDates, setIsEditingDates] = useState(false);
 
   const handleSetDates = (dates: string | Date[]) => {
     setGetDates(dates);
@@ -58,12 +58,14 @@ export default function HomeSreen() {
     if (typeof dates === 'string') {
       if (dates.trim() !== '') {
         setShowCalendar(false);
+        setIsEditingDates(false); 
       } else {
         setShowCalendar(true); 
       }
     } else if (Array.isArray(dates)) {
       if (dates.length === 2 && dates[0] && dates[1]) {
         setShowCalendar(false); 
+        setIsEditingDates(false); 
       } else {
         setShowCalendar(true); 
       }
@@ -72,8 +74,12 @@ export default function HomeSreen() {
     }
   };
 
+  const handleEditDates = () => {
+    setIsEditingDates(true);
+    setShowCalendar(true);
+  };
+
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-  // const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState({
     reason: '',
     calendar: '',
@@ -93,18 +99,6 @@ export default function HomeSreen() {
     bottomSheetModalRef.current?.close();
   }, []);
 
-  // const {
-  //   control,
-  //   handleSubmit,
-  //   formState: {errors},
-  // } = useForm({
-  //   defaultValues: {
-  //     current_password: '',
-  //     new_password: '',
-  //     confirm_password: '',
-  //   },
-  // });
-
   const onSubmit = () => {
     if (reasonOfAbsence == '') {
       setError({
@@ -123,6 +117,7 @@ export default function HomeSreen() {
       setSelectAbsence('');
       setGetDates([]);
       setReasonOfAbsence('');
+      setIsEditingDates(false);
       setError({
         reason: '',
         calendar: '',
@@ -134,6 +129,7 @@ export default function HomeSreen() {
     if (selectAbsence) {
       setShowCalendar(true);
       setGetDates([]);
+      setIsEditingDates(false);
     }
   }, [selectAbsence]);
 
@@ -178,7 +174,6 @@ export default function HomeSreen() {
             <Image
               style={styles.image}
               source={selectedChild?.image || childDropDown[0]?.image}
-              // source={require('../../assets/images/profile_image.webp')}
             />
           </View>
           <View style={[styles.headerTitle, {paddingTop: hp(0.2)}]}>
@@ -198,20 +193,6 @@ export default function HomeSreen() {
               ]}>
               Wilson
             </Text>
-            {/* <Text
-              style={[
-                styles.headerSubTitle,
-                {fontFamily: AppFonts.NunitoSansSemiBold},
-              ]}>
-              Geofenced
-            </Text>
-            <Switch
-              onValueChange={toggleSwitch}
-              value={isEnabled}
-              trackColor={{false: '#767577', true: AppColors.red}}
-              thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
-              style={{transform: [{scale: 1.3}]}}
-            /> */}
           </View>
         </View>
       </ImageBackground>
@@ -231,7 +212,6 @@ export default function HomeSreen() {
           <AppButton
             title="Report Student Absence"
             onPress={() => dispatch(setStudentAbsentModal(true))}
-            // onPress={() => openSheet()}
             style={{backgroundColor: AppColors.lightBlack}}
             titleStyle={{fontFamily: AppFonts.NunitoSansSemiBold}}
           />
@@ -292,32 +272,35 @@ export default function HomeSreen() {
                 )}
               </View>
 
-              {/* {preview && (
-                <AppInput
-                  value={
-                    typeof getDates == 'string'
-                      ? moment(getDates).format('Do MMMM YYYY')
-                      : moment(getDates[0]).format('Do MMMM YYYY') +
-                        ' - ' +
-                        moment(getDates[1]).format('Do MMMM YYYY')
-                  }
-                  editable={false}
-                />
-              )} */}
-              {getDates && getDates.length !== 0 && (
-                <AppInput
-                  value={
-                    typeof getDates === 'string'
-                      ? moment(getDates).format('Do MMMM YYYY')
-                      : moment(getDates[0]).format('Do MMMM YYYY') +
-                        ' - ' +
-                        moment(getDates[1]).format('Do MMMM YYYY')
-                  }
-                  editable={false}
-                />
+              {/* Display selected dates with edit button */}
+              {getDates && getDates.length !== 0 && !isEditingDates && (
+                <View style={styles.dateDisplayContainer}>
+                  <AppInput
+                    value={
+                      typeof getDates === 'string'
+                        ? moment(getDates).format('Do MMMM YYYY')
+                        : moment(getDates[0]).format('Do MMMM YYYY') +
+                          ' - ' +
+                          moment(getDates[1]).format('Do MMMM YYYY')
+                    }
+                    editable={false}
+                    containerStyle={styles.dateInputContainer}
+                  />
+                  <Pressable
+                    onPress={handleEditDates}
+                    style={styles.editButton}>
+                    <GlobalIcon
+                      library="Feather"
+                      name="edit"
+                      color={AppColors.red}
+                      size={34}
+                    />
+                  </Pressable>
+                </View>
               )}
 
-              {selectAbsence !== '' && !preview && showCalendar && (
+              {/* Show calendar when editing or initially selecting dates */}
+              {selectAbsence !== '' && !preview && (showCalendar || isEditingDates) && (
                 <AppCalender
                   setDates={handleSetDates}
                   error={error.calendar}
@@ -353,12 +336,12 @@ export default function HomeSreen() {
                 <AppButton
                   title="Cancel"
                   onPress={() => {
-                    // setModalVisible(false);
                     dispatch(setStudentAbsentModal(false));
                     setGetDates([]);
                     setPreview(false);
                     setReasonOfAbsence('');
                     setSelectAbsence('');
+                    setIsEditingDates(false);
                     setError({
                       reason: '',
                       calendar: '',
@@ -370,7 +353,6 @@ export default function HomeSreen() {
                 <AppButton
                   title="Submit"
                   onPress={() => onSubmit()}
-                  // onPress={handleSubmit(onSubmit)}
                   style={styles.submitButton}
                 />
               </View>
@@ -378,88 +360,6 @@ export default function HomeSreen() {
           </View>
         </ScrollView>
       </AppCustomModal>
-
-      {/* <AppBottomSheet
-        bottomSheetModalRef={bottomSheetModalRef}
-        snapPoints={snapPoints}
-        backdropComponent={({style}) => (
-          <Pressable
-            onPress={() => closeSheet()}
-            style={[style, {backgroundColor: 'rgba(0, 0, 0, 0.7)'}]}
-          />
-        )}>
-        <View>
-          <AppInput
-            containerStyle={{marginBottom: 0}}
-            label="Child Absence"
-            container={{display: 'none'}}
-            labelStyle={{
-              fontFamily: AppFonts.NunitoSansBold,
-            }}
-          />
-          <SelectList
-            search={false}
-            setSelected={(val: string) => setSelectAbsence(val)}
-            data={leaveDropdownData}
-            save="value"
-            placeholder="Select"
-            boxStyles={styles.boxStyle}
-            dropdownTextStyles={{color: AppColors.black}}
-          />
-          {preview && (
-            <AppInput
-              value={
-                moment(getDates[0]).format('Do MMMM YYYY') +
-                ' - ' +
-                moment(getDates[1]).format('Do MMMM YYYY')
-              }
-            />
-          )}
-          {selectAbsence == 'All Week' && !preview && (
-            <AppCalender setDates={setGetDates} />
-          )}
-          {!preview ? (
-            <AppInput
-              multiline
-              numberOfLines={7}
-              container={{height: hp(16), borderRadius: hp(0.5)}}
-              label="Reason for Absence"
-              placeholder="Descripton"
-              value={reasonOfAbsence}
-              onChangeText={(text: string) => setReasonOfAbsence(text)}
-              labelStyle={{
-                fontFamily: AppFonts.NunitoSansBold,
-              }}
-            />
-          ) : (
-            <>
-              <Text style={styles.label}>Reason for Absence</Text>
-              <View style={styles.reasonContainer}>
-                <Text style={AppStyles.subHeading}>{reasonOfAbsence}</Text>
-              </View>
-            </>
-          )}
-          <View style={[AppStyles.rowBetween, {width: '100%'}]}>
-            <AppButton
-              title="Cancel"
-              onPress={() => {
-                closeSheet();
-                setGetDates([]);
-                setPreview(false);
-                setReasonOfAbsence('');
-                setSelectAbsence('');
-              }}
-              style={styles.cancelButton}
-              titleStyle={{color: AppColors.textLightGrey}}
-            />
-            <AppButton
-              title="Submit"
-              onPress={() => handleSubmit()}
-              style={styles.submitButton}
-            />
-          </View>
-        </View>
-      </AppBottomSheet> */}
     </AppLayout>
   );
 }
@@ -557,5 +457,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#dddde1',
     borderRadius: hp(1),
     marginBottom: hp(3),
+  },
+  // New styles for edit functionality
+  dateDisplayContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: hp(1),
+  },
+  dateInputContainer: {
+    flex: 1,
+    marginRight: hp(1),
+  },
+  editButton: {
+    paddingHorizontal: hp(1.5),
+    borderColor: AppColors.red,
+    marginBottom: hp(1)
   },
 });

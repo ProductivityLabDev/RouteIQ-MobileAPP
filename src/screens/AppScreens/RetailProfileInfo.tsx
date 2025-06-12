@@ -71,18 +71,42 @@ const RetailProfileInfo = () => {
              1234.1
             </Text>
           </View>
+          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Card Holder Name</Text>
+            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
+             Jhon
+            </Text>
+          </View>
+          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Card Number</Text>
+            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
+             4646 4646 4646 4646
+            </Text>
+          </View>
+          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Expiration Date</Text>
+            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
+             02/2030
+            </Text>
+          </View>
+          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
+            <Text style={[AppStyles.title, AppStyles.halfWidth]}>CVV</Text>
+            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
+             123
+            </Text>
+          </View>
         </View>
-        {role === 'Driver' && (
+        {role === 'Retail' && (
           <View>
             <AppButton
-              onPress={() => navigation.navigate('UpdateDriveProfile')}
+              onPress={() => navigation.navigate('UpdateRetailProfile')}
               title="Edit Info"
               style={styles.button}
               titleStyle={styles.buttonTitle}
             />
             <AppButton
               title="Confirm"
-              style={{alignSelf: 'center', width: '100%'}}
+              style={{alignSelf: 'center', width: '95%'}}
               onPress={() => {
                 console.log(token, 'token');
 
@@ -102,7 +126,7 @@ export default RetailProfileInfo;
 
 const styles = StyleSheet.create({
   button: {
-    width: '100%',
+    width: '95%',
     backgroundColor: AppColors.white,
     borderColor: AppColors.red,
     borderWidth: 1.5,

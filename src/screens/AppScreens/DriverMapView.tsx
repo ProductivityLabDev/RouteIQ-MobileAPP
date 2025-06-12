@@ -52,7 +52,6 @@ const DriverMapView = () => {
   }, []);
   const closeSheet = useCallback(() => {
     bottomSheetModalRef.current?.close();
-    navigation.navigate('DriverInspection')
   }, []);
 
   const startLocation = {

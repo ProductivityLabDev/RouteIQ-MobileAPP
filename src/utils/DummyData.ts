@@ -41,8 +41,9 @@ export const updateGuardianDropdown = [
 export const leaveDropdownData = [
   {key: '1', value: 'All Week'},
   {key: '2', value: 'Single Day'},
-  {key: '3', value: 'AM'},
-  {key: '4', value: 'PM'},
+  {key: '3', value: 'Multi Days'},
+  {key: '4', value: 'AM'},
+  {key: '5', value: 'PM'},
 ];
 
 export const selectedChildData = [
@@ -329,8 +330,6 @@ export const homeTripData = [
   },
 ];
 
-
-
 export const routeData = [
   {
     title: 'Route 1',
@@ -338,7 +337,7 @@ export const routeData = [
     date: '28/MAR/24',
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
-    trip_name: 'Bus No.', 
+    trip_name: 'Bus No.',
     trip_no: '2346',
     trip_plan: [
       {
@@ -384,7 +383,7 @@ export const routeData = [
     date: '28/MAR/24',
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
-    trip_name: 'Bus No.', 
+    trip_name: 'Bus No.',
     trip_no: '2346',
     trip_plan: [
       {
@@ -423,7 +422,7 @@ export const routeData = [
     date: '28/MAR/24',
     start_location: 'Hoover Elementary School',
     end_location: 'WI State Capital',
-    trip_name: 'Bus No.', 
+    trip_name: 'Bus No.',
     trip_no: '2346',
     trip_plan: [
       {
@@ -545,38 +544,34 @@ export const studentsData = [
   },
 ];
 
-
-export const retailDetailData = 
-  {
-    slectCurrentTrip: 'Motorcoach (56 Passenger)',
-    name: 'Jonney Barbo',
-    PhoneNumber: '012 022 1531',
-    emailAddress: 'ab@gmail.com',
-    roundTrip: 'Shuttle',
-    numberOfPassengers: 70,
-    isWheelChairLift:'Yes',
-    busType: 'Motorcoach',
-    pickupDate: '03/06/2025',
-    pickupTime: '08:00',
-    returnDate: '09/07/2025',
-    returnTime: '12:00',
-    typeOfGroup: 'Test',
-    pickupLocation: 'Oakwood Elementary School',
-    sName: 'Mark Tommay',
-    pickupAddress: 'Oakwood Elementary School',
-    pickupCity: 'Los Angeles',
-    pickupState: 'California',
-    pickupZip: '90001',
-    addAdditionalDestinations:'Oakwood Elementary School',
-    destinationLocation: 'Oakwood Elementary School',
-    destinationAddress: 'Oakwood Elementary School',
-    destinationCity: 'Los Angeles',
-    destinationState: 'California',
-    destinationZip: '90002',
-    howWereYouReferredToUs: 'Test'
-
-
-  }
+export const retailDetailData = {
+  slectCurrentTrip: 'Motorcoach (56 Passenger)',
+  name: 'Jonney Barbo',
+  PhoneNumber: '012 022 1531',
+  emailAddress: 'ab@gmail.com',
+  roundTrip: 'Shuttle',
+  numberOfPassengers: 70,
+  isWheelChairLift: 'Yes',
+  busType: 'Motorcoach',
+  pickupDate: '03/06/2025',
+  pickupTime: '08:00',
+  returnDate: '09/07/2025',
+  returnTime: '12:00',
+  typeOfGroup: 'Test',
+  pickupLocation: 'Oakwood Elementary School',
+  sName: 'Mark Tommay',
+  pickupAddress: 'Oakwood Elementary School',
+  pickupCity: 'Los Angeles',
+  pickupState: 'California',
+  pickupZip: '90001',
+  addAdditionalDestinations: 'Oakwood Elementary School',
+  destinationLocation: 'Oakwood Elementary School',
+  destinationAddress: 'Oakwood Elementary School',
+  destinationCity: 'Los Angeles',
+  destinationState: 'California',
+  destinationZip: '90002',
+  howWereYouReferredToUs: 'Test',
+};
 
 export const chats_data = [
   {
@@ -653,10 +648,7 @@ export const groups_data = [
     message: 'Hi, Bruce..',
     time: '08:43',
   },
-  
 ];
-
-
 
 export const childDropDown = [
   {
@@ -676,31 +668,43 @@ export const childDropDown = [
 export const cleaningCollapsedCard = [
   {
     title: 'Outside',
-    options: ["Scrub the front  using bugzz", "Scrub the back with scrub brush", "Run green machine around the outside"]
+    options: [
+      'Scrub the front  using bugzz',
+      'Scrub the back with scrub brush',
+      'Run green machine around the outside',
+    ],
   },
   {
     title: 'Ceiling',
-    options: ["Wipe down the entire ceiling", "Emergency roof hatch"]
+    options: ['Wipe down the entire ceiling', 'Emergency roof hatch'],
   },
   {
     title: 'Side Walls/Back Walls',
-    options: ["Scrub the front  using bugzz", "Scrub the back with scrub brush", "Run green machine around the outside"]
+    options: [
+      'Scrub the front  using bugzz',
+      'Scrub the back with scrub brush',
+      'Run green machine around the outside',
+    ],
   },
   {
     title: 'Seats',
-    options: ["Wipe down the entire ceiling", "Emergency roof hatch"]
+    options: ['Wipe down the entire ceiling', 'Emergency roof hatch'],
   },
   {
     title: 'Front/Driver Area',
-    options: ["Scrub the front  using bugzz", "Scrub the back with scrub brush", "Run green machine around the outside"]
+    options: [
+      'Scrub the front  using bugzz',
+      'Scrub the back with scrub brush',
+      'Run green machine around the outside',
+    ],
   },
   {
     title: 'Floor',
-    options: ["Wipe down the entire ceiling", "Emergency roof hatch"]
+    options: ['Wipe down the entire ceiling', 'Emergency roof hatch'],
   },
-]
+];
 
-export const RetailRequestQuoteData  = [
+export const RetailRequestQuoteData = [
   {key: '1', value: 'Motorcoach (56 Passenger)'},
   {key: '2', value: 'Motorcoach (47 Passenger)'},
   {key: '3', value: 'Motorcoach (22 Passenger)'},
@@ -712,10 +716,9 @@ export const RetailRequestQuoteData  = [
 export const RoundTrip = [
   {key: '1', value: 'One way'},
   {key: '2', value: 'Shuttle'},
-
 ];
 
-export const BusType  = [
+export const BusType = [
   {key: '1', value: 'a. Motorcoach (56 Passenger)'},
   {key: '2', value: 'b. Motorcoach (47 Passenger)'},
   {key: '3', value: 'c. Motorcoach (22 Passenger)'},
@@ -723,8 +726,3 @@ export const BusType  = [
   {key: '5', value: 'e. School Bus (15-29 Passenger 3/seat)'},
   {key: '6', value: 'f. Mini Van (4 Passengers)'},
 ];
-
-
-
-
-

@@ -42,14 +42,8 @@ const Login = () => {
   });
 
   const onSubmit = () => {
-    if (role === 'Driver') {
-      navigation.navigate('DriverProfileInfo');
-    } else if (role === 'Retail') {
-      navigation.navigate('DriverHomeScreen');
-      dispatch(saveToken(1));
-    } else {
-      dispatch(saveToken(1));
-    }
+    navigation.navigate('DriverHomeScreen');
+    dispatch(saveToken(1));
   };
 
   return (
@@ -77,7 +71,13 @@ const Login = () => {
             <View></View>
           </View>
           <View style={AppStyles.center}>
-            <Text style={AppStyles.titleHead}>{role==='Driver' ? 'Driver' : role==='Parents' ? 'Parent' : 'Retail'}</Text>
+            <Text style={AppStyles.titleHead}>
+              {role === 'Driver'
+                ? 'Driver'
+                : role === 'Parents'
+                ? 'Parent'
+                : 'Retail'}
+            </Text>
             <Text style={[AppStyles.subHeading, {marginBottom: hp(2)}]}>
               Enter your credential to login
             </Text>

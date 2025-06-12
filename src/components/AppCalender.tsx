@@ -20,6 +20,8 @@ const AppCalender: React.FC<AppCalendarProps> = ({
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDate, setSelectedDate] = useState<any>(null);
   const today = new Date().toISOString().split('T')[0];
+  const [multiSelectedDates, setMultiSelectedDates] = useState<any>({});
+
 
   const onDayPress = (day: any) => {
     const red = AppColors.red;
@@ -82,13 +84,40 @@ const AppCalender: React.FC<AppCalendarProps> = ({
     setDates && setDates(day.dateString);
   };
 
-  useEffect(() => {
-    if (startDate && endDate && selectionDays == 'All Week') {
-      setDates([startDate, endDate]);
-    } else {
-      setDates(selectedDate);
-    }
-  }, [startDate, endDate, selectedDate]);
+ const onMultidaysDayPress = (day: any) => {
+  const red = AppColors.red;
+  const date = day.dateString;
+
+  const updatedDates = {...multiSelectedDates};
+
+  if (updatedDates[date]) {
+    // Deselect if already selected
+    delete updatedDates[date];
+  } else {
+    // Select new day
+    updatedDates[date] = {
+      selected: true,
+      color: red,
+      textColor: 'white',
+    };
+  }
+
+  setMultiSelectedDates(updatedDates);
+
+  const selectedKeys = Object.keys(updatedDates);
+  setDates && setDates(selectedKeys); // Pass selected dates to parent if needed
+};
+
+useEffect(() => {
+  if (selectionDays === 'All Week' && startDate && endDate) {
+    setDates([startDate, endDate]);
+  } else if (selectionDays === 'Multi Days') {
+    const selectedKeys = Object.keys(multiSelectedDates);
+    setDates(selectedKeys);
+  } else {
+    setDates(selectedDate);
+  }
+}, [startDate, endDate, selectedDate, selectionDays, multiSelectedDates]);
 
   return (
     <>
@@ -98,20 +127,28 @@ const AppCalender: React.FC<AppCalendarProps> = ({
         current={Date()}
         minDate={today}
         maxDate={'2030-12-31'}
-        onDayPress={selectionDays == 'All Week' ? onDayPress : onOneDayPress}
+        onDayPress={
+  selectionDays === 'All Week'
+    ? onDayPress
+    : selectionDays === 'Multi Days'
+    ? onMultidaysDayPress
+    : onOneDayPress
+}
         markingType={'period'}
-        markedDates={
-          selectionDays != 'All Week'
-            ? {
-                [selectedDate]: {
-                  startingDay: true,
-                  endingDay: true,
-                  color: AppColors.red,
-                  textColor: 'white',
-                },
-              }
-            : markedDates
-        }
+       markedDates={
+  selectionDays === 'All Week'
+    ? markedDates
+    : selectionDays === 'Multi Days'
+    ? multiSelectedDates
+    : {
+        [selectedDate]: {
+          startingDay: true,
+          endingDay: true,
+          color: AppColors.red,
+          textColor: 'white',
+        },
+      }
+}
         hideExtraDays
         theme={{
           calendarBackground: 'white',
