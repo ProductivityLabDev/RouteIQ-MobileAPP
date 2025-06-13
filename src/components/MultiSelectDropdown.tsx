@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
+    color: AppColors.black
   },
   doneButton: {
     marginTop: 10,

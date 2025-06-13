@@ -49,27 +49,45 @@ export default function HomeSreen() {
   const [preview, setPreview] = useState(false);
   const [reasonOfAbsence, setReasonOfAbsence] = useState('');
   const [getDates, setGetDates] = useState<string | Date[] | null>(null);
-  const [showCalendar, setShowCalendar] = useState(true);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
 
   const handleSetDates = (dates: string | Date[]) => {
     setGetDates(dates);
 
     if (typeof dates === 'string') {
-      if (dates.trim() !== '') {
+      setShowConfirmButton(false);
+
+      // Single date (One Day mode)
+      if (dates.trim()) {
         setShowCalendar(false);
-        setIsEditingDates(false); 
+        setIsEditingDates(false);
       } else {
-        setShowCalendar(true); 
+        setShowCalendar(true);
       }
     } else if (Array.isArray(dates)) {
-      if (dates.length === 2 && dates[0] && dates[1]) {
-        setShowCalendar(false); 
-        setIsEditingDates(false); 
-      } else {
-        setShowCalendar(true); 
+      if (selectAbsence === 'All Week') {
+        setShowConfirmButton(false);
+        // Expecting a range of exactly two dates
+        if (dates.length === 2 && dates[0] && dates[1]) {
+          setShowCalendar(false);
+          setIsEditingDates(false);
+        } else {
+          setShowCalendar(true);
+        }
+      } else if (selectAbsence === 'Multi Days') {
+        // Keep calendar open for multi-select
+        setShowConfirmButton(true);
+        if (dates.length > 0) {
+          // Keep calendar open, allow selecting more dates
+          setIsEditingDates(true); // Optional: mark that user is still editing
+        } else {
+          setShowCalendar(true);
+        }
       }
     } else {
+      setShowConfirmButton(false);
       setShowCalendar(true);
     }
   };
@@ -77,6 +95,7 @@ export default function HomeSreen() {
   const handleEditDates = () => {
     setIsEditingDates(true);
     setShowCalendar(true);
+    console.log('dates', getDates);
   };
 
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -221,10 +240,11 @@ export default function HomeSreen() {
       <AppCustomModal
         visible={studentAbsentModal}
         onPress={() => dispatch(setStudentAbsentModal(false))}>
-        <ScrollView contentContainerStyle={{flex: 1}}>
+        <ScrollView contentContainerStyle={{flexGrow: 1}}>
           <View style={{flex: 1, justifyContent: 'flex-end'}}>
             <View
               style={{
+                maxHeight: '100%',
                 backgroundColor: AppColors.white,
                 paddingHorizontal: hp(2),
                 paddingVertical: hp(2),
@@ -249,6 +269,9 @@ export default function HomeSreen() {
                   setSelected={(val: string) => {
                     setPreview(false);
                     setSelectAbsence(val);
+                    if(val !== 'Multi Days'){
+                      setShowConfirmButton(false)
+                    }
                   }}
                   data={leaveDropdownData}
                   save="value"
@@ -272,19 +295,30 @@ export default function HomeSreen() {
                 )}
               </View>
 
-              {/* Display selected dates with edit button */}
+              
               {getDates && getDates.length !== 0 && !isEditingDates && (
                 <View style={styles.dateDisplayContainer}>
                   <AppInput
+
                     value={
                       typeof getDates === 'string'
                         ? moment(getDates).format('Do MMMM YYYY')
-                        : moment(getDates[0]).format('Do MMMM YYYY') +
+                        : selectAbsence === 'Multi Days' ?
+                          getDates
+                          .map(date => moment(date).format('Do MMMM YYYY'))
+                          .join(', ')
+                          :
+                         moment(getDates[0]).format('Do MMMM YYYY') +
                           ' - ' +
                           moment(getDates[1]).format('Do MMMM YYYY')
                     }
                     editable={false}
                     containerStyle={styles.dateInputContainer}
+                    multiline={true}
+                    numberOfLines={
+                      typeof getDates === 'string' ? 1 :
+                      getDates.length > 2 ? Math.min(getDates.length, 7)-2 : 1
+                    }
                   />
                   <Pressable
                     onPress={handleEditDates}
@@ -299,7 +333,7 @@ export default function HomeSreen() {
                 </View>
               )}
 
-              {/* Show calendar when editing or initially selecting dates */}
+
               {selectAbsence !== '' && !preview && (showCalendar || isEditingDates) && (
                 <AppCalender
                   setDates={handleSetDates}
@@ -307,6 +341,22 @@ export default function HomeSreen() {
                   selectionDays={selectAbsence}
                 />
               )}
+
+              {
+                showConfirmButton && (
+                  <AppButton
+                    title="Confirm"
+                    onPress={() => {
+                      setShowCalendar(false);
+                      setIsEditingDates(false);
+                      setShowConfirmButton(false);
+                    }}
+                    style={styles.confirmButton}
+                    titleStyle={{color: AppColors.white}}
+                  />
+                )
+              }
+
 
               <MultiSelectDropdown />
              
@@ -442,7 +492,9 @@ const styles = StyleSheet.create({
     borderColor: AppColors.black,
     height: hp(6),
     borderRadius: hp(0.5),
+    color: AppColors.black
   },
+  confirmButton: {width: '100%', backgroundColor: AppColors.black, marginBottom: 20},
   cancelButton: {width: '35%', backgroundColor: AppColors.lightGrey},
   submitButton: {width: '60%', backgroundColor: AppColors.black},
   label: {

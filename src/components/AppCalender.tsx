@@ -1,13 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text} from 'react-native';
-import {Calendar} from 'react-native-calendars';
-import {AppColors} from '../utils/color';
-import {hp} from '../utils/constants';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { Calendar } from 'react-native-calendars';
+import { AppColors } from '../utils/color';
+import { hp } from '../utils/constants';
 
 interface AppCalendarProps {
   setDates?: any;
   error?: string;
   selectionDays?: string;
+  dates?: string | string[] | Date[] | null,
 }
 
 const AppCalender: React.FC<AppCalendarProps> = ({
@@ -15,109 +16,118 @@ const AppCalender: React.FC<AppCalendarProps> = ({
   error,
   selectionDays,
 }) => {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
   const [markedDates, setMarkedDates] = useState({});
-  const [selectedDate, setSelectedDate] = useState<any>(null);
-  const today = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [multiSelectedDates, setMultiSelectedDates] = useState<any>({});
-
+  const today = new Date().toISOString().split('T')[0];
+  const red = AppColors.red;
 
   const onDayPress = (day: any) => {
-    const red = AppColors.red;
+    const dateString = day.dateString;
+
     if (!startDate || (startDate && endDate)) {
+      setStartDate(dateString);
+      setEndDate(null);
       setMarkedDates({
-        [day.dateString]: {
+        [dateString]: {
           startingDay: true,
           endingDay: true,
           color: red,
           textColor: 'white',
         },
       });
-      setStartDate(day.dateString);
-      setEndDate(null);
     } else {
-      let marked = {} as any;
-      let [start, end] = [startDate, day.dateString].sort();
+      let marked: any = {};
+      let [start, end] = [startDate, dateString].sort();
       let current = new Date(start);
-      let lastDate = new Date(end);
+      const lastDate = new Date(end);
 
       while (current <= lastDate) {
         const key = current.toISOString().split('T')[0];
-        if (key === start || key === end) {
-          marked[key] = {
-            color: red,
-            textColor: 'white',
-            startingDay: key === start,
-            endingDay: key === end,
-          };
-        } else {
-          marked[key] = {color: red, textColor: 'white'};
-        }
+        marked[key] = {
+          color: red,
+          textColor: 'white',
+          startingDay: key === start,
+          endingDay: key === end,
+        };
         current.setDate(current.getDate() + 1);
       }
+
+      setEndDate(dateString);
       setMarkedDates(marked);
-      setEndDate(day.dateString);
     }
   };
 
   const onOneDayPress = (day: any) => {
-    const red = AppColors.red;
-    const newMarkedDates: any = {};
+    const dateString = day.dateString;
+    setSelectedDate(dateString);
+    setDates && setDates(dateString);
+  };
 
-    if (selectedDate) {
-      newMarkedDates[selectedDate] = {
-        startingDay: false,
-        endingDay: false,
-        color: 'transparent',
+  const onMultidaysDayPress = (day: any) => {
+    const dateString = day.dateString;
+    const updatedDates = { ...multiSelectedDates };
+
+    if (updatedDates[dateString]) {
+      delete updatedDates[dateString];
+    } else {
+      updatedDates[dateString] = {
+        customStyles: {
+          container: {
+            backgroundColor: red,
+          },
+          text: {
+            color: 'white',
+          },
+        },
       };
     }
 
-    newMarkedDates[day.dateString] = {
-      startingDay: true,
-      endingDay: true,
-      color: red,
-      textColor: 'white',
-    };
-
-    setSelectedDate(day.dateString);
-    setDates && setDates(day.dateString);
+    setMultiSelectedDates(updatedDates);
+    const selectedKeys = Object.keys(updatedDates);
+    setDates && setDates(selectedKeys);
   };
 
- const onMultidaysDayPress = (day: any) => {
-  const red = AppColors.red;
-  const date = day.dateString;
+  useEffect(() => {
+    if (selectionDays === 'All Week' && startDate && endDate) {
+      setDates && setDates([startDate, endDate]);
+    } else if (selectionDays === 'Multi Days') {
+      const selectedKeys = Object.keys(multiSelectedDates);
+      setDates && setDates(selectedKeys);
+    } else if (selectedDate) {
+      setDates && setDates(selectedDate);
+    }
+  }, [startDate, endDate, selectedDate, selectionDays, multiSelectedDates]);
 
-  const updatedDates = {...multiSelectedDates};
+  const getMarkingType = () => {
+    if (selectionDays === 'All Week') return 'period';
+    if (selectionDays === 'Multi Days') return 'custom';
+    return 'period';
+  };
 
-  if (updatedDates[date]) {
-    // Deselect if already selected
-    delete updatedDates[date];
-  } else {
-    // Select new day
-    updatedDates[date] = {
-      selected: true,
-      color: red,
-      textColor: 'white',
-    };
-  }
+  const getMarkedDates = () => {
+    if (selectionDays === 'All Week') return markedDates;
+    if (selectionDays === 'Multi Days') return multiSelectedDates;
+    if (selectedDate) {
+      return {
+        [selectedDate]: {
+          startingDay: true,
+          endingDay: true,
+          color: red,
+          textColor: 'white',
+        },
+      };
+    }
+    return {};
+  };
 
-  setMultiSelectedDates(updatedDates);
-
-  const selectedKeys = Object.keys(updatedDates);
-  setDates && setDates(selectedKeys); // Pass selected dates to parent if needed
-};
-
-useEffect(() => {
-  if (selectionDays === 'All Week' && startDate && endDate) {
-    setDates([startDate, endDate]);
-  } else if (selectionDays === 'Multi Days') {
-    const selectedKeys = Object.keys(multiSelectedDates);
-    setDates(selectedKeys);
-  } else {
-    setDates(selectedDate);
-  }
-}, [startDate, endDate, selectedDate, selectionDays, multiSelectedDates]);
+  const getOnDayPressHandler = () => {
+    if (selectionDays === 'All Week') return onDayPress;
+    if (selectionDays === 'Multi Days') return onMultidaysDayPress;
+    return onOneDayPress;
+  };
 
   return (
     <>
@@ -127,47 +137,21 @@ useEffect(() => {
         current={Date()}
         minDate={today}
         maxDate={'2030-12-31'}
-        onDayPress={
-  selectionDays === 'All Week'
-    ? onDayPress
-    : selectionDays === 'Multi Days'
-    ? onMultidaysDayPress
-    : onOneDayPress
-}
-        markingType={'period'}
-       markedDates={
-  selectionDays === 'All Week'
-    ? markedDates
-    : selectionDays === 'Multi Days'
-    ? multiSelectedDates
-    : {
-        [selectedDate]: {
-          startingDay: true,
-          endingDay: true,
-          color: AppColors.red,
-          textColor: 'white',
-        },
-      }
-}
+        onDayPress={getOnDayPressHandler()}
+        markingType={getMarkingType()}
+        markedDates={getMarkedDates()}
         hideExtraDays
         theme={{
           calendarBackground: 'white',
-          textSectionTitleColor: '#fff',
-          monthTextColor: '#fff',
-          arrowColor: '#fff',
+          textSectionTitleColor: '#000',
+          monthTextColor: '#000',
+          arrowColor: '#000',
           textDayFontSize: 12,
           textMonthFontSize: 15,
           textDayHeaderFontSize: 12,
-          weekVerticalMargin: 1,
-          textDayStyle: {
-            backgroundColor: 'red',
-          },
-          contentStyle: {
-            backgroundColor: 'red',
-          },
         }}
       />
-      {error && <Text style={{color: AppColors.red}}>{error}</Text>}
+      {error && <Text style={{ color: AppColors.red }}>{error}</Text>}
     </>
   );
 };
@@ -180,7 +164,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   headerStyle: {
-    backgroundColor: AppColors.lightBlack,
+    backgroundColor: AppColors.white,
     width: '100%',
   },
 });
