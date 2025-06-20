@@ -1,16 +1,16 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
+import {Platform, StyleSheet, Text, View} from 'react-native';
 import HomeIcon from '../assets/svgs/HomeIcon';
 import ProfileIcon from '../assets/svgs/ProfileIcon';
 import StudentIcon from '../assets/svgs/StudentIcon';
 import TaskIcon from '../assets/svgs/TaskIcon';
 import GlobalIcon from '../components/GlobalIcon';
-import { useAppSelector } from '../store/hooks';
+import {useAppSelector} from '../store/hooks';
 import AppFonts from '../utils/appFonts';
-import { AppColors } from '../utils/color';
-import { hp } from '../utils/constants';
-import { size } from '../utils/responsiveFonts';
+import {AppColors} from '../utils/color';
+import {hp} from '../utils/constants';
+import {size} from '../utils/responsiveFonts';
 import {
   ChatStack,
   HomeStack,
@@ -96,13 +96,13 @@ function DriverBottomTabs() {
         tabBarActiveTintColor: '#16E6EF',
         tabBarHideOnKeyboard: true,
       }}>
-      {screens.map(({ name, component, headerShown, label }, index) => {
+      {screens.map(({name, component, headerShown, label}, index) => {
         return (
           <Tab.Screen
             key={`bottom-tabs-${index}`}
             name={name}
             component={component}
-            options={({ route }) => {
+            options={({route}) => {
               console.log(route, 'route');
 
               return {
@@ -138,50 +138,44 @@ function DriverBottomTabs() {
                   backgroundColor: AppColors.white,
                   paddingHorizontal: hp(1),
                 },
-                tabBarIcon: ({ color, focused }: any) => {
+                tabBarIcon: ({color, focused}: any) => {
                   if (name.includes('HomeStack')) {
                     return (
-                      <BottomIcon
-                        focused={focused}
-                        title="Home"
-                        children={
-                          focused ? (
+                      <BottomIcon focused={focused} title="Home">
+                        <View style={styles.iconWrapper}>
+                          {focused ? (
                             <HomeIcon color={AppColors.red} />
                           ) : (
                             <HomeIcon />
-                          )
-                        }
-                      />
+                          )}
+                        </View>
+                      </BottomIcon>
                     );
                   }
                   if (name.includes('TasksStack')) {
                     return (
-                      <BottomIcon
-                        focused={focused}
-                        title="Maintenance"
-                        children={
-                          focused ? (
+                      <BottomIcon focused={focused} title="Maintenance">
+                        <View style={styles.iconWrapper}>
+                          {focused ? (
                             <TaskIcon color={AppColors.red} />
                           ) : (
                             <TaskIcon />
-                          )
-                        }
-                      />
+                          )}
+                        </View>
+                      </BottomIcon>
                     );
                   }
                   if (name.includes('StudentStack')) {
                     return (
-                      <BottomIcon
-                        focused={focused}
-                        title="Students"
-                        children={
-                          focused ? (
+                        <BottomIcon focused={focused} title="Students">
+                        <View style={styles.iconWrapper}>
+                          {focused ? (
                             <StudentIcon color={AppColors.red} />
                           ) : (
                             <StudentIcon />
-                          )
-                        }
-                      />
+                          )}
+                        </View>
+                      </BottomIcon>
                     );
                   }
                   if (name.includes('ChatStack')) {
@@ -238,10 +232,10 @@ export default DriverBottomTabs;
 
 const styles = StyleSheet.create({
   textStyle: {
-    fontSize: size.s,
+    fontSize: 10,
     lineHeight: size.vxlg,
     width: '100%',
-    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontFamily: AppFonts.NunitoSansExtraBold,
     textAlign: 'center',
   },
   container: {
@@ -270,5 +264,11 @@ const styles = StyleSheet.create({
     width: hp(3),
     borderRadius: hp(3),
   },
-  activeTab: { borderTopWidth: 2, borderTopColor: AppColors.red },
+  activeTab: {borderTopWidth: 2, borderTopColor: AppColors.red},
+  iconWrapper: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: hp(3.2),
+  width: hp(3.2),
+},
 });
