@@ -18,7 +18,7 @@ import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {saveToken, setForgotType, setLogout} from '../../store/user/userSlices';
+import {loginParent, saveToken, setForgotType, setLogout, setRole} from '../../store/user/userSlices';
 import {Controller, useForm} from 'react-hook-form';
 
 const Login = () => {
@@ -41,9 +41,25 @@ const Login = () => {
     },
   });
 
-  const onSubmit = () => {
-    navigation.navigate('DriverHomeScreen');
-    dispatch(saveToken(1));
+  const onSubmit = ({email, password}: {email: string; password: string}) => {
+    if (role === 'Driver') {
+      // Bypass API for Driver - just set token and role
+      // Navigation component will automatically route to DriverStack
+      dispatch(saveToken('driver-mock-token'));
+      dispatch(setRole('Driver'));
+    } else if (role === 'Parents') {
+      // Use API for Parent
+      dispatch(
+        loginParent({
+          email: email.trim(),
+          password,
+        }),
+      );
+    } else {
+      // Retail or other roles - can be handled later
+      dispatch(saveToken('retail-mock-token'));
+      dispatch(setRole('Retail'));
+    }
   };
 
   return (
