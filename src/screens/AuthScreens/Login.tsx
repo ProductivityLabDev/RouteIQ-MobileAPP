@@ -192,7 +192,7 @@ const Login = () => {
                   }}
                   style={styles.DontHaveAc}>
                   <Text style={styles.DontAcText}>
-                    Didn’t have an account?{' '}
+                    Didn’t have an account.?{' '}
                     <Text style={styles.signupText}>Signup</Text>
                   </Text>
                 </TouchableOpacity>
