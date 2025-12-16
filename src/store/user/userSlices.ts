@@ -36,11 +36,11 @@ const decodeJwt = (token: string): JwtPayload | null => {
   }
 };
 
-export const loginParent = createAsyncThunk(
-  'users/loginParent',
+export const loginUser = createAsyncThunk(
+  'users/loginUser',
   async ({email, password}: LoginPayload, {rejectWithValue}) => {
     // Set this to your LAN IP when running on a physical device
-    const manualHost = 'http://192.168.100.18:3000';
+    const manualHost = 'http://192.168.100.53:3000';
     const deviceHost =
       Platform.OS === 'android'
         ? 'http://10.0.2.2:3000'
@@ -48,6 +48,10 @@ export const loginParent = createAsyncThunk(
     const baseUrl = manualHost?.trim() || deviceHost;
 
     try {
+      console.log('loginUser request', {
+        url: `${baseUrl}/auth/login`,
+        email,
+      });
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -55,16 +59,36 @@ export const loginParent = createAsyncThunk(
       });
 
       if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
+        const errorText = await response.text().catch(() => '');
+        let errorBody: any = null;
+        try {
+          errorBody = errorText ? JSON.parse(errorText) : null;
+        } catch (e) {
+          errorBody = null;
+        }
         const message =
           errorBody?.message ||
           errorBody?.error ||
+          errorText ||
           `Login failed with status ${response.status}`;
         return rejectWithValue(message);
       }
 
-      const data = await response.json();
-      console.log('loginParent response', data);
+      const responseText = await response.text().catch(() => '');
+      console.log('loginUser http', {
+        status: response.status,
+        ok: response.ok,
+        text: responseText,
+      });
+      let data: any = null;
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch (e) {
+        return rejectWithValue(
+          `Login response is not valid JSON: ${responseText?.slice(0, 200)}`,
+        );
+      }
+
       const token: string | undefined = data?.access_token;
       if (!token) {
         return rejectWithValue('Login response missing access_token');
@@ -82,6 +106,8 @@ export const loginParent = createAsyncThunk(
           ? 'Driver'
           : roleCode === 'RETAIL'
           ? 'Retail'
+          : roleCode === 'PARENT' || roleCode === 'PARENTS'
+          ? 'Parents'
           : 'Parents';
 
       return {
@@ -91,8 +117,8 @@ export const loginParent = createAsyncThunk(
         userId: decoded?.sub ?? data?.id ?? null,
       };
     } catch (err) {
-      console.warn('loginParent network error', {baseUrl});
-      return rejectWithValue('Network error during login');
+      console.warn('loginUser exception', {baseUrl, err});
+      return rejectWithValue('Network/exception error during login');
     }
   },
 );
@@ -155,11 +181,11 @@ const userSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(loginParent.pending, state => {
+      .addCase(loginUser.pending, state => {
         state.authStatus = 'loading';
         state.authError = null;
       })
-      .addCase(loginParent.fulfilled, (state, {payload}) => {
+      .addCase(loginUser.fulfilled, (state, {payload}) => {
         state.authStatus = 'succeeded';
         state.authError = null;
         state.token = payload.token;
@@ -168,7 +194,7 @@ const userSlice = createSlice({
         state.userId = payload.userId ?? null;
         state.logout = false;
       })
-      .addCase(loginParent.rejected, (state, action) => {
+      .addCase(loginUser.rejected, (state, action) => {
         state.authStatus = 'failed';
         state.authError =
           (action.payload as string) || action.error.message || 'Login failed';
