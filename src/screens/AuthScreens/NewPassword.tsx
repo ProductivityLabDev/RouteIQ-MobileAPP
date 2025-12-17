@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   Image,
   ScrollView,
@@ -18,11 +18,14 @@ import { AppColors } from '../../utils/color';
 import { fontSize, size } from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import { Controller, useForm } from 'react-hook-form';
-import { useAppSelector } from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {confirmResetPassword} from '../../store/user/userSlices';
 
 const NewPassword = () => {
   const navigation = useNavigation();
   const type = useAppSelector(state => state.userSlices.forgotType);
+  const resetUserId = useAppSelector(state => state.userSlices.resetUserId);
+  const dispatch = useAppDispatch();
 
   const {
     control,
@@ -36,9 +39,37 @@ const NewPassword = () => {
     },
   });
 
-  const onSubmit = () => {
-    navigation.navigate('SuccessScreen');
-  };
+  const confirmResetStatus = useAppSelector(
+    state => state.userSlices.confirmResetStatus,
+  );
+
+  const onSubmit = useCallback(async (values: any) => {
+    // Only wiring password reset for now. Username reset can be added later.
+    if (type === 'username') {
+      navigation.navigate('SuccessScreen');
+      return;
+    }
+
+    if (!resetUserId) {
+      console.log('Missing resetUserId for reset-password');
+      return;
+    }
+    if (confirmResetStatus === 'loading') {
+      return;
+    }
+
+    try {
+      await dispatch(
+        confirmResetPassword({
+          userId: resetUserId,
+          newPassword: values.new_password,
+        }),
+      ).unwrap();
+      navigation.navigate('SuccessScreen');
+    } catch (e) {
+      console.log('reset-password failed', e);
+    }
+  }, [confirmResetStatus, dispatch, navigation, resetUserId, type]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -144,8 +175,7 @@ const NewPassword = () => {
               </>
             }
             <AppButton
-              onPress={() => navigation.navigate('SuccessScreen')}
-              // onPress={handleSubmit(onSubmit)}
+              onPress={handleSubmit(onSubmit)}
               title={`Update ${type}`}
               titleStyle={{ textTransform: 'capitalize' }}
               style={{ marginTop: hp(10) }}

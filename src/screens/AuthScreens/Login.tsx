@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
   Image,
   ScrollView,
@@ -25,6 +25,7 @@ const Login = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const role = useAppSelector(state => state.userSlices.role);
+  const authStatus = useAppSelector(state => state.userSlices.authStatus);
 
   useEffect(() => {
     dispatch(setLogout(false));
@@ -41,14 +42,20 @@ const Login = () => {
     },
   });
 
-  const onSubmit = ({email, password}: {email: string; password: string}) => {
-    dispatch(
-      loginUser({
-        email: email.trim(),
-        password,
-      }),
-    );
-  };
+  const onSubmit = useCallback(
+    ({email, password}: {email: string; password: string}) => {
+      if (authStatus === 'loading') {
+        return;
+      }
+      dispatch(
+        loginUser({
+          email: email.trim(),
+          password,
+        }),
+      );
+    },
+    [authStatus, dispatch],
+  );
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>

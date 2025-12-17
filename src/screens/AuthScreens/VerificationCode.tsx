@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import AppButton from '../../components/AppButton';
 import AuthLayout from '../../layout/AuthLayout';
@@ -10,13 +10,46 @@ import {AppColors} from '../../utils/color';
 import {hp, wp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {saveToken} from '../../store/user/userSlices';
+import {saveToken, verifyOtp} from '../../store/user/userSlices';
 
 const VerificationCode = () => {
   const navigation = useNavigation();
   const [otp, setOtp] = useState('');
   const dispatch = useAppDispatch();
   const role = useAppSelector(state => state.userSlices.role);
+  const resetEmail = useAppSelector(state => state.userSlices.resetEmail);
+  const otpStatus = useAppSelector(state => state.userSlices.otpStatus);
+  const handleContinue = useCallback(async () => {
+    if (!otp || otp.length < 4) {
+      return;
+    }
+    if (otpStatus === 'loading') {
+      return;
+    }
+
+    // Password reset OTP flow (email is captured during request-password-reset)
+    if (resetEmail) {
+      try {
+        await dispatch(
+          verifyOtp({
+            email: resetEmail,
+            otp,
+          }),
+        ).unwrap();
+        navigation.navigate('NewPassword');
+        return;
+      } catch (e) {
+        console.log('verify-otp failed', e);
+        return;
+      }
+    }
+
+    // Fallback: existing retail behavior (no api wired yet)
+    if (role === 'Retail') {
+      navigation.navigate('HomeSreen');
+      dispatch(saveToken(true));
+    }
+  }, [dispatch, navigation, otp, otpStatus, resetEmail, role]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -45,18 +78,7 @@ const VerificationCode = () => {
               onCodeFilled={(text: string) => setOtp(text)}
             />
             <Text style={styles.timerText}>00:30</Text>
-            <AppButton
-              onPress={() => {
-                if (role === 'Retail') {
-                  navigation.navigate('HomeSreen');
-                  dispatch(saveToken(true));
-                } else {
-                   
-                }
-              }}
-              title="Continue"
-              style={{marginTop: hp(10)}}
-            />
+            <AppButton onPress={handleContinue} title="Continue" style={{marginTop: hp(10)}} />
 
             <Text
               style={{

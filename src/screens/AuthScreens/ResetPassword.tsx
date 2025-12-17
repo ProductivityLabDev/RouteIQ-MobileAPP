@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useCallback} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import AppButton from '../../components/AppButton';
@@ -11,11 +11,14 @@ import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp, wp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
-import {useAppSelector} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {requestResetPassword} from '../../store/user/userSlices';
 
 const ResetPassword = ({route}: any) => {
   const type = useAppSelector(state => state.userSlices.forgotType);
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  const resetStatus = useAppSelector(state => state.userSlices.resetStatus);
 
   const {
     control,
@@ -27,9 +30,25 @@ const ResetPassword = ({route}: any) => {
     },
   });
 
-  const onSubmit = () => {
-    navigation.navigate('VerificationCode');
-  };
+  const onSubmit = useCallback(
+    async ({email}: {email: string}) => {
+      if (resetStatus === 'loading') {
+        return;
+      }
+      try {
+        await dispatch(
+          requestResetPassword({
+            email: email.trim(),
+          }),
+        ).unwrap();
+        navigation.navigate('VerificationCode');
+      } catch (e) {
+        // UI untouched: errors are stored in redux; keep user on this screen
+        console.log('reset-password failed', e);
+      }
+    },
+    [dispatch, navigation, resetStatus],
+  );
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
