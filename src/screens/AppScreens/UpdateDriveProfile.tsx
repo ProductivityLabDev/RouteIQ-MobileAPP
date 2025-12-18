@@ -7,18 +7,13 @@ import AppStyles from '../../styles/AppStyles';
 import {hp} from '../../utils/constants';
 import AppButton from '../../components/AppButton';
 import AppInput from '../../components/AppInput';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {Controller, useForm} from 'react-hook-form';
 
 const UpdateDriveProfile = () => {
   const navigation = useNavigation();
-  const [fields, setFields] = useState({
-    name: 'Mark Tommay',
-    age: '32',
-    email: 'marktommay@gmail.com',
-    phoneNumber: '+1-424-271-8337',
-    address: '802 E Frierson Ave, Tampa, FL 33603',
-  });
+  const route = useRoute<any>();
+  const driverDetails = route?.params?.driverDetails;
 
   const {
     control,
@@ -36,12 +31,24 @@ const UpdateDriveProfile = () => {
   });
 
   useEffect(() => {
-    setValue('name', 'Mark Tommay');
-    setValue('age', '32');
-    setValue('email', 'marktommay@gmail.com');
-    setValue('phoneNumber', '+1-424-271-8337');
-    setValue('address', '802 E Frierson Ave, Tampa, FL 33603');
-  }, []);
+    // Prefill from API-backed details if provided; otherwise fallback to existing static defaults.
+    const name =
+      driverDetails?.EmployeeName ??
+      driverDetails?.name ??
+      driverDetails?.fullName ??
+      'Mark Tommay';
+    const age =
+      driverDetails?.Age != null ? String(driverDetails.Age) : '32';
+    const email = driverDetails?.Email ?? 'marktommay@gmail.com';
+    const phoneNumber = driverDetails?.Phone ?? '+1-424-271-8337';
+    const address = driverDetails?.Address ?? '802 E Frierson Ave, Tampa, FL 33603';
+
+    setValue('name', name);
+    setValue('age', age);
+    setValue('email', email);
+    setValue('phoneNumber', phoneNumber);
+    setValue('address', address);
+  }, [driverDetails, setValue]);
 
   const onSubmit = () => {
     navigation.goBack();

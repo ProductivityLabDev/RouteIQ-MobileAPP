@@ -18,14 +18,22 @@ import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {loginUser, setForgotType, setLogout} from '../../store/user/userSlices';
+import {
+  loginUser,
+  saveToken,
+  setForgotType,
+  setLogout,
+  setRole,
+} from '../../store/user/userSlices';
 import {Controller, useForm} from 'react-hook-form';
+import {showErrorToast, showSuccessToast} from '../../utils/toast';
 
 const Login = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const role = useAppSelector(state => state.userSlices.role);
   const authStatus = useAppSelector(state => state.userSlices.authStatus);
+  const authError = useAppSelector(state => state.userSlices.authError);
 
   useEffect(() => {
     dispatch(setLogout(false));
@@ -47,6 +55,13 @@ const Login = () => {
       if (authStatus === 'loading') {
         return;
       }
+      // Retail login isn't integrated yet: allow mock login for now.
+      if (role === 'Retail') {
+        dispatch(saveToken('retail-mock-token'));
+        dispatch(setRole('Retail'));
+        showSuccessToast('Logged in', 'Welcome back');
+        return;
+      }
       dispatch(
         loginUser({
           email: email.trim(),
@@ -54,8 +69,14 @@ const Login = () => {
         }),
       );
     },
-    [authStatus, dispatch],
+    [authStatus, dispatch, role],
   );
+
+  React.useEffect(() => {
+    if (authStatus === 'failed') {
+      showErrorToast('Login failed', authError || undefined);
+    }
+  }, [authError, authStatus]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>

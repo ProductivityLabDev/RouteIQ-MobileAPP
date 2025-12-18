@@ -23,14 +23,16 @@ import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 import GuardianIcon from '../../assets/svgs/GuardianIcon';
 import {useAppDispatch} from '../../store/hooks';
-import {saveToken, setLogout} from '../../store/user/userSlices';
-import {Alert} from 'react-native';
+import {logoutUser} from '../../store/user/userSlices';
+import AppCustomModal from '../../components/AppCustomModal';
+import {showSuccessToast} from '../../utils/toast';
 
 export default function Settings() {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const [logoutVisible, setLogoutVisible] = useState(false);
 
   const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
 
@@ -198,30 +200,50 @@ export default function Settings() {
         <AppButton
           title="Logout"
           onPress={() => {
-            Alert.alert(
-              'Logout',
-              'Are you sure you want to logout?',
-              [
-                {
-                  text: 'Cancel',
-                  onPress: () => console.log('Logout cancelled'),
-                  style: 'cancel',
-                },
-                {
-                  text: 'Yes',
-                  onPress: () => {
-                    dispatch(setLogout(true));
-                    dispatch(saveToken(null));
-                  },
-                },
-              ],
-              {cancelable: true},
-            );
+            setLogoutVisible(true);
           }}
           titleStyle={{fontSize: size.md}}
           style={styles.button}
         />
       </View>
+      <AppCustomModal
+        visible={logoutVisible}
+        onPress={() => setLogoutVisible(false)}>
+        <View style={{flex: 1, justifyContent: 'flex-end'}}>
+          <View
+            style={{
+              backgroundColor: AppColors.white,
+              paddingHorizontal: hp(2),
+              paddingVertical: hp(2),
+              borderTopRightRadius: hp(2),
+              borderTopLeftRadius: hp(2),
+            }}>
+            <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
+              Logout
+            </Text>
+            <Text style={[AppStyles.subHeading, {marginTop: hp(1)}]}>
+              Are you sure you want to logout?
+            </Text>
+            <View style={[AppStyles.rowBetween, {marginTop: hp(2)}]}>
+              <AppButton
+                title="Cancel"
+                onPress={() => setLogoutVisible(false)}
+                style={{width: '35%', backgroundColor: AppColors.lightGrey}}
+                titleStyle={{color: AppColors.black}}
+              />
+              <AppButton
+                title="Yes"
+                onPress={() => {
+                  setLogoutVisible(false);
+                  dispatch(logoutUser());
+                  showSuccessToast('Logged out');
+                }}
+                style={{width: '60%', backgroundColor: AppColors.black}}
+              />
+            </View>
+          </View>
+        </View>
+      </AppCustomModal>
     </AppLayout>
   );
 }

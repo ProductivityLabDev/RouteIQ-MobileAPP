@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {Platform} from 'react-native';
 import {Buffer} from 'buffer';
 import {childDropDown} from '../../utils/DummyData';
+import {showSuccessToast} from '../../utils/toast';
 
 type LoginPayload = {
   email: string;
@@ -26,6 +27,7 @@ type JwtPayload = {
   sub?: number | string;
   role?: string;
   roleCode?: string;
+  employeeId?: number | string;
 };
 
 const decodeJwt = (token: string): JwtPayload | null => {
@@ -112,11 +114,18 @@ export const loginUser = createAsyncThunk(
             ? 'Parents'
             : 'Parents';
 
+        const employeeId =
+          mappedRole === 'Driver'
+            ? (decoded?.employeeId ?? decoded?.sub ?? null)
+            : null;
+
+        showSuccessToast('Logged in', 'Welcome back');
         return {
           token,
           role: mappedRole,
           roleCode: roleCode || 'PARENT',
           userId: decoded?.sub ?? data?.id ?? null,
+          employeeId,
         };
       } catch (e) {
         return rejectWithValue(
@@ -234,34 +243,37 @@ export const confirmResetPassword = createAsyncThunk(
   },
 );
 
+const initialState = {
+  token: null as string | null,
+  logout: false,
+  role: '',
+  driverHomeStatus: false,
+  retailHomeStatus: false,
+  selectedUserChatData: {},
+  showStartMileAgeSheet: false,
+  mapViewRouteBackOn: 'DriverHomeScreen',
+  studentAbsentModal: false,
+  selectedChild: {},
+  forgotType: '',
+  authStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+  authError: null as string | null,
+  userId: null as number | string | null,
+  employeeId: null as number | string | null,
+  roleCode: '',
+  resetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+  resetError: null as string | null,
+  resetEmail: '',
+  resetUserId: null as number | null,
+  otpStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+  otpError: null as string | null,
+  otpResult: null as any,
+  confirmResetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+  confirmResetError: null as string | null,
+};
+
 const userSlice = createSlice({
   name: 'users',
-  initialState: {
-    token: null as string | null,
-    logout: false,
-    role: '',
-    driverHomeStatus: false,
-    retailHomeStatus: false,
-    selectedUserChatData: {},
-    showStartMileAgeSheet: false,
-    mapViewRouteBackOn: 'DriverHomeScreen',
-    studentAbsentModal: false,
-    selectedChild: {},
-    forgotType: '',
-    authStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
-    authError: null as string | null,
-    userId: null as number | string | null,
-    roleCode: '',
-    resetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
-    resetError: null as string | null,
-    resetEmail: '',
-    resetUserId: null as number | null,
-    otpStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
-    otpError: null as string | null,
-    otpResult: null as any,
-    confirmResetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
-    confirmResetError: null as string | null,
-  },
+  initialState,
   reducers: {
     saveToken: (state, {payload}) => {
       state.token = payload;
@@ -298,6 +310,16 @@ const userSlice = createSlice({
     setForgotType: (state, {payload}) => {
       state.forgotType = payload;
     },
+    logoutUser: state => {
+      // Keep "logout" true to skip onboarding screen after logout.
+      // Keep the current role so logout from Driver returns to Driver login (same for Parent/Retail).
+      const prevRole = state.role;
+      const prevRoleCode = state.roleCode;
+      Object.assign(state, initialState);
+      state.logout = true;
+      state.role = prevRole;
+      state.roleCode = prevRoleCode;
+    },
   },
   extraReducers: builder => {
     builder
@@ -312,7 +334,13 @@ const userSlice = createSlice({
         state.role = payload.role || 'Parents';
         state.roleCode = payload.roleCode || '';
         state.userId = payload.userId ?? null;
+        state.employeeId = payload.employeeId ?? null;
         state.logout = false;
+        if (__DEV__) {
+          console.log('AUTH_TOKEN', payload.token);
+          console.log('AUTH_EMPLOYEE_ID', payload.employeeId);
+          console.log('AUTH_ROLE', payload.role, payload.roleCode);
+        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.authStatus = 'failed';
@@ -390,6 +418,7 @@ export const {
   setStudentAbsentModal,
   setSelectedChild,
   setForgotType,
+  logoutUser,
 } = userSlice.actions;
 
 export default userSlice.reducer;

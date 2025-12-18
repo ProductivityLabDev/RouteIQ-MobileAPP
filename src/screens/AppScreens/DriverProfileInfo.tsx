@@ -9,12 +9,23 @@ import AppButton from '../../components/AppButton';
 import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {saveToken} from '../../store/user/userSlices';
+import {fetchDriverDetails} from '../../store/driver/driverSlices';
 
 const DriverProfileInfo = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const token = useAppSelector(state => state.userSlices.token);
   const role = useAppSelector(state => state.userSlices.role);
+  const employeeId = useAppSelector(state => state.userSlices.employeeId);
+  const driverDetails = useAppSelector(state => state.driverSlices.driverDetails);
+
+  React.useEffect(() => {
+    if (role !== 'Driver') return;
+    if (!employeeId) return;
+    // Request deduping is handled in the thunk condition
+    dispatch(fetchDriverDetails(employeeId));
+  }, [dispatch, employeeId, role]);
+
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
@@ -30,17 +41,22 @@ const DriverProfileInfo = () => {
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
             <Text style={[AppStyles.title, AppStyles.halfWidth]}>Name</Text>
             <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-              Mark Tommay
+              {driverDetails?.EmployeeName ||
+                driverDetails?.name ||
+                driverDetails?.fullName ||
+                '—'}
             </Text>
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
             <Text style={[AppStyles.title, AppStyles.halfWidth]}>Age</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>32</Text>
+            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
+              {driverDetails?.Age ?? '—'}
+            </Text>
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
             <Text style={[AppStyles.title, AppStyles.halfWidth]}>Email</Text>
             <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-              marktommay@gmail.com
+              {driverDetails?.Email || '—'}
             </Text>
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
@@ -48,20 +64,24 @@ const DriverProfileInfo = () => {
               Phone Number
             </Text>
             <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-              +1-424-271-8337
+              {driverDetails?.Phone || '—'}
             </Text>
           </View>
           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
             <Text style={[AppStyles.title, AppStyles.halfWidth]}>Address</Text>
             <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-              802 E Frierson Ave, Tampa, FL 33603
+              {driverDetails?.Address || '—'}
             </Text>
           </View>
         </View>
         {role === 'Driver' && (
           <View>
             <AppButton
-              onPress={() => navigation.navigate('UpdateDriveProfile')}
+              onPress={() =>
+                navigation.navigate('UpdateDriveProfile' as never, {
+                  driverDetails,
+                } as never)
+              }
               title="Edit Info"
               style={styles.button}
               titleStyle={styles.buttonTitle}

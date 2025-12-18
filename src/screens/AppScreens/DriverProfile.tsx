@@ -19,13 +19,28 @@ import {useNavigation} from '@react-navigation/native';
 import GlobalIcon from '../../components/GlobalIcon';
 import AppButton from '../../components/AppButton';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {saveToken, setLogout} from '../../store/user/userSlices';
-import {Alert} from 'react-native';
+import {logoutUser} from '../../store/user/userSlices';
+import {fetchDriverDetails} from '../../store/driver/driverSlices';
+import AppCustomModal from '../../components/AppCustomModal';
+import {showSuccessToast} from '../../utils/toast';
 
 const DriverProfile = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const role = useAppSelector(state => state.userSlices.role);
+  const employeeId = useAppSelector(state => state.userSlices.employeeId);
+  const driverDetails = useAppSelector(state => state.driverSlices.driverDetails);
+  const driverDetailsStatus = useAppSelector(
+    state => state.driverSlices.driverDetailsStatus,
+  );
+  const [logoutVisible, setLogoutVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    if (role !== 'Driver') return;
+    if (!employeeId) return;
+    // Request deduping is handled in the thunk condition
+    dispatch(fetchDriverDetails(employeeId));
+  }, [dispatch, employeeId, role]);
 
   const settingItems = [
     {title: 'Profile Info', icon: 'group-2022'},
@@ -103,7 +118,10 @@ const DriverProfile = () => {
           </View>
 
           <Text style={[AppStyles.subHeading, styles.userName]}>
-            Mark Tommay
+            {driverDetails?.EmployeeName ||
+              driverDetails?.name ||
+              driverDetails?.fullName ||
+              '—'}
           </Text>
 
           {role === 'Driver' && (
@@ -111,7 +129,7 @@ const DriverProfile = () => {
               <View style={styles.headerTitle}>
                 <Text style={styles.headerSubTitle}>Employee ID:</Text>
                 <Text style={[AppStyles.subHeading, styles.whiteText]}>
-                  B456788
+                  {employeeId ?? '—'}
                 </Text>
               </View>
               <View style={styles.headerTitle}>
@@ -119,7 +137,10 @@ const DriverProfile = () => {
                   Status:
                 </Text>
                 <Text style={[AppStyles.subHeading, styles.whiteText]}>
-                  Part Time
+                  {driverDetails?.Status ||
+                    driverDetails?.status ||
+                    driverDetails?.employmentStatus ||
+                    '—'}
                 </Text>
               </View>
             </View>
@@ -180,25 +201,7 @@ const DriverProfile = () => {
           <AppButton
             title="Logout"
             onPress={() => {
-              Alert.alert(
-                'Logout',
-                'Are you sure you want to logout?',
-                [
-                  {
-                    text: 'Cancel',
-                    onPress: () => console.log('Logout cancelled'),
-                    style: 'cancel',
-                  },
-                  {
-                    text: 'Yes',
-                    onPress: () => {
-                      dispatch(setLogout(true));
-                      dispatch(saveToken(null));
-                    },
-                  },
-                ],
-                {cancelable: true},
-              );
+              setLogoutVisible(true);
             }}
             style={[
               styles.logoutButton,
@@ -211,6 +214,44 @@ const DriverProfile = () => {
           />
         </ImageBackground>
       </ScrollView>
+      <AppCustomModal
+        visible={logoutVisible}
+        onPress={() => setLogoutVisible(false)}>
+        <View style={{flex: 1, justifyContent: 'flex-end'}}>
+          <View
+            style={{
+              backgroundColor: AppColors.white,
+              paddingHorizontal: hp(2),
+              paddingVertical: hp(2),
+              borderTopRightRadius: hp(2),
+              borderTopLeftRadius: hp(2),
+            }}>
+            <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
+              Logout
+            </Text>
+            <Text style={[AppStyles.subHeading, {marginTop: hp(1)}]}>
+              Are you sure you want to logout?
+            </Text>
+            <View style={[AppStyles.rowBetween, {marginTop: hp(2)}]}>
+              <AppButton
+                title="Cancel"
+                onPress={() => setLogoutVisible(false)}
+                style={{width: '35%', backgroundColor: AppColors.lightGrey}}
+                titleStyle={{color: AppColors.black}}
+              />
+              <AppButton
+                title="Yes"
+                onPress={() => {
+                  setLogoutVisible(false);
+                  dispatch(logoutUser());
+                  showSuccessToast('Logged out');
+                }}
+                style={{width: '60%', backgroundColor: AppColors.black}}
+              />
+            </View>
+          </View>
+        </View>
+      </AppCustomModal>
     </AppLayout>
   );
 };

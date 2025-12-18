@@ -9,9 +9,20 @@ import {hp, wp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
 import AppButton from '../../components/AppButton';
 import {useNavigation} from '@react-navigation/native';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {changeDriverPassword} from '../../store/driver/driverSlices';
+import {logoutUser} from '../../store/user/userSlices';
+import {showErrorToast, showSuccessToast} from '../../utils/toast';
 
 const DriverChangePassword = () => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  const changePasswordStatus = useAppSelector(
+    state => state.driverSlices.changePasswordStatus,
+  );
+  const [currentPassword, setCurrentPassword] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const [retypeNewPassword, setRetypeNewPassword] = React.useState('');
   const rightIcon = () => (
     <Image source={require('../../assets/images/open_lock.png')} />
   );
@@ -37,6 +48,8 @@ const DriverChangePassword = () => {
           togglePasswordVisibility={true}
           secureTextEntry={true}
           rightInnerIcon={rightIcon()}
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
         />
         <AppInput
           placeholderTextColor={AppColors.brightGrey}
@@ -47,6 +60,8 @@ const DriverChangePassword = () => {
           togglePasswordVisibility={true}
           secureTextEntry={true}
           rightInnerIcon={rightIcon()}
+          value={newPassword}
+          onChangeText={setNewPassword}
         />
         <AppInput
           placeholderTextColor={AppColors.brightGrey}
@@ -57,10 +72,29 @@ const DriverChangePassword = () => {
           togglePasswordVisibility={true}
           secureTextEntry={true}
           rightInnerIcon={rightIcon()}
+          value={retypeNewPassword}
+          onChangeText={setRetypeNewPassword}
         />
         <AppButton
           title="Submit"
-          onPress={() => navigation.goBack()}
+          onPress={async () => {
+            if (changePasswordStatus === 'loading') {
+              return;
+            }
+            try {
+              await dispatch(
+                changeDriverPassword({
+                  currentPassword,
+                  newPassword,
+                  retypeNewPassword,
+                }),
+              ).unwrap();
+              showSuccessToast('Password changed', 'Please login again');
+              dispatch(logoutUser());
+            } catch (e) {
+              showErrorToast('Change password failed');
+            }
+          }}
           style={{
             width: '100%',
             backgroundColor: AppColors.black,

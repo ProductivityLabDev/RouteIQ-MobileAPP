@@ -6,6 +6,9 @@ import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {persister, store} from './src/store/store';
 import {MenuProvider} from 'react-native-popup-menu';
+import Toast from 'react-native-toast-message';
+import {toastConfig} from './src/utils/toastConfig';
+import {hp} from './src/utils/constants';
 
 const App = () => {
   return (
@@ -17,6 +20,7 @@ const App = () => {
               <Navigation />
             </BottomSheetModalProvider>
           </MenuProvider>
+          <Toast config={toastConfig} position="bottom" bottomOffset={hp(10)} />
         </GestureHandlerRootView>
       </PersistGate>
     </Provider>
