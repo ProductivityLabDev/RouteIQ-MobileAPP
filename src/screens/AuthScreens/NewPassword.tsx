@@ -20,6 +20,7 @@ import AppFonts from '../../utils/appFonts';
 import { Controller, useForm } from 'react-hook-form';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {confirmResetPassword} from '../../store/user/userSlices';
+import {showErrorToast} from '../../utils/toast';
 
 const NewPassword = () => {
   const navigation = useNavigation();
@@ -55,6 +56,11 @@ const NewPassword = () => {
       return;
     }
     if (confirmResetStatus === 'loading') {
+      return;
+    }
+
+    if (values?.new_password !== values?.confirm_password) {
+      showErrorToast('Passwords do not match', 'Please re-check and try again');
       return;
     }
 

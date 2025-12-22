@@ -2,7 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {Platform} from 'react-native';
 import {Buffer} from 'buffer';
 import {childDropDown} from '../../utils/DummyData';
-import {showSuccessToast} from '../../utils/toast';
+import {showErrorToast, showSuccessToast} from '../../utils/toast';
 
 type LoginPayload = {
   email: string;
@@ -152,6 +152,7 @@ export const requestResetPassword = createAsyncThunk(
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
+        showErrorToast('Request failed', errorText || undefined);
         return rejectWithValue(
           errorText || `Reset password failed with status ${response.status}`,
         );
@@ -159,9 +160,11 @@ export const requestResetPassword = createAsyncThunk(
 
       // backend might return empty body or JSON; we don't need it for the flow
       await response.text().catch(() => '');
+      showSuccessToast('OTP sent', 'Check your email');
       return {ok: true, email};
     } catch (err) {
       console.warn('requestResetPassword exception', {baseUrl, err});
+      showErrorToast('Request failed', 'Network error');
       return rejectWithValue('Network/exception error during reset-password');
     }
   },
@@ -180,6 +183,7 @@ export const verifyOtp = createAsyncThunk(
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
+        showErrorToast('Invalid code', errorText || undefined);
         return rejectWithValue(
           errorText || `OTP verify failed with status ${response.status}`,
         );
@@ -187,13 +191,16 @@ export const verifyOtp = createAsyncThunk(
 
       try {
         const data = await response.json();
+        showSuccessToast('Verified', 'OTP verified successfully');
         return {ok: true, data};
       } catch (e) {
         const text = await response.text().catch(() => '');
+        showSuccessToast('Verified', 'OTP verified successfully');
         return {ok: true, data: {raw: text}};
       }
     } catch (err) {
       console.warn('verifyOtp exception', {baseUrl, err});
+      showErrorToast('Verification failed', 'Network error');
       return rejectWithValue('Network/exception error during verify-otp');
     }
   },
@@ -221,6 +228,15 @@ export const confirmResetPassword = createAsyncThunk(
         } catch (e) {
           errorBody = null;
         }
+        showErrorToast(
+          'Reset failed',
+          (errorBody?.message && Array.isArray(errorBody.message)
+            ? errorBody.message.join(', ')
+            : errorBody?.message) ||
+            errorBody?.error ||
+            errorText ||
+            undefined,
+        );
         return rejectWithValue(
           errorBody?.message ||
             errorBody?.error ||
@@ -231,13 +247,16 @@ export const confirmResetPassword = createAsyncThunk(
 
       try {
         const data = await response.json();
+        showSuccessToast('Password updated', 'You can login now');
         return {ok: true, data};
       } catch (e) {
         const text = await response.text().catch(() => '');
+        showSuccessToast('Password updated', 'You can login now');
         return {ok: true, data: {raw: text}};
       }
     } catch (err) {
       console.warn('confirmResetPassword exception', {baseUrl, err});
+      showErrorToast('Reset failed', 'Network error');
       return rejectWithValue('Network/exception error during reset-password');
     }
   },
