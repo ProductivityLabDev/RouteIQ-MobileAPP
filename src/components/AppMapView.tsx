@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   Image,
   Pressable,
@@ -8,19 +8,23 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import AppStyles from '../styles/AppStyles';
 import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
-import {mapCustomStyle} from '../utils/mapConfig';
+import {googleMapsApiKey, mapCustomStyle} from '../utils/mapConfig';
 import {fontSize, size} from '../utils/responsiveFonts';
 import GlobalIcon from './GlobalIcon';
 import Range from './Range';
 
 const AppMapView = () => {
   const navigation = useNavigation();
+  const mapRef = useRef<MapView>(null);
   const [showDistance, setShowDistance] = useState(false);
+  const [etaMin, setEtaMin] = useState<number | null>(15);
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const startLocation = {
     latitude: 37.7749,
     longitude: -122.4454,
@@ -31,6 +35,16 @@ const AppMapView = () => {
     longitude: -122.426,
   };
 
+  const initialRegion = useMemo(
+    () => ({
+      latitude: (startLocation.latitude + endLocation.latitude) / 2,
+      longitude: (startLocation.longitude + endLocation.longitude) / 2,
+      latitudeDelta: Math.abs(startLocation.latitude - endLocation.latitude) * 1.5,
+      longitudeDelta: Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
+    }),
+    [],
+  );
+
   const handleChange = useCallback((condition: boolean) => {
     setShowDistance(condition);
   }, []);
@@ -38,17 +52,30 @@ const AppMapView = () => {
   return (
     <View style={styles.mapContainer}>
       <MapView
+        ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={AppStyles.map}
-        region={{
-          latitude: (startLocation.latitude + endLocation.latitude) / 2,
-          longitude: (startLocation.longitude + endLocation.longitude) / 2,
-          latitudeDelta:
-            Math.abs(startLocation.latitude - endLocation.latitude) * 1.5,
-          longitudeDelta:
-            Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
-        }}
-        customMapStyle={mapCustomStyle}></MapView>
+        initialRegion={initialRegion}
+        customMapStyle={mapCustomStyle}>
+        <Marker coordinate={startLocation} />
+        <Marker coordinate={endLocation} />
+        <MapViewDirections
+          origin={startLocation}
+          destination={endLocation}
+          apikey={googleMapsApiKey}
+          strokeWidth={4}
+          strokeColor={AppColors.black}
+          optimizeWaypoints={true}
+          onReady={result => {
+            setEtaMin(Math.round(result.duration));
+            setDistanceKm(result.distance);
+            mapRef.current?.fitToCoordinates(result.coordinates, {
+              edgePadding: {top: 60, right: 60, bottom: 280, left: 60},
+              animated: true,
+            });
+          }}
+        />
+      </MapView>
 
       <Pressable
         onPress={() => handleChange(true)}
@@ -75,8 +102,19 @@ const AppMapView = () => {
               AppStyles.subHeading,
               {fontSize: fontSize(14), fontFamily: AppFonts.NunitoSansBold},
             ]}>
-            ETA: <Text style={styles.timeTitle}>15 min</Text>
+            ETA:{' '}
+            <Text style={styles.timeTitle}>
+              {etaMin != null ? `${etaMin} min` : '—'}
+            </Text>
           </Text>
+          {!!distanceKm && (
+            <Text style={[AppStyles.subHeading, {marginTop: hp(0.2)}]}>
+              Distance:{' '}
+              <Text style={styles.timeTitle}>
+                {distanceKm.toFixed(1)} km
+              </Text>
+            </Text>
+          )}
         </View>
         <TouchableOpacity
           onPress={() => navigation.navigate('ParentFeedback')}
