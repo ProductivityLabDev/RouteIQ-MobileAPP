@@ -3,7 +3,7 @@ import {Platform} from 'react-native';
 
 const getApiBaseUrl = () => {
   // For physical device dev, point to your machine LAN IP
-  const manualHost = 'http://192.168.18.14:3000';
+  const manualHost = 'http://192.168.100.53:3000';
   const deviceHost =
     Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
   return manualHost?.trim() || deviceHost;

@@ -8,14 +8,13 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import AppInput from './AppInput';
 import AppButton from './AppButton';
 
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-import MapViewDirections from 'react-native-maps-directions';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import AppFonts from '../utils/appFonts';
 import GlobalIcon from './GlobalIcon';
 import AlarmIcon from '../assets/svgs/AlarmIcon';
 import { useNavigation } from '@react-navigation/native';
-import {googleMapsApiKey, mapCustomStyle} from '../utils/mapConfig';
+import { mapCustomStyle } from '../utils/mapConfig';
 import { AppColors } from '../utils/color';
 import { hp, wp } from '../utils/constants';
 import { fontSize, size } from '../utils/responsiveFonts';
@@ -66,7 +65,7 @@ const DriverMapViewWidget = () => {
         <MapView
             provider={PROVIDER_GOOGLE}
             style={[AppStyles.map, ]}
-            initialRegion={{
+            region={{
                 latitude: (startLocation.latitude + endLocation.latitude) / 2,
                 longitude: (startLocation.longitude + endLocation.longitude) / 2,
                 latitudeDelta:
@@ -75,17 +74,7 @@ const DriverMapViewWidget = () => {
                 Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
             }}
             customMapStyle={mapCustomStyle}
-            >
-            <Marker coordinate={startLocation} />
-            <Marker coordinate={endLocation} />
-            <MapViewDirections
-              origin={startLocation}
-              destination={endLocation}
-              apikey={googleMapsApiKey}
-              strokeWidth={3}
-              strokeColor={AppColors.black}
             />
-            </MapView>
            
             //  </TouchableOpacity>
     );

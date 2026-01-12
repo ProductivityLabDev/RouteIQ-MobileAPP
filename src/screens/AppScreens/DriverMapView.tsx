@@ -10,8 +10,7 @@ import {fontSize, size} from '../../utils/responsiveFonts';
 import AppInput from '../../components/AppInput';
 import AppButton from '../../components/AppButton';
 import {hp} from '../../utils/constants';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-import MapViewDirections from 'react-native-maps-directions';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {mapCustomStyle} from '../../utils/mapConfig';
 import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
@@ -20,7 +19,6 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {Image} from 'react-native';
 import {useKeyboard} from '../../utils/keyboard';
 import {useAppSelector} from '../../store/hooks';
-import {googleMapsApiKey} from '../../utils/mapConfig';
 
 const DriverMapView = () => {
   const navigation = useNavigation();
@@ -35,9 +33,6 @@ const DriverMapView = () => {
     state => state.userSlices.showStartMileAgeSheet,
   );
   const [tripStarted, setTripStarted] = useState(false); // new
-  const [durationMin, setDurationMin] = useState<number | null>(37);
-  const [distanceMi, setDistanceMi] = useState<number | null>(2);
-  const mapRef = useRef<MapView>(null);
 
   const route = useRoute();
   const isFromMapView = route.params?.FromMapView ?? false;
@@ -71,10 +66,9 @@ const DriverMapView = () => {
 
   const mapView = () => (
     <MapView
-      ref={mapRef}
       provider={PROVIDER_GOOGLE}
       style={AppStyles.map}
-      initialRegion={{
+      region={{
         latitude: (startLocation.latitude + endLocation.latitude) / 2,
         longitude: (startLocation.longitude + endLocation.longitude) / 2,
         latitudeDelta:
@@ -83,27 +77,7 @@ const DriverMapView = () => {
           Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
       }}
       customMapStyle={mapCustomStyle}
-    >
-      <Marker coordinate={startLocation} />
-      <Marker coordinate={endLocation} />
-      <MapViewDirections
-        origin={startLocation}
-        destination={endLocation}
-        apikey={googleMapsApiKey}
-        strokeWidth={4}
-        strokeColor={AppColors.black}
-        optimizeWaypoints={true}
-        onReady={result => {
-          setDurationMin(Math.round(result.duration));
-          // MapViewDirections distance is in km; convert to miles for existing UI label
-          setDistanceMi(Number((result.distance * 0.621371).toFixed(1)));
-          mapRef.current?.fitToCoordinates(result.coordinates, {
-            edgePadding: {top: 60, right: 60, bottom: 240, left: 60},
-            animated: true,
-          });
-        }}
-      />
-    </MapView>
+    />
   );
 
   useEffect(() => {
@@ -123,12 +97,8 @@ const DriverMapView = () => {
         rightIcon={true}
       />
       <View style={[AppStyles.row, styles.durationContainer]}>
-        <Text style={AppStyles.whiteSubTitle}>
-          Duration: {durationMin != null ? `${durationMin} min` : '—'}
-        </Text>
-        <Text style={AppStyles.whiteSubTitle}>
-          Distance: {distanceMi != null ? `${distanceMi} miles` : '—'}
-        </Text>
+        <Text style={AppStyles.whiteSubTitle}>Duration: 37 min</Text>
+        <Text style={AppStyles.whiteSubTitle}>Distance: 2 miles</Text>
         <Text style={AppStyles.whiteSubTitle}>Late: 15 min</Text>
       </View>
       <View style={[AppStyles.driverContainer, {paddingHorizontal: hp(0)}]}>

@@ -78,8 +78,4 @@ export const mapCustomStyle = [
       stylers: [{color: '#17263c'}],
     },
   ];
-
-// Used by `react-native-maps-directions` (polyline + ETA). This key is already
-// present in AndroidManifest; keep it restricted in Google Cloud Console.
-export const googleMapsApiKey = 'AIzaSyAkiHkjo-5JKqugTE-_PwfdBb3j6Ze4jxE';
   
