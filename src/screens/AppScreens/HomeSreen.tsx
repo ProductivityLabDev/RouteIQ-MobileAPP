@@ -60,6 +60,30 @@ export default function HomeSreen() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
   const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const busNoRaw =
+    selectedChild?.busNo ??
+    selectedChild?.BusNo ??
+    parentRouteMap?.route?.vehicleNumberPlate ??
+    parentRouteMap?.route?.busNumberPlate ??
+    null;
+  const busNoDisplay = busNoRaw
+    ? String(busNoRaw).slice(0, 7)
+    : '—';
+  const studentImageSource = useMemo(() => {
+    const source = selectedChild?.image;
+    if (typeof source === 'number') {
+      return source;
+    }
+    if (
+      source &&
+      typeof source === 'object' &&
+      typeof source.uri === 'string' &&
+      source.uri.trim()
+    ) {
+      return source;
+    }
+    return childDropDown?.[0]?.image;
+  }, [selectedChild]);
 
   const handleSetDates = (dates: string | Date[]) => {
     setGetDates(dates);
@@ -212,13 +236,13 @@ export default function HomeSreen() {
                   fontFamily: AppFonts.NunitoSansBold,
                 },
               ]}>
-              B456788
+              {busNoDisplay}
             </Text>
           </View>
           <View style={styles.imageContainer}>
             <Image
               style={styles.image}
-              source={selectedChild?.image || childDropDown[0]?.image}
+              source={studentImageSource}
             />
           </View>
           <View style={[styles.headerTitle, {paddingTop: hp(0.2)}]}>

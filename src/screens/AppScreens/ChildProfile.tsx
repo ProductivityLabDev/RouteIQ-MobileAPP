@@ -22,10 +22,12 @@ import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
+import {useAppSelector} from '../../store/hooks';
 
 export default function ChildProfile() {
   const navigation = useNavigation();
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const selectedChild = useAppSelector(state => state.userSlices.selectedChild);
 
   const data = [
     {key: '1', value: 'Bus'},
@@ -52,11 +54,31 @@ export default function ChildProfile() {
   });
 
   useEffect(() => {
-    setValue('firstName', 'Jacob');
-    setValue('lastName', 'Jones');
-    setValue('emergencyContactName', 'Tanner');
-    setValue('emergencyContact', '+93123132325');
-  }, []);
+    // Get the first and last name from selectedChild
+    const firstName =
+      selectedChild?.firstName ||
+      selectedChild?.FirstName ||
+      selectedChild?.studentName?.split(' ')[0] ||
+      selectedChild?.StudentName?.split(' ')[0] ||
+      selectedChild?.title?.split(' ')[0] ||
+      '';
+    
+    const lastName =
+      selectedChild?.lastName ||
+      selectedChild?.LastName ||
+      (selectedChild?.studentName?.split(' ').slice(1).join(' ') ||
+        selectedChild?.StudentName?.split(' ').slice(1).join(' ') ||
+        selectedChild?.title?.split(' ').slice(1).join(' ') ||
+        '');
+
+    const emergencyContactName = selectedChild?.emergencyContactName || selectedChild?.EmergencyContactName || '';
+    const emergencyContact = selectedChild?.emergencyContact || selectedChild?.EmergencyContact || '';
+
+    setValue('firstName', firstName);
+    setValue('lastName', lastName);
+    setValue('emergencyContactName', emergencyContactName);
+    setValue('emergencyContact', emergencyContact);
+  }, [selectedChild, setValue]);
 
   const requestGalleryPermission = async () => {
     try {

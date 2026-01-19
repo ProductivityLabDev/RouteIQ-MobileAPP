@@ -42,6 +42,21 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     setIsSwitchOn(newValue);
   };
 
+  const resolveImageSource = (source: any) => {
+    if (typeof source === 'number') {
+      return source; // static require
+    }
+    if (
+      source &&
+      typeof source === 'object' &&
+      typeof source.uri === 'string' &&
+      source.uri.trim()
+    ) {
+      return source;
+    }
+    return childDropDown?.[0]?.image;
+  };
+
   const dropdownData = useMemo(() => {
     if (Array.isArray(parentStudents) && parentStudents.length > 0) {
       return parentStudents.map((student: any) => {
@@ -49,7 +64,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           student?.studentName ||
           student?.StudentName ||
           student?.name ||
-          [student?.firstName, student?.lastName].filter(Boolean).join(' ') ||
+          [student?.firstName, student?.lastName]
+            .filter(Boolean)
+            .join(' ') ||
+          [student?.FirstName, student?.LastName]
+            .filter(Boolean)
+            .join(' ') ||
           'Student';
         const studentId =
           student?.studentId ??
@@ -58,12 +78,18 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           student?.studentID ??
           null;
         const image =
-          student?.image
-            ? typeof student.image === 'string'
-              ? {uri: student.image}
-              : student.image
-            : childDropDown?.[0]?.image;
-        return {title: name, image, studentId};
+          typeof student?.image === 'string' && student.image.trim()
+            ? {uri: student.image}
+            : student?.image;
+        const busNo =
+          student?.busNo ??
+          student?.BusNo ??
+          student?.busNumber ??
+          student?.BusNumber ??
+          student?.vehicleNumberPlate ??
+          student?.VehicleNumberPlate ??
+          null;
+        return {title: name, image: resolveImageSource(image), studentId, busNo};
       });
     }
     return childDropDown;
@@ -193,7 +219,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                       }}>
                       <Image
                         style={styles.dropdownImage}
-                        source={item.image || childDropDown?.[0]?.image}
+                        source={resolveImageSource(item.image)}
                       />
                       <Text style={styles.dropdownItemTxtStyle}>
                         {item.title}
