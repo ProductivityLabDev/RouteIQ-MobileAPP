@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import NotificationIcon from '../assets/svgs/NotificationIcon';
 import AppStyles from '../styles/AppStyles';
@@ -12,8 +12,8 @@ import GlobalIcon from './GlobalIcon';
 import AppSwitchButton from './AppSwitchButton';
 import SelectDropdown from 'react-native-select-dropdown';
 import {childDropDown} from '../utils/DummyData';
-import { useAppDispatch } from '../store/hooks';
-import { setSelectedChild } from '../store/user/userSlices';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
+import {setSelectedChild} from '../store/user/userSlices';
 
 const AppHeader: React.FC<AppHeaderProps> = ({
   title,
@@ -34,11 +34,49 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 }) => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const parentStudents = useAppSelector(state => state.userSlices.parentStudents);
+  const selectedChild = useAppSelector(state => state.userSlices.selectedChild);
   const [isSwitchOn, setIsSwitchOn] = useState(true);
 
   const handleToggle = (newValue: boolean) => {
     setIsSwitchOn(newValue);
   };
+
+  const dropdownData = useMemo(() => {
+    if (Array.isArray(parentStudents) && parentStudents.length > 0) {
+      return parentStudents.map((student: any) => {
+        const name =
+          student?.studentName ||
+          student?.StudentName ||
+          student?.name ||
+          [student?.firstName, student?.lastName].filter(Boolean).join(' ') ||
+          'Student';
+        const studentId =
+          student?.studentId ??
+          student?.StudentId ??
+          student?.id ??
+          student?.studentID ??
+          null;
+        const image =
+          student?.image
+            ? typeof student.image === 'string'
+              ? {uri: student.image}
+              : student.image
+            : childDropDown?.[0]?.image;
+        return {title: name, image, studentId};
+      });
+    }
+    return childDropDown;
+  }, [parentStudents]);
+
+  useEffect(() => {
+    if (role !== 'ParentsDropDown') return;
+    if (!dropdownData.length) return;
+    if (selectedChild?.studentId || selectedChild?.StudentId) {
+      return;
+    }
+    dispatch(setSelectedChild(dropdownData[0]));
+  }, [dispatch, dropdownData, role, selectedChild]);
 
   return (
     <>
@@ -126,8 +164,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             </View>
             <View>
               <SelectDropdown
-                data={childDropDown}
-                defaultValue={childDropDown[0]}
+                data={dropdownData}
+                defaultValue={selectedChild?.title ? selectedChild : dropdownData[0]}
                 onSelect={(selectedItem, index) => {
                   dispatch(setSelectedChild(selectedItem))
                   console.log(selectedItem, index);
@@ -153,7 +191,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                         ...styles.dropdownItemStyle,
                         ...(isSelected && {backgroundColor: '#D2D9DF'}),
                       }}>
-                      <Image style={styles.dropdownImage} source={item.image} />
+                      <Image
+                        style={styles.dropdownImage}
+                        source={item.image || childDropDown?.[0]?.image}
+                      />
                       <Text style={styles.dropdownItemTxtStyle}>
                         {item.title}
                       </Text>

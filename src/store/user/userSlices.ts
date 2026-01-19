@@ -23,6 +23,11 @@ type ConfirmResetPasswordPayload = {
   newPassword: string;
 };
 
+type ParentRouteMapPayload = {
+  studentId: number | string;
+  type?: 'AM' | 'PM' | 'ALL';
+};
+
 type JwtPayload = {
   sub?: number | string;
   role?: string;
@@ -54,11 +59,130 @@ const decodeJwt = (token: string): JwtPayload | null => {
 
 const getApiBaseUrl = () => {
   // For physical device dev, point to your machine LAN IP
-  const manualHost = 'http://192.168.100.53:3000';
+  const manualHost = 'http://192.168.18.14:3000';
   const deviceHost =
     Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
   return manualHost?.trim() || deviceHost;
 };
+
+export const fetchParentStudents = createAsyncThunk(
+  'users/fetchParentStudents',
+  async (_: void, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) {
+      return rejectWithValue('Missing auth token');
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/parent/studentsByParentsId`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText || `Fetch students failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      if (data?.ok === true && Array.isArray(data?.data)) {
+        return data.data;
+      }
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
+    } catch (err) {
+      console.warn('fetchParentStudents exception', {baseUrl, err});
+      return rejectWithValue('Network error while fetching parent students');
+    }
+  },
+  {
+    condition: (_, {getState}) => {
+      const state: any = getState();
+      const status: string | undefined = state?.userSlices?.parentStudentsStatus;
+      if (status === 'loading') {
+        return false;
+      }
+      return true;
+    },
+  },
+);
+
+export const fetchParentRouteMap = createAsyncThunk(
+  'users/fetchParentRouteMap',
+  async (
+    {studentId, type = 'AM'}: ParentRouteMapPayload,
+    {getState, rejectWithValue},
+  ) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) {
+      return rejectWithValue('Missing auth token');
+    }
+
+    try {
+      const query = new URLSearchParams({
+        studentId: String(studentId),
+        type: String(type).toUpperCase(),
+      });
+      const response = await fetch(`${baseUrl}/parent/route-map?${query}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText || `Fetch route map failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      return data;
+    } catch (err) {
+      console.warn('fetchParentRouteMap exception', {baseUrl, err});
+      return rejectWithValue('Network error while fetching route map');
+    }
+  },
+  {
+    condition: (
+      {studentId, type = 'AM'}: ParentRouteMapPayload,
+      {getState},
+    ) => {
+      const state: any = getState();
+      const status: string | undefined = state?.userSlices?.parentRouteMapStatus;
+      if (status === 'loading') {
+        return false;
+      }
+
+      const currentStudentId = state?.userSlices?.parentRouteMapStudentId;
+      const currentType = state?.userSlices?.parentRouteMapType;
+      if (
+        status === 'succeeded' &&
+        currentStudentId != null &&
+        String(currentStudentId) === String(studentId) &&
+        String(currentType || '').toUpperCase() === String(type).toUpperCase()
+      ) {
+        return false;
+      }
+      return true;
+    },
+  },
+);
 
 export const loginUser = createAsyncThunk(
   'users/loginUser',
@@ -288,6 +412,14 @@ const initialState = {
   otpResult: null as any,
   confirmResetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
   confirmResetError: null as string | null,
+  parentStudents: [] as any[],
+  parentStudentsStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+  parentStudentsError: null as string | null,
+  parentRouteMap: null as any,
+  parentRouteMapStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+  parentRouteMapError: null as string | null,
+  parentRouteMapStudentId: null as number | string | null,
+  parentRouteMapType: 'AM' as 'AM' | 'PM' | 'ALL',
 };
 
 const userSlice = createSlice({
@@ -421,6 +553,45 @@ const userSlice = createSlice({
           (action.payload as string) ||
           action.error.message ||
           'Reset password failed';
+      })
+      .addCase(fetchParentStudents.pending, state => {
+        state.parentStudentsStatus = 'loading';
+        state.parentStudentsError = null;
+      })
+      .addCase(fetchParentStudents.fulfilled, (state, {payload}) => {
+        state.parentStudentsStatus = 'succeeded';
+        state.parentStudentsError = null;
+        state.parentStudents = Array.isArray(payload) ? payload : [];
+      })
+      .addCase(fetchParentStudents.rejected, (state, action) => {
+        state.parentStudentsStatus = 'failed';
+        state.parentStudentsError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to fetch students';
+      })
+      .addCase(fetchParentRouteMap.pending, state => {
+        state.parentRouteMapStatus = 'loading';
+        state.parentRouteMapError = null;
+      })
+      .addCase(fetchParentRouteMap.fulfilled, (state, {payload}) => {
+        state.parentRouteMapStatus = 'succeeded';
+        state.parentRouteMapError = null;
+        state.parentRouteMap = payload;
+        state.parentRouteMapStudentId =
+          payload?.student?.studentId ??
+          payload?.student?.StudentId ??
+          payload?.studentId ??
+          null;
+        state.parentRouteMapType =
+          (payload?.type && String(payload.type).toUpperCase()) || 'AM';
+      })
+      .addCase(fetchParentRouteMap.rejected, (state, action) => {
+        state.parentRouteMapStatus = 'failed';
+        state.parentRouteMapError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to fetch route map';
       });
   },
 });

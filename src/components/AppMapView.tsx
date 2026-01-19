@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   Image,
   Pressable,
@@ -8,25 +8,41 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import AppStyles from '../styles/AppStyles';
 import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
-import {mapCustomStyle} from '../utils/mapConfig';
+import {googleMapsApiKey, mapCustomStyle} from '../utils/mapConfig';
 import {fontSize, size} from '../utils/responsiveFonts';
 import GlobalIcon from './GlobalIcon';
 import Range from './Range';
 
-const AppMapView = () => {
+type RouteStop = {
+  latitude?: number | null;
+  longitude?: number | null;
+  stopOrder?: number | null;
+};
+
+type AppMapViewProps = {
+  routeStops?: RouteStop[] | null;
+};
+
+const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
   const navigation = useNavigation();
   const [showDistance, setShowDistance] = useState(false);
-  const startLocation = {
+  const mapRef = useRef<MapView | null>(null);
+  const [routeInfo, setRouteInfo] = useState<{
+    distance: number | null;
+    duration: number | null;
+  }>({distance: null, duration: null});
+  const fallbackStart = {
     latitude: 37.7749,
     longitude: -122.4454,
   };
 
-  const endLocation = {
+  const fallbackEnd = {
     latitude: 37.7793,
     longitude: -122.426,
   };
@@ -35,11 +51,74 @@ const AppMapView = () => {
     setShowDistance(condition);
   }, []);
 
+  const orderedStops = useMemo(() => {
+    if (!Array.isArray(routeStops)) {
+      return [] as RouteStop[];
+    }
+    return routeStops
+      .filter(stop => {
+        const lat = Number(stop.latitude);
+        const lng = Number(stop.longitude);
+        return Number.isFinite(lat) && Number.isFinite(lng);
+      })
+      .sort((a, b) => Number(a.stopOrder ?? 0) - Number(b.stopOrder ?? 0));
+  }, [routeStops]);
+
+  const startLocation = orderedStops[0]
+    ? {
+        latitude: Number(orderedStops[0].latitude),
+        longitude: Number(orderedStops[0].longitude),
+      }
+    : fallbackStart;
+
+  const endLocation =
+    orderedStops.length > 1
+      ? {
+          latitude: Number(orderedStops[orderedStops.length - 1].latitude),
+          longitude: Number(orderedStops[orderedStops.length - 1].longitude),
+        }
+      : fallbackEnd;
+
+  const waypoints = useMemo(() => {
+    if (orderedStops.length <= 2) {
+      return [];
+    }
+    return orderedStops.slice(1, -1).map(stop => ({
+      latitude: Number(stop.latitude),
+      longitude: Number(stop.longitude),
+    }));
+  }, [orderedStops]);
+
+  const busLocation = useMemo(() => {
+    if (orderedStops.length > 1) {
+      return {
+        latitude: (startLocation.latitude + endLocation.latitude) / 2,
+        longitude: (startLocation.longitude + endLocation.longitude) / 2,
+      };
+    }
+    return startLocation;
+  }, [endLocation, orderedStops.length, startLocation]);
+
+  const etaLabel = useMemo(() => {
+    if (routeInfo.duration == null) {
+      return '—';
+    }
+    return `${Math.round(routeInfo.duration)} min`;
+  }, [routeInfo.duration]);
+
+  const distanceLabel = useMemo(() => {
+    if (routeInfo.distance == null) {
+      return '';
+    }
+    return `${routeInfo.distance.toFixed(1)} km`;
+  }, [routeInfo.distance]);
+
   return (
     <View style={styles.mapContainer}>
       <MapView
         provider={PROVIDER_GOOGLE}
         style={AppStyles.map}
+        ref={mapRef}
         region={{
           latitude: (startLocation.latitude + endLocation.latitude) / 2,
           longitude: (startLocation.longitude + endLocation.longitude) / 2,
@@ -48,16 +127,100 @@ const AppMapView = () => {
           longitudeDelta:
             Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
         }}
-        customMapStyle={mapCustomStyle}></MapView>
+        customMapStyle={mapCustomStyle}>
+        <MapViewDirections
+          origin={startLocation}
+          destination={endLocation}
+          waypoints={waypoints}
+          apikey={googleMapsApiKey}
+          strokeWidth={4}
+          strokeColor={AppColors.black}
+          optimizeWaypoints={false}
+          onReady={result => {
+            setRouteInfo({
+              distance: result.distance,
+              duration: result.duration,
+            });
+            if (mapRef.current) {
+              mapRef.current.fitToCoordinates(result.coordinates, {
+                edgePadding: {
+                  top: hp(6),
+                  right: hp(6),
+                  bottom: hp(6),
+                  left: hp(6),
+                },
+                animated: true,
+              });
+            }
+          }}
+          onError={error => {
+            if (__DEV__) {
+              console.warn('MapViewDirections error', error);
+            }
+          }}
+        />
+      </MapView>
 
-      <Pressable
-        onPress={() => handleChange(true)}
-        style={[
-          styles.bottomContainers,
-          {bottom: hp(49), justifyContent: 'center'},
-        ]}>
-        <Image source={require('../assets/images/direction.png')} />
-      </Pressable>
+      {orderedStops.length < 2 && (
+        <Pressable
+          onPress={() => handleChange(true)}
+          style={[
+            styles.bottomContainers,
+            {bottom: hp(49), justifyContent: 'center'},
+          ]}>
+          <Image source={require('../assets/images/direction.png')} />
+        </Pressable>
+      )}
+
+      <Marker
+        coordinate={startLocation}
+        anchor={{x: 0.5, y: 0.5}}
+        title="Home">
+        <View style={styles.iconMarker}>
+          <GlobalIcon
+            library="MaterialIcons"
+            name="home"
+            color={AppColors.white}
+            size={hp(2.6)}
+          />
+        </View>
+      </Marker>
+
+      <Marker
+        coordinate={endLocation}
+        anchor={{x: 0.5, y: 0.5}}
+        title="School">
+        <View style={styles.iconMarker}>
+          <GlobalIcon
+            library="MaterialIcons"
+            name="school"
+            color={AppColors.white}
+            size={hp(2.6)}
+          />
+        </View>
+      </Marker>
+
+      <Marker
+        coordinate={busLocation}
+        anchor={{x: 0.5, y: 1}}
+        title="Bus">
+        <View style={styles.busPin}>
+          <GlobalIcon
+            library="MaterialIcons"
+            name="location-on"
+            color={AppColors.red}
+            size={hp(5)}
+          />
+          <View style={styles.busPinIcon}>
+            <GlobalIcon
+              library="MaterialCommunityIcons"
+              name="bus"
+              color={AppColors.white}
+              size={hp(2)}
+            />
+          </View>
+        </View>
+      </Marker>
       {showDistance && <Range onPress={() => handleChange(false)} />}
 
       <View style={styles.bottomContainers}>
@@ -75,7 +238,11 @@ const AppMapView = () => {
               AppStyles.subHeading,
               {fontSize: fontSize(14), fontFamily: AppFonts.NunitoSansBold},
             ]}>
-            ETA: <Text style={styles.timeTitle}>15 min</Text>
+            ETA:{' '}
+            <Text style={styles.timeTitle}>
+              {etaLabel}
+              {distanceLabel ? ` • ${distanceLabel}` : ''}
+            </Text>
           </Text>
         </View>
         <TouchableOpacity
@@ -88,6 +255,19 @@ const AppMapView = () => {
               color={AppColors.red}
               size={hp(4)}
             />
+            <View>
+              <Text
+                style={[
+                  AppStyles.subHeading,
+                  {
+                    fontSize: size.default,
+                    fontFamily: AppFonts.NunitoSansBold,
+                    marginTop: hp(0.5),
+                  },
+                ]}>
+                Report an Issue
+              </Text>
+            </View>
           </View>
         </TouchableOpacity>
       </View>
@@ -143,5 +323,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
+  },
+  iconMarker: {
+    height: hp(5),
+    width: hp(5),
+    borderRadius: hp(2.5),
+    backgroundColor: AppColors.black,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: AppColors.white,
+  },
+  busPin: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  busPinIcon: {
+    position: 'absolute',
+    top: hp(1),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

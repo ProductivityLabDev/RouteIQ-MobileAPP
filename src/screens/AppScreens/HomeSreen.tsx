@@ -35,15 +35,23 @@ import ElephantIcon from '../../assets/svgs/ElephantIcon';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {setStudentAbsentModal} from '../../store/user/userSlices';
 import MultiSelectDropdown from '../../components/MultiSelectDropdown';
+import {fetchParentRouteMap, fetchParentStudents} from '../../store/user/userSlices';
 
 export default function HomeSreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const role = useAppSelector(state => state.userSlices.role);
   const studentAbsentModal = useAppSelector(
     state => state.userSlices.studentAbsentModal,
   );
   const selectedChild = useAppSelector(state => state.userSlices.selectedChild);
+  const parentStudentsStatus = useAppSelector(
+    state => state.userSlices.parentStudentsStatus,
+  );
+  const parentRouteMap = useAppSelector(
+    state => state.userSlices.parentRouteMap,
+  );
   const [isEnabled, setIsEnabled] = useState(false);
   const [selectAbsence, setSelectAbsence] = useState('');
   const [preview, setPreview] = useState(false);
@@ -152,12 +160,30 @@ export default function HomeSreen() {
     }
   }, [selectAbsence]);
 
+  useEffect(() => {
+    if (role !== 'Parents') return;
+    if (parentStudentsStatus === 'idle') {
+      dispatch(fetchParentStudents());
+    }
+  }, [dispatch, parentStudentsStatus, role]);
+
+  useEffect(() => {
+    if (role !== 'Parents') return;
+    const studentId =
+      selectedChild?.studentId ??
+      selectedChild?.StudentId ??
+      selectedChild?.id ??
+      null;
+    if (!studentId) return;
+    dispatch(fetchParentRouteMap({studentId, type: 'AM'}));
+  }, [dispatch, role, selectedChild]);
+
   return (
     <AppLayout
       style={styles.layoutContainer}
       statusbackgroundColor={AppColors.lightBlack}>
       <View style={{height: screenHeight, width: screenWidth}}>
-        <AppMapView />
+        <AppMapView routeStops={parentRouteMap?.stops} />
       </View>
       <ImageBackground
         style={styles.headerImage}

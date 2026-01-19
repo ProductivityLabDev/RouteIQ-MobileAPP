@@ -1,11 +1,10 @@
-import React, {useState, useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   useWindowDimensions,
   FlatList,
-  ScrollView,
   Pressable,
 } from 'react-native';
 import {
@@ -58,141 +57,97 @@ export default function DriverHomeScreen() {
 
   const dayScene = ['AM', 'PM', 'ALL'];
 
-  // Route Tab Content (Displays Weekly Calendar)
-  const RouteScreen = () => (
+  const RouteHeader = () => (
     <>
       <AppWeeklyCalendar />
-      <ScrollView>
-        <View style={AppStyles.driverContainer}>
-          {role === 'Driver' && (
-            <View style={AppStyles.rowBetween}>
-              <View style={{minWidth: 180}}>
-                {dayScene[selectedScene] === 'AM' ? (
-                  <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
-                    School starts at 8:00AM
-                  </Text>
-                ) 
-                : 
-                  dayScene[selectedScene] === 'PM' ? (
-                  <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
-                   School dismissal is 3:00pm
-                  </Text>
-                 
-                ):null}
-              </View>
+      <View style={AppStyles.driverContainer}>
+        {role === 'Driver' && (
+          <View style={AppStyles.rowBetween}>
+            <View style={{minWidth: 180}}>
+              {dayScene[selectedScene] === 'AM' ? (
+                <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
+                  School starts at 8:00AM
+                </Text>
+              ) : dayScene[selectedScene] === 'PM' ? (
+                <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
+                  School dismissal is 3:00pm
+                </Text>
+              ) : null}
+            </View>
 
-              {/* RIGHT side: Buttons */}
-              <View style={AppStyles.row}>
-                {dayScene?.map((item, index) => (
-                  <Pressable
-                    onPress={() => setSelectedScene(index)}
-                    key={index}
+            <View style={AppStyles.row}>
+              {dayScene?.map((item, idx) => (
+                <Pressable
+                  onPress={() => setSelectedScene(idx)}
+                  key={idx}
+                  style={[
+                    styles.daySceneContainer,
+                    {
+                      backgroundColor:
+                        selectedScene === idx ? AppColors.black : AppColors.white,
+                      borderTopLeftRadius: idx === 0 ? 5 : 0,
+                      borderTopRightRadius: idx === 2 ? 5 : 0,
+                      borderBottomLeftRadius: idx === 0 ? 5 : 0,
+                      borderBottomRightRadius: idx === 2 ? 5 : 0,
+                    },
+                  ]}>
+                  <Text
                     style={[
-                      styles.daySceneContainer,
+                      AppStyles.title,
                       {
-                        backgroundColor:
-                          selectedScene === index
-                            ? AppColors.black
-                            : AppColors.white,
-                        borderTopLeftRadius: index === 0 ? 5 : 0,
-                        borderTopRightRadius: index === 2 ? 5 : 0,
-                        borderBottomLeftRadius: index === 0 ? 5 : 0,
-                        borderBottomRightRadius: index === 2 ? 5 : 0,
+                        fontSize: fontSize(14),
+                        color:
+                          selectedScene === idx
+                            ? AppColors.white
+                            : AppColors.black,
                       },
                     ]}>
-                    <Text
-                      style={[
-                        AppStyles.title,
-                        {
-                          fontSize: fontSize(14),
-                          color:
-                            selectedScene === index
-                              ? AppColors.white
-                              : AppColors.black,
-                        },
-                      ]}>
-                      {item}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
+                    {item}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
-          )}
-        </View>
-        <FlatList
-          data={routeData}
-          renderItem={({item}) => <TripCard item={item} />}
-          keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={{
-            marginBottom: hp(10),
-            paddingHorizontal: wp(4),
-          }}
-        />
-      </ScrollView>
+          </View>
+        )}
+      </View>
     </>
   );
 
-  // Trip Tab Content (Displays Trip List)
-  const TripScreen = () => (
+  // Route Tab Content (Avoid nesting VirtualizedList inside ScrollView)
+  const RouteScreen = () => (
+    <FlatList
+      data={routeData}
+      renderItem={({item}) => <TripCard item={item} />}
+      keyExtractor={(_, idx) => idx.toString()}
+      ListHeaderComponent={<RouteHeader />}
+      contentContainerStyle={{
+        paddingHorizontal: wp(4),
+        paddingBottom: hp(10),
+      }}
+      showsVerticalScrollIndicator={false}
+    />
+  );
+
+  const TripHeader = () => (
     <>
       <AppWeeklyCalendar />
-      <ScrollView>
-        <View style={AppStyles.driverContainer}>
-          {/* {role == 'Driver' && (
-            <View style={AppStyles.rowBetween}>
-              <Text style={[AppStyles.title, {fontSize: fontSize(14)}]}>
-                Morning route starts at 8 AM
-              </Text>
-              <View style={AppStyles.row}>
-                {dayScene?.map((item, index) => {
-                  return (
-                    <Pressable
-                      onPress={() => setSelectedScene(index)}
-                      key={index}
-                      style={[
-                        styles.daySceneContainer,
-                        {
-                          backgroundColor:
-                            selectedScene == index
-                              ? AppColors.black
-                              : AppColors.white,
-                          borderTopLeftRadius: index == 0 ? 5 : 0,
-                          borderTopRightRadius: index == 2 ? 5 : 0,
-                          borderBottomLeftRadius: index == 0 ? 5 : 0,
-                          borderBottomRightRadius: index == 2 ? 5 : 0,
-                        },
-                      ]}>
-                      <Text
-                        style={[
-                          AppStyles.title,
-                          {
-                            fontSize: fontSize(14),
-                            color:
-                              selectedScene == index
-                                ? AppColors.white
-                                : AppColors.black,
-                          },
-                        ]}>
-                        {item}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-          )} */}
-        </View>
-        <FlatList
-          data={homeTripData}
-          renderItem={({item}) => <TripCard item={item} />}
-          keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={{
-            marginBottom: hp(10),
-            paddingHorizontal: wp(4),
-          }}
-        />
-      </ScrollView>
+      <View style={AppStyles.driverContainer} />
     </>
+  );
+
+  // Trip Tab Content (Avoid nesting VirtualizedList inside ScrollView)
+  const TripScreen = () => (
+    <FlatList
+      data={homeTripData}
+      renderItem={({item}) => <TripCard item={item} />}
+      keyExtractor={(_, idx) => idx.toString()}
+      ListHeaderComponent={<TripHeader />}
+      contentContainerStyle={{
+        paddingHorizontal: wp(4),
+        paddingBottom: hp(10),
+      }}
+      showsVerticalScrollIndicator={false}
+    />
   );
 
   // Render Scene Mapping
@@ -245,8 +200,6 @@ export default function DriverHomeScreen() {
           switchIcon={true}
         />
       )}
-        <ScrollView>
-
       <View style={{flex: 1}}>
         {driverHomeStatus ? (
           <DriverMonthlyCalendar />
@@ -267,70 +220,61 @@ export default function DriverHomeScreen() {
 
             {role === 'Retail' && (
               <>
-                <AppWeeklyCalendar />
-                <View style={styles.setMargin}>
-                  <Controller
-                    name="search"
-                    control={control}
-                    render={({field: {onChange, value}}) => (
-                      <AppInput
-                        value={value}
-                        placeholderTextColor={AppColors.black}
-                        inputStyle={styles.inputStyle}
-                        placeholder="Search"
-                        container={styles.inputContainer}
-                        onChangeText={text => onChange(text)}
-                        containerStyle={{marginBottom: hp(0)}}
-                        rightInnerIcon={
-                          <GlobalIcon
-                            size={20}
-                            library="Fontisto"
-                            color={AppColors.black}
-                            name="search"
-                          />
-                        }
-                      />
-                    )}
-                  />
-                </View>
+                <FlatList
+                  data={homeTripData}
+                  renderItem={({item}) => <TripCard item={item} />}
+                  keyExtractor={(_, idx) => idx.toString()}
+                  ListHeaderComponent={
+                    <>
+                      <AppWeeklyCalendar />
+                      <View style={styles.setMargin}>
+                        <Controller
+                          name="search"
+                          control={control}
+                          render={({field: {onChange, value}}) => (
+                            <AppInput
+                              value={value}
+                              placeholderTextColor={AppColors.black}
+                              inputStyle={styles.inputStyle}
+                              placeholder="Search"
+                              container={styles.inputContainer}
+                              onChangeText={text => onChange(text)}
+                              containerStyle={{marginBottom: hp(0)}}
+                              rightInnerIcon={
+                                <GlobalIcon
+                                  size={20}
+                                  library="Fontisto"
+                                  color={AppColors.black}
+                                  name="search"
+                                />
+                              }
+                            />
+                          )}
+                        />
+                      </View>
+                      <View style={styles.tripView}>
+                        <View style={styles.tripBg}>
+                          <Text style={styles.tripNumber}>89</Text>
+                          <Text style={styles.tripText}>Total Trip</Text>
+                        </View>
+                        <View style={styles.tripBg}>
+                          <Text style={styles.tripNumber}>08</Text>
+                          <Text style={styles.tripText}>Pending Trip</Text>
+                        </View>
+                      </View>
+                      <View style={AppStyles.driverContainer} />
+                    </>
+                  }
+                  contentContainerStyle={{paddingBottom: hp(10)}}
+                  showsVerticalScrollIndicator={false}
+                />
               </>
-            )}
-
-            {role === 'Retail' && (
-              <View style={styles.tripView}>
-                <View style={styles.tripBg}>
-                  <Text style={styles.tripNumber}>89</Text>
-                  <Text style={styles.tripText}>Total Trip</Text>
-                </View>
-                <View style={styles.tripBg}>
-                  <Text style={styles.tripNumber}>08</Text>
-                  <Text style={styles.tripText}>Pending Trip</Text>
-                </View>
-              </View>
-            )}
-
-           
-
-            {role === 'Retail' && (
-             
-                <View style={AppStyles.driverContainer}>
-                  <View>
-                    <FlatList
-                      scrollEnabled={false}
-                      data={homeTripData}
-                      renderItem={({item}) => <TripCard item={item} />}
-                      contentContainerStyle={{marginBottom: hp(10)}}
-                    />
-                  </View>
-                </View>
-              
             )}
           </>
           
         )}
         
       </View>
-      </ScrollView>
     </AppLayout>
   );
 }
