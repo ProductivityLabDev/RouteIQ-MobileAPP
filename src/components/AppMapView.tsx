@@ -161,16 +161,14 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
         />
       </MapView>
 
-      {orderedStops.length < 2 && (
-        <Pressable
-          onPress={() => handleChange(true)}
-          style={[
-            styles.bottomContainers,
-            {bottom: hp(49), justifyContent: 'center'},
-          ]}>
-          <Image source={require('../assets/images/direction.png')} />
-        </Pressable>
-      )}
+      <Pressable
+        onPress={() => handleChange(true)}
+        style={[
+          styles.bottomContainers,
+          {bottom: hp(49), justifyContent: 'center'},
+        ]}>
+        <Image source={require('../assets/images/direction.png')} />
+      </Pressable>
 
       <Marker
         coordinate={startLocation}
