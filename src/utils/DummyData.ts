@@ -33,6 +33,8 @@ export const NotificationData = [
 export const updateGuardianDropdown = [
   {key: '1', value: 'Parent'},
   {key: '2', value: 'Guardian'},
+  {key: '2a', value: 'Guardian1'},
+  {key: '2b', value: 'Guardian2'},
   {key: '3', value: 'Relative'},
   {key: '4', value: 'Family Friend'},
   {key: '5', value: 'Other'},

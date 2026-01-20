@@ -60,30 +60,6 @@ export default function HomeSreen() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
   const [showConfirmButton, setShowConfirmButton] = useState(false);
-  const busNoRaw =
-    selectedChild?.busNo ??
-    selectedChild?.BusNo ??
-    parentRouteMap?.route?.vehicleNumberPlate ??
-    parentRouteMap?.route?.busNumberPlate ??
-    null;
-  const busNoDisplay = busNoRaw
-    ? String(busNoRaw).slice(0, 7)
-    : '—';
-  const studentImageSource = useMemo(() => {
-    const source = selectedChild?.image;
-    if (typeof source === 'number') {
-      return source;
-    }
-    if (
-      source &&
-      typeof source === 'object' &&
-      typeof source.uri === 'string' &&
-      source.uri.trim()
-    ) {
-      return source;
-    }
-    return childDropDown?.[0]?.image;
-  }, [selectedChild]);
 
   const handleSetDates = (dates: string | Date[]) => {
     setGetDates(dates);
@@ -236,13 +212,16 @@ export default function HomeSreen() {
                   fontFamily: AppFonts.NunitoSansBold,
                 },
               ]}>
-              {busNoDisplay}
+              {((selectedChild?.BusNo || 
+               selectedChild?.busNo || 
+               parentRouteMap?.route?.vehicleNumberPlate) ??
+               (parentRouteMap?.route?.busNumberPlate ?? 'B456788'))?.substring(0, 8)}
             </Text>
           </View>
           <View style={styles.imageContainer}>
             <Image
               style={styles.image}
-              source={studentImageSource}
+              source={selectedChild?.image || childDropDown[0]?.image}
             />
           </View>
           <View style={[styles.headerTitle, {paddingTop: hp(0.2)}]}>

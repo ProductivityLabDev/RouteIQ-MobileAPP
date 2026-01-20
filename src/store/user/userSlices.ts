@@ -184,6 +184,59 @@ export const fetchParentRouteMap = createAsyncThunk(
   },
 );
 
+type FetchParentContactsPayload = {
+  studentId: number | string;
+};
+
+export const fetchParentContacts = createAsyncThunk(
+  'users/fetchParentContacts',
+  async (
+    {studentId}: FetchParentContactsPayload,
+    {getState, rejectWithValue},
+  ) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) {
+      return rejectWithValue('Missing auth token');
+    }
+
+    try {
+      const query = new URLSearchParams({
+        studentId: String(studentId),
+      });
+      const response = await fetch(`${baseUrl}/parent/contacts?${query}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText || `Fetch contacts failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      // Handle response format: { ok: true, data: [...] }
+      if (data?.ok === true && Array.isArray(data?.data)) {
+        return data.data;
+      }
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return [];
+    } catch (err) {
+      console.warn('fetchParentContacts exception', {baseUrl, err});
+      return rejectWithValue('Network error while fetching contacts');
+    }
+  },
+);
+
 export const loginUser = createAsyncThunk(
   'users/loginUser',
   async ({email, password}: LoginPayload, {rejectWithValue}) => {

@@ -22,12 +22,16 @@ import AppFonts from '../../utils/appFonts';
 import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector, useAppDispatch} from '../../store/hooks';
+import {setSelectedChild, fetchParentStudents} from '../../store/user/userSlices';
+import {showSuccessToast, showErrorToast} from '../../utils/toast';
 
 export default function ChildProfile() {
   const navigation = useNavigation();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const selectedChild = useAppSelector(state => state.userSlices.selectedChild);
+  const token = useAppSelector((state: any) => state.userSlices.token);
+  const parentId = useAppSelector((state: any) => state.userSlices.userId);
 
   const data = [
     {key: '1', value: 'Bus'},
@@ -55,6 +59,8 @@ export default function ChildProfile() {
 
   useEffect(() => {
     // Get the first and last name from selectedChild
+    console.log('ChildProfile selectedChild:', selectedChild);
+    
     const firstName =
       selectedChild?.firstName ||
       selectedChild?.FirstName ||
@@ -71,13 +77,26 @@ export default function ChildProfile() {
         selectedChild?.title?.split(' ').slice(1).join(' ') ||
         '');
 
-    const emergencyContactName = selectedChild?.emergencyContactName || selectedChild?.EmergencyContactName || '';
-    const emergencyContact = selectedChild?.emergencyContact || selectedChild?.EmergencyContact || '';
+    // Emergency contact name from ParentName
+    const emergencyContactName = selectedChild?.ParentName || selectedChild?.parentName || '';
+    
+    // Emergency contact phone from ContactPhone
+    const emergencyContact = selectedChild?.ContactPhone || selectedChild?.contactPhone || selectedChild?.ParentContactPhone || '';
+    
+    // Medical details
+    const medicalDetails = selectedChild?.MedicalDetails || selectedChild?.medicalDetails || '';
+    
+    // Notes
+    const note = selectedChild?.Notes || selectedChild?.notes || '';
+
+    console.log('Mapped values:', {firstName, lastName, emergencyContactName, emergencyContact, medicalDetails, note});
 
     setValue('firstName', firstName);
     setValue('lastName', lastName);
     setValue('emergencyContactName', emergencyContactName);
     setValue('emergencyContact', emergencyContact);
+    setValue('medicalDetails', medicalDetails);
+    setValue('note', note);
   }, [selectedChild, setValue]);
 
   const requestGalleryPermission = async () => {
@@ -150,8 +169,191 @@ export default function ChildProfile() {
     );
   };
 
-  const onSubmit = () => {
-    navigation.goBack();
+  const dispatch = useAppDispatch();
+
+  const getApiBaseUrl = () => {
+    const manualHost = 'http://192.168.18.36:3000';
+    const deviceHost =
+      Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+    return manualHost?.trim() || deviceHost;
+  };
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (formValues: any) => {
+    const studentId =
+      selectedChild?.StudentId || selectedChild?.studentId || selectedChild?.id || null;
+
+    if (!token) {
+      showErrorToast('Not authenticated', 'Please login again');
+      return;
+    }
+    if (!studentId) {
+      showErrorToast('Missing student', 'No student selected');
+      return;
+    }
+
+    const payload = {
+      studentId: Number(studentId),
+      firstName: formValues.firstName,
+      lastName: formValues.lastName,
+      guardian1: formValues.emergencyContactName,
+      medicalDetails: formValues.medicalDetails || null,
+      notes: formValues.note || null,
+      contactPhone: formValues.emergencyContact || null,
+    };
+
+    console.log('ChildProfile Update Payload:', JSON.stringify(payload, null, 2));
+
+    const baseUrl = getApiBaseUrl();
+    let attempts = 0;
+    const maxAttempts = 3;
+    let lastError: any = null;
+    setIsSubmitting(true);
+    try {
+      while (attempts < maxAttempts) {
+        attempts += 1;
+        try {
+          console.log(`Attempt ${attempts}: Calling ${baseUrl}/parent/update-student`);
+          
+          const res = await fetch(`${baseUrl}/parent/update-student`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          console.log('Response status:', res.status, res.statusText);
+
+          if (!res.ok) {
+            // try parse error
+            let errMsg = `Status ${res.status}`;
+            try {
+              const errBody = await res.json();
+              console.log('Error response body:', errBody);
+              if (errBody?.message) errMsg = errBody.message;
+              else if (typeof errBody === 'string') errMsg = errBody;
+              else if (errBody?.error) errMsg = errBody.error;
+            } catch (e) {
+              const text = await res.text().catch(() => '');
+              console.log('Error response text:', text);
+              if (text) errMsg = text;
+            }
+
+            lastError = errMsg;
+            if (res.status >= 500 && attempts < maxAttempts) {
+              await new Promise(r => setTimeout(r, 500 * attempts));
+              continue;
+            }
+
+            showErrorToast('Update failed', errMsg);
+            return;
+          }
+
+          const responseText = await res.text();
+          console.log('Response text:', responseText);
+          
+          let data = null;
+          try {
+            data = JSON.parse(responseText);
+          } catch (e) {
+            console.warn('Failed to parse JSON response:', e);
+            // Try to handle non-JSON response
+            if (responseText.trim()) {
+              data = responseText;
+            }
+          }
+
+          console.log('Parsed response data:', data);
+
+          // Handle different response formats
+          let updated = null;
+          if (data) {
+            // Check if response has data property
+            if (data?.data) {
+              updated = Array.isArray(data.data) ? data.data[0] : data.data;
+            }
+            // Check if response is wrapped in ok/data structure
+            else if (data?.ok === true && data?.data) {
+              updated = Array.isArray(data.data) ? data.data[0] : data.data;
+            }
+            // Check if response is directly the student object
+            else if (data?.StudentId || data?.studentId || data?.id) {
+              updated = data;
+            }
+            // Check if response is an array
+            else if (Array.isArray(data)) {
+              updated = data[0] || data;
+            }
+            // Fallback to data itself
+            else {
+              updated = data;
+            }
+          }
+
+          console.log('Updated student data:', updated);
+
+          if (updated) {
+            // Merge updated data with existing selectedChild to preserve other fields
+            // Handle both camelCase (from API) and PascalCase (from existing state)
+            const mergedData = {
+              ...selectedChild,
+              ...updated,
+              // Map camelCase to PascalCase for consistency with existing state
+              StudentId: updated.studentId || updated.StudentId || Number(studentId),
+              studentId: updated.studentId || updated.StudentId || Number(studentId),
+              FirstName: updated.firstName || updated.FirstName || formValues.firstName,
+              firstName: updated.firstName || updated.FirstName || formValues.firstName,
+              LastName: updated.lastName || updated.LastName || formValues.lastName,
+              lastName: updated.lastName || updated.LastName || formValues.lastName,
+              ParentName: updated.parentName || updated.ParentName || formValues.emergencyContactName,
+              parentName: updated.parentName || updated.ParentName || formValues.emergencyContactName,
+              Guardian1: updated.guardian1 || updated.Guardian1 || formValues.emergencyContactName,
+              guardian1: updated.guardian1 || updated.Guardian1 || formValues.emergencyContactName,
+              ContactPhone: updated.contactPhone || updated.ContactPhone || formValues.emergencyContact,
+              contactPhone: updated.contactPhone || updated.ContactPhone || formValues.emergencyContact,
+              MedicalDetails: updated.medicalDetails || updated.MedicalDetails || formValues.medicalDetails,
+              medicalDetails: updated.medicalDetails || updated.MedicalDetails || formValues.medicalDetails,
+              Notes: updated.notes || updated.Notes || formValues.note,
+              notes: updated.notes || updated.Notes || formValues.note,
+            };
+            
+            console.log('Merged data to dispatch:', mergedData);
+            
+            // Update selected child in Redux immediately
+            dispatch(setSelectedChild(mergedData));
+            
+            // Refresh parent students list to update dropdown on home screen
+            // This will ensure the dropdown shows updated data
+            dispatch(fetchParentStudents());
+            
+            showSuccessToast('Updated', 'Student profile updated successfully');
+            navigation.goBack();
+            return;
+          } else {
+            console.warn('No updated data received from API');
+            showErrorToast('Update failed', 'No data returned from server');
+            return;
+          }
+        } catch (err: any) {
+          console.warn('Fetch error:', err);
+          lastError = err;
+          if (attempts < maxAttempts) {
+            await new Promise(r => setTimeout(r, 500 * attempts));
+            continue;
+          }
+          throw err;
+        }
+      }
+    } catch (err: any) {
+      console.warn('update student error', err);
+      showErrorToast('Update failed', (lastError && (lastError.message || String(lastError))) || 'Network error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -244,13 +446,11 @@ export default function ChildProfile() {
             control={control}
             rules={{
               required: 'Emergency Contact is required',
-              maxLength: {
-                value: 11,
-                message: 'Emergency Contact must be 11 digits or fewer',
-              },
+              minLength: {value: 7, message: 'Phone must be at least 7 characters'},
+              maxLength: {value: 20, message: 'Phone must be 20 characters or fewer'},
               pattern: {
-                value: /^[0-9]*$/,
-                message: 'Only numeric digits are allowed',
+                value: /^[0-9+\s()\-]*$/,
+                message: 'Invalid phone format',
               },
             }}
             render={({field: {onChange, value}}) => (
@@ -259,13 +459,13 @@ export default function ChildProfile() {
                 label="Emergency Contacts No"
                 value={value}
                 onChangeText={(text: string) => {
-                  // Allow only numeric input and max 11 digits
-                  const filtered = text.replace(/[^0-9]/g, '').slice(0, 11);
+                  // Allow only digits, +, space, parentheses and hyphen; limit length
+                  const filtered = text.replace(/[^0-9+\s()\-]/g, '').slice(0, 20);
                   onChange(filtered);
                 }}
                 inputStyle={{color: AppColors.black}}
                 editable={true}
-                keyboardType="number-pad"
+                keyboardType="phone-pad"
                 error={errors.emergencyContact?.message}
               />
             )}
@@ -345,6 +545,8 @@ export default function ChildProfile() {
           onPress={handleSubmit(onSubmit)}
           title="Update"
           style={styles.button}
+          loading={isSubmitting}
+          disabled={isSubmitting}
         />
       </ScrollView>
     </AppLayout>

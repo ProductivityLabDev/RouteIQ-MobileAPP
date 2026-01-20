@@ -37,31 +37,29 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
     distance: number | null;
     duration: number | null;
   }>({distance: null, duration: null});
-  const fallbackStart = {
-    latitude: 37.7749,
-    longitude: -122.4454,
-  };
 
-  const fallbackEnd = {
-    latitude: 37.7793,
-    longitude: -122.426,
-  };
+  // 🚀 Most Important Fix — prevents flicker   
+  const [tracksChanges, setTracksChanges] = useState(true);
+
+  const fallbackStart = {latitude: 37.7749, longitude: -122.4454};
+  const fallbackEnd = {latitude: 37.7793, longitude: -122.426};
 
   const handleChange = useCallback((condition: boolean) => {
     setShowDistance(condition);
   }, []);
 
   const orderedStops = useMemo(() => {
-    if (!Array.isArray(routeStops)) {
-      return [] as RouteStop[];
-    }
+    if (!Array.isArray(routeStops)) return [];
     return routeStops
-      .filter(stop => {
-        const lat = Number(stop.latitude);
-        const lng = Number(stop.longitude);
-        return Number.isFinite(lat) && Number.isFinite(lng);
-      })
-      .sort((a, b) => Number(a.stopOrder ?? 0) - Number(b.stopOrder ?? 0));
+      .filter(
+        stop =>
+          Number.isFinite(Number(stop.latitude)) &&
+          Number.isFinite(Number(stop.longitude)),
+      )
+      .sort(
+        (a, b) =>
+          Number(a.stopOrder ?? 0) - Number(b.stopOrder ?? 0),
+      );
   }, [routeStops]);
 
   const startLocation = orderedStops[0]
@@ -74,44 +72,53 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
   const endLocation =
     orderedStops.length > 1
       ? {
-          latitude: Number(orderedStops[orderedStops.length - 1].latitude),
-          longitude: Number(orderedStops[orderedStops.length - 1].longitude),
+          latitude: Number(
+            orderedStops[orderedStops.length - 1].latitude,
+          ),
+          longitude: Number(
+            orderedStops[orderedStops.length - 1].longitude,
+          ),
         }
       : fallbackEnd;
 
   const waypoints = useMemo(() => {
-    if (orderedStops.length <= 2) {
-      return [];
-    }
+    if (orderedStops.length <= 2) return [];
     return orderedStops.slice(1, -1).map(stop => ({
       latitude: Number(stop.latitude),
       longitude: Number(stop.longitude),
     }));
   }, [orderedStops]);
 
+  const routeCoordinates = useMemo(() => {
+    return orderedStops.map(stop => ({
+      latitude: Number(stop.latitude),
+      longitude: Number(stop.longitude),
+    }));
+  }, [orderedStops]);
+
+  const shouldRenderDirections = orderedStops.length >= 2;
+
   const busLocation = useMemo(() => {
-    if (orderedStops.length > 1) {
-      return {
-        latitude: (startLocation.latitude + endLocation.latitude) / 2,
-        longitude: (startLocation.longitude + endLocation.longitude) / 2,
-      };
+    if (routeCoordinates.length > 0) {
+      const midIndex = Math.floor(routeCoordinates.length / 2);
+      return routeCoordinates[midIndex];
     }
     return startLocation;
-  }, [endLocation, orderedStops.length, startLocation]);
+  }, [routeCoordinates, startLocation]);
 
   const etaLabel = useMemo(() => {
-    if (routeInfo.duration == null) {
-      return '—';
-    }
-    return `${Math.round(routeInfo.duration)} min`;
+    return routeInfo.duration == null
+      ? '—'
+      : `${Math.round(routeInfo.duration)} min`;
   }, [routeInfo.duration]);
 
-  const distanceLabel = useMemo(() => {
-    if (routeInfo.distance == null) {
-      return '';
-    }
-    return `${routeInfo.distance.toFixed(1)} km`;
-  }, [routeInfo.distance]);
+  const distanceLabel = useMemo(
+    () =>
+      routeInfo.distance == null
+        ? ''
+        : `${routeInfo.distance.toFixed(1)} km`,
+    [routeInfo.distance],
+  );
 
   return (
     <View style={styles.mapContainer}>
@@ -120,45 +127,112 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
         style={AppStyles.map}
         ref={mapRef}
         region={{
-          latitude: (startLocation.latitude + endLocation.latitude) / 2,
-          longitude: (startLocation.longitude + endLocation.longitude) / 2,
+          latitude:
+            (startLocation.latitude + endLocation.latitude) / 2,
+          longitude:
+            (startLocation.longitude + endLocation.longitude) / 2,
           latitudeDelta:
-            Math.abs(startLocation.latitude - endLocation.latitude) * 1.5,
+            Math.abs(
+              startLocation.latitude - endLocation.latitude,
+            ) * 1.5,
           longitudeDelta:
-            Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
+            Math.abs(
+              startLocation.longitude -
+                endLocation.longitude,
+            ) * 1.5,
         }}
         customMapStyle={mapCustomStyle}>
-        <MapViewDirections
-          origin={startLocation}
-          destination={endLocation}
-          waypoints={waypoints}
-          apikey={googleMapsApiKey}
-          strokeWidth={4}
-          strokeColor={AppColors.black}
-          optimizeWaypoints={false}
-          onReady={result => {
-            setRouteInfo({
-              distance: result.distance,
-              duration: result.duration,
-            });
-            if (mapRef.current) {
-              mapRef.current.fitToCoordinates(result.coordinates, {
-                edgePadding: {
-                  top: hp(6),
-                  right: hp(6),
-                  bottom: hp(6),
-                  left: hp(6),
-                },
-                animated: true,
+        {/* ROUTE */}
+        {shouldRenderDirections && (
+          <MapViewDirections
+            origin={startLocation}
+            destination={endLocation}
+            waypoints={waypoints}
+            apikey={googleMapsApiKey}
+            strokeWidth={4}
+            strokeColor={AppColors.black}
+            optimizeWaypoints={false}
+            onReady={result => {
+              setRouteInfo({
+                distance: result.distance,
+                duration: result.duration,
               });
+
+              // Stop flicker after render
+              setTracksChanges(false);
+
+              mapRef.current?.fitToCoordinates(
+                result.coordinates,
+                {
+                  edgePadding: {
+                    top: hp(6),
+                    right: hp(6),
+                    bottom: hp(6),
+                    left: hp(6),
+                  },
+                  animated: true,
+                },
+              );
+            }}
+            onError={error =>
+              __DEV__ &&
+              console.warn('MapViewDirections error', error)
             }
-          }}
-          onError={error => {
-            if (__DEV__) {
-              console.warn('MapViewDirections error', error);
-            }
-          }}
-        />
+          />
+        )}
+
+        {/* START MARKER */}
+        <Marker
+          coordinate={startLocation}
+          anchor={{x: 0.5, y: 0.5}}
+          tracksViewChanges={tracksChanges}>
+          <View style={styles.iconMarker}>
+            <GlobalIcon
+              library="MaterialIcons"
+              name="home"
+              color={AppColors.white}
+              size={hp(2.6)}
+            />
+          </View>
+        </Marker>
+
+        {/* END MARKER */}
+        <Marker
+          coordinate={endLocation}
+          anchor={{x: 0.5, y: 0.5}}
+          tracksViewChanges={tracksChanges}>
+          <View style={styles.iconMarker}>
+            <GlobalIcon
+              library="MaterialIcons"
+              name="school"
+              color={AppColors.white}
+              size={hp(2.6)}
+            />
+          </View>
+        </Marker>
+
+        {/* BUS MARKER */}
+        <Marker
+          coordinate={busLocation}
+          anchor={{x: 0.5, y: 1}}
+          tracksViewChanges={tracksChanges}>
+          <View style={styles.busPin}>
+            <GlobalIcon
+              library="MaterialIcons"
+              name="location-on"
+              color={AppColors.red}
+              size={hp(5)}
+            />
+            <View style={styles.busPinIcon}>
+              <GlobalIcon
+                library="MaterialCommunityIcons"
+                name="bus"
+                color={AppColors.white}
+                size={hp(2)}
+              />
+            </View>
+          </View>
+        </Marker>
       </MapView>
 
       <Pressable
@@ -166,67 +240,21 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
         style={[
           styles.bottomContainers,
           {bottom: hp(49), justifyContent: 'center'},
-        ]}>
-        <Image source={require('../assets/images/direction.png')} />
-      </Pressable>
+        ]}></Pressable>
 
-      <Marker
-        coordinate={startLocation}
-        anchor={{x: 0.5, y: 0.5}}
-        title="Home">
-        <View style={styles.iconMarker}>
-          <GlobalIcon
-            library="MaterialIcons"
-            name="home"
-            color={AppColors.white}
-            size={hp(2.6)}
-          />
-        </View>
-      </Marker>
-
-      <Marker
-        coordinate={endLocation}
-        anchor={{x: 0.5, y: 0.5}}
-        title="School">
-        <View style={styles.iconMarker}>
-          <GlobalIcon
-            library="MaterialIcons"
-            name="school"
-            color={AppColors.white}
-            size={hp(2.6)}
-          />
-        </View>
-      </Marker>
-
-      <Marker
-        coordinate={busLocation}
-        anchor={{x: 0.5, y: 1}}
-        title="Bus">
-        <View style={styles.busPin}>
-          <GlobalIcon
-            library="MaterialIcons"
-            name="location-on"
-            color={AppColors.red}
-            size={hp(5)}
-          />
-          <View style={styles.busPinIcon}>
-            <GlobalIcon
-              library="MaterialCommunityIcons"
-              name="bus"
-              color={AppColors.white}
-              size={hp(2)}
-            />
-          </View>
-        </View>
-      </Marker>
-      {showDistance && <Range onPress={() => handleChange(false)} />}
+      {showDistance && (
+        <Range onPress={() => handleChange(false)} />
+      )}
 
       <View style={styles.bottomContainers}>
         <View style={styles.firstContainer}>
           <Text
             style={[
               AppStyles.subHeading,
-              {fontSize: size.default, fontFamily: AppFonts.NunitoSansBold},
+              {
+                fontSize: size.default,
+                fontFamily: AppFonts.NunitoSansBold,
+              },
             ]}>
             Boarding status:
           </Text>
@@ -234,7 +262,10 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
           <Text
             style={[
               AppStyles.subHeading,
-              {fontSize: fontSize(14), fontFamily: AppFonts.NunitoSansBold},
+              {
+                fontSize: fontSize(14),
+                fontFamily: AppFonts.NunitoSansBold,
+              },
             ]}>
             ETA:{' '}
             <Text style={styles.timeTitle}>
@@ -243,8 +274,11 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
             </Text>
           </Text>
         </View>
+
         <TouchableOpacity
-          onPress={() => navigation.navigate('ParentFeedback')}
+          onPress={() =>
+            navigation.navigate('ParentFeedback')
+          }
           style={styles.secondContainer}>
           <View style={{marginBottom: hp(-1)}}>
             <GlobalIcon
@@ -259,7 +293,8 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
                   AppStyles.subHeading,
                   {
                     fontSize: size.default,
-                    fontFamily: AppFonts.NunitoSansBold,
+                    fontFamily:
+                      AppFonts.NunitoSansBold,
                     marginTop: hp(0.5),
                   },
                 ]}>
@@ -276,11 +311,7 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
 export default AppMapView;
 
 const styles = StyleSheet.create({
-  mapContainer: {
-    flex: 1,
-    width: '100%',
-    overflow: 'hidden',
-  },
+  mapContainer: {flex: 1, width: '100%', overflow: 'hidden'},
   bottomContainers: {
     position: 'absolute',
     bottom: hp(28),
@@ -343,3 +374,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+  

@@ -42,21 +42,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     setIsSwitchOn(newValue);
   };
 
-  const resolveImageSource = (source: any) => {
-    if (typeof source === 'number') {
-      return source; // static require
-    }
-    if (
-      source &&
-      typeof source === 'object' &&
-      typeof source.uri === 'string' &&
-      source.uri.trim()
-    ) {
-      return source;
-    }
-    return childDropDown?.[0]?.image;
-  };
-
   const dropdownData = useMemo(() => {
     if (Array.isArray(parentStudents) && parentStudents.length > 0) {
       return parentStudents.map((student: any) => {
@@ -64,12 +49,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           student?.studentName ||
           student?.StudentName ||
           student?.name ||
-          [student?.firstName, student?.lastName]
-            .filter(Boolean)
-            .join(' ') ||
-          [student?.FirstName, student?.LastName]
-            .filter(Boolean)
-            .join(' ') ||
+          [student?.firstName, student?.lastName].filter(Boolean).join(' ') ||
+          [student?.FirstName, student?.LastName].filter(Boolean).join(' ') ||
           'Student';
         const studentId =
           student?.studentId ??
@@ -78,18 +59,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           student?.studentID ??
           null;
         const image =
-          typeof student?.image === 'string' && student.image.trim()
-            ? {uri: student.image}
-            : student?.image;
-        const busNo =
-          student?.busNo ??
-          student?.BusNo ??
-          student?.busNumber ??
-          student?.BusNumber ??
-          student?.vehicleNumberPlate ??
-          student?.VehicleNumberPlate ??
-          null;
-        return {title: name, image: resolveImageSource(image), studentId, busNo};
+          student?.image
+            ? typeof student.image === 'string'
+              ? {uri: student.image}
+              : student.image
+            : childDropDown?.[0]?.image;
+        return {title: name, image, studentId};
       });
     }
     return childDropDown;
@@ -99,6 +74,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     if (role !== 'ParentsDropDown') return;
     if (!dropdownData.length) return;
     if (selectedChild?.studentId || selectedChild?.StudentId) {
+      return;
+    }
+    // Prefer dispatching the original student object from parentStudents
+    const firstStudent = Array.isArray(parentStudents) && parentStudents.length > 0 ? parentStudents[0] : null;
+    if (firstStudent) {
+      dispatch(setSelectedChild(firstStudent));
       return;
     }
     dispatch(setSelectedChild(dropdownData[0]));
@@ -193,8 +174,20 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 data={dropdownData}
                 defaultValue={selectedChild?.title ? selectedChild : dropdownData[0]}
                 onSelect={(selectedItem, index) => {
-                  dispatch(setSelectedChild(selectedItem))
-                  console.log(selectedItem, index);
+                  // selectedItem is the transformed dropdown item; find full student by id
+                  const sid = selectedItem?.studentId ?? selectedItem?.studentId;
+                  const found = Array.isArray(parentStudents)
+                    ? parentStudents.find((s: any) =>
+                        String(s?.StudentId ?? s?.studentId ?? s?.id ?? '') === String(sid),
+                      )
+                    : null;
+                  if (found) {
+                    dispatch(setSelectedChild(found));
+                    console.log(found, index);
+                  } else {
+                    dispatch(setSelectedChild(selectedItem));
+                    console.log(selectedItem, index);
+                  }
                 }}
                 renderButton={(selectedItem, isOpened) => {
                   return (
@@ -219,7 +212,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                       }}>
                       <Image
                         style={styles.dropdownImage}
-                        source={resolveImageSource(item.image)}
+                        source={item.image || childDropDown?.[0]?.image}
                       />
                       <Text style={styles.dropdownItemTxtStyle}>
                         {item.title}
