@@ -60,6 +60,10 @@ export default function HomeSreen() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
   const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [routeInfo, setRouteInfo] = useState<{
+    distance: number | null;
+    duration: number | null;
+  }>({distance: null, duration: null});
 
   const handleSetDates = (dates: string | Date[]) => {
     setGetDates(dates);
@@ -183,7 +187,10 @@ export default function HomeSreen() {
       style={styles.layoutContainer}
       statusbackgroundColor={AppColors.lightBlack}>
       <View style={{height: screenHeight, width: screenWidth}}>
-        <AppMapView routeStops={parentRouteMap?.stops} />
+        <AppMapView 
+          routeStops={parentRouteMap?.stops} 
+          onRouteInfoChange={setRouteInfo}
+        />
       </View>
       <ImageBackground
         style={styles.headerImage}
@@ -246,7 +253,7 @@ export default function HomeSreen() {
       </ImageBackground>
 
       <View style={styles.bottomContainer}>
-        <RouteSlider />
+        <RouteSlider distance={routeInfo.distance} />
         <View style={[AppStyles.rowBetween, {marginTop: hp(3)}]}>
           <Pressable
             onPress={() => navigation.navigate('ChatScreen')}

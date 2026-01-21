@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import {AppColors} from '../utils/color';
 import {hp} from '../utils/constants';
@@ -6,19 +6,31 @@ import AppStyles from '../styles/AppStyles';
 import {size} from '../utils/responsiveFonts';
 import AppFonts from '../utils/appFonts';
 
-const RouteSlider = () => {
+type RouteSliderProps = {
+  distance?: number | null; // Distance in km from ETA
+};
+
+const RouteSlider = ({distance}: RouteSliderProps) => {
+  // Calculate distance label from ETA
+  const distanceLabel = useMemo(() => {
+    if (distance == null || distance === 0) {
+      return '1.6 km'; // Fallback to default if no distance available
+    }
+    return `${distance.toFixed(1)} km`;
+  }, [distance]);
+
   return (
     <View style={styles.container}>
       <View style={[AppStyles.rowBetween, {marginBottom: hp(1), zIndex: 1, width: '100%'}]}>
-        <Text style={styles.title}>School</Text>
         <Text style={styles.title}>Home</Text>
+        <Text style={styles.title}>School</Text>
       </View>
       <View style={[AppStyles.rowBetween, {width: '100%'}]}>
         <View style={[styles.circle, {backgroundColor: AppColors.red}]}></View>
         <View style={styles.lineContainer}>
             <View style={styles.busContainer}>
                 <Image style={{left: 140}} source={require('../assets/images/bus.png')}/>
-                <Text style={[styles.kiloMeterTitle, {left: 140}]}>2.4 km</Text>
+                <Text style={[styles.kiloMeterTitle, {left: 140}]}>{distanceLabel}</Text>
             </View>
             <View style={styles.line}></View>
         </View>
