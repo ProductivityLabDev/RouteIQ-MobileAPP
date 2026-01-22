@@ -15,6 +15,8 @@ const RouteSlider = ({distance}: RouteSliderProps) => {
   const distanceLabel = useMemo(() => {
     if (distance == null || distance === 0) {
       return '1.6 km'; // Fallback to default if no distance available
+      // Fallback to default if no distance available
+      // Fallback to default if no distance available
     }
     return `${distance.toFixed(1)} km`;
   }, [distance]);
