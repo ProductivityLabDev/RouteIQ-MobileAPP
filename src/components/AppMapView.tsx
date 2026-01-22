@@ -27,6 +27,7 @@ type RouteStop = {
 
 type AppMapViewProps = {
   routeStops?: RouteStop[] | null;
+  onRouteInfoChange?: (routeInfo: {distance: number | null; duration: number | null}) => void;
 };
 
 const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
