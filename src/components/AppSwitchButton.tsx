@@ -20,13 +20,30 @@ const AppSwitchButton: React.FC<AppSwitchButtonProps> = ({
 }) => {
   const [position] = useState(new Animated.Value(isOn ? 1 : 0));
 
-  const toggleSwitch = () => {
-    Animated.timing(position, {
-      toValue: isOn ? 0 : 1,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-    onToggle(!isOn);
+  const toggleSwitch = async () => {
+    const newValue = !isOn;
+    // Call onToggle first and wait for result (if it's async)
+    const result = onToggle(newValue);
+    
+    // If onToggle returns a promise, wait for it
+    if (result && typeof result.then === 'function') {
+      const shouldUpdate = await result;
+      // Only animate if toggle is allowed
+      if (shouldUpdate !== false) {
+        Animated.timing(position, {
+          toValue: newValue ? 1 : 0,
+          duration: 300,
+          useNativeDriver: false,
+        }).start();
+      }
+    } else {
+      // Synchronous toggle - animate immediately
+      Animated.timing(position, {
+        toValue: newValue ? 1 : 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
   };
 
   const backgroundColor = position.interpolate({

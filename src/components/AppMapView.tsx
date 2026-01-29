@@ -30,7 +30,7 @@ type AppMapViewProps = {
   onRouteInfoChange?: (routeInfo: {distance: number | null; duration: number | null}) => void;
 };
 
-const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
+const AppMapView: React.FC<AppMapViewProps> = ({routeStops, busLocation: propBusLocation}) => {
   const navigation = useNavigation();
   const [showDistance, setShowDistance] = useState(false);
   const mapRef = useRef<MapView | null>(null);
@@ -100,12 +100,20 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
   const shouldRenderDirections = orderedStops.length >= 2;
 
   const busLocation = useMemo(() => {
+    // Use prop bus location if provided (from tracking API)
+    if (propBusLocation?.latitude && propBusLocation?.longitude) {
+      return {
+        latitude: Number(propBusLocation.latitude),
+        longitude: Number(propBusLocation.longitude),
+      };
+    }
+    // Fallback to mid point of route
     if (routeCoordinates.length > 0) {
       const midIndex = Math.floor(routeCoordinates.length / 2);
       return routeCoordinates[midIndex];
     }
     return startLocation;
-  }, [routeCoordinates, startLocation]);
+  }, [propBusLocation, routeCoordinates, startLocation]);
 
   const etaLabel = useMemo(() => {
     return routeInfo.duration == null
@@ -216,7 +224,7 @@ const AppMapView: React.FC<AppMapViewProps> = ({routeStops}) => {
         <Marker
           coordinate={busLocation}
           anchor={{x: 0.5, y: 1}}
-          tracksViewChanges={tracksChanges}>
+          tracksViewChanges={false}>
           <View style={styles.busPin}>
             <GlobalIcon
               library="MaterialIcons"

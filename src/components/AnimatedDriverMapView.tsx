@@ -38,6 +38,11 @@ const AnimatedDriverMapView = () => {
       <TouchableHighlight
         underlayColor={AppColors.transparent}
         onPress={() => {
+          // Directly navigate to full map view on click
+          navigation.navigate('DriverMapView');
+        }}
+        onLongPress={() => {
+          // Long press for controls (optional)
           setActiveControls(true);
           setTimeout(() => {
             setActiveControls(false);
@@ -49,7 +54,6 @@ const AnimatedDriverMapView = () => {
             width: '48%',
             alignSelf: 'flex-end',
             position: 'relative',
-            //  position: 'absolute',
             bottom: 25,
             right: 10,
           }}>

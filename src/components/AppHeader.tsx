@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useMemo, useState} from 'react';
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
+import {Image, Pressable, StyleSheet, Text, View, Platform, Alert, Linking, PermissionsAndroid} from 'react-native';
 import NotificationIcon from '../assets/svgs/NotificationIcon';
 import AppStyles from '../styles/AppStyles';
 import {AppHeaderProps} from '../types/types';
@@ -14,6 +14,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import {childDropDown} from '../utils/DummyData';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {setSelectedChild} from '../store/user/userSlices';
+import Geolocation from '@react-native-community/geolocation';
 
 const AppHeader: React.FC<AppHeaderProps> = ({
   title,
@@ -38,8 +39,119 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   const selectedChild = useAppSelector(state => state.userSlices.selectedChild);
   const [isSwitchOn, setIsSwitchOn] = useState(true);
 
-  const handleToggle = (newValue: boolean) => {
+  // Check location service before going online
+  const checkLocationBeforeOnline = async (): Promise<boolean> => {
+    // First check permission
+    if (Platform.OS === 'android') {
+      try {
+        const hasPermission = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+        
+        if (!hasPermission) {
+          Alert.alert(
+            'Location Permission Required',
+            'Location permission is required to go online. Please enable location permission.',
+            [
+              {
+                text: 'Open Settings',
+                onPress: () => Linking.openSettings(),
+              },
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+            ],
+          );
+          return false;
+        }
+      } catch (err) {
+        console.warn('Permission check error:', err);
+        return false;
+      }
+    }
+
+    // Check if location service is enabled (fast check)
+    return new Promise((resolve) => {
+      Geolocation.getCurrentPosition(
+        () => {
+          // Location service is enabled
+          console.log('Location service is ON - allowing online');
+          resolve(true);
+        },
+        error => {
+          // Location service is OFF
+          if (error.code === 2 || error.code === 3) {
+            console.log('Location service is OFF - blocking online');
+            Alert.alert(
+              '⚠️ Location Service is OFF',
+              'Location/GPS service is currently OFF. Please enable it to go online.',
+              [
+                {
+                  text: 'Open Settings',
+                  onPress: () => {
+                    if (Platform.OS === 'android') {
+                      Linking.openURL('android.settings.LOCATION_SOURCE_SETTINGS').catch(() => {
+                        Linking.openSettings();
+                      });
+                    } else {
+                      Linking.openSettings();
+                    }
+                  },
+                },
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
+                },
+              ],
+              {cancelable: false},
+            );
+            resolve(false);
+          } else {
+            // Other error - allow anyway
+            console.log('Location check error (non-critical) - allowing online');
+            resolve(true);
+          }
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 2000, // Reduced timeout for faster check
+          maximumAge: 0,
+        },
+      );
+    });
+  };
+
+  const handleToggle = async (newValue: boolean): Promise<boolean> => {
+    // If going offline, directly update state (no check needed)
+    if (newValue === false) {
+      setIsSwitchOn(false);
+      return true; // Allow toggle
+    }
+
+    // If going online (turning ON), check location FIRST before any state update
+    if (newValue === true && role === 'Driver') {
+      console.log('Going online - checking location service...');
+      
+      // Check location BEFORE updating state
+      const locationOk = await checkLocationBeforeOnline();
+      
+      if (!locationOk) {
+        // Location not available - don't allow going online
+        console.log('Location check failed - not allowing online, keeping offline state');
+        // Return false to prevent animation
+        return false;
+      }
+      
+      // Location OK - ab state update karega (directly online)
+      console.log('Location check passed - setting online');
+      setIsSwitchOn(true);
+      return true; // Allow toggle
+    }
+    
+    // For non-driver roles or other cases, update state normally
     setIsSwitchOn(newValue);
+    return true; // Allow toggle
   };
 
   const dropdownData = useMemo(() => {
