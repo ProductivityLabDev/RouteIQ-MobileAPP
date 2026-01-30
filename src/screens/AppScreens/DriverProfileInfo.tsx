@@ -90,8 +90,7 @@ const DriverProfileInfo = () => {
               title="Confirm"
               style={{alignSelf: 'center', width: '100%'}}
               onPress={() => {
-                console.log(token, 'token');
-
+                if (__DEV__) console.log(token, 'token');
                 token || token == 1
                   ? navigation.goBack()
                   : dispatch(saveToken(1));

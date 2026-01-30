@@ -66,7 +66,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           return false;
         }
       } catch (err) {
-        console.warn('Permission check error:', err);
+        if (__DEV__) console.warn('Permission check error:', err);
         return false;
       }
     }
@@ -75,14 +75,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     return new Promise((resolve) => {
       Geolocation.getCurrentPosition(
         () => {
-          // Location service is enabled
-          console.log('Location service is ON - allowing online');
+          if (__DEV__) console.log('Location service is ON - allowing online');
           resolve(true);
         },
         error => {
-          // Location service is OFF
           if (error.code === 2 || error.code === 3) {
-            console.log('Location service is OFF - blocking online');
+            if (__DEV__) console.log('Location service is OFF - blocking online');
             Alert.alert(
               '⚠️ Location Service is OFF',
               'Location/GPS service is currently OFF. Please enable it to go online.',
@@ -108,8 +106,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             );
             resolve(false);
           } else {
-            // Other error - allow anyway
-            console.log('Location check error (non-critical) - allowing online');
+            if (__DEV__) console.log('Location check error (non-critical) - allowing online');
             resolve(true);
           }
         },
@@ -129,22 +126,14 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       return true; // Allow toggle
     }
 
-    // If going online (turning ON), check location FIRST before any state update
     if (newValue === true && role === 'Driver') {
-      console.log('Going online - checking location service...');
-      
-      // Check location BEFORE updating state
+      if (__DEV__) console.log('Going online - checking location service...');
       const locationOk = await checkLocationBeforeOnline();
-      
       if (!locationOk) {
-        // Location not available - don't allow going online
-        console.log('Location check failed - not allowing online, keeping offline state');
-        // Return false to prevent animation
+        if (__DEV__) console.log('Location check failed - not allowing online, keeping offline state');
         return false;
       }
-      
-      // Location OK - ab state update karega (directly online)
-      console.log('Location check passed - setting online');
+      if (__DEV__) console.log('Location check passed - setting online');
       setIsSwitchOn(true);
       return true; // Allow toggle
     }
@@ -295,10 +284,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                     : null;
                   if (found) {
                     dispatch(setSelectedChild(found));
-                    console.log(found, index);
+                    if (__DEV__) console.log(found, index);
                   } else {
                     dispatch(setSelectedChild(selectedItem));
-                    console.log(selectedItem, index);
+                    if (__DEV__) console.log(selectedItem, index);
                   }
                 }}
                 renderButton={(selectedItem, isOpened) => {

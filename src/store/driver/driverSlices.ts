@@ -166,12 +166,26 @@ export const getVehicleLocation = createAsyncThunk(
       }
 
       const data = await response.json().catch(() => null);
-      if (data?.ok === true && data?.data) {
-        return data.data;
+      if (data?.ok === true && data?.data != null) {
+        const payload = data.data;
+        // Some APIs return array, some return object
+        if (Array.isArray(payload)) {
+          return payload[0] ?? null;
+        }
+        return payload;
+      }
+      // Sometimes API returns location at top-level
+      if (data?.latitude != null && data?.longitude != null) {
+        return data;
+      }
+      if (data?.Latitude != null && data?.Longitude != null) {
+        return data;
       }
       return rejectWithValue('Invalid response format');
     } catch (err) {
-      console.warn('getVehicleLocation exception', {baseUrl, err});
+      if (__DEV__) {
+        console.warn('getVehicleLocation exception', {baseUrl, err});
+      }
       return rejectWithValue('Network error while fetching vehicle location');
     }
   },
@@ -214,19 +228,27 @@ export const updateVehicleLocation = createAsyncThunk(
     }
 
     try {
-      const body: any = {
+      // API expects: { latitude, longitude, speed?, heading?, timestamp? }
+      const body: {
+        latitude: number;
+        longitude: number;
+        speed?: number;
+        heading?: number;
+        timestamp?: string;
+      } = {
         latitude,
         longitude,
       };
-
       if (speed != null) body.speed = speed;
       if (heading != null) body.heading = heading;
       if (timestamp) body.timestamp = timestamp;
 
-      console.log('📡 API Request - Update Vehicle Location:');
-      console.log('   URL:', `${baseUrl}/tracking/vehicles/${vehicleId}/location`);
-      console.log('   Method: POST');
-      console.log('   Body:', JSON.stringify(body, null, 2));
+      if (__DEV__) {
+        console.log('📡 API Request - Update Vehicle Location:');
+        console.log('   URL:', `${baseUrl}/tracking/vehicles/${vehicleId}/location`);
+        console.log('   Method: POST');
+        console.log('   Body:', JSON.stringify(body, null, 2));
+      }
 
       const response = await fetch(
         `${baseUrl}/tracking/vehicles/${vehicleId}/location`,
@@ -241,7 +263,9 @@ export const updateVehicleLocation = createAsyncThunk(
         },
       );
 
-      console.log('📥 API Response Status:', response.status, response.statusText);
+      if (__DEV__) {
+        console.log('📥 API Response Status:', response.status, response.statusText);
+      }
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
@@ -251,13 +275,19 @@ export const updateVehicleLocation = createAsyncThunk(
       }
 
       const data = await response.json().catch(() => null);
-      console.log('📥 API Response Data:', JSON.stringify(data, null, 2));
+      if (__DEV__) {
+        console.log('📥 API Response Data:', JSON.stringify(data, null, 2));
+      }
       
       if (data?.ok === true && data?.data) {
-        console.log('✅ Location update successful');
+        if (__DEV__) {
+          console.log('✅ Location update successful');
+        }
         return data.data;
       }
-      console.log('⚠️ Location update response format:', data);
+      if (__DEV__) {
+        console.log('⚠️ Location update response format:', data);
+      }
       return data;
     } catch (err) {
       console.warn('updateVehicleLocation exception', {baseUrl, err});
@@ -316,10 +346,10 @@ const driverSlice = createSlice({
       state.chatTabIndex = payload;
     },
     setShowCreateGroup: (state, {payload}) => {
-      state.chatTabIndex = payload;
+      state.showCreateGroup = payload;
     },
     setShowGroup: (state, {payload}) => {
-      state.chatTabIndex = payload;
+      state.showGroup = payload;
     },
   },
   extraReducers: builder => {
@@ -362,7 +392,14 @@ const driverSlice = createSlice({
       .addCase(getVehicleLocation.fulfilled, (state, {payload}) => {
         state.vehicleLocationStatus = 'succeeded';
         state.vehicleLocationError = null;
-        state.vehicleLocation = payload;
+        const prev = state.vehicleLocation as any;
+        const lat = payload?.latitude ?? payload?.Latitude ?? null;
+        const lng = payload?.longitude ?? payload?.Longitude ?? null;
+        const prevLat = prev?.latitude ?? prev?.Latitude ?? null;
+        const prevLng = prev?.longitude ?? prev?.Longitude ?? null;
+        if (lat != null && lng != null && (prevLat !== lat || prevLng !== lng)) {
+          state.vehicleLocation = payload;
+        }
       })
       .addCase(getVehicleLocation.rejected, (state, action) => {
         state.vehicleLocationStatus = 'failed';

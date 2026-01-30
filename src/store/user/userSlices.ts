@@ -33,6 +33,7 @@ type JwtPayload = {
   role?: string;
   roleCode?: string;
   employeeId?: number | string;
+  vehicleId?: number | string;
 };
 
 const decodeJwt = (token: string): JwtPayload | null => {
@@ -273,6 +274,7 @@ export const loginUser = createAsyncThunk(
         }
 
         const decoded = decodeJwt(token);
+        const decodedAny = (decoded ?? {}) as any;
         const roleCodeRaw =
           decoded?.roleCode ||
           decoded?.role ||
@@ -296,6 +298,15 @@ export const loginUser = createAsyncThunk(
             ? (decoded?.employeeId ?? decoded?.sub ?? null)
             : null;
 
+        const vehicleId =
+          mappedRole === 'Driver'
+            ? (decodedAny?.vehicleId ??
+              decodedAny?.VehicleId ??
+              decodedAny?.vehicle_id ??
+              decodedAny?.VehicleID ??
+              null)
+            : null;
+
         showSuccessToast('Logged in', 'Welcome back');
         return {
           token,
@@ -303,6 +314,7 @@ export const loginUser = createAsyncThunk(
           roleCode: roleCode || 'PARENT',
           userId: decoded?.sub ?? data?.id ?? null,
           employeeId,
+          vehicleId,
         };
       } catch (e) {
         return rejectWithValue(
@@ -455,6 +467,7 @@ const initialState = {
   authError: null as string | null,
   userId: null as number | string | null,
   employeeId: null as number | string | null,
+  vehicleId: null as number | string | null,
   roleCode: '',
   resetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
   resetError: null as string | null,
@@ -539,10 +552,12 @@ const userSlice = createSlice({
         state.roleCode = payload.roleCode || '';
         state.userId = payload.userId ?? null;
         state.employeeId = payload.employeeId ?? null;
+        state.vehicleId = payload.vehicleId ?? null;
         state.logout = false;
         if (__DEV__) {
           console.log('AUTH_TOKEN', payload.token);
           console.log('AUTH_EMPLOYEE_ID', payload.employeeId);
+          console.log('AUTH_VEHICLE_ID', payload.vehicleId);
           console.log('AUTH_ROLE', payload.role, payload.roleCode);
         }
       })
