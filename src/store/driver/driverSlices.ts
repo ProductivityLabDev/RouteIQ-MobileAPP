@@ -199,6 +199,8 @@ type UpdateVehicleLocationPayload = {
   speed?: number;
   heading?: number;
   timestamp?: string;
+  routeId?: number | string | null;
+  tripId?: number | string | null;
 };
 
 export const updateVehicleLocation = createAsyncThunk(
@@ -211,6 +213,8 @@ export const updateVehicleLocation = createAsyncThunk(
       speed,
       heading,
       timestamp,
+      routeId,
+      tripId,
     }: UpdateVehicleLocationPayload,
     {getState, rejectWithValue},
   ) => {
@@ -228,20 +232,16 @@ export const updateVehicleLocation = createAsyncThunk(
     }
 
     try {
-      // API expects: { latitude, longitude, speed?, heading?, timestamp? }
-      const body: {
-        latitude: number;
-        longitude: number;
-        speed?: number;
-        heading?: number;
-        timestamp?: string;
-      } = {
+      // API expects: { latitude, longitude, speed?, heading?, timestamp?, routeId?, tripId? }
+      const body: Record<string, any> = {
         latitude,
         longitude,
       };
       if (speed != null) body.speed = speed;
       if (heading != null) body.heading = heading;
       if (timestamp) body.timestamp = timestamp;
+      if (routeId != null) body.routeId = Number(routeId);
+      if (tripId != null) body.tripId = Number(tripId);
 
       if (__DEV__) {
         console.log('📡 API Request - Update Vehicle Location:');

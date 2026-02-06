@@ -34,6 +34,8 @@ type JwtPayload = {
   roleCode?: string;
   employeeId?: number | string;
   vehicleId?: number | string;
+  routeId?: number | string;
+  tripId?: number | string;
 };
 
 const decodeJwt = (token: string): JwtPayload | null => {
@@ -307,6 +309,24 @@ export const loginUser = createAsyncThunk(
               null)
             : null;
 
+        const routeId =
+          mappedRole === 'Driver'
+            ? (decodedAny?.routeId ??
+              decodedAny?.RouteId ??
+              decodedAny?.route_id ??
+              decodedAny?.RouteID ??
+              null)
+            : null;
+
+        const tripId =
+          mappedRole === 'Driver'
+            ? (decodedAny?.tripId ??
+              decodedAny?.TripId ??
+              decodedAny?.trip_id ??
+              decodedAny?.TripID ??
+              null)
+            : null;
+
         showSuccessToast('Logged in', 'Welcome back');
         return {
           token,
@@ -315,6 +335,8 @@ export const loginUser = createAsyncThunk(
           userId: decoded?.sub ?? data?.id ?? null,
           employeeId,
           vehicleId,
+          routeId,
+          tripId,
         };
       } catch (e) {
         return rejectWithValue(
@@ -468,6 +490,8 @@ const initialState = {
   userId: null as number | string | null,
   employeeId: null as number | string | null,
   vehicleId: null as number | string | null,
+  routeId: null as number | string | null,
+  tripId: null as number | string | null,
   roleCode: '',
   resetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
   resetError: null as string | null,
@@ -553,11 +577,15 @@ const userSlice = createSlice({
         state.userId = payload.userId ?? null;
         state.employeeId = payload.employeeId ?? null;
         state.vehicleId = payload.vehicleId ?? null;
+        state.routeId = payload.routeId ?? null;
+        state.tripId = payload.tripId ?? null;
         state.logout = false;
         if (__DEV__) {
           console.log('AUTH_TOKEN', payload.token);
           console.log('AUTH_EMPLOYEE_ID', payload.employeeId);
           console.log('AUTH_VEHICLE_ID', payload.vehicleId);
+          console.log('AUTH_ROUTE_ID', payload.routeId);
+          console.log('AUTH_TRIP_ID', payload.tripId);
           console.log('AUTH_ROLE', payload.role, payload.roleCode);
         }
       })

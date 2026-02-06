@@ -50,6 +50,19 @@ const DriverMapView = () => {
   const lastLocationSendRef = useRef<number>(0);
   const mapRef = useRef<MapView>(null);
   const LOCATION_SEND_INTERVAL_MS = 15000; // Throttle: send to server at most every 15s
+
+  // =================== DEV MOCK LOCATION ===================
+  // Set USE_MOCK_LOCATION = true to test with US coordinates from Pakistan
+  // Set to false for production / real GPS
+  const USE_MOCK_LOCATION = false; // Set to (__DEV__ && true) for mock US coords during testing
+  const MOCK_LOCATION = {
+    latitude: 41.87048140,   // Chicago, US
+    longitude: -87.63265390,
+    speed: 25,
+    heading: 90,
+  };
+  // ==========================================================
+
   const gpsFixReceivedRef = useRef(false);
   const gpsFallbackTriedRef = useRef(false);
   const gpsPollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -69,6 +82,8 @@ const DriverMapView = () => {
   const role = useAppSelector(state => state.userSlices.role);
   const employeeId = useAppSelector(state => state.userSlices.employeeId);
   const tokenVehicleId = useAppSelector(state => (state as any).userSlices.vehicleId);
+  const tokenRouteId = useAppSelector(state => (state as any).userSlices.routeId);
+  const tokenTripId = useAppSelector(state => (state as any).userSlices.tripId);
   const driverDetails = useAppSelector(state => state.driverSlices.driverDetails);
   const vehicleLocation = useAppSelector(state => state.driverSlices.vehicleLocation);
 
@@ -419,7 +434,12 @@ const DriverMapView = () => {
       setIsLocationServiceEnabled(true);
       watchIdRef.current = Geolocation.watchPosition(
         position => {
-          const {latitude, longitude, speed, heading} = position.coords;
+          const rawCoords = position.coords;
+          // Use mock location in dev if enabled, otherwise real GPS
+          const finalLat = USE_MOCK_LOCATION ? MOCK_LOCATION.latitude : rawCoords.latitude;
+          const finalLng = USE_MOCK_LOCATION ? MOCK_LOCATION.longitude : rawCoords.longitude;
+          const finalSpeed = USE_MOCK_LOCATION ? MOCK_LOCATION.speed : rawCoords.speed;
+          const finalHeading = USE_MOCK_LOCATION ? MOCK_LOCATION.heading : rawCoords.heading;
           const timestamp = new Date().toISOString();
           setIsLocationServiceEnabled(true);
           if (!gpsFixReceivedRef.current) {
@@ -429,16 +449,16 @@ const DriverMapView = () => {
               gpsNoFixTimerRef.current = null;
             }
             if (__DEV__) {
-              console.log('📡 GPS FIX RECEIVED:', {latitude, longitude});
+              console.log('📡 GPS FIX RECEIVED:', {latitude: finalLat, longitude: finalLng, mock: USE_MOCK_LOCATION});
             }
           }
 
           // Update local state every time (smooth map pin)
           setCurrentGpsLocation({
-            latitude,
-            longitude,
-            speed: speed ?? undefined,
-            heading: heading ?? undefined,
+            latitude: finalLat,
+            longitude: finalLng,
+            speed: finalSpeed ?? undefined,
+            heading: finalHeading ?? undefined,
           });
 
           // Send to server only when throttled (battery + network)
@@ -448,11 +468,13 @@ const DriverMapView = () => {
             dispatch(
               updateVehicleLocation({
                 vehicleId,
-                latitude,
-                longitude,
-                speed: speed ?? undefined,
-                heading: heading ?? undefined,
+                latitude: finalLat,
+                longitude: finalLng,
+                speed: finalSpeed ?? undefined,
+                heading: finalHeading ?? undefined,
                 timestamp,
+                routeId: tokenRouteId ?? undefined,
+                tripId: tokenTripId ?? undefined,
               }),
             ).then((result: any) => {
               if (__DEV__) {
@@ -575,11 +597,19 @@ const DriverMapView = () => {
         // Try fast "cached / network" first to get *something* quickly.
         Geolocation.getCurrentPosition(
           pos => {
-            const {latitude: lat, longitude: lng, speed: sp, heading: hd} = pos.coords;
+            const rawLat = pos.coords.latitude;
+            const rawLng = pos.coords.longitude;
+            const rawSp = pos.coords.speed;
+            const rawHd = pos.coords.heading;
+            // Use mock location in dev if enabled
+            const lat = USE_MOCK_LOCATION ? MOCK_LOCATION.latitude : rawLat;
+            const lng = USE_MOCK_LOCATION ? MOCK_LOCATION.longitude : rawLng;
+            const sp = USE_MOCK_LOCATION ? MOCK_LOCATION.speed : rawSp;
+            const hd = USE_MOCK_LOCATION ? MOCK_LOCATION.heading : rawHd;
             gpsFixReceivedRef.current = true;
             setIsLocationServiceEnabled(true);
             if (__DEV__) {
-              console.log('📡 GPS POLL FIX:', {latitude: lat, longitude: lng});
+              console.log('📡 GPS POLL FIX:', {latitude: lat, longitude: lng, mock: USE_MOCK_LOCATION});
             }
             setCurrentGpsLocation({
               latitude: lat,
@@ -587,23 +617,42 @@ const DriverMapView = () => {
               speed: sp ?? undefined,
               heading: hd ?? undefined,
             });
-            if (gpsPollIntervalRef.current) {
-              clearInterval(gpsPollIntervalRef.current);
-              gpsPollIntervalRef.current = null;
+
+            // Also send to server from poll (watchPosition may not fire)
+            const pollTimestamp = new Date().toISOString();
+            const pollNow = Date.now();
+            if (pollNow - lastLocationSendRef.current >= LOCATION_SEND_INTERVAL_MS) {
+              lastLocationSendRef.current = pollNow;
+              dispatch(
+                updateVehicleLocation({
+                  vehicleId,
+                  latitude: lat,
+                  longitude: lng,
+                  speed: sp ?? undefined,
+                  heading: hd ?? undefined,
+                  timestamp: pollTimestamp,
+                  routeId: tokenRouteId ?? undefined,
+                  tripId: tokenTripId ?? undefined,
+                }),
+              ).then((result: any) => {
+                if (__DEV__) {
+                  if (result.type === 'driver/updateVehicleLocation/fulfilled') {
+                    console.log('✅ Location sent to server (from poll)');
+                  } else if (result.type === 'driver/updateVehicleLocation/rejected') {
+                    console.warn('❌ Send location failed (from poll):', result.payload || result.error);
+                  }
+                }
+              });
             }
+
+            // Don't stop polling — keep sending until watchPosition takes over
           },
           error => {
             if (__DEV__) {
               console.warn('📡 GPS POLL ERROR:', {
                 code: (error as any)?.code,
                 message: (error as any)?.message,
-                details: error,
               });
-              if ((error as any)?.code === 3) {
-                console.warn(
-                  'ℹ️ Location TIMEOUT usually means no provider fix yet. If emulator, set a manual location. If real device, turn ON Google Location Accuracy + Wi‑Fi/Data and try open-sky.',
-                );
-              }
             }
             if (error?.code === 2) {
               setIsLocationServiceEnabled(false);
@@ -614,11 +663,12 @@ const DriverMapView = () => {
         );
       };
       pollOnce();
-      if (!gpsPollIntervalRef.current && !gpsFixReceivedRef.current) {
+      // Keep polling every 15s to continuously send location to server
+      if (!gpsPollIntervalRef.current) {
         gpsPollIntervalRef.current = setInterval(pollOnce, 15000);
       }
     });
-  }, [vehicleId, dispatch, requestLocationPermission, hasLocationPermission]);
+  }, [vehicleId, dispatch, requestLocationPermission, hasLocationPermission, tokenRouteId, tokenTripId]);
 
   // Stop GPS location tracking
   const stopLocationTracking = useCallback(() => {
@@ -857,7 +907,7 @@ const DriverMapView = () => {
             styles.bottomContainers,
             {bottom: hp(20), justifyContent: 'center'},
           ]}>
-          <Image source={require('../../assets/images/mappic.png')} />
+         
         </Pressable>
 
         <View style={[styles.absoluteContainer]}>
