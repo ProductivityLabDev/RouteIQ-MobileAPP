@@ -9,9 +9,10 @@ const getApiBaseUrl = () => {
   return manualHost?.trim() || deviceHost;
 };
 
+// GET /driver/details — backend auto-resolves employeeId from JWT token
 export const fetchDriverDetails = createAsyncThunk(
   'driver/fetchDriverDetails',
-  async (employeeId: number | string, {getState, rejectWithValue}) => {
+  async (_: void, {getState, rejectWithValue}) => {
     const baseUrl = getApiBaseUrl();
     const state: any = getState();
     const token: string | null | undefined = state?.userSlices?.token;
@@ -21,7 +22,7 @@ export const fetchDriverDetails = createAsyncThunk(
     }
 
     try {
-      const response = await fetch(`${baseUrl}/driver/details/${employeeId}`, {
+      const response = await fetch(`${baseUrl}/driver/details`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -37,8 +38,7 @@ export const fetchDriverDetails = createAsyncThunk(
       }
 
       const data = await response.json().catch(() => null);
-      // Expected API shape (from Postman):
-      // { ok: true, data: [ { EmployeeName, EmployeeId, Status, ... } ] }
+      // API shape: { ok: true, data: [ { EmployeeId, Name, Phone, Email, ... } ] }
       if (data?.ok === true && Array.isArray(data?.data)) {
         return data.data[0] ?? null;
       }
@@ -48,25 +48,13 @@ export const fetchDriverDetails = createAsyncThunk(
     }
   },
   {
-    condition: (employeeId: number | string, {getState}) => {
+    condition: (_: void, {getState}) => {
       const state: any = getState();
       const driverState = state?.driverSlices;
       const status: string | undefined = driverState?.driverDetailsStatus;
-      const details: any = driverState?.driverDetails;
 
-      // Dedupe: if already in flight, skip
-      if (status === 'loading') {
-        return false;
-      }
-
-      // Dedupe: if already fetched for this employeeId, skip
-      const currentId =
-        details?.EmployeeId ?? details?.employeeId ?? details?.id ?? null;
-      if (
-        status === 'succeeded' &&
-        currentId != null &&
-        String(currentId) === String(employeeId)
-      ) {
+      // Dedupe: if already in flight or succeeded, skip
+      if (status === 'loading' || status === 'succeeded') {
         return false;
       }
 
@@ -123,6 +111,127 @@ export const changeDriverPassword = createAsyncThunk(
       return data;
     } catch (e) {
       return rejectWithValue('Network error while changing password');
+    }
+  },
+);
+
+// =================== Routes by Date API ===================
+// GET /driver/routes/by-date?date=YYYY-MM-DD
+// Returns morning[] and evening[] routes with tripId + tripStatus
+export const fetchRoutesByDate = createAsyncThunk(
+  'driver/fetchRoutesByDate',
+  async (date: string, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) {
+      return rejectWithValue('Missing auth token');
+    }
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/driver/routes/by-date?date=${encodeURIComponent(date)}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText || `Fetch routes by date failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      if (data?.ok === true && data?.data) {
+        return data.data;
+      }
+      return data;
+    } catch (e) {
+      return rejectWithValue('Network error while fetching routes by date');
+    }
+  },
+  {
+    condition: (_: string, {getState}) => {
+      const state: any = getState();
+      const status: string | undefined = state?.driverSlices?.routesByDateStatus;
+      if (status === 'loading') return false;
+      return true;
+    },
+  },
+);
+
+// =================== Trip Start / End APIs ===================
+// POST /driver/trips/:tripId/start
+export const startTrip = createAsyncThunk(
+  'driver/startTrip',
+  async (tripId: number | string, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const response = await fetch(`${baseUrl}/driver/trips/${tripId}/start`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText || `Start trip failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      return data;
+    } catch (e) {
+      return rejectWithValue('Network error while starting trip');
+    }
+  },
+);
+
+// POST /driver/trips/:tripId/end
+export const endTrip = createAsyncThunk(
+  'driver/endTrip',
+  async (tripId: number | string, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const response = await fetch(`${baseUrl}/driver/trips/${tripId}/end`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText || `End trip failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      return data;
+    } catch (e) {
+      return rejectWithValue('Network error while ending trip');
     }
   },
 );
@@ -332,6 +441,18 @@ const driverSlice = createSlice({
     vehicleLocation: null as any,
     vehicleLocationStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
     vehicleLocationError: null as string | null,
+    // Routes by date
+    routesByDate: null as any,
+    routesByDateStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    routesByDateError: null as string | null,
+    // Active trip/route tracking
+    activeRouteId: null as number | string | null,
+    activeTripId: null as number | string | null,
+    // Trip start/end
+    tripStartStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    tripStartError: null as string | null,
+    tripEndStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    tripEndError: null as string | null,
     updateLocationStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
     updateLocationError: null as string | null,
   },
@@ -350,6 +471,12 @@ const driverSlice = createSlice({
     },
     setShowGroup: (state, {payload}) => {
       state.showGroup = payload;
+    },
+    setActiveRouteId: (state, {payload}) => {
+      state.activeRouteId = payload;
+    },
+    setActiveTripId: (state, {payload}) => {
+      state.activeTripId = payload;
     },
   },
   extraReducers: builder => {
@@ -426,6 +553,64 @@ const driverSlice = createSlice({
           (action.payload as string) ||
           action.error.message ||
           'Failed to update vehicle location';
+      })
+      // ---- Routes by Date ----
+      .addCase(fetchRoutesByDate.pending, state => {
+        state.routesByDateStatus = 'loading';
+        state.routesByDateError = null;
+      })
+      .addCase(fetchRoutesByDate.fulfilled, (state, {payload}) => {
+        state.routesByDateStatus = 'succeeded';
+        state.routesByDateError = null;
+        state.routesByDate = payload;
+        // Auto-pick first morning route's routeId + tripId if available
+        const firstRoute =
+          payload?.morning?.[0] ?? payload?.evening?.[0] ?? null;
+        if (firstRoute) {
+          if (firstRoute.routeId) state.activeRouteId = firstRoute.routeId;
+          if (firstRoute.tripId) state.activeTripId = firstRoute.tripId;
+        }
+      })
+      .addCase(fetchRoutesByDate.rejected, (state, action) => {
+        state.routesByDateStatus = 'failed';
+        state.routesByDateError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to fetch routes by date';
+      })
+      // ---- Start Trip ----
+      .addCase(startTrip.pending, state => {
+        state.tripStartStatus = 'loading';
+        state.tripStartError = null;
+      })
+      .addCase(startTrip.fulfilled, (state, {payload}) => {
+        state.tripStartStatus = 'succeeded';
+        state.tripStartError = null;
+        if (payload?.tripId) state.activeTripId = payload.tripId;
+      })
+      .addCase(startTrip.rejected, (state, action) => {
+        state.tripStartStatus = 'failed';
+        state.tripStartError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to start trip';
+      })
+      // ---- End Trip ----
+      .addCase(endTrip.pending, state => {
+        state.tripEndStatus = 'loading';
+        state.tripEndError = null;
+      })
+      .addCase(endTrip.fulfilled, state => {
+        state.tripEndStatus = 'succeeded';
+        state.tripEndError = null;
+        state.activeTripId = null;
+      })
+      .addCase(endTrip.rejected, (state, action) => {
+        state.tripEndStatus = 'failed';
+        state.tripEndError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to end trip';
       });
   },
 });
@@ -436,6 +621,8 @@ export const {
   setChatTabIndex,
   setShowGroup,
   setShowCreateGroup,
+  setActiveRouteId,
+  setActiveTripId,
 } = driverSlice.actions;
 
 export default driverSlice.reducer;

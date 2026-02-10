@@ -19,7 +19,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {Image} from 'react-native';
 import {useKeyboard} from '../../utils/keyboard';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {getVehicleLocation, updateVehicleLocation, fetchDriverDetails} from '../../store/driver/driverSlices';
+import {getVehicleLocation, updateVehicleLocation, fetchDriverDetails, fetchRoutesByDate, startTrip, endTrip} from '../../store/driver/driverSlices';
 import Geolocation from '@react-native-community/geolocation';
 import {Platform, PermissionsAndroid, Alert, Linking, AppState} from 'react-native';
 
@@ -49,7 +49,7 @@ const DriverMapView = () => {
   const watchIdRef = useRef<number | null>(null);
   const lastLocationSendRef = useRef<number>(0);
   const mapRef = useRef<MapView>(null);
-  const LOCATION_SEND_INTERVAL_MS = 15000; // Throttle: send to server at most every 15s
+  const LOCATION_SEND_INTERVAL_MS = 10000; // Throttle: send to server every 10s (API guide: 5-10s recommended)
 
   // =================== DEV MOCK LOCATION ===================
   // Set USE_MOCK_LOCATION = true to test with US coordinates from Pakistan
@@ -82,8 +82,13 @@ const DriverMapView = () => {
   const role = useAppSelector(state => state.userSlices.role);
   const employeeId = useAppSelector(state => state.userSlices.employeeId);
   const tokenVehicleId = useAppSelector(state => (state as any).userSlices.vehicleId);
+  // routeId + tripId from routes-by-date API (preferred) or JWT fallback
+  const activeRouteId = useAppSelector(state => (state as any).driverSlices.activeRouteId);
+  const activeTripId = useAppSelector(state => (state as any).driverSlices.activeTripId);
   const tokenRouteId = useAppSelector(state => (state as any).userSlices.routeId);
   const tokenTripId = useAppSelector(state => (state as any).userSlices.tripId);
+  const effectiveRouteId = activeRouteId ?? tokenRouteId;
+  const effectiveTripId = activeTripId ?? tokenTripId;
   const driverDetails = useAppSelector(state => state.driverSlices.driverDetails);
   const vehicleLocation = useAppSelector(state => state.driverSlices.vehicleLocation);
 
@@ -228,17 +233,21 @@ const DriverMapView = () => {
     }
   }, [showStartMileAgeSheet]);
 
-  // Fetch driver details to get vehicleId
+  // Fetch driver details (backend auto-resolves from JWT, no employeeId needed)
   useEffect(() => {
     if (role !== 'Driver') return;
     if (tokenVehicleId) return; // Prefer token vehicleId; avoid extra network call
-    if (!employeeId) {
-      if (__DEV__) console.log('⚠️ employeeId missing - cannot fetch driver details');
-      return;
-    }
-    if (__DEV__) console.log('📞 Fetching driver details for employeeId:', employeeId);
-    dispatch(fetchDriverDetails(employeeId));
-  }, [dispatch, role, employeeId, tokenVehicleId]);
+    if (__DEV__) console.log('📞 Fetching driver details...');
+    dispatch(fetchDriverDetails());
+  }, [dispatch, role, tokenVehicleId]);
+
+  // Fetch today's routes to get routeId + tripId
+  useEffect(() => {
+    if (role !== 'Driver') return;
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    if (__DEV__) console.log('📅 Fetching routes for date:', today);
+    dispatch(fetchRoutesByDate(today));
+  }, [dispatch, role]);
 
   // VehicleId: prefer token claim, fallback to driverDetails
   const vehicleId = useMemo(() => {
@@ -473,8 +482,8 @@ const DriverMapView = () => {
                 speed: finalSpeed ?? undefined,
                 heading: finalHeading ?? undefined,
                 timestamp,
-                routeId: tokenRouteId ?? undefined,
-                tripId: tokenTripId ?? undefined,
+                routeId: effectiveRouteId ?? undefined,
+                tripId: effectiveTripId ?? undefined,
               }),
             ).then((result: any) => {
               if (__DEV__) {
@@ -631,8 +640,8 @@ const DriverMapView = () => {
                   speed: sp ?? undefined,
                   heading: hd ?? undefined,
                   timestamp: pollTimestamp,
-                  routeId: tokenRouteId ?? undefined,
-                  tripId: tokenTripId ?? undefined,
+                  routeId: effectiveRouteId ?? undefined,
+                  tripId: effectiveTripId ?? undefined,
                 }),
               ).then((result: any) => {
                 if (__DEV__) {
@@ -668,7 +677,7 @@ const DriverMapView = () => {
         gpsPollIntervalRef.current = setInterval(pollOnce, 15000);
       }
     });
-  }, [vehicleId, dispatch, requestLocationPermission, hasLocationPermission, tokenRouteId, tokenTripId]);
+  }, [vehicleId, dispatch, requestLocationPermission, hasLocationPermission, effectiveRouteId, effectiveTripId]);
 
   // Stop GPS location tracking
   const stopLocationTracking = useCallback(() => {
