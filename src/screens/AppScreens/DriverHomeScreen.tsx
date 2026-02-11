@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -31,16 +31,25 @@ import GlobalIcon from '../../components/GlobalIcon';
 import AppFonts from '../../utils/appFonts';
 import DriverMonthlyCalendar from '../../components/DriverMonthlyCalendar';
 import AppStyles from '../../styles/AppStyles';
+import {fetchRoutesByDate} from '../../store/driver/driverSlices';
 
 export default function DriverHomeScreen() {
   const driverHomeStatus = useAppSelector(
     state => state.userSlices.driverHomeStatus,
   );
   const role = useAppSelector(state => state.userSlices.role);
+  const routesByDate = useAppSelector(state => state.driverSlices.routesByDate);
   const dispatch = useAppDispatch();
   const layout = useWindowDimensions();
   const [selectedScene, setSelectedScene] = useState(2);
   const [index, setIndex] = useState(0);
+  const requestDate = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }, []);
 
   const {control} = useForm({
     defaultValues: {search: ''},
@@ -56,6 +65,63 @@ export default function DriverHomeScreen() {
   );
 
   const dayScene = ['AM', 'PM', 'ALL'];
+
+  useEffect(() => {
+    if (role !== 'Driver') return;
+    dispatch(fetchRoutesByDate(requestDate));
+  }, [dispatch, role, requestDate]);
+
+  const mappedRouteCards = useMemo(() => {
+    const morning = Array.isArray(routesByDate?.morning) ? routesByDate.morning : [];
+    const evening = Array.isArray(routesByDate?.evening) ? routesByDate.evening : [];
+    const selectedKey = dayScene[selectedScene];
+    const selectedData =
+      selectedKey === 'AM'
+        ? morning
+        : selectedKey === 'PM'
+        ? evening
+        : [...morning, ...evening];
+
+    return selectedData.map((route: any) => {
+      const dateObj = requestDate ? new Date(requestDate) : new Date();
+      const formattedDate = dateObj
+        .toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: '2-digit'})
+        .replace(/ /g, '/')
+        .toUpperCase();
+
+      const fallbackTime = route?.RouteType === 'PM' ? '3:00 PM' : '8:30 AM';
+      const displayTime =
+        typeof route?.TripStartTime === 'string' && route.TripStartTime
+          ? route.TripStartTime
+          : fallbackTime;
+
+      return {
+        title: route?.RouteName ?? `Route ${route?.RouteId ?? ''}`,
+        time: displayTime,
+        date: formattedDate,
+        start_location: route?.StartLocation ?? '-',
+        end_location: route?.EndLocation ?? '-',
+        trip_name: 'Bus No.',
+        trip_no: route?.VehicleNumber ?? route?.VehicleName ?? '-',
+        trip_plan: [
+          {
+            status: route?.TripStatus ?? 'Pending',
+            time: displayTime,
+            date: formattedDate,
+            title: route?.RouteName ?? `Route ${route?.RouteId ?? ''}`,
+            location: route?.StartLocation ?? '-',
+          },
+          {
+            status: 'Dropoff',
+            time: displayTime,
+            date: formattedDate,
+            title: route?.InstituteName ?? 'Destination',
+            location: route?.EndLocation ?? '-',
+          },
+        ],
+      };
+    });
+  }, [routesByDate, selectedScene, requestDate]);
 
   const RouteHeader = () => (
     <>
@@ -116,7 +182,7 @@ export default function DriverHomeScreen() {
   // Route Tab Content (Avoid nesting VirtualizedList inside ScrollView)
   const RouteScreen = () => (
     <FlatList
-      data={routeData}
+      data={role === 'Driver' ? mappedRouteCards : routeData}
       renderItem={({item}) => <TripCard item={item} />}
       keyExtractor={(_, idx) => idx.toString()}
       ListHeaderComponent={<RouteHeader />}
@@ -138,7 +204,7 @@ export default function DriverHomeScreen() {
   // Trip Tab Content (Avoid nesting VirtualizedList inside ScrollView)
   const TripScreen = () => (
     <FlatList
-      data={homeTripData}
+      data={role === 'Driver' ? mappedRouteCards : homeTripData}
       renderItem={({item}) => <TripCard item={item} />}
       keyExtractor={(_, idx) => idx.toString()}
       ListHeaderComponent={<TripHeader />}

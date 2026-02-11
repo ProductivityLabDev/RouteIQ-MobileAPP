@@ -29,6 +29,7 @@
     "react-native-calendars": "^1.1305.0",
     "react-native-check-box": "^2.1.7",
     "react-native-collapsible": "^1.6.1",
+    "react-native-document-picker": "^9.3.1",
     "react-native-draggable": "^3.3.0",
     "react-native-dropdown-select-list": "^2.0.5",
     "react-native-element-dropdown": "^2.12.1",

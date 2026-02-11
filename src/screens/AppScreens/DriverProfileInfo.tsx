@@ -21,10 +21,14 @@ const DriverProfileInfo = () => {
 
   React.useEffect(() => {
     if (role !== 'Driver') return;
-    if (!employeeId) return;
-    // Request deduping is handled in the thunk condition
-    dispatch(fetchDriverDetails(employeeId));
-  }, [dispatch, employeeId, role]);
+    // Backend auto-resolves employeeId from JWT
+    dispatch(fetchDriverDetails());
+  }, [dispatch, role]);
+
+  React.useEffect(() => {
+    if (!__DEV__) return;
+    console.log('👤 DriverProfileInfo driverDetails:', driverDetails);
+  }, [driverDetails]);
 
   return (
     <AppLayout
@@ -90,8 +94,7 @@ const DriverProfileInfo = () => {
               title="Confirm"
               style={{alignSelf: 'center', width: '100%'}}
               onPress={() => {
-                console.log(token, 'token');
-
+                if (__DEV__) console.log(token, 'token');
                 token || token == 1
                   ? navigation.goBack()
                   : dispatch(saveToken(1));

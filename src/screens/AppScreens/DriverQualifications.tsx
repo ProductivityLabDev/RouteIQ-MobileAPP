@@ -9,6 +9,8 @@ import {
   ViewStyle,
   Image,
   Pressable,
+  Linking,
+  ScrollView,
 } from 'react-native';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import AppHeader from '../../components/AppHeader';
@@ -33,20 +35,47 @@ import {
 } from 'react-native-tab-view';
 import {Scene, Event} from 'react-native-tab-view/lib/typescript/src/types';
 import {SelectList} from 'react-native-dropdown-select-list';
-import {
-  DegreeData,
-  HighSchoolData,
-  leaveDropdownData,
-} from '../../utils/DummyData';
+import {HighSchoolData, leaveDropdownData} from '../../utils/DummyData';
 import AppBottomSheet from '../../components/AppBottomSheet';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import UploadDoc from '../../components/UploadDoc';
 import AppDoc from '../../components/AppDoc';
 import {Controller, useForm} from 'react-hook-form';
 import CalendarPicker from '../../components/CalendarPicker';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {
+  fetchQualifications,
+  fetchEducationLevels,
+  fetchEducationFields,
+  addQualification,
+} from '../../store/driver/driverSlices';
+import DocumentPicker from 'react-native-document-picker';
+import {getApiBaseUrl} from '../../utils/apiConfig';
+import Toast from 'react-native-toast-message';
+
+type PickedFile = { uri: string; name: string; type: string } | null;
 
 export default function DriverQualifications() {
+  const dispatch = useAppDispatch();
+  const token = useAppSelector(state => state.userSlices?.token);
+  const qualifications = useAppSelector(
+    state => state.driverSlices.qualifications,
+  );
+  const educationLevels = useAppSelector(
+    state => state.driverSlices.educationLevels,
+  );
+  const educationFields = useAppSelector(
+    state => state.driverSlices.educationFields,
+  );
+  const qualificationMutateStatus = useAppSelector(
+    state => state.driverSlices.qualificationMutateStatus,
+  );
+
   const [docUploaded, setDocUploaded] = useState(false);
+  const [selectedCvFile, setSelectedCvFile] = useState<PickedFile>(null);
+  const [selectedDocFile, setSelectedDocFile] = useState<PickedFile>(null);
+  const [uploading, setUploading] = useState(false);
+  const [isPickingFile, setIsPickingFile] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const snapPoints = useMemo(() => ['34%', '90%'], []);
   const openSheet = useCallback(() => {
@@ -57,12 +86,21 @@ export default function DriverQualifications() {
   }, []);
 
   const bottomSheetModalRef2 = useRef<BottomSheetModal>(null);
-  const snapPoints2 = useMemo(() => ['45%', '90%'], []);
+  const allowCloseSheet2Ref = useRef(false);
+  const snapPoints2 = useMemo(() => ['90%'], []);
   const openSheet2 = useCallback(() => {
+    allowCloseSheet2Ref.current = false;
     bottomSheetModalRef2.current?.present();
   }, []);
   const closeSheet2 = useCallback(() => {
     bottomSheetModalRef2.current?.close();
+  }, []);
+  const handleSheet2Changes = useCallback((index: number) => {
+    if (index === -1 && !allowCloseSheet2Ref.current) {
+      setTimeout(() => {
+        bottomSheetModalRef2.current?.present();
+      }, 60);
+    }
   }, []);
 
   const bottomSheetModalRef3 = useRef<BottomSheetModal>(null);
@@ -74,11 +112,472 @@ export default function DriverQualifications() {
     bottomSheetModalRef3.current?.close();
   }, []);
 
+  const pickDocument = useCallback((forCv: boolean) => {
+    setIsPickingFile(true);
+    DocumentPicker.pick({
+      type: (DocumentPicker as any).types?.allFiles ?? DocumentPicker.types.pdf,
+      allowMultiSelection: false,
+    })
+      .then((res: any) => {
+        const file = Array.isArray(res) ? res[0] : res;
+        if (file?.uri && file?.name) {
+          if (forCv) setSelectedCvFile({ uri: file.uri, name: file.name, type: file.type ?? '' });
+          else setSelectedDocFile({ uri: file.uri, name: file.name, type: file.type ?? '' });
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        setIsPickingFile(false);
+        // Keep bottom sheet open after returning from picker.
+        setTimeout(() => {
+          if (forCv) {
+            bottomSheetModalRef3.current?.present();
+          } else {
+            bottomSheetModalRef.current?.present();
+          }
+        }, 120);
+      });
+  }, []);
+
+  const uploadDocument = useCallback(
+    async (
+      file: PickedFile,
+      onSuccess: () => void,
+      docType: 'education' | 'cv' = 'education',
+    ) => {
+      if (!file || !token) {
+        Toast.show({ type: 'error', text1: 'Error', text2: 'Select a file first' });
+        return;
+      }
+      setUploading(true);
+      try {
+        const levelIdFromState =
+          selectedLevelIdRef.current != null &&
+          !Number.isNaN(Number(selectedLevelIdRef.current))
+            ? Number(selectedLevelIdRef.current)
+            : null;
+        const fieldIdFromState =
+          selectedFieldIdRef.current != null &&
+          !Number.isNaN(Number(selectedFieldIdRef.current))
+            ? Number(selectedFieldIdRef.current)
+            : null;
+
+        const levelIdFromLabel = (() => {
+          const opt = levelDropdownData.find(
+            (x: {key: string; value: string}) =>
+              x.value === selectedLevelLabelRef.current,
+          );
+          return opt?.key != null && !Number.isNaN(Number(opt.key))
+            ? Number(opt.key)
+            : null;
+        })();
+        const fieldIdFromLabel = (() => {
+          const opt = fieldDropdownData.find(
+            (x: {key: string; value: string}) =>
+              x.value === selectedFieldLabelRef.current,
+          );
+          return opt?.key != null && !Number.isNaN(Number(opt.key))
+            ? Number(opt.key)
+            : null;
+        })();
+
+        const levelIdNum = levelIdFromState ?? levelIdFromLabel;
+        const fieldIdNum = fieldIdFromState ?? fieldIdFromLabel;
+
+        if (__DEV__) {
+          console.log('🧭 Upload level/field resolution:', {
+            selectedLevelId: selectedLevelIdRef.current,
+            selectedFieldId: selectedFieldIdRef.current,
+            selectedLevelLabel: selectedLevelLabelRef.current,
+            selectedFieldLabel: selectedFieldLabelRef.current,
+            levelIdFromState,
+            fieldIdFromState,
+            levelIdFromLabel,
+            fieldIdFromLabel,
+            finalLevelId: levelIdNum,
+            finalFieldId: fieldIdNum,
+          });
+        }
+
+        if (docType === 'education' && (levelIdNum == null || fieldIdNum == null)) {
+          Toast.show({
+            type: 'error',
+            text1: 'Required',
+            text2: 'Please select level and field first',
+          });
+          setUploading(false);
+          return;
+        }
+
+        const formData = new FormData();
+        const filePayload = {
+          uri: file.uri,
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+        } as any;
+        const baseUrl = getApiBaseUrl();
+
+        // 1) Create qualification with JSON first (ensures numeric DTO validation passes).
+        const createPayload = {
+          qualificationType: docType === 'education' ? 'Educational' : 'Experience',
+          qualificationLevel:
+            selectedLevelLabel ||
+            (docType === 'education' ? 'Educational' : 'Experience'),
+          educationLevelId: levelIdNum != null ? Math.trunc(levelIdNum) : undefined,
+          educationFieldId: fieldIdNum != null ? Math.trunc(fieldIdNum) : undefined,
+          issueDate: new Date().toISOString(),
+          expiryDate: null,
+          issuingAuthority: docType === 'education' ? 'N/A' : null,
+          status: 'Active',
+          experienceDescription: null,
+          yearsOfExperience: 0,
+          companyName: null,
+          jobTitle: docType === 'experience' ? 'Driver' : null,
+          documentPath: null,
+        };
+
+        const createRes = await fetch(`${baseUrl}/driver/qualifications`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(createPayload),
+        });
+
+        if (!createRes.ok) {
+          const errorText = await createRes.text().catch(() => '');
+          throw new Error(errorText || `Create qualification failed with status ${createRes.status}`);
+        }
+
+        const createData = await createRes.json().catch(() => null);
+        const created =
+          createData?.data && !Array.isArray(createData.data)
+            ? createData.data
+            : createData;
+        let qualificationId =
+          created?.QualificationId ??
+          created?.qualificationId ??
+          created?.id ??
+          created?.Id ??
+          null;
+
+        // Some backend responses return only {ok, message}. Fallback: fetch list and resolve latest matching row.
+        if (qualificationId == null) {
+          const listRes = await fetch(`${baseUrl}/driver/qualifications`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/json',
+            },
+          });
+          if (listRes.ok) {
+            const listJson = await listRes.json().catch(() => null);
+            const list = Array.isArray(listJson?.data)
+              ? listJson.data
+              : Array.isArray(listJson)
+              ? listJson
+              : [];
+
+            const normalized = list
+              .map((q: any) => ({
+                raw: q,
+                id:
+                  q?.QualificationId ??
+                  q?.qualificationId ??
+                  q?.id ??
+                  q?.Id ??
+                  null,
+                levelId:
+                  q?.educationLevelId ??
+                  q?.EducationLevelId ??
+                  q?.levelId ??
+                  q?.LevelId ??
+                  null,
+                fieldId:
+                  q?.educationFieldId ??
+                  q?.EducationFieldId ??
+                  q?.fieldId ??
+                  q?.FieldId ??
+                  null,
+                createdAt:
+                  q?.createdAt ??
+                  q?.CreatedAt ??
+                  q?.created_at ??
+                  q?.updatedAt ??
+                  q?.UpdatedAt ??
+                  null,
+              }))
+              .filter((x: any) => x.id != null);
+
+            const matched = normalized.filter(
+              (x: any) =>
+                Number(x.levelId) === Number(levelIdNum) &&
+                Number(x.fieldId) === Number(fieldIdNum),
+            );
+
+            const sorted = (matched.length ? matched : normalized).sort(
+              (a: any, b: any) => {
+                const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                if (tb !== ta) return tb - ta;
+                return Number(b.id) - Number(a.id);
+              },
+            );
+
+            qualificationId = sorted[0]?.id ?? null;
+          }
+        }
+
+        // 2) Upload document on created qualification (PATCH multipart)
+        if (qualificationId == null) {
+          throw new Error('Qualification created but id missing in response');
+        }
+
+        formData.append('document', filePayload);
+        const uploadRes = await fetch(
+          `${baseUrl}/driver/qualifications/${qualificationId}`,
+          {
+            method: 'PATCH',
+            headers: {Authorization: `Bearer ${token}`},
+            body: formData,
+          },
+        );
+
+        if (!uploadRes.ok) {
+          const errorText = await uploadRes.text().catch(() => '');
+          if (__DEV__) {
+            console.warn(
+              '❌ Qualification document upload failed:',
+              uploadRes.status,
+              errorText,
+            );
+          }
+          throw new Error(errorText || `Upload failed with status ${uploadRes.status}`);
+        }
+        const successData = await uploadRes.json().catch(() => null);
+        if (__DEV__) {
+          console.log('✅ Qualification document upload success:', successData);
+        }
+        Toast.show({
+          type: 'success',
+          text1: 'Done',
+          text2: 'Qualification + document uploaded',
+        });
+        onSuccess();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Upload failed. Try again.';
+        if (__DEV__) {
+          console.warn('❌ Qualification upload toast message:', msg);
+        }
+        Toast.show({ type: 'error', text1: 'Upload Error', text2: msg });
+      } finally {
+        setUploading(false);
+      }
+    },
+    [
+      token,
+      selectedLevelId,
+      selectedFieldId,
+      selectedLevelLabel,
+      selectedFieldLabel,
+      levelDropdownData,
+      fieldDropdownData,
+    ],
+  );
+
   const [selectAbsence, setSelectAbsence] = useState('');
 
   const [selected, setSelected] = useState(false);
   const [selected1, setSelected1] = useState(false);
   const [selected2, setSelected2] = useState(false);
+  // Level & Field for qualification (Level dropdown → levelId → Field dropdown)
+  const [selectedLevelId, setSelectedLevelId] = useState<number | string | null>(
+    null,
+  );
+  const [selectedLevelLabel, setSelectedLevelLabel] = useState('');
+  const [selectedFieldId, setSelectedFieldId] = useState<number | string | null>(
+    null,
+  );
+  const [selectedFieldLabel, setSelectedFieldLabel] = useState('');
+  const [showLevelOptions, setShowLevelOptions] = useState(false);
+  const [showFieldOptions, setShowFieldOptions] = useState(false);
+  const selectedLevelIdRef = useRef<number | string | null>(null);
+  const selectedFieldIdRef = useRef<number | string | null>(null);
+  const selectedLevelLabelRef = useRef('');
+  const selectedFieldLabelRef = useRef('');
+
+  React.useEffect(() => {
+    dispatch(fetchQualifications());
+    dispatch(fetchEducationLevels());
+  }, [dispatch]);
+
+  const qualificationDropdownData = useMemo(() => {
+    const list = Array.isArray(qualifications) ? qualifications : [];
+    return list.map((q: any) => {
+      const id = q?.QualificationId ?? q?.qualificationId ?? q?.id ?? q?.Id ?? '';
+      const label =
+        q?.Name ??
+        q?.name ??
+        q?.QualificationName ??
+        q?.qualificationName ??
+        q?.Title ??
+        q?.title ??
+        q?.Degree ??
+        q?.degree ??
+        `Qualification ${id}`;
+      return {key: String(id), value: String(label)};
+    });
+  }, [qualifications]);
+
+  const uploadedDocs = useMemo(() => {
+    const list = Array.isArray(qualifications) ? qualifications : [];
+    return list
+      .map((q: any) => {
+        const rawPath =
+          q?.documentPath ??
+          q?.DocumentPath ??
+          q?.document_url ??
+          q?.DocumentURL ??
+          '';
+        const title =
+          q?.qualificationLevel ??
+          q?.QualificationLevel ??
+          q?.qualificationType ??
+          q?.QualificationType ??
+          q?.FieldName ??
+          q?.fieldName ??
+          'Uploaded Document';
+        const safePath = rawPath ? String(rawPath).trim() : '';
+        const lowerPath = safePath.toLowerCase();
+        const isValidDocumentPath =
+          !!safePath &&
+          safePath !== 'null' &&
+          safePath !== 'undefined' &&
+          safePath !== '-' &&
+          safePath !== 'N/A' &&
+          safePath !== 'n/a' &&
+          (safePath.startsWith('http://') ||
+            safePath.startsWith('https://') ||
+            safePath.startsWith('file://') ||
+            safePath.startsWith('content://'));
+        const lower = lowerPath;
+        const isImage =
+          lower.endsWith('.png') ||
+          lower.endsWith('.jpg') ||
+          lower.endsWith('.jpeg') ||
+          lower.endsWith('.webp');
+        return {title: String(title), path: safePath, isImage, isValidDocumentPath};
+      })
+      .filter((x: any) => x?.isValidDocumentPath === true);
+  }, [qualifications]);
+
+  const experienceQualifications = useMemo(() => {
+    const list = Array.isArray(qualifications) ? qualifications : [];
+    return list.filter((q: any) => {
+      const t = String(
+        q?.qualificationType ?? q?.QualificationType ?? '',
+      ).toLowerCase();
+      return t === 'experience';
+    });
+  }, [qualifications]);
+
+  React.useEffect(() => {
+    if (!__DEV__) return;
+    console.log('📋 qualifications list (screen):', qualifications);
+    console.log('📎 uploadedDocs (mapped for UI):', uploadedDocs);
+  }, [qualifications, uploadedDocs]);
+
+  const levelDropdownData = useMemo(() => {
+    const list = Array.isArray(educationLevels) ? educationLevels : [];
+    return list.map((l: any, index: number) => {
+      if (l != null && typeof l === 'string') {
+        return {key: String(index), value: l};
+      }
+      const id = l?.LevelId ?? l?.levelId ?? l?.id ?? l?.Id ?? index;
+      const label =
+        l?.Name ??
+        l?.name ??
+        l?.LevelName ??
+        l?.levelName ??
+        l?.level_name ??
+        l?.Title ??
+        l?.title ??
+        l?.label ??
+        l?.text ??
+        '';
+      return {key: String(id), value: label ? String(label) : `Level ${id}`};
+    });
+  }, [educationLevels]);
+
+  const fieldDropdownData = useMemo(() => {
+    const list = Array.isArray(educationFields) ? educationFields : [];
+    return list.map((f: any, index: number) => {
+      if (f != null && typeof f === 'string') {
+        return {key: String(index), value: f};
+      }
+      const id = f?.FieldId ?? f?.fieldId ?? f?.id ?? f?.Id ?? index;
+      const label =
+        f?.Name ??
+        f?.name ??
+        f?.FieldName ??
+        f?.fieldName ??
+        f?.field_name ??
+        f?.Title ??
+        f?.title ??
+        f?.label ??
+        f?.text ??
+        '';
+      return {key: String(id), value: label ? String(label) : `Field ${id}`};
+    });
+  }, [educationFields]);
+
+  const onLevelSelect = useCallback(
+    (value: string) => {
+      setSelectedLevelLabel(value);
+      selectedLevelLabelRef.current = value;
+      setSelectedFieldId(null);
+      selectedFieldIdRef.current = null;
+      setSelectedFieldLabel('');
+      selectedFieldLabelRef.current = '';
+      const selectedOption = levelDropdownData.find(
+        (opt: {key: string; value: string}) => opt.value === value,
+      );
+      const levelId =
+        selectedOption?.key != null && !Number.isNaN(Number(selectedOption.key))
+          ? Number(selectedOption.key)
+          : selectedOption?.key ?? null;
+      if (levelId != null) {
+        setSelectedLevelId(levelId);
+        selectedLevelIdRef.current = levelId;
+        dispatch(fetchEducationFields(levelId));
+      } else if (__DEV__) {
+        console.warn('⚠️ Level selected but ID not resolved:', value);
+      }
+    },
+    [levelDropdownData, dispatch],
+  );
+
+  const onFieldSelect = useCallback(
+    (value: string) => {
+      setSelectedFieldLabel(value);
+      selectedFieldLabelRef.current = value;
+      const selectedOption = fieldDropdownData.find(
+        (opt: {key: string; value: string}) => opt.value === value,
+      );
+      const fieldId =
+        selectedOption?.key != null && !Number.isNaN(Number(selectedOption.key))
+          ? Number(selectedOption.key)
+          : selectedOption?.key ?? null;
+      setSelectedFieldId(fieldId);
+      selectedFieldIdRef.current = fieldId;
+      if (__DEV__ && fieldId == null) {
+        console.warn('⚠️ Field selected but ID not resolved:', value);
+      }
+    },
+    [fieldDropdownData],
+  );
 
   const {
     control,
@@ -94,141 +593,148 @@ export default function DriverQualifications() {
     },
   });
 
-  const onSubmit = () => {
-    // navigation.goBack();
+  const onSubmit = (data: {
+    jobtitle: string;
+    startdate: string;
+    enddate: string;
+    description: string;
+  }) => {
+    const levelIdNum =
+      selectedLevelId != null && !Number.isNaN(Number(selectedLevelId))
+        ? Number(selectedLevelId)
+        : null;
+    const fieldIdNum =
+      selectedFieldId != null && !Number.isNaN(Number(selectedFieldId))
+        ? Number(selectedFieldId)
+        : null;
+
+    if (levelIdNum == null || fieldIdNum == null) {
+      Toast.show({
+        type: 'error',
+        text1: 'Required',
+        text2: 'Please select level and field first',
+      });
+      return;
+    }
+    dispatch(
+      addQualification({
+        qualificationType: 'Experience',
+        qualificationLevel: selectedLevelLabel || 'Experience',
+        educationLevelId: Math.trunc(levelIdNum),
+        educationFieldId: Math.trunc(fieldIdNum),
+        issueDate: data.startdate ? new Date(data.startdate).toISOString() : null,
+        expiryDate: data.enddate ? new Date(data.enddate).toISOString() : null,
+        issuingAuthority: null,
+        documentPath: null,
+        status: 'Active',
+        experienceDescription: data.description || null,
+        yearsOfExperience: 0,
+        companyName: null,
+        jobTitle: data.jobtitle || null,
+      }),
+    )
+      .unwrap()
+      .then((res: any) => {
+        if (__DEV__) {
+          console.log('✅ Qualification save success response:', res);
+        }
+        allowCloseSheet2Ref.current = true;
+        closeSheet2();
+        dispatch(fetchQualifications());
+      })
+      .catch((err: any) => {
+        if (__DEV__) {
+          console.warn('❌ Qualification save error response:', err);
+        }
+        Toast.show({
+          type: 'error',
+          text1: 'Save Error',
+          text2: typeof err === 'string' ? err : 'Could not save qualification',
+        });
+      });
   };
 
   const SecondRoute = () => (
     <View style={{justifyContent: 'space-between', flex: 1}}>
-      <View style={styles.subContainer}>
-        <View style={styles.experienceContainer}>
-          <View style={[styles.dotnDashContainer, {}]}>
-            <View style={styles.circle}>
-              <View style={styles.innerCircle}></View>
-            </View>
+      <ScrollView
+        style={{flex: 1}}
+        contentContainerStyle={[styles.subContainer, {paddingBottom: hp(2)}]}
+        showsVerticalScrollIndicator={true}>
+        {experienceQualifications.length === 0 ? (
+          <Text style={[AppStyles.title, {color: AppColors.textLightGrey}]}>
+            No experience records yet.
+          </Text>
+        ) : (
+          experienceQualifications.map((item: any, index: number) => {
+            const title =
+              item?.jobTitle ??
+              item?.JobTitle ??
+              item?.companyName ??
+              item?.CompanyName ??
+              'Experience';
+            const desc =
+              item?.experienceDescription ??
+              item?.ExperienceDescription ??
+              item?.description ??
+              '';
+            const issueDate = item?.issueDate ?? item?.IssueDate ?? '';
+            return (
+              <View style={styles.experienceContainer} key={`exp-${index}`}>
+                <View style={styles.dotnDashContainer}>
+                  <View style={styles.circle}>
+                    <View style={styles.innerCircle}></View>
+                  </View>
+                  {index < experienceQualifications.length - 1 && (
+                    <View style={styles.dashedLine}></View>
+                  )}
+                </View>
 
-            <View style={styles.dashedLine}></View>
-          </View>
-
-          <View style={styles.experienceInfoContainer}>
-            <Text
-              style={[
-                AppStyles.titleHead,
-                {fontSize: size.lg, alignSelf: 'flex-start'},
-              ]}>
-              Van Driver
-            </Text>
-            <Text
-              style={[
-                AppStyles.title,
-                {fontFamily: AppFonts.NunitoSansLight, fontSize: size.default},
-              ]}>
-              Adventure calling! Stay in the loop with real-time updates on your
-              favorite outdoor activities
-            </Text>
-            <Text
-              style={[
-                AppStyles.title,
-                {
-                  fontFamily: AppFonts.NunitoSansLight,
-                  fontSize: size.s,
-                  color: AppColors.dimGray,
-                },
-              ]}>
-              1 day ago
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.experienceContainer}>
-          <View style={[styles.dotnDashContainer, {}]}>
-            <View style={styles.circle}>
-              <View style={styles.innerCircle}></View>
-            </View>
-
-            <View style={styles.dashedLine}></View>
-          </View>
-
-          <View style={styles.experienceInfoContainer}>
-            <Text
-              style={[
-                AppStyles.titleHead,
-                {fontSize: size.lg, alignSelf: 'flex-start'},
-              ]}>
-              Office Boy
-            </Text>
-            <Text
-              style={[
-                AppStyles.title,
-                {fontFamily: AppFonts.NunitoSansLight, fontSize: size.default},
-              ]}>
-              Your Bus is Approaching!
-            </Text>
-            <Text
-              style={[
-                AppStyles.title,
-                {
-                  fontFamily: AppFonts.NunitoSansLight,
-                  fontSize: size.s,
-                  color: AppColors.dimGray,
-                },
-              ]}>
-              1 day ago
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.experienceContainer}>
-          <View style={[styles.dotnDashContainer, {}]}>
-            <View style={styles.circle}>
-              <View style={styles.innerCircle}></View>
-            </View>
-
-            <View style={styles.dashedLine}></View>
-          </View>
-
-          <View style={styles.experienceInfoContainer}>
-            <Text
-              style={[
-                AppStyles.titleHead,
-                {fontSize: size.lg, alignSelf: 'flex-start'},
-              ]}>
-              Junior Chef{' '}
-            </Text>
-            <Text
-              style={[
-                AppStyles.title,
-                {fontFamily: AppFonts.NunitoSansLight, fontSize: size.default},
-              ]}>
-              Your Bus is Approaching!
-            </Text>
-            <Text
-              style={[
-                AppStyles.title,
-                {
-                  fontFamily: AppFonts.NunitoSansLight,
-                  fontSize: size.s,
-                  color: AppColors.dimGray,
-                },
-              ]}>
-              1 day ago
-            </Text>
-          </View>
-        </View>
-      </View>
+                <View style={styles.experienceInfoContainer}>
+                  <Text
+                    style={[
+                      AppStyles.titleHead,
+                      {fontSize: size.lg, alignSelf: 'flex-start'},
+                    ]}>
+                    {title}
+                  </Text>
+                  {desc ? (
+                    <Text
+                      style={[
+                        AppStyles.title,
+                        {fontFamily: AppFonts.NunitoSansLight, fontSize: size.default},
+                      ]}>
+                      {desc}
+                    </Text>
+                  ) : null}
+                  <Text
+                    style={[
+                      AppStyles.title,
+                      {
+                        fontFamily: AppFonts.NunitoSansLight,
+                        fontSize: size.s,
+                        color: AppColors.dimGray,
+                      },
+                    ]}>
+                    {issueDate ? String(issueDate).split('T')[0] : '—'}
+                  </Text>
+                </View>
+              </View>
+            );
+          })
+        )}
+      </ScrollView>
 
       <AppButton
         title="Upload CV"
         onPress={() => openSheet3()}
         style={{
-          // width: '100%',
           width: '90%',
           backgroundColor: AppColors.red,
-          // height: hp(6),
+          height: hp(6),
           marginHorizontal: wp(7),
           alignSelf: 'center',
-          position: 'relative',
-          top: 30,
+          marginTop: hp(1.5),
+          marginBottom: hp(1.2),
         }}
         titleStyle={{
           fontSize: size.md,
@@ -239,14 +745,12 @@ export default function DriverQualifications() {
         title="Add Experience"
         onPress={() => openSheet2()}
         style={{
-          // width: '100%',
           width: '90%',
           backgroundColor: AppColors.red,
           height: hp(6),
           marginHorizontal: wp(7),
           alignSelf: 'center',
-          position: 'relative',
-          top: -40,
+          marginBottom: hp(1.5),
         }}
         titleStyle={{
           fontSize: size.md,
@@ -256,9 +760,14 @@ export default function DriverQualifications() {
       <AppBottomSheet
         bottomSheetModalRef={bottomSheetModalRef2}
         snapPoints={snapPoints2}
+        handleSheetChanges={handleSheet2Changes}
+        enablePanDownToClose={false}
+        enableContentPanningGesture={false}
+        enableHandlePanningGesture={false}
         backdropComponent={({style}) => (
           <Pressable
-            onPress={() => closeSheet2()}
+            // Keep Add Experience sheet open while selecting dropdown values.
+            onPress={() => {}}
             style={[style, {backgroundColor: 'rgba(0, 0, 0, 0.6)'}]}
           />
         )}>
@@ -270,6 +779,76 @@ export default function DriverQualifications() {
             borderTopRightRadius: hp(2),
             borderTopLeftRadius: hp(2),
           }}>
+          <Text
+            style={[
+              AppStyles.titleHead,
+              {fontSize: size.lg, marginBottom: hp(1.5)},
+            ]}>
+            Level
+          </Text>
+          <Pressable
+            style={[styles.boxStyle, {marginBottom: hp(1)}]}
+            onPress={() => {
+              setShowFieldOptions(false);
+              setShowLevelOptions(prev => !prev);
+            }}>
+            <Text style={styles.dropdownInputTxtStyle}>
+              {selectedLevelLabel || 'Select your level'}
+            </Text>
+          </Pressable>
+          {showLevelOptions && (
+            <View style={styles.optionsBox}>
+              <ScrollView nestedScrollEnabled style={{maxHeight: hp(22)}}>
+                {levelDropdownData.map((opt: {key: string; value: string}) => (
+                  <Pressable
+                    key={`lvl-${opt.key}`}
+                    style={styles.optionRow}
+                    onPress={() => {
+                      setSelectedLevelLabel(opt.value);
+                      onLevelSelect(opt.value);
+                      setShowLevelOptions(false);
+                    }}>
+                    <Text style={styles.optionText}>{opt.value}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+          <Text
+            style={[
+              AppStyles.titleHead,
+              {fontSize: size.lg, marginBottom: hp(1.5)},
+            ]}>
+            Field
+          </Text>
+          <Pressable
+            style={[styles.boxStyle, {marginBottom: hp(1)}]}
+            onPress={() => {
+              setShowLevelOptions(false);
+              setShowFieldOptions(prev => !prev);
+            }}>
+            <Text style={styles.dropdownInputTxtStyle}>
+              {selectedFieldLabel || 'Select your field'}
+            </Text>
+          </Pressable>
+          {showFieldOptions && (
+            <View style={styles.optionsBox}>
+              <ScrollView nestedScrollEnabled style={{maxHeight: hp(22)}}>
+                {fieldDropdownData.map((opt: {key: string; value: string}) => (
+                  <Pressable
+                    key={`fld-${opt.key}`}
+                    style={styles.optionRow}
+                    onPress={() => {
+                      setSelectedFieldLabel(opt.value);
+                      onFieldSelect(opt.value);
+                      setShowFieldOptions(false);
+                    }}>
+                    <Text style={styles.optionText}>{opt.value}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          )}
           <Controller
             name="jobtitle"
             control={control}
@@ -352,6 +931,7 @@ export default function DriverQualifications() {
             <AppButton
               title="Cancel"
               onPress={() => {
+                allowCloseSheet2Ref.current = true;
                 closeSheet2();
               }}
               style={styles.backButton}
@@ -360,8 +940,8 @@ export default function DriverQualifications() {
             <AppButton
               title="Submit"
               onPress={handleSubmit(onSubmit)}
-              //   onPress={() => closeSheet2()}
               style={styles.submitButton}
+              loading={qualificationMutateStatus === 'loading'}
             />
           </View>
         </View>
@@ -371,10 +951,13 @@ export default function DriverQualifications() {
 
   const FirstRoute = () => (
     <View style={{justifyContent: 'space-between', flex: 1}}>
-      <View style={styles.subContainer}>
+      <ScrollView
+        style={{flex: 1}}
+        contentContainerStyle={[styles.subContainer, {paddingBottom: hp(2)}]}
+        showsVerticalScrollIndicator={true}>
         <View
           style={{
-            flexDirection: selected1 ? 'row' : 'column',
+            flexDirection: selectedLevelLabel ? 'row' : 'column',
             justifyContent: 'space-between',
             gap: hp(2),
           }}>
@@ -383,35 +966,40 @@ export default function DriverQualifications() {
               AppStyles.titleHead,
               {fontSize: size.lg, alignSelf: 'flex-start'},
             ]}>
-            Bachelors
+            Level
           </Text>
 
-          {selected1 ? (
+          {selectedLevelLabel ? (
             <Text
               style={[
                 AppStyles.title,
                 AppStyles.halfWidth,
                 {verticalAlign: 'bottom'},
               ]}>
-              {selected1}
+              {selectedLevelLabel}
             </Text>
           ) : (
             <SelectList
               search={false}
-              setSelected={setSelected1}
-              data={DegreeData}
+              setSelected={(val: string) => {
+                setSelected1(val);
+                onLevelSelect(val);
+              }}
+              data={levelDropdownData}
               save="value"
-              placeholder="Select your Degree"
+              placeholder="Select your level"
               boxStyles={styles.boxStyle}
-              dropdownTextStyles={{color: AppColors.black}}
-              onSelect={() => setSelected1(true)}
+              inputStyles={styles.dropdownInputTxtStyle}
+              dropdownStyles={styles.dropdownMenuStyle}
+              dropdownItemStyles={styles.dropdownItemStyle}
+              dropdownTextStyles={styles.dropdownItemTxtStyle}
             />
           )}
         </View>
 
         <View
           style={{
-            flexDirection: selected2 ? 'row' : 'column',
+            flexDirection: selectedFieldLabel ? 'row' : 'column',
             justifyContent: 'space-between',
             gap: hp(2),
           }}>
@@ -420,49 +1008,76 @@ export default function DriverQualifications() {
               AppStyles.titleHead,
               {fontSize: size.lg, alignSelf: 'flex-start'},
             ]}>
-            High School {selected2 === false ? 'Certificate' : ''}
+            Field
           </Text>
 
-          {
-            selected2 ? (
-              <Text
-                style={[
-                  AppStyles.title,
-                  AppStyles.halfWidth,
-                  {verticalAlign: 'bottom'},
-                ]}>
-                {selected2}
-              </Text>
-            ) : (
-              <AppInput placeholder="Enter your Certificate" />
-            )
-            // <SelectList
-            //     search={false}
-
-            //     setSelected={setSelected2}
-            //     data={HighSchoolData}
-            //     save="value"
-            //     placeholder="Select your Certificate"
-            //     boxStyles={styles.boxStyle}
-            //     dropdownTextStyles={{ color: AppColors.black }}
-            //     onSelect={() => setSelected2(true)}
-            // />
-          }
+          {selectedFieldLabel ? (
+            <Text
+              style={[
+                AppStyles.title,
+                AppStyles.halfWidth,
+                {verticalAlign: 'bottom'},
+              ]}>
+              {selectedFieldLabel}
+            </Text>
+          ) : (
+            <SelectList
+              search={false}
+              setSelected={(val: string) => {
+                setSelected2(val);
+                onFieldSelect(val);
+              }}
+              data={fieldDropdownData}
+              save="value"
+              placeholder="Select your field"
+              boxStyles={styles.boxStyle}
+              inputStyles={styles.dropdownInputTxtStyle}
+              dropdownStyles={styles.dropdownMenuStyle}
+              dropdownItemStyles={styles.dropdownItemStyle}
+              dropdownTextStyles={styles.dropdownItemTxtStyle}
+            />
+          )}
         </View>
 
-        {docUploaded === true && (
+        {uploadedDocs.length > 0 && (
           <>
-            <AppDoc
-              containerStyle={{width: '100%'}}
-              title="Bachelor's Degree"
-            />
-            <AppDoc
-              containerStyle={{width: '100%'}}
-              title="School Certificate"
-            />
+            {uploadedDocs.length > 0 ? (
+              uploadedDocs.map((doc: any, idx: number) => (
+                <View key={`${doc.path || doc.title}-${idx}`}>
+                  {doc.isImage && doc.path ? (
+                    <View style={styles.previewCard}>
+                      <Text style={styles.previewTitle}>{doc.title}</Text>
+                      <Image
+                        source={{uri: doc.path}}
+                        resizeMode="cover"
+                        style={styles.previewImage}
+                      />
+                    </View>
+                  ) : null}
+                  <AppDoc
+                    containerStyle={{width: '100%'}}
+                    title={doc.title}
+                    showAttachment={!!doc.path}
+                    onPress={
+                      doc.path
+                        ? () => {
+                            Linking.openURL(doc.path).catch(() => {
+                              Toast.show({
+                                type: 'error',
+                                text1: 'Error',
+                                text2: 'Could not open document link',
+                              });
+                            });
+                          }
+                        : undefined
+                    }
+                  />
+                </View>
+              ))
+            ) : null}
           </>
         )}
-      </View>
+      </ScrollView>
 
       <AppButton
         title="Upload Documents"
@@ -487,7 +1102,10 @@ export default function DriverQualifications() {
         snapPoints={snapPoints3}
         backdropComponent={({style}) => (
           <Pressable
-            onPress={() => closeSheet3()}
+            onPress={() => {
+              if (isPickingFile) return;
+              closeSheet3();
+            }}
             style={[style, {backgroundColor: 'rgba(0, 0, 0, 0.6)'}]}
           />
         )}>
@@ -510,6 +1128,8 @@ export default function DriverQualifications() {
                 backgroundColor: 'transparent',
               }}
               textStyle={{fontSize: size.default}}
+              onPress={() => pickDocument(true)}
+              selectedFileName={selectedCvFile?.name ?? null}
             />
           </View>
 
@@ -518,15 +1138,22 @@ export default function DriverQualifications() {
               title="Cancel"
               style={styles.backButton}
               titleStyle={{color: AppColors.textLightGrey}}
-              onPress={() => closeSheet3()}
+              onPress={() => {
+                setSelectedCvFile(null);
+                closeSheet3();
+              }}
             />
             <AppButton
               title="Upload"
               style={styles.submitButton}
               onPress={() => {
-                closeSheet();
-                setDocUploaded(true);
+                uploadDocument(selectedCvFile, () => {
+                  setSelectedCvFile(null);
+                  closeSheet3();
+                  setDocUploaded(true);
+                }, 'cv');
               }}
+              loading={uploading}
             />
           </View>
         </View>
@@ -537,7 +1164,10 @@ export default function DriverQualifications() {
         snapPoints={snapPoints}
         backdropComponent={({style}) => (
           <Pressable
-            onPress={() => closeSheet()}
+            onPress={() => {
+              if (isPickingFile) return;
+              closeSheet();
+            }}
             style={[style, {backgroundColor: 'rgba(0, 0, 0, 0.6)'}]}
           />
         )}>
@@ -560,6 +1190,8 @@ export default function DriverQualifications() {
                 backgroundColor: 'transparent',
               }}
               textStyle={{fontSize: size.default}}
+              onPress={() => pickDocument(false)}
+              selectedFileName={selectedDocFile?.name ?? null}
             />
           </View>
 
@@ -568,15 +1200,22 @@ export default function DriverQualifications() {
               title="Cancel"
               style={styles.backButton}
               titleStyle={{color: AppColors.textLightGrey}}
-              onPress={() => closeSheet()}
+              onPress={() => {
+                setSelectedDocFile(null);
+                closeSheet();
+              }}
             />
             <AppButton
               title="Upload"
               style={styles.submitButton}
               onPress={() => {
-                closeSheet();
-                setDocUploaded(true);
+                uploadDocument(selectedDocFile, () => {
+                  setSelectedDocFile(null);
+                  closeSheet();
+                  setDocUploaded(true);
+                }, 'education');
               }}
+              loading={uploading}
             />
           </View>
         </View>
@@ -827,6 +1466,42 @@ const styles = StyleSheet.create({
     borderBottomColor: AppColors.black,
     borderWidth: 1,
   },
+  dropdownMenuStyle: {
+    backgroundColor: AppColors.white,
+    borderColor: AppColors.black,
+    borderWidth: 1,
+  },
+  dropdownItemStyle: {
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(4),
+  },
+  dropdownItemTxtStyle: {
+    color: AppColors.black,
+    fontSize: size.default,
+  },
+  dropdownInputTxtStyle: {
+    color: AppColors.black,
+    fontSize: size.default,
+  },
+  optionsBox: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: AppColors.lightGrey,
+    borderRadius: hp(1),
+    backgroundColor: AppColors.white,
+    marginBottom: hp(2),
+  },
+  optionRow: {
+    paddingVertical: hp(1.2),
+    paddingHorizontal: wp(3),
+    borderBottomWidth: 1,
+    borderBottomColor: AppColors.lightGrey,
+  },
+  optionText: {
+    color: AppColors.black,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: size.default,
+  },
   circle: {
     width: hp(3),
     height: hp(3),
@@ -869,5 +1544,24 @@ const styles = StyleSheet.create({
     width: wp(83),
     gap: hp(1),
     paddingBottom: hp(3),
+  },
+  previewCard: {
+    width: '100%',
+    backgroundColor: AppColors.white,
+    borderRadius: hp(1),
+    padding: hp(1.5),
+    marginBottom: hp(1),
+    elevation: 6,
+  },
+  previewTitle: {
+    fontFamily: AppFonts.NunitoSansBold,
+    color: AppColors.black,
+    marginBottom: hp(1),
+  },
+  previewImage: {
+    width: '100%',
+    height: hp(20),
+    borderRadius: hp(1),
+    backgroundColor: AppColors.lightGrey,
   },
 });

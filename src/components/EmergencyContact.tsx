@@ -1,5 +1,5 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {hp} from '../utils/constants';
 import {AppColors} from '../utils/color';
 import AppStyles from '../styles/AppStyles';
@@ -8,11 +8,57 @@ import AppFonts from '../utils/appFonts';
 import GlobalIcon from './GlobalIcon';
 import AppInput from './AppInput';
 import {EmergencyContactProps} from '../types/types';
+import {BlurView} from '@react-native-community/blur';
 
-const EmergencyContact: React.FC<EmergencyContactProps> = ({item , index}) => {
+const getContactId = (item: any) =>
+  item?.ContactId ?? item?.contactId ?? item?.id ?? item?.Id;
+const getName = (item: any) =>
+  item?.ContactName ?? item?.contactName ?? item?.name ?? '';
+const getRelation = (item: any) =>
+  item?.Relationship ?? item?.relationship ?? item?.relation ?? '';
+const getPhone = (item: any) =>
+  item?.PhoneNumber ?? item?.phoneNumber ?? item?.phone_number ?? '';
+
+const EmergencyContact: React.FC<EmergencyContactProps> = ({
+  item,
+  index,
+  onSave,
+  onDelete,
+}) => {
   const [editDetails, setEditDetails] = useState(false);
+  const [showDeleteOverlay, setShowDeleteOverlay] = useState(false);
+  const [name, setName] = useState('');
+  const [relation, setRelation] = useState('');
+  const [phone, setPhone] = useState('');
+
+  useEffect(() => {
+    setName(getName(item));
+    setRelation(getRelation(item));
+    setPhone(getPhone(item));
+  }, [item]);
+
+  const contactId = getContactId(item);
+  const handleSave = () => {
+    if (onSave && contactId != null && name.trim() && relation.trim() && phone.trim()) {
+      onSave(contactId, {
+        contactName: name.trim(),
+        relationship: relation.trim(),
+        phoneNumber: phone.trim(),
+      });
+      setEditDetails(false);
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <Pressable
+      onLongPress={() => {
+        if (contactId != null) setShowDeleteOverlay(true);
+      }}
+      delayLongPress={350}
+      onPress={() => {
+        if (showDeleteOverlay) setShowDeleteOverlay(false);
+      }}
+      style={styles.container}>
       <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
         <Text
           style={[
@@ -21,28 +67,48 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({item , index}) => {
           ]}>
           Emergency Contact {index + 1}:
         </Text>
-        <Pressable onPress={() => setEditDetails(!editDetails)}>
-          {editDetails ? (
-            <Text style={[AppStyles.title, {color: AppColors.red}]}>Save</Text>
-          ) : (
-            <GlobalIcon
-              library="FontelloIcon"
-              name={'frame-(3)'}
-              color={AppColors.red}
-            />
+        <View style={AppStyles.row}>
+          {onDelete && editDetails && (
+            <Pressable
+              onPress={() => contactId != null && onDelete(contactId)}
+              style={{marginRight: hp(1.5)}}>
+              <GlobalIcon
+                library="MaterialCommunityIcons"
+                name="delete-outline"
+                color={AppColors.red}
+                size={22}
+              />
+            </Pressable>
           )}
-        </Pressable>
+          <Pressable
+            onPress={() =>
+              editDetails ? handleSave() : setEditDetails(!editDetails)
+            }>
+            {editDetails ? (
+              <Text style={[AppStyles.title, {color: AppColors.red}]}>
+                Save
+              </Text>
+            ) : (
+              <GlobalIcon
+                library="FontelloIcon"
+                name={'frame-(3)'}
+                color={AppColors.red}
+              />
+            )}
+          </Pressable>
+        </View>
       </View>
       <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
         <Text style={[AppStyles.title, AppStyles.halfWidth]}>Name</Text>
-
-        {editDetails === false ? (
-          <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-            Esther Howard
+        {!editDetails ? (
+          <Text style={[AppStyles.subTitle, AppStyles.halfWidth]} numberOfLines={1}>
+            {name || '—'}
           </Text>
         ) : (
           <AppInput
-            placeholder="Esther Howard"
+            value={name}
+            onChangeText={setName}
+            placeholder="Name"
             containerStyle={AppStyles.halfWidth}
             container={[styles.inputContainer, {height: 40}]}
             inputStyle={styles.inputStyle}
@@ -51,35 +117,65 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({item , index}) => {
       </View>
       <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
         <Text style={[AppStyles.title, AppStyles.halfWidth]}>Relation</Text>
-        {editDetails === false ? (
-          <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>Aunty</Text>
-        ) : (
-          <AppInput
-            placeholder="Aunty"
-            containerStyle={AppStyles.halfWidth}
-            container={[styles.inputContainer, {height: 40}]}
-            inputStyle={styles.inputStyle}
-          />
-        )}
-      </View>
-
-      <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-        <Text style={[AppStyles.title, AppStyles.halfWidth]}>Phone Number</Text>
-        {editDetails === false ? (
-          <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-            +1-424-271-8337
+        {!editDetails ? (
+          <Text style={[AppStyles.subTitle, AppStyles.halfWidth]} numberOfLines={1}>
+            {relation || '—'}
           </Text>
         ) : (
           <AppInput
-            placeholder="+1-424-271-8337"
+            value={relation}
+            onChangeText={setRelation}
+            placeholder="Relation"
             containerStyle={AppStyles.halfWidth}
             container={[styles.inputContainer, {height: 40}]}
             inputStyle={styles.inputStyle}
-            keyboardType="number-pad"
           />
         )}
       </View>
-    </View>
+      <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
+        <Text style={[AppStyles.title, AppStyles.halfWidth]}>Phone Number</Text>
+        {!editDetails ? (
+          <Text style={[AppStyles.subTitle, AppStyles.halfWidth]} numberOfLines={1}>
+            {phone || '—'}
+          </Text>
+        ) : (
+          <AppInput
+            value={phone}
+            onChangeText={setPhone}
+            placeholder="+923001234567"
+            containerStyle={AppStyles.halfWidth}
+            container={[styles.inputContainer, {height: 40}]}
+            inputStyle={styles.inputStyle}
+            keyboardType="phone-pad"
+          />
+        )}
+      </View>
+      {showDeleteOverlay && (
+        <View style={styles.overlayWrap}>
+          <BlurView
+            style={StyleSheet.absoluteFillObject}
+            blurType="light"
+            blurAmount={6}
+            reducedTransparencyFallbackColor="rgba(255,255,255,0.85)"
+          />
+          <View style={styles.overlayActions}>
+            <Pressable
+              style={styles.deleteBtn}
+              onPress={() => {
+                if (contactId != null && onDelete) onDelete(contactId);
+                setShowDeleteOverlay(false);
+              }}>
+              <Text style={styles.deleteBtnText}>Delete</Text>
+            </Pressable>
+            <Pressable
+              style={styles.cancelBtn}
+              onPress={() => setShowDeleteOverlay(false)}>
+              <Text style={styles.cancelBtnText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+    </Pressable>
   );
 };
 
@@ -91,6 +187,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(2),
     paddingVertical: hp(2),
     marginBottom: hp(2),
+    borderRadius: hp(1),
+    overflow: 'hidden',
   },
   buttonTitle: {
     color: AppColors.black,
@@ -102,4 +200,36 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   inputStyle: {color: AppColors.graySuit},
+  overlayWrap: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.12)',
+  },
+  overlayActions: {
+    flexDirection: 'row',
+    gap: hp(1.2),
+  },
+  deleteBtn: {
+    backgroundColor: AppColors.red,
+    paddingVertical: hp(1),
+    paddingHorizontal: hp(2.2),
+    borderRadius: hp(0.8),
+  },
+  deleteBtnText: {
+    color: AppColors.white,
+    fontFamily: AppFonts.NunitoSansBold,
+    fontSize: size.default,
+  },
+  cancelBtn: {
+    backgroundColor: AppColors.graySuit,
+    paddingVertical: hp(1),
+    paddingHorizontal: hp(2),
+    borderRadius: hp(0.8),
+  },
+  cancelBtnText: {
+    color: AppColors.white,
+    fontFamily: AppFonts.NunitoSansBold,
+    fontSize: size.default,
+  },
 });

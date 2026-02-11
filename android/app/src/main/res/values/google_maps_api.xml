@@ -1,3 +1,9 @@
 <resources>
-  <string name="google_maps_key">AIzaSyAkiHkjo-5JKqugTE-_PwfdBb3j6Ze4jxE</string>
+  <!-- Replace with your real Google Maps API key from Google Cloud Console.
+       1. Go to https://console.cloud.google.com/
+       2. Create/select project → APIs & Services → Library
+       3. Enable "Maps SDK for Android"
+       4. Credentials → Create credentials → API key
+       5. Paste the key below. Map will show only after this. -->
+  <string name="google_maps_key">AIzaSyDbcJf1H0HWQP40ySVxbbGmYH-bWGH65Wk</string>
 </resources>

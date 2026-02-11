@@ -18,8 +18,27 @@ import {
   StudentStack,
   TasksStack,
 } from './DriverTabStack';
+import React, {useMemo} from 'react';
 
 const Tab = createBottomTabNavigator();
+
+const DRIVER_TAB_BAR_HIDDEN_ROUTES: readonly string[] = [
+  'DriverInspection',
+  'DriverStudentDetail',
+  'DriverProfileInfo',
+  'UpdateDriveProfile',
+  'DriverEmergencyContact',
+  'DriverQualifications',
+  'DriverCertification',
+  'DriverMedicalRecord',
+  'DriverHistory',
+  'DriverIncident',
+  'DriverShiftTracking',
+  'DriverShiftTrackingDetails',
+  'DriverChangePassword',
+  'DriverChats',
+  'FuelCodeScreen',
+];
 
 type DriverBottomTabsProps = {
   children?: React.ReactNode;
@@ -55,38 +74,29 @@ function DriverBottomTabs() {
   const driverHomeStatus = useAppSelector(
     state => state.userSlices.driverHomeStatus,
   );
-  const screens = [
-    {
-      name: 'HomeStack',
-      component: HomeStack,
-      headerShown: false,
-      label: '',
-    },
-    {
-      name: 'TasksStack',
-      component: TasksStack,
-      headerShown: false,
-      label: '',
-    },
-    {
-      name: 'StudentStack',
-      component: StudentStack,
-      headerShown: false,
-      label: '',
-    },
-    {
-      name: 'ChatStack',
-      component: ChatStack,
-      headerShown: false,
-      label: '',
-    },
-    {
-      name: 'ProfileStack',
-      component: ProfileStack,
-      headerShown: false,
-      label: '',
-    },
-  ];
+  const screens = useMemo(
+    () => [
+      {name: 'HomeStack', component: HomeStack, headerShown: false, label: ''},
+      {name: 'TasksStack', component: TasksStack, headerShown: false, label: ''},
+      {name: 'StudentStack', component: StudentStack, headerShown: false, label: ''},
+      {name: 'ChatStack', component: ChatStack, headerShown: false, label: ''},
+      {name: 'ProfileStack', component: ProfileStack, headerShown: false, label: ''},
+    ],
+    [],
+  );
+
+  const baseTabBarStyle = useMemo(
+    () => ({
+      borderTopWidth: 0,
+      zIndex: 0,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      height: Platform.OS === 'ios' ? hp(12) : hp(9),
+      backgroundColor: AppColors.white,
+      paddingHorizontal: hp(1),
+    }),
+    [],
+  );
 
   return (
     <Tab.Navigator
@@ -103,40 +113,17 @@ function DriverBottomTabs() {
             name={name}
             component={component}
             options={({route}) => {
-              console.log(route, 'route');
-
+              const routeName = getFocusedRouteNameFromRoute(route) as string | undefined;
+              const hideTabBar =
+                routeName != null &&
+                (DRIVER_TAB_BAR_HIDDEN_ROUTES.includes(routeName) ||
+                  (driverHomeStatus === true && routeName === 'DriverHomeScreen'));
               return {
                 headerShown,
                 tabBarLabel: label,
                 tabBarStyle: {
-                  display: [
-                    'DriverInspection',
-                    driverHomeStatus == true && 'DriverHomeScreen',
-                    'DriverStudentDetail',
-                    'DriverProfileInfo',
-                    'UpdateDriveProfile',
-                    'DriverEmergencyContact',
-                    'DriverQualifications',
-                    'DriverCertification',
-                    'DriverMedicalRecord',
-                    'DriverHistory',
-                    'DriverIncident',
-                    'DriverShiftTracking',
-                    'DriverShiftTrackingDetails',
-                    'DriverChangePassword',
-                    'DriverChats',
-                    'FuelCodeScreen',
-                    // 'FuelRecordsScreen',
-                  ].includes(getFocusedRouteNameFromRoute(route) as any)
-                    ? 'none'
-                    : 'flex',
-                  borderTopWidth: 0,
-                  zIndex: 0,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: Platform.OS === 'ios' ? hp(12) : hp(9),
-                  backgroundColor: AppColors.white,
-                  paddingHorizontal: hp(1),
+                  ...baseTabBarStyle,
+                  display: hideTabBar ? 'none' : 'flex',
                 },
                 tabBarIcon: ({color, focused}: any) => {
                   if (name.includes('HomeStack')) {

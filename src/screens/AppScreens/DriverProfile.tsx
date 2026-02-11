@@ -37,10 +37,9 @@ const DriverProfile = () => {
 
   React.useEffect(() => {
     if (role !== 'Driver') return;
-    if (!employeeId) return;
-    // Request deduping is handled in the thunk condition
-    dispatch(fetchDriverDetails(employeeId));
-  }, [dispatch, employeeId, role]);
+    // Backend auto-resolves employeeId from JWT
+    dispatch(fetchDriverDetails());
+  }, [dispatch, role]);
 
   const settingItems = [
     {title: 'Profile Info', icon: 'group-2022'},

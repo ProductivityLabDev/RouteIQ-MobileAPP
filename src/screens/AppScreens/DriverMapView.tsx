@@ -10,7 +10,8 @@ import {fontSize, size} from '../../utils/responsiveFonts';
 import AppInput from '../../components/AppInput';
 import AppButton from '../../components/AppButton';
 import {hp} from '../../utils/constants';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import {mapCustomStyle} from '../../utils/mapConfig';
 import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
@@ -19,9 +20,10 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {Image} from 'react-native';
 import {useKeyboard} from '../../utils/keyboard';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {getVehicleLocation, updateVehicleLocation, fetchDriverDetails} from '../../store/driver/driverSlices';
+import {getVehicleLocation, updateVehicleLocation, fetchDriverDetails, fetchRoutesByDate, startTrip, endTrip} from '../../store/driver/driverSlices';
 import Geolocation from '@react-native-community/geolocation';
 import {Platform, PermissionsAndroid, Alert, Linking, AppState} from 'react-native';
+import {googleMapsApiKey} from '../../utils/mapConfig';
 
 const DriverMapView = () => {
   const navigation = useNavigation();
@@ -47,18 +49,51 @@ const DriverMapView = () => {
   const [isLocationServiceEnabled, setIsLocationServiceEnabled] = useState<boolean | null>(null);
   const [locationAccuracyIssue, setLocationAccuracyIssue] = useState<boolean>(false);
   const watchIdRef = useRef<number | null>(null);
+  const lastLocationSendRef = useRef<number>(0);
+  const mapRef = useRef<MapView>(null);
+  const LOCATION_SEND_INTERVAL_MS = 10000; // Throttle: send to server every 10s (API guide: 5-10s recommended)
+
+  // =================== DEV MOCK LOCATION ===================
+  // Set USE_MOCK_LOCATION = true to test with US coordinates from Pakistan
+  // Set to false for production / real GPS
+  const USE_MOCK_LOCATION = false; // Set to (__DEV__ && true) for mock US coords during testing
+  const MOCK_LOCATION = {
+    latitude: 41.87048140,   // Chicago, US
+    longitude: -87.63265390,
+    speed: 25,
+    heading: 90,
+  };
+  // ==========================================================
+
+  const gpsFixReceivedRef = useRef(false);
+  const gpsFallbackTriedRef = useRef(false);
+  const gpsPollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const gpsNoFixTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isStartingTrackingRef = useRef(false);
 
   const route = useRoute();
-  const isFromMapView = route.params?.FromMapView ?? false;
+  const isFromMapView =
+    (route.params as any)?.FromMapView ?? (route.params as any)?.fromMapView ?? false;
 
   useEffect(() => {
-    console.log('Route params:', route.params);
-  }, []);
+    if (__DEV__ && route?.params != null) {
+      console.log('Route params:', route.params);
+    }
+  }, [route?.params]);
 
   const role = useAppSelector(state => state.userSlices.role);
   const employeeId = useAppSelector(state => state.userSlices.employeeId);
+  const tokenVehicleId = useAppSelector(state => (state as any).userSlices.vehicleId);
+  // routeId + tripId from routes-by-date API (preferred) or JWT fallback
+  const activeRouteId = useAppSelector(state => (state as any).driverSlices.activeRouteId);
+  const activeTripId = useAppSelector(state => (state as any).driverSlices.activeTripId);
+  const tokenRouteId = useAppSelector(state => (state as any).userSlices.routeId);
+  const tokenTripId = useAppSelector(state => (state as any).userSlices.tripId);
+  const effectiveRouteId = activeRouteId ?? tokenRouteId;
+  const effectiveTripId = activeTripId ?? tokenTripId;
   const driverDetails = useAppSelector(state => state.driverSlices.driverDetails);
   const vehicleLocation = useAppSelector(state => state.driverSlices.vehicleLocation);
+  const routesByDate = useAppSelector(state => (state as any).driverSlices.routesByDate);
 
   const snapPoints = useMemo(
     () => [keyboardHeight ? '30%' : '23%', '10%'],
@@ -71,50 +106,203 @@ const DriverMapView = () => {
     bottomSheetModalRef.current?.close();
   }, []);
 
-  const startLocation = {
+  const defaultStartLocation = {
     latitude: 37.7749,
     longitude: -122.4454,
   };
 
-  const endLocation = {
+  const defaultEndLocation = {
     latitude: 37.7793,
     longitude: -122.426,
   };
 
+  const routeCoordinates = useMemo(() => {
+    const morning = Array.isArray(routesByDate?.morning) ? routesByDate.morning : [];
+    const evening = Array.isArray(routesByDate?.evening) ? routesByDate.evening : [];
+    const allRoutes = [...morning, ...evening];
+
+    const targetRoute =
+      allRoutes.find((r: any) => Number(r?.RouteId) === Number(effectiveRouteId)) ??
+      allRoutes.find(
+        (r: any) =>
+          r?.PickupLatitude != null &&
+          r?.PickupLongitude != null &&
+          r?.DropoffLatitude != null &&
+          r?.DropoffLongitude != null,
+      ) ??
+      null;
+
+    const pickupLat = targetRoute?.PickupLatitude != null ? Number(targetRoute.PickupLatitude) : null;
+    const pickupLng = targetRoute?.PickupLongitude != null ? Number(targetRoute.PickupLongitude) : null;
+    const dropoffLat =
+      targetRoute?.DropoffLatitude != null ? Number(targetRoute.DropoffLatitude) : null;
+    const dropoffLng =
+      targetRoute?.DropoffLongitude != null ? Number(targetRoute.DropoffLongitude) : null;
+
+    const hasPickup =
+      pickupLat != null && pickupLng != null && Number.isFinite(pickupLat) && Number.isFinite(pickupLng);
+    const hasDropoff =
+      dropoffLat != null &&
+      dropoffLng != null &&
+      Number.isFinite(dropoffLat) &&
+      Number.isFinite(dropoffLng);
+
+    return {
+      pickup: hasPickup ? {latitude: pickupLat, longitude: pickupLng} : null,
+      dropoff: hasDropoff ? {latitude: dropoffLat, longitude: dropoffLng} : null,
+      hasValidRoute: hasPickup && hasDropoff,
+    };
+  }, [routesByDate, effectiveRouteId]);
+  const canRenderDirections =
+    !!googleMapsApiKey &&
+    routeCoordinates.hasValidRoute &&
+    !!routeCoordinates.pickup &&
+    !!routeCoordinates.dropoff;
+
+  // Live pin: always prefer driver's GPS (Karachi/current). API = fallback only when GPS not yet available.
+  const currentVehicleLocation = useMemo(() => {
+    if (currentGpsLocation?.latitude != null && currentGpsLocation?.longitude != null) {
+      return {
+        latitude: currentGpsLocation.latitude,
+        longitude: currentGpsLocation.longitude,
+      };
+    }
+    const apiLatRaw =
+      (vehicleLocation as any)?.latitude ??
+      (vehicleLocation as any)?.Latitude ??
+      (vehicleLocation as any)?.LATITUDE ??
+      null;
+    const apiLngRaw =
+      (vehicleLocation as any)?.longitude ??
+      (vehicleLocation as any)?.Longitude ??
+      (vehicleLocation as any)?.LONGITUDE ??
+      null;
+    const apiLat = apiLatRaw != null ? Number(apiLatRaw) : null;
+    const apiLng = apiLngRaw != null ? Number(apiLngRaw) : null;
+    if (apiLat != null && apiLng != null && Number.isFinite(apiLat) && Number.isFinite(apiLng)) {
+      return { latitude: apiLat, longitude: apiLng };
+    }
+    return null;
+  }, [currentGpsLocation, vehicleLocation]);
+
   // Use vehicle location if available, otherwise use default
   const mapCenter = currentVehicleLocation || {
-    latitude: (startLocation.latitude + endLocation.latitude) / 2,
-    longitude: (startLocation.longitude + endLocation.longitude) / 2,
+    latitude:
+      routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? (routeCoordinates.pickup.latitude + routeCoordinates.dropoff.latitude) / 2
+        : (defaultStartLocation.latitude + defaultEndLocation.latitude) / 2,
+    longitude:
+      routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? (routeCoordinates.pickup.longitude + routeCoordinates.dropoff.longitude) / 2
+        : (defaultStartLocation.longitude + defaultEndLocation.longitude) / 2,
   };
 
-  const mapView = () => (
-    <MapView
-      provider={PROVIDER_GOOGLE}
-      style={AppStyles.map}
-      region={{
-        latitude: mapCenter.latitude,
-        longitude: mapCenter.longitude,
-        latitudeDelta:
-          currentVehicleLocation
-            ? 0.01
-            : Math.abs(startLocation.latitude - endLocation.latitude) * 1.5,
-        longitudeDelta:
-          currentVehicleLocation
-            ? 0.01
-            : Math.abs(startLocation.longitude - endLocation.longitude) * 1.5,
-      }}
-      customMapStyle={mapCustomStyle}>
-      {/* Vehicle Location Marker */}
+  const mapRegion = useMemo(
+    () => ({
+      latitude: mapCenter.latitude,
+      longitude: mapCenter.longitude,
+      latitudeDelta: currentVehicleLocation
+        ? 0.01
+        : routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? Math.abs(routeCoordinates.pickup.latitude - routeCoordinates.dropoff.latitude) *
+            1.5 || 0.05
+        : Math.abs(defaultStartLocation.latitude - defaultEndLocation.latitude) * 1.5 || 0.05,
+      longitudeDelta: currentVehicleLocation
+        ? 0.01
+        : routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? Math.abs(routeCoordinates.pickup.longitude - routeCoordinates.dropoff.longitude) *
+            1.5 || 0.05
+        : Math.abs(defaultStartLocation.longitude - defaultEndLocation.longitude) * 1.5 || 0.05,
+    }),
+    [
+      mapCenter.latitude,
+      mapCenter.longitude,
+      currentVehicleLocation != null,
+      routeCoordinates.hasValidRoute,
+      routeCoordinates.pickup?.latitude,
+      routeCoordinates.pickup?.longitude,
+      routeCoordinates.dropoff?.latitude,
+      routeCoordinates.dropoff?.longitude,
+      defaultStartLocation.latitude,
+      defaultStartLocation.longitude,
+      defaultEndLocation.latitude,
+      defaultEndLocation.longitude,
+    ],
+  );
+
+  // Live tracking: follow driver when GPS updates
+  useEffect(() => {
+    if (!currentGpsLocation?.latitude || !currentGpsLocation?.longitude || !mapRef.current) return;
+    mapRef.current.animateToRegion(
+      {
+        latitude: currentGpsLocation.latitude,
+        longitude: currentGpsLocation.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      300,
+    );
+  }, [currentGpsLocation?.latitude, currentGpsLocation?.longitude]);
+
+  const mapView = useCallback(
+    () => (
+      <MapView
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE}
+        style={AppStyles.map}
+        region={mapRegion}
+        customMapStyle={mapCustomStyle}
+        showsMyLocationButton={false}
+        followsUserLocation={false}>
+      {/* Pickup -> Dropoff route line from routes/by-date coordinates */}
+      {routeCoordinates.hasValidRoute &&
+        routeCoordinates.pickup &&
+        routeCoordinates.dropoff && (
+          <>
+            {canRenderDirections ? (
+              <MapViewDirections
+                origin={routeCoordinates.pickup}
+                destination={routeCoordinates.dropoff}
+                apikey={googleMapsApiKey}
+                strokeWidth={4}
+                strokeColor={AppColors.red}
+                optimizeWaypoints={false}
+                onReady={result => {
+                  mapRef.current?.fitToCoordinates(result.coordinates, {
+                    edgePadding: {top: hp(6), right: hp(6), bottom: hp(24), left: hp(6)},
+                    animated: true,
+                  });
+                }}
+                onError={error => {
+                  if (__DEV__) {
+                    console.warn('MapViewDirections error (DriverMapView):', error);
+                  }
+                }}
+              />
+            ) : (
+              <Polyline
+                coordinates={[routeCoordinates.pickup, routeCoordinates.dropoff]}
+                strokeColor={AppColors.red}
+                strokeWidth={4}
+              />
+            )}
+            <Marker coordinate={routeCoordinates.pickup} pinColor="#1FA971" />
+            <Marker coordinate={routeCoordinates.dropoff} pinColor="#C62828" />
+          </>
+        )}
+      {/* Vehicle Location Marker - live GPS when available */}
       {currentVehicleLocation && (
         <Marker
           coordinate={currentVehicleLocation}
           anchor={{x: 0.5, y: 0.5}}
-          tracksViewChanges={false}
+          tracksViewChanges={!!currentGpsLocation}
           onPress={() => {
-            console.log('📍 PIN MARKER CLICKED:');
-            console.log('   Latitude:', currentVehicleLocation.latitude);
-            console.log('   Longitude:', currentVehicleLocation.longitude);
-            console.log('   Source:', currentGpsLocation ? 'GPS' : 'API');
+            if (__DEV__) {
+              console.log('📍 PIN MARKER CLICKED:');
+              console.log('   Latitude:', currentVehicleLocation.latitude);
+              console.log('   Longitude:', currentVehicleLocation.longitude);
+              console.log('   Source:', currentGpsLocation ? 'GPS' : 'API');
+            }
           }}>
           <View
             style={{
@@ -134,6 +322,8 @@ const DriverMapView = () => {
         </Marker>
       )}
     </MapView>
+    ),
+    [mapRegion, currentVehicleLocation, currentGpsLocation, mapRef, routeCoordinates],
   );
 
   useEffect(() => {
@@ -142,39 +332,28 @@ const DriverMapView = () => {
     }
   }, [showStartMileAgeSheet]);
 
-  // Fetch driver details to get vehicleId
+  // Fetch driver details (backend auto-resolves from JWT, no employeeId needed)
   useEffect(() => {
     if (role !== 'Driver') return;
-    if (!employeeId) {
-      console.log('⚠️ employeeId missing - cannot fetch driver details');
-      return;
-    }
-    console.log('📞 Fetching driver details for employeeId:', employeeId);
-    dispatch(fetchDriverDetails(employeeId));
-  }, [dispatch, role, employeeId]);
-  
-  // Log driver details when fetched
-  useEffect(() => {
-    if (driverDetails) {
-      console.log('✅ Driver details fetched:');
-      console.log('   Full object:', JSON.stringify(driverDetails, null, 2));
-      console.log('   Available keys:', Object.keys(driverDetails));
-    }
-  }, [driverDetails]);
+    if (tokenVehicleId) return; // Prefer token vehicleId; avoid extra network call
+    if (__DEV__) console.log('📞 Fetching driver details...');
+    dispatch(fetchDriverDetails());
+  }, [dispatch, role, tokenVehicleId]);
 
-  // Get vehicleId from driverDetails
+  // Fetch today's routes to get routeId + tripId
+  useEffect(() => {
+    if (role !== 'Driver') return;
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    if (__DEV__) console.log('📅 Fetching routes for date:', today);
+    dispatch(fetchRoutesByDate(today));
+  }, [dispatch, role]);
+
+  // VehicleId: prefer token claim, fallback to driverDetails
   const vehicleId = useMemo(() => {
-    console.log('🚗 Vehicle ID Check:');
-    console.log('   driverDetails:', driverDetails ? 'Available' : 'Not available');
-    
-    if (driverDetails) {
-      console.log('   Full driverDetails:', JSON.stringify(driverDetails, null, 2));
-    }
-    
-    const id = 
+    if (tokenVehicleId) return tokenVehicleId;
+    const id =
       driverDetails?.VehicleId ??
       driverDetails?.vehicleId ??
-      driverDetails?.VehicleId ??
       driverDetails?.Vehicle?.VehicleId ??
       driverDetails?.vehicle?.vehicleId ??
       driverDetails?.Route?.VehicleId ??
@@ -184,15 +363,11 @@ const DriverMapView = () => {
       driverDetails?.VEHICLE_ID ??
       driverDetails?.vehicle_id ??
       null;
-    
-    console.log('   Extracted vehicleId:', id);
-    
-    if (!id && driverDetails) {
+    if (__DEV__ && driverDetails && !id) {
       console.log('⚠️ vehicleId not found in driverDetails. Available keys:', Object.keys(driverDetails || {}));
     }
-    
     return id;
-  }, [driverDetails]);
+  }, [tokenVehicleId, driverDetails]);
 
   // Polling for vehicle location
   useEffect(() => {
@@ -210,70 +385,22 @@ const DriverMapView = () => {
     return () => clearInterval(interval);
   }, [dispatch, role, vehicleId]);
 
-  // Extract current location from vehicle location data
-  const currentVehicleLocation = useMemo(() => {
-    // Prioritize GPS location if available
-    if (currentGpsLocation?.latitude && currentGpsLocation?.longitude) {
-      console.log('📍 PIN LOCATION (GPS):', {
-        latitude: currentGpsLocation.latitude,
-        longitude: currentGpsLocation.longitude,
-        source: 'GPS',
-      });
-      return {
-        latitude: currentGpsLocation.latitude,
-        longitude: currentGpsLocation.longitude,
-      };
-    }
-    // Fallback to vehicle location from API
-    if (vehicleLocation?.latitude && vehicleLocation?.longitude) {
-      console.log('📍 PIN LOCATION (API):', {
-        latitude: Number(vehicleLocation.latitude),
-        longitude: Number(vehicleLocation.longitude),
-        source: 'API',
-      });
-      return {
-        latitude: Number(vehicleLocation.latitude),
-        longitude: Number(vehicleLocation.longitude),
-      };
-    }
-    console.log('📍 PIN LOCATION: NULL (No location available)');
-    return null;
-  }, [currentGpsLocation, vehicleLocation]);
-
-  // Log pin location whenever it changes
-  useEffect(() => {
-    if (currentVehicleLocation) {
-      console.log('🗺️ PIN LOCATION ON MAP:', {
-        latitude: currentVehicleLocation.latitude,
-        longitude: currentVehicleLocation.longitude,
-        source: currentGpsLocation ? 'GPS (Real-time)' : 'API (Server)',
-      });
-    } else {
-      console.log('🗺️ PIN LOCATION: Not available on map');
-    }
-  }, [currentVehicleLocation, currentGpsLocation]);
-
   // Request location permission (MANDATORY - app use nahi kar sakte bina permission ke)
   const requestLocationPermission = useCallback(async (): Promise<boolean> => {
-    console.log('requestLocationPermission: Starting permission check...');
-    
+    if (__DEV__) console.log('requestLocationPermission: Starting permission check...');
+
     if (Platform.OS === 'android') {
       try {
-        // Check if already granted
         const checkResult = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
-        
-        console.log('requestLocationPermission: Android check result:', checkResult);
-        
+
         if (checkResult) {
-          console.log('requestLocationPermission: Permission already granted');
+          if (__DEV__) console.log('requestLocationPermission: Permission already granted');
           setHasLocationPermission(true);
           return true;
         }
 
-        console.log('requestLocationPermission: Requesting permission...');
-        // Request permission
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
@@ -284,14 +411,13 @@ const DriverMapView = () => {
             buttonPositive: 'Enable Location',
           },
         );
-        
-        console.log('requestLocationPermission: Permission request result:', granted);
-        
+
         const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
         setHasLocationPermission(isGranted);
-        
+        if (__DEV__) console.log('requestLocationPermission: Permission result:', isGranted);
+
         if (!isGranted) {
-          console.log('requestLocationPermission: Permission denied - showing alert');
+          if (__DEV__) console.log('requestLocationPermission: Permission denied - showing alert');
           // Permission denied - show alert and keep requesting
           Alert.alert(
             'Location Permission Required',
@@ -320,31 +446,27 @@ const DriverMapView = () => {
         
         return isGranted;
       } catch (err) {
-        console.warn('Location permission error:', err);
+        if (__DEV__) console.warn('Location permission error:', err);
         setHasLocationPermission(false);
         return false;
       }
     }
-    
-    // iOS - check permission status
-    console.log('requestLocationPermission: iOS - requesting authorization');
-    
-    // Request authorization first
+
     Geolocation.requestAuthorization();
-    
-    // Check iOS permission status by trying to get current position
+
     return new Promise((resolve) => {
       Geolocation.getCurrentPosition(
         () => {
-          console.log('requestLocationPermission: iOS permission granted');
           setHasLocationPermission(true);
+          if (__DEV__) console.log('requestLocationPermission: iOS permission granted');
           resolve(true);
         },
         error => {
-          console.log('requestLocationPermission: iOS permission denied', error);
+          if (__DEV__) console.log('requestLocationPermission: iOS permission denied', error);
           if (error.code === 1) {
             // PERMISSION_DENIED
             setHasLocationPermission(false);
+            if (__DEV__) console.log('requestLocationPermission: iOS permission denied');
             Alert.alert(
               'Location Permission Required',
               'This app cannot function without location permission. Please enable location access in Settings to continue using the app.',
@@ -370,6 +492,7 @@ const DriverMapView = () => {
           } else {
             // Other error - assume permission granted but location unavailable
             setHasLocationPermission(true);
+            if (__DEV__) console.log('requestLocationPermission: iOS non-critical error, allowing');
             resolve(true);
           }
         },
@@ -380,171 +503,134 @@ const DriverMapView = () => {
 
   // Start GPS location tracking (MANDATORY - permission required)
   const startLocationTracking = useCallback(() => {
-    console.log('🚀 startLocationTracking called');
-    console.log('   vehicleId:', vehicleId);
-    
     if (!vehicleId) {
-      console.warn('❌ Cannot start location tracking: vehicleId is missing');
+      if (__DEV__) console.warn('❌ Cannot start location tracking: vehicleId is missing');
       return;
     }
+    // Avoid starting multiple watchers
+    if (watchIdRef.current !== null) {
+      if (__DEV__) console.log('📍 watchPosition already active, id:', watchIdRef.current);
+      return;
+    }
+    // Avoid parallel starts (can happen in dev / StrictMode / rapid re-renders)
+    if (isStartingTrackingRef.current) {
+      if (__DEV__) console.log('📍 startLocationTracking already in progress...');
+      return;
+    }
+    isStartingTrackingRef.current = true;
 
-    console.log('📍 Requesting location permission for tracking...');
-    requestLocationPermission().then(hasPermission => {
-      console.log('   Permission result:', hasPermission);
-      
+    const permissionPromise =
+      hasLocationPermission === true
+        ? Promise.resolve(true)
+        : requestLocationPermission().catch(() => false);
+
+    permissionPromise.then(hasPermission => {
+      isStartingTrackingRef.current = false;
       if (!hasPermission) {
-        // Permission denied - keep requesting until granted
-        console.warn('❌ Location permission denied - cannot start tracking');
-        // Will retry via Alert button
+        if (__DEV__) console.warn('❌ Location permission denied - cannot start tracking');
         return;
       }
-      
-      console.log('✅ Permission granted - proceeding with location tracking');
 
-      // Configure Geolocation
-      console.log('⚙️ Configuring Geolocation...');
       Geolocation.setRNConfiguration({
         skipPermissionRequests: false,
         authorizationLevel: 'whenInUse',
       });
 
-      // First check if location service is enabled by trying to get current position
-      console.log('🔍 Checking if location service is enabled...');
-      Geolocation.getCurrentPosition(
+      // Start watchPosition immediately.
+      // Do NOT depend on getCurrentPosition success (it can TIMEOUT while GPS is ON).
+      if (__DEV__) console.log('📍 Starting watchPosition for live GPS');
+      setIsLocationServiceEnabled(true);
+      watchIdRef.current = Geolocation.watchPosition(
         position => {
-          console.log('✅ Location service is enabled, coordinates:', position.coords);
+          const rawCoords = position.coords;
+          // Use mock location in dev if enabled, otherwise real GPS
+          const finalLat = USE_MOCK_LOCATION ? MOCK_LOCATION.latitude : rawCoords.latitude;
+          const finalLng = USE_MOCK_LOCATION ? MOCK_LOCATION.longitude : rawCoords.longitude;
+          const finalSpeed = USE_MOCK_LOCATION ? MOCK_LOCATION.speed : rawCoords.speed;
+          const finalHeading = USE_MOCK_LOCATION ? MOCK_LOCATION.heading : rawCoords.heading;
+          const timestamp = new Date().toISOString();
           setIsLocationServiceEnabled(true);
-          
-          // Start watching position
-          console.log('📍 Starting GPS location tracking (watchPosition)...');
-          console.log('   vehicleId:', vehicleId);
-          watchIdRef.current = Geolocation.watchPosition(
-            position => {
-              const {latitude, longitude, speed, heading, accuracy, altitude} = position.coords;
-              const timestamp = new Date().toISOString();
-              
-              console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-              console.log('📍 GPS LOCATION FETCHED:');
-              console.log('   Latitude:', latitude);
-              console.log('   Longitude:', longitude);
-              console.log('   Speed:', speed ?? 'N/A', 'm/s');
-              console.log('   Heading:', heading ?? 'N/A', 'degrees');
-              console.log('   Accuracy:', accuracy ?? 'N/A', 'meters');
-              console.log('   Altitude:', altitude ?? 'N/A', 'meters');
-              console.log('   Timestamp:', timestamp);
-              console.log('   Vehicle ID:', vehicleId);
-              console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-              
-              // Update local state
-              setCurrentGpsLocation({
-                latitude,
-                longitude,
-                speed: speed ?? undefined,
-                heading: heading ?? undefined,
-              });
+          if (!gpsFixReceivedRef.current) {
+            gpsFixReceivedRef.current = true;
+            if (gpsNoFixTimerRef.current) {
+              clearTimeout(gpsNoFixTimerRef.current);
+              gpsNoFixTimerRef.current = null;
+            }
+            if (__DEV__) {
+              console.log('📡 GPS FIX RECEIVED:', {latitude: finalLat, longitude: finalLng, mock: USE_MOCK_LOCATION});
+            }
+          }
 
-              // Send to server
-              console.log('📤 Sending location to server...');
-              dispatch(
-                updateVehicleLocation({
-                  vehicleId,
-                  latitude,
-                  longitude,
-                  speed: speed ?? undefined,
-                  heading: heading ?? undefined,
-                  timestamp,
-                }),
-              ).then((result: any) => {
+          // Update local state every time (smooth map pin)
+          setCurrentGpsLocation({
+            latitude: finalLat,
+            longitude: finalLng,
+            speed: finalSpeed ?? undefined,
+            heading: finalHeading ?? undefined,
+          });
+
+          // Send to server only when throttled (battery + network)
+          const now = Date.now();
+          if (now - lastLocationSendRef.current >= LOCATION_SEND_INTERVAL_MS) {
+            lastLocationSendRef.current = now;
+            dispatch(
+              updateVehicleLocation({
+                vehicleId,
+                latitude: finalLat,
+                longitude: finalLng,
+                speed: finalSpeed ?? undefined,
+                heading: finalHeading ?? undefined,
+                timestamp,
+                routeId: effectiveRouteId ?? undefined,
+                tripId: effectiveTripId ?? undefined,
+              }),
+            ).then((result: any) => {
+              if (__DEV__) {
                 if (result.type === 'driver/updateVehicleLocation/fulfilled') {
-                  console.log('✅ Location sent to server successfully');
-                  console.log('   Response:', result.payload);
+                  console.log('✅ Location sent to server');
                 } else if (result.type === 'driver/updateVehicleLocation/rejected') {
-                  console.error('❌ Failed to send location to server');
-                  console.error('   Error:', result.payload || result.error);
+                  console.warn('❌ Send location failed:', result.payload || result.error);
                 }
-              });
-            },
-            error => {
-              console.warn('GPS location error:', error);
-              // If permission error, request again
-              if (error.code === 1) {
-                // PERMISSION_DENIED
-                console.warn('Location permission denied during tracking');
-                setHasLocationPermission(false);
-                Alert.alert(
-                  'Location Permission Revoked',
-                  'Location permission has been revoked. Please enable it again to continue tracking.',
-                  [
-                    {
-                      text: 'Enable Permission',
-                      onPress: () => {
-                        requestLocationPermission();
-                      },
-                    },
-                    {
-                      text: 'OK',
-                      style: 'cancel',
-                    },
-                  ],
-                  {cancelable: false},
-                );
-              } else if (error.code === 2) {
-                // POSITION_UNAVAILABLE - Location service is OFF
-                console.warn('⚠️ Location service turned OFF during tracking!');
-                setIsLocationServiceEnabled(false);
-                Alert.alert(
-                  '⚠️ Location Service Turned OFF',
-                  'Your Location/GPS service has been turned OFF. Please enable it immediately to continue tracking the vehicle.',
-                  [
-                    {
-                      text: 'Open Settings',
-                      onPress: () => {
-                        if (Platform.OS === 'android') {
-                          Linking.openURL('android.settings.LOCATION_SOURCE_SETTINGS').catch(() => {
-                            Linking.openSettings();
-                          });
-                        } else {
-                          Linking.openSettings();
-                        }
-                      },
-                    },
-                    {
-                      text: 'OK',
-                      style: 'cancel',
-                    },
-                  ],
-                  {cancelable: false},
-                );
-              } else if (error.code === 3) {
-                // TIMEOUT - Location accuracy might be low
-                console.warn('Location timeout - Location Accuracy might be off');
-                // Don't show overlay for timeout - just log it
-                // setLocationAccuracyIssue(true); // Removed - not needed
               }
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 15000,
-              maximumAge: 10000,
-              distanceFilter: 10, // Update every 10 meters
-            },
-          );
+            });
+          }
         },
         error => {
-          console.warn('Location service check failed:', error);
-          if (error.code === 2) {
-            // POSITION_UNAVAILABLE - Location service is off
-            console.warn('Location service is OFF - GPS disabled');
-            setIsLocationServiceEnabled(false);
+          if (__DEV__) {
+            console.warn('GPS location error:', {
+              code: (error as any)?.code,
+              message: (error as any)?.message,
+              details: error,
+            });
+          }
+          if (error.code === 1) {
+            if (__DEV__) console.warn('Location permission denied during tracking');
+            setHasLocationPermission(false);
             Alert.alert(
-              'Location Service Disabled',
-              'Your phone\'s Location/GPS service is currently OFF. Please enable it in Settings to track the vehicle.',
+              'Location Permission Revoked',
+              'Location permission has been revoked. Please enable it again to continue tracking.',
               [
                 {
-                  text: 'Open Location Settings',
+                  text: 'Enable Permission',
+                  onPress: () => {
+                    requestLocationPermission();
+                  },
+                },
+                {text: 'OK', style: 'cancel'},
+              ],
+              {cancelable: false},
+            );
+          } else if (error.code === 2) {
+            if (__DEV__) console.warn('⚠️ Location service turned OFF during tracking!');
+            setIsLocationServiceEnabled(false);
+            Alert.alert(
+              '⚠️ Location Service Turned OFF',
+              'Your Location/GPS service has been turned OFF. Please enable it immediately to continue tracking the vehicle.',
+              [
+                {
+                  text: 'Open Settings',
                   onPress: () => {
                     if (Platform.OS === 'android') {
-                      // Open location settings on Android
                       Linking.openURL('android.settings.LOCATION_SOURCE_SETTINGS').catch(() => {
                         Linking.openSettings();
                       });
@@ -553,138 +639,301 @@ const DriverMapView = () => {
                     }
                   },
                 },
-                {
-                  text: 'OK',
-                  style: 'cancel',
-                },
+                {text: 'OK', style: 'cancel'},
               ],
               {cancelable: false},
             );
           } else if (error.code === 3) {
-            // TIMEOUT - Location accuracy might be low
-            console.warn('Location timeout - Location Accuracy might be off');
-            setLocationAccuracyIssue(true);
-          } else if (error.code === 1) {
-            // PERMISSION_DENIED
-            setHasLocationPermission(false);
-            requestLocationPermission();
+            // TIMEOUT: often happens on first fix even when GPS is ON.
+            // Try a one-time network-based location to seed current position.
+            if (!gpsFixReceivedRef.current && !gpsFallbackTriedRef.current) {
+              gpsFallbackTriedRef.current = true;
+              Geolocation.getCurrentPosition(
+                pos => {
+                  const {latitude: lat, longitude: lng, speed: sp, heading: hd} = pos.coords;
+                  gpsFixReceivedRef.current = true;
+                  setIsLocationServiceEnabled(true);
+                  if (gpsNoFixTimerRef.current) {
+                    clearTimeout(gpsNoFixTimerRef.current);
+                    gpsNoFixTimerRef.current = null;
+                  }
+                  if (__DEV__) {
+                    console.log('📡 GPS FALLBACK FIX (network):', {latitude: lat, longitude: lng});
+                  }
+                  setCurrentGpsLocation({
+                    latitude: lat,
+                    longitude: lng,
+                    speed: sp ?? undefined,
+                    heading: hd ?? undefined,
+                  });
+                },
+                err => {
+                  if (__DEV__) {
+                    console.warn('GPS fallback getCurrentPosition failed:', {
+                      code: (err as any)?.code,
+                      message: (err as any)?.message,
+                      details: err,
+                    });
+                  }
+                },
+                {enableHighAccuracy: false, timeout: 15000, maximumAge: 0},
+              );
+            }
           }
         },
         {
-          enableHighAccuracy: false,
-          timeout: 5000,
+          enableHighAccuracy: true,
+          timeout: 20000,
           maximumAge: 0,
+          distanceFilter: 0, // Ensure we get an initial fix even if driver isn't moving
         },
       );
+
+      if (__DEV__) console.log('📍 watchPosition started, id:', watchIdRef.current);
+      if (!gpsNoFixTimerRef.current) {
+        gpsNoFixTimerRef.current = setTimeout(() => {
+          if (__DEV__ && !gpsFixReceivedRef.current) {
+            console.warn(
+              '⚠️ No GPS fix yet (10s). Waiting… If this is an emulator, set emulator location; if real device, try open-sky + Precise location ON.',
+            );
+          }
+        }, 10000);
+      }
+
+      // Warm up + fallback polling: if watchPosition doesn't emit, poll every 15s
+      const pollOnce = () => {
+        // Try fast "cached / network" first to get *something* quickly.
+        Geolocation.getCurrentPosition(
+          pos => {
+            const rawLat = pos.coords.latitude;
+            const rawLng = pos.coords.longitude;
+            const rawSp = pos.coords.speed;
+            const rawHd = pos.coords.heading;
+            // Use mock location in dev if enabled
+            const lat = USE_MOCK_LOCATION ? MOCK_LOCATION.latitude : rawLat;
+            const lng = USE_MOCK_LOCATION ? MOCK_LOCATION.longitude : rawLng;
+            const sp = USE_MOCK_LOCATION ? MOCK_LOCATION.speed : rawSp;
+            const hd = USE_MOCK_LOCATION ? MOCK_LOCATION.heading : rawHd;
+            gpsFixReceivedRef.current = true;
+            setIsLocationServiceEnabled(true);
+            if (__DEV__) {
+              console.log('📡 GPS POLL FIX:', {latitude: lat, longitude: lng, mock: USE_MOCK_LOCATION});
+            }
+            setCurrentGpsLocation({
+              latitude: lat,
+              longitude: lng,
+              speed: sp ?? undefined,
+              heading: hd ?? undefined,
+            });
+
+            // Also send to server from poll (watchPosition may not fire)
+            const pollTimestamp = new Date().toISOString();
+            const pollNow = Date.now();
+            if (pollNow - lastLocationSendRef.current >= LOCATION_SEND_INTERVAL_MS) {
+              lastLocationSendRef.current = pollNow;
+              dispatch(
+                updateVehicleLocation({
+                  vehicleId,
+                  latitude: lat,
+                  longitude: lng,
+                  speed: sp ?? undefined,
+                  heading: hd ?? undefined,
+                  timestamp: pollTimestamp,
+                  routeId: effectiveRouteId ?? undefined,
+                  tripId: effectiveTripId ?? undefined,
+                }),
+              ).then((result: any) => {
+                if (__DEV__) {
+                  if (result.type === 'driver/updateVehicleLocation/fulfilled') {
+                    console.log('✅ Location sent to server (from poll)');
+                  } else if (result.type === 'driver/updateVehicleLocation/rejected') {
+                    console.warn('❌ Send location failed (from poll):', result.payload || result.error);
+                  }
+                }
+              });
+            }
+
+            // Don't stop polling — keep sending until watchPosition takes over
+          },
+          error => {
+            if (__DEV__) {
+              console.warn('📡 GPS POLL ERROR:', {
+                code: (error as any)?.code,
+                message: (error as any)?.message,
+              });
+            }
+            if (error?.code === 2) {
+              setIsLocationServiceEnabled(false);
+            }
+          },
+          // Low accuracy + allow cached last-known location (often returns instantly)
+          {enableHighAccuracy: false, timeout: 12000, maximumAge: 60000},
+        );
+      };
+      pollOnce();
+      // Keep polling every 15s to continuously send location to server
+      if (!gpsPollIntervalRef.current) {
+        gpsPollIntervalRef.current = setInterval(pollOnce, 15000);
+      }
     });
-  }, [vehicleId, dispatch]);
+  }, [vehicleId, dispatch, requestLocationPermission, hasLocationPermission, effectiveRouteId, effectiveTripId]);
 
   // Stop GPS location tracking
   const stopLocationTracking = useCallback(() => {
     if (watchIdRef.current !== null) {
+      if (__DEV__) console.log('🛑 Stopping watchPosition, id:', watchIdRef.current);
       Geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
+    }
+    if (gpsPollIntervalRef.current) {
+      clearInterval(gpsPollIntervalRef.current);
+      gpsPollIntervalRef.current = null;
+    }
+    if (gpsNoFixTimerRef.current) {
+      clearTimeout(gpsNoFixTimerRef.current);
+      gpsNoFixTimerRef.current = null;
     }
     setCurrentGpsLocation(null);
   }, []);
 
   // Check location permission on component mount (MANDATORY)
   useEffect(() => {
-    console.log('DriverMapView: Component mounted, role:', role);
-    if (role === 'Driver') {
-      console.log('DriverMapView: Driver role detected - Checking location permission...');
-      // Small delay to ensure component is fully mounted
-      const timer = setTimeout(() => {
-        requestLocationPermission().then(hasPermission => {
-          console.log('DriverMapView: Location permission result:', hasPermission);
-          // Force state update after permission check
-          if (hasPermission) {
-            setHasLocationPermission(true);
-            console.log('DriverMapView: State updated to true');
-          } else {
-            setHasLocationPermission(false);
-            console.log('DriverMapView: State updated to false - overlay should show');
-          }
-        });
-      }, 500);
-      
-      return () => clearTimeout(timer);
-    } else {
-      console.log('DriverMapView: Not a driver role, skipping permission check');
-    }
+    if (role !== 'Driver') return;
+    const timer = setTimeout(() => {
+      requestLocationPermission().then(hasPermission => {
+        setHasLocationPermission(hasPermission);
+      });
+    }, 500);
+    return () => clearTimeout(timer);
   }, [role, requestLocationPermission]);
 
   // Check location service when permission is granted
+  // Only treat POSITION_UNAVAILABLE (2) as GPS off; TIMEOUT (3) = slow fix, don't block
   useEffect(() => {
-    if (role === 'Driver' && hasLocationPermission === true && vehicleId) {
-      console.log('Permission granted - checking location service...');
-      // Check if location service is enabled
-      Geolocation.getCurrentPosition(
-        position => {
-          console.log('Location service is ENABLED:', position.coords);
-          setIsLocationServiceEnabled(true);
-        },
-        error => {
-          console.warn('Location service check error:', error);
-          if (error.code === 2 || error.code === 3) {
-            // POSITION_UNAVAILABLE or TIMEOUT - Location service is off
-            console.warn('Location service is OFF - GPS disabled');
-            setIsLocationServiceEnabled(false);
+    if (role !== 'Driver' || hasLocationPermission !== true) return;
+    Geolocation.getCurrentPosition(
+      position => {
+        setIsLocationServiceEnabled(true);
+      },
+      error => {
+        if (error?.code === 2) {
+          if (__DEV__) console.warn('Location service check error (GPS off):', error);
+          setIsLocationServiceEnabled(false);
+        } else {
+          // Timeout (3) or other: assume GPS on, allow (first fix can be slow)
+          if (__DEV__ && error?.code === 3) {
+            console.log('Location taking time (timeout) – allowing, watchPosition will get fix.');
           }
+          setIsLocationServiceEnabled(true);
+        }
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 12000,
+        maximumAge: 5000,
+      },
+    );
+  }, [role, hasLocationPermission]);
+
+  const ensureDriverCanStartTrip = useCallback(async (): Promise<boolean> => {
+    if (role !== 'Driver') return false;
+
+    const hasPermission =
+      hasLocationPermission === true
+        ? true
+        : await requestLocationPermission().catch(() => false);
+
+    if (!hasPermission) {
+      setHasLocationPermission(false);
+      return false;
+    }
+
+    // Check if location service (GPS) is enabled
+    const serviceEnabled = await new Promise<boolean>(resolve => {
+      Geolocation.getCurrentPosition(
+        () => resolve(true),
+        error => {
+          if (__DEV__) console.warn('StartTrip location service check error:', error);
+          // Only POSITION_UNAVAILABLE (2) = GPS really off; TIMEOUT (3) = slow fix, allow
+          if (error?.code === 2) {
+            resolve(false);
+            return;
+          }
+          resolve(true);
         },
-        {
-          enableHighAccuracy: false,
-          timeout: 3000,
-          maximumAge: 0,
-        },
+        {enableHighAccuracy: false, timeout: 8000, maximumAge: 5000},
       );
-    }
-  }, [role, hasLocationPermission, vehicleId]);
+    });
 
-  // Start location tracking as soon as vehicleId is available AND location service is enabled
+    setIsLocationServiceEnabled(serviceEnabled);
+    if (!serviceEnabled) {
+      Alert.alert(
+        'Location Service is OFF',
+        'Driver cannot go online or start trip until Location/GPS service is ON.',
+        [
+          {
+            text: 'Open Settings',
+            onPress: () => {
+              if (Platform.OS === 'android') {
+                Linking.openURL('android.settings.LOCATION_SOURCE_SETTINGS').catch(() => {
+                  Linking.openSettings();
+                });
+              } else {
+                Linking.openSettings();
+              }
+            },
+          },
+          {text: 'Cancel', style: 'cancel'},
+        ],
+        {cancelable: false},
+      );
+      return false;
+    }
+
+    if (!vehicleId) {
+      Alert.alert(
+        'Vehicle not ready',
+        'Vehicle ID not found yet. Please wait a moment and try again.',
+        [{text: 'OK'}],
+      );
+      return false;
+    }
+
+    return true;
+  }, [role, hasLocationPermission, requestLocationPermission, vehicleId]);
+
+  const handleStartTripPress = useCallback(async () => {
+    const ok = await ensureDriverCanStartTrip();
+    if (!ok) return;
+    setTripStarted(true);
+    openSheet();
+  }, [ensureDriverCanStartTrip, openSheet]);
+
+  // Start location tracking as soon as we have permission + vehicleId.
+  // Do not block on isLocationServiceEnabled (getCurrentPosition may TIMEOUT even when GPS is ON).
   useEffect(() => {
-    console.log('🔍 Checking location tracking conditions:');
-    console.log('   vehicleId:', vehicleId);
-    console.log('   role:', role);
-    console.log('   hasLocationPermission:', hasLocationPermission);
-    console.log('   isLocationServiceEnabled:', isLocationServiceEnabled);
-    
-    if (vehicleId && role === 'Driver' && hasLocationPermission === true && isLocationServiceEnabled === true) {
-      console.log('✅ All conditions met - starting location tracking');
+    if (vehicleId && role === 'Driver' && hasLocationPermission === true) {
       startLocationTracking();
-    } else {
-      console.log('❌ Conditions not met - waiting for:');
-      if (!vehicleId) console.log('   - vehicleId missing');
-      if (role !== 'Driver') console.log('   - role is not Driver');
-      if (hasLocationPermission !== true) console.log('   - location permission not granted');
-      if (isLocationServiceEnabled !== true) console.log('   - location service not enabled');
     }
-
     return () => {
       stopLocationTracking();
     };
-  }, [vehicleId, role, hasLocationPermission, isLocationServiceEnabled, startLocationTracking, stopLocationTracking]);
+  }, [vehicleId, role, hasLocationPermission, startLocationTracking, stopLocationTracking]);
 
   // Continuous location service monitoring (app chalne ke dauran bhi check karega)
   useEffect(() => {
     if (role !== 'Driver' || hasLocationPermission !== true) return;
 
     const checkLocationService = () => {
-      console.log('Checking location service status...');
       Geolocation.getCurrentPosition(
         position => {
-          console.log('✅ Location service is ENABLED');
           setIsLocationServiceEnabled(true);
           setLocationAccuracyIssue(false);
         },
         error => {
-          console.warn('❌ Location service check failed:', error);
-          if (error.code === 2 || error.code === 3) {
-            // Location service is OFF
-            console.warn('⚠️ Location service is OFF - showing alert');
+          if (error?.code === 2) {
+            if (__DEV__) console.warn('Location service check failed (GPS off):', error);
             setIsLocationServiceEnabled(false);
-            
-            // Show alert only if tracking is active
             if (watchIdRef.current !== null) {
               Alert.alert(
                 '⚠️ Location Service Turned OFF',
@@ -714,13 +963,12 @@ const DriverMapView = () => {
         },
         {
           enableHighAccuracy: false,
-          timeout: 3000,
-          maximumAge: 0,
+          timeout: 8000,
+          maximumAge: 5000,
         },
       );
     };
 
-    // Check immediately
     checkLocationService();
 
     // Continuous monitoring - har 10 seconds check karega
@@ -731,10 +979,8 @@ const DriverMapView = () => {
       }
     }, 10000); // Check every 10 seconds
 
-    // Also check when app comes to foreground
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
-        console.log('App came to foreground - checking location service');
         checkLocationService();
       }
     });
@@ -769,7 +1015,7 @@ const DriverMapView = () => {
             styles.bottomContainers,
             {bottom: hp(20), justifyContent: 'center'},
           ]}>
-          <Image source={require('../../assets/images/mappic.png')} />
+         
         </Pressable>
 
         <View style={[styles.absoluteContainer]}>
@@ -816,10 +1062,7 @@ const DriverMapView = () => {
           {role === 'Driver' && !isFromMapView && !tripStarted && (
             <AppButton
               title="Start Trip"
-              onPress={() => {
-                setTripStarted(true);
-                openSheet();
-              }}
+              onPress={handleStartTripPress}
               style={{width: '100%', marginTop: hp(2)}}
             />
           )}
@@ -920,10 +1163,7 @@ const DriverMapView = () => {
             </Text>
             <AppButton
               title="Enable Location Permission"
-              onPress={() => {
-                console.log('Overlay: Enable button pressed');
-                requestLocationPermission();
-              }}
+              onPress={() => requestLocationPermission()}
               style={{width: '80%', marginTop: hp(2)}}
             />
             <Text style={styles.permissionNote}>
@@ -957,7 +1197,6 @@ const DriverMapView = () => {
             <AppButton
               title="Open Location Settings"
               onPress={() => {
-                console.log('Overlay: Open location settings pressed');
                 if (Platform.OS === 'android') {
                   Linking.openURL('android.settings.LOCATION_SOURCE_SETTINGS').catch(() => {
                     Linking.openSettings();

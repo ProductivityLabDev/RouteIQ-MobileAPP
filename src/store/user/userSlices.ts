@@ -3,6 +3,7 @@ import {Platform} from 'react-native';
 import {Buffer} from 'buffer';
 import {childDropDown} from '../../utils/DummyData';
 import {showErrorToast, showSuccessToast} from '../../utils/toast';
+import {getApiBaseUrl} from '../../utils/apiConfig';
 
 type LoginPayload = {
   email: string;
@@ -33,6 +34,9 @@ type JwtPayload = {
   role?: string;
   roleCode?: string;
   employeeId?: number | string;
+  vehicleId?: number | string;
+  routeId?: number | string;
+  tripId?: number | string;
 };
 
 const decodeJwt = (token: string): JwtPayload | null => {
@@ -55,14 +59,6 @@ const decodeJwt = (token: string): JwtPayload | null => {
   } catch (e) {
     return null;
   }
-};
-
-const getApiBaseUrl = () => {
-  // For physical device dev, point to your machine LAN IP
-  const manualHost = 'http://192.168.18.36:3000';
-  const deviceHost =
-    Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-  return manualHost?.trim() || deviceHost;
 };
 
 export const fetchParentStudents = createAsyncThunk(
@@ -273,6 +269,7 @@ export const loginUser = createAsyncThunk(
         }
 
         const decoded = decodeJwt(token);
+        const decodedAny = (decoded ?? {}) as any;
         const roleCodeRaw =
           decoded?.roleCode ||
           decoded?.role ||
@@ -296,6 +293,33 @@ export const loginUser = createAsyncThunk(
             ? (decoded?.employeeId ?? decoded?.sub ?? null)
             : null;
 
+        const vehicleId =
+          mappedRole === 'Driver'
+            ? (decodedAny?.vehicleId ??
+              decodedAny?.VehicleId ??
+              decodedAny?.vehicle_id ??
+              decodedAny?.VehicleID ??
+              null)
+            : null;
+
+        const routeId =
+          mappedRole === 'Driver'
+            ? (decodedAny?.routeId ??
+              decodedAny?.RouteId ??
+              decodedAny?.route_id ??
+              decodedAny?.RouteID ??
+              null)
+            : null;
+
+        const tripId =
+          mappedRole === 'Driver'
+            ? (decodedAny?.tripId ??
+              decodedAny?.TripId ??
+              decodedAny?.trip_id ??
+              decodedAny?.TripID ??
+              null)
+            : null;
+
         showSuccessToast('Logged in', 'Welcome back');
         return {
           token,
@@ -303,6 +327,9 @@ export const loginUser = createAsyncThunk(
           roleCode: roleCode || 'PARENT',
           userId: decoded?.sub ?? data?.id ?? null,
           employeeId,
+          vehicleId,
+          routeId,
+          tripId,
         };
       } catch (e) {
         return rejectWithValue(
@@ -455,6 +482,9 @@ const initialState = {
   authError: null as string | null,
   userId: null as number | string | null,
   employeeId: null as number | string | null,
+  vehicleId: null as number | string | null,
+  routeId: null as number | string | null,
+  tripId: null as number | string | null,
   roleCode: '',
   resetStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
   resetError: null as string | null,
@@ -539,10 +569,16 @@ const userSlice = createSlice({
         state.roleCode = payload.roleCode || '';
         state.userId = payload.userId ?? null;
         state.employeeId = payload.employeeId ?? null;
+        state.vehicleId = payload.vehicleId ?? null;
+        state.routeId = payload.routeId ?? null;
+        state.tripId = payload.tripId ?? null;
         state.logout = false;
         if (__DEV__) {
           console.log('AUTH_TOKEN', payload.token);
           console.log('AUTH_EMPLOYEE_ID', payload.employeeId);
+          console.log('AUTH_VEHICLE_ID', payload.vehicleId);
+          console.log('AUTH_ROUTE_ID', payload.routeId);
+          console.log('AUTH_TRIP_ID', payload.tripId);
           console.log('AUTH_ROLE', payload.role, payload.roleCode);
         }
       })

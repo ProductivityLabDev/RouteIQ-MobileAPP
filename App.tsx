@@ -9,6 +9,10 @@ import {MenuProvider} from 'react-native-popup-menu';
 import Toast from 'react-native-toast-message';
 import {toastConfig} from './src/utils/toastConfig';
 import {hp} from './src/utils/constants';
+import {setApiFetchStoreRef} from './src/utils/apiFetch';
+
+// Register store for apiFetch 401 auto-logout
+setApiFetchStoreRef(store);
 
 const App = () => {
   return (

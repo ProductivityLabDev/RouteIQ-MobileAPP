@@ -25,6 +25,7 @@ import {size} from '../../utils/responsiveFonts';
 import {useAppSelector, useAppDispatch} from '../../store/hooks';
 import {setSelectedChild, fetchParentStudents} from '../../store/user/userSlices';
 import {showSuccessToast, showErrorToast} from '../../utils/toast';
+import {getApiBaseUrl} from '../../utils/apiConfig';
 
 export default function ChildProfile() {
   const navigation = useNavigation();
@@ -170,13 +171,6 @@ export default function ChildProfile() {
   };
 
   const dispatch = useAppDispatch();
-
-  const getApiBaseUrl = () => {
-    const manualHost = 'http://192.168.18.36:3000';
-    const deviceHost =
-      Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-    return manualHost?.trim() || deviceHost;
-  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 

@@ -66,7 +66,9 @@ export interface AppButtonProps {
 
 export interface AppDocProps {
   title: string;
-  containerStyle: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+  onPress?: () => void;
+  showAttachment?: boolean;
 }
 
 export interface TripCardProps {
@@ -98,14 +100,20 @@ export interface CleaningCardProps {
 
 export interface UploadDocProps {
   title: string;
-  containerStyle: StyleProp<ViewStyle>;
-  textStyle: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  onPress?: () => void;
+  selectedFileName?: string | null;
 }
 
 export interface StudentCardProps {
   position?: string;
   item: any;
   index?: number;
+  onAttendanceChange?: (
+    studentId: number | string,
+    status: 'present' | 'absent',
+  ) => void;
 }
 
 export interface DriverShiftInfoProps {
@@ -138,6 +146,8 @@ export interface DriverAllChatsProps {
 export interface EmergencyContactProps {
   item: any;
   index: number;
+  onSave?: (id: number | string, body: { contactName: string; relationship: string; phoneNumber: string }) => void;
+  onDelete?: (id: number | string) => void;
 }
 
 export interface CleaningCollapsableCardProps {
