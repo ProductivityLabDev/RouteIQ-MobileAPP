@@ -3,6 +3,7 @@ import {Platform} from 'react-native';
 import {Buffer} from 'buffer';
 import {childDropDown} from '../../utils/DummyData';
 import {showErrorToast, showSuccessToast} from '../../utils/toast';
+import {getApiBaseUrl} from '../../utils/apiConfig';
 
 type LoginPayload = {
   email: string;
@@ -58,14 +59,6 @@ const decodeJwt = (token: string): JwtPayload | null => {
   } catch (e) {
     return null;
   }
-};
-
-const getApiBaseUrl = () => {
-  // For physical device dev, point to your machine LAN IP
-  const manualHost = 'http://192.168.18.36:3000';
-  const deviceHost =
-    Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-  return manualHost?.trim() || deviceHost;
 };
 
 export const fetchParentStudents = createAsyncThunk(

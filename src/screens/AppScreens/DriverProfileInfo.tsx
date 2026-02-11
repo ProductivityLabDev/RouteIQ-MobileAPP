@@ -25,6 +25,11 @@ const DriverProfileInfo = () => {
     dispatch(fetchDriverDetails());
   }, [dispatch, role]);
 
+  React.useEffect(() => {
+    if (!__DEV__) return;
+    console.log('👤 DriverProfileInfo driverDetails:', driverDetails);
+  }, [driverDetails]);
+
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}

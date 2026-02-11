@@ -10,7 +10,8 @@ import {fontSize, size} from '../../utils/responsiveFonts';
 import AppInput from '../../components/AppInput';
 import AppButton from '../../components/AppButton';
 import {hp} from '../../utils/constants';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import {mapCustomStyle} from '../../utils/mapConfig';
 import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
@@ -22,6 +23,7 @@ import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {getVehicleLocation, updateVehicleLocation, fetchDriverDetails, fetchRoutesByDate, startTrip, endTrip} from '../../store/driver/driverSlices';
 import Geolocation from '@react-native-community/geolocation';
 import {Platform, PermissionsAndroid, Alert, Linking, AppState} from 'react-native';
+import {googleMapsApiKey} from '../../utils/mapConfig';
 
 const DriverMapView = () => {
   const navigation = useNavigation();
@@ -91,6 +93,7 @@ const DriverMapView = () => {
   const effectiveTripId = activeTripId ?? tokenTripId;
   const driverDetails = useAppSelector(state => state.driverSlices.driverDetails);
   const vehicleLocation = useAppSelector(state => state.driverSlices.vehicleLocation);
+  const routesByDate = useAppSelector(state => (state as any).driverSlices.routesByDate);
 
   const snapPoints = useMemo(
     () => [keyboardHeight ? '30%' : '23%', '10%'],
@@ -103,15 +106,58 @@ const DriverMapView = () => {
     bottomSheetModalRef.current?.close();
   }, []);
 
-  const startLocation = {
+  const defaultStartLocation = {
     latitude: 37.7749,
     longitude: -122.4454,
   };
 
-  const endLocation = {
+  const defaultEndLocation = {
     latitude: 37.7793,
     longitude: -122.426,
   };
+
+  const routeCoordinates = useMemo(() => {
+    const morning = Array.isArray(routesByDate?.morning) ? routesByDate.morning : [];
+    const evening = Array.isArray(routesByDate?.evening) ? routesByDate.evening : [];
+    const allRoutes = [...morning, ...evening];
+
+    const targetRoute =
+      allRoutes.find((r: any) => Number(r?.RouteId) === Number(effectiveRouteId)) ??
+      allRoutes.find(
+        (r: any) =>
+          r?.PickupLatitude != null &&
+          r?.PickupLongitude != null &&
+          r?.DropoffLatitude != null &&
+          r?.DropoffLongitude != null,
+      ) ??
+      null;
+
+    const pickupLat = targetRoute?.PickupLatitude != null ? Number(targetRoute.PickupLatitude) : null;
+    const pickupLng = targetRoute?.PickupLongitude != null ? Number(targetRoute.PickupLongitude) : null;
+    const dropoffLat =
+      targetRoute?.DropoffLatitude != null ? Number(targetRoute.DropoffLatitude) : null;
+    const dropoffLng =
+      targetRoute?.DropoffLongitude != null ? Number(targetRoute.DropoffLongitude) : null;
+
+    const hasPickup =
+      pickupLat != null && pickupLng != null && Number.isFinite(pickupLat) && Number.isFinite(pickupLng);
+    const hasDropoff =
+      dropoffLat != null &&
+      dropoffLng != null &&
+      Number.isFinite(dropoffLat) &&
+      Number.isFinite(dropoffLng);
+
+    return {
+      pickup: hasPickup ? {latitude: pickupLat, longitude: pickupLng} : null,
+      dropoff: hasDropoff ? {latitude: dropoffLat, longitude: dropoffLng} : null,
+      hasValidRoute: hasPickup && hasDropoff,
+    };
+  }, [routesByDate, effectiveRouteId]);
+  const canRenderDirections =
+    !!googleMapsApiKey &&
+    routeCoordinates.hasValidRoute &&
+    !!routeCoordinates.pickup &&
+    !!routeCoordinates.dropoff;
 
   // Live pin: always prefer driver's GPS (Karachi/current). API = fallback only when GPS not yet available.
   const currentVehicleLocation = useMemo(() => {
@@ -141,8 +187,14 @@ const DriverMapView = () => {
 
   // Use vehicle location if available, otherwise use default
   const mapCenter = currentVehicleLocation || {
-    latitude: (startLocation.latitude + endLocation.latitude) / 2,
-    longitude: (startLocation.longitude + endLocation.longitude) / 2,
+    latitude:
+      routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? (routeCoordinates.pickup.latitude + routeCoordinates.dropoff.latitude) / 2
+        : (defaultStartLocation.latitude + defaultEndLocation.latitude) / 2,
+    longitude:
+      routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? (routeCoordinates.pickup.longitude + routeCoordinates.dropoff.longitude) / 2
+        : (defaultStartLocation.longitude + defaultEndLocation.longitude) / 2,
   };
 
   const mapRegion = useMemo(
@@ -151,19 +203,30 @@ const DriverMapView = () => {
       longitude: mapCenter.longitude,
       latitudeDelta: currentVehicleLocation
         ? 0.01
-        : Math.abs(startLocation.latitude - endLocation.latitude) * 1.5 || 0.05,
+        : routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? Math.abs(routeCoordinates.pickup.latitude - routeCoordinates.dropoff.latitude) *
+            1.5 || 0.05
+        : Math.abs(defaultStartLocation.latitude - defaultEndLocation.latitude) * 1.5 || 0.05,
       longitudeDelta: currentVehicleLocation
         ? 0.01
-        : Math.abs(startLocation.longitude - endLocation.longitude) * 1.5 || 0.05,
+        : routeCoordinates.hasValidRoute && routeCoordinates.pickup && routeCoordinates.dropoff
+        ? Math.abs(routeCoordinates.pickup.longitude - routeCoordinates.dropoff.longitude) *
+            1.5 || 0.05
+        : Math.abs(defaultStartLocation.longitude - defaultEndLocation.longitude) * 1.5 || 0.05,
     }),
     [
       mapCenter.latitude,
       mapCenter.longitude,
       currentVehicleLocation != null,
-      startLocation.latitude,
-      startLocation.longitude,
-      endLocation.latitude,
-      endLocation.longitude,
+      routeCoordinates.hasValidRoute,
+      routeCoordinates.pickup?.latitude,
+      routeCoordinates.pickup?.longitude,
+      routeCoordinates.dropoff?.latitude,
+      routeCoordinates.dropoff?.longitude,
+      defaultStartLocation.latitude,
+      defaultStartLocation.longitude,
+      defaultEndLocation.latitude,
+      defaultEndLocation.longitude,
     ],
   );
 
@@ -191,6 +254,42 @@ const DriverMapView = () => {
         customMapStyle={mapCustomStyle}
         showsMyLocationButton={false}
         followsUserLocation={false}>
+      {/* Pickup -> Dropoff route line from routes/by-date coordinates */}
+      {routeCoordinates.hasValidRoute &&
+        routeCoordinates.pickup &&
+        routeCoordinates.dropoff && (
+          <>
+            {canRenderDirections ? (
+              <MapViewDirections
+                origin={routeCoordinates.pickup}
+                destination={routeCoordinates.dropoff}
+                apikey={googleMapsApiKey}
+                strokeWidth={4}
+                strokeColor={AppColors.red}
+                optimizeWaypoints={false}
+                onReady={result => {
+                  mapRef.current?.fitToCoordinates(result.coordinates, {
+                    edgePadding: {top: hp(6), right: hp(6), bottom: hp(24), left: hp(6)},
+                    animated: true,
+                  });
+                }}
+                onError={error => {
+                  if (__DEV__) {
+                    console.warn('MapViewDirections error (DriverMapView):', error);
+                  }
+                }}
+              />
+            ) : (
+              <Polyline
+                coordinates={[routeCoordinates.pickup, routeCoordinates.dropoff]}
+                strokeColor={AppColors.red}
+                strokeWidth={4}
+              />
+            )}
+            <Marker coordinate={routeCoordinates.pickup} pinColor="#1FA971" />
+            <Marker coordinate={routeCoordinates.dropoff} pinColor="#C62828" />
+          </>
+        )}
       {/* Vehicle Location Marker - live GPS when available */}
       {currentVehicleLocation && (
         <Marker
@@ -224,7 +323,7 @@ const DriverMapView = () => {
       )}
     </MapView>
     ),
-    [mapRegion, currentVehicleLocation, currentGpsLocation, mapRef],
+    [mapRegion, currentVehicleLocation, currentGpsLocation, mapRef, routeCoordinates],
   );
 
   useEffect(() => {

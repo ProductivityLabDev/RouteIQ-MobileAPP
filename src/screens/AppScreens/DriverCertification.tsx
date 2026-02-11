@@ -1,368 +1,364 @@
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
-import AppLayout from '../../layout/AppLayout'
-import { AppColors } from '../../utils/color'
-import AppHeader from '../../components/AppHeader'
-import { hp, wp } from '../../utils/constants'
-import AppStyles from '../../styles/AppStyles'
-import AppFonts from '../../utils/appFonts'
-import { size } from '../../utils/responsiveFonts'
-import GlobalIcon from '../../components/GlobalIcon'
-import AppDoc from '../../components/AppDoc'
-import AppButton from '../../components/AppButton'
-import { useNavigation } from '@react-navigation/native'
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import AppLayout from '../../layout/AppLayout';
+import {AppColors} from '../../utils/color';
+import AppHeader from '../../components/AppHeader';
+import {hp, wp} from '../../utils/constants';
+import AppStyles from '../../styles/AppStyles';
+import AppFonts from '../../utils/appFonts';
+import {size} from '../../utils/responsiveFonts';
+import AppDoc from '../../components/AppDoc';
+import AppButton from '../../components/AppButton';
 import AppBottomSheet from '../../components/AppBottomSheet';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import UploadDoc from '../../components/UploadDoc';
+import AppInput from '../../components/AppInput';
+import CalendarPicker from '../../components/CalendarPicker';
+import DocumentPicker from 'react-native-document-picker';
+import {getApiBaseUrl} from '../../utils/apiConfig';
+import {showErrorToast, showSuccessToast} from '../../utils/toast';
+import {useAppSelector} from '../../store/hooks';
+
+type PickedFile = {uri: string; name: string; type: string} | null;
 
 export default function DriverCertification() {
+  const token = useAppSelector(state => state.userSlices.token);
+  const [certifications, setCertifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<PickedFile>(null);
 
-    const [showDriverLicense, setShowDriverLicense] = useState(false);
-    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-    const snapPoints = useMemo(() => ['34%', '90%'], []);
-    const openSheet = useCallback(() => {
-        bottomSheetModalRef.current?.present();
-    }, []);
-    const closeSheet = useCallback(() => {
-        bottomSheetModalRef.current?.close();
-    }, []);
+  const [certificationType, setCertificationType] = useState('');
+  const [certificationNumber, setCertificationNumber] = useState('');
+  const [issueDate, setIssueDate] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [issuingAuthority, setIssuingAuthority] = useState('');
 
-    const navigation = useNavigation();
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = useMemo(() => ['90%'], []);
+  const openSheet = useCallback(() => bottomSheetModalRef.current?.present(), []);
+  const closeSheet = useCallback(() => bottomSheetModalRef.current?.close(), []);
 
-    return (
-        <AppLayout
-            statusbackgroundColor={AppColors.red}
-            style={{ backgroundColor: AppColors.profileBg }}>
+  const fetchCertifications = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/driver/certifications`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        showErrorToast('Error', errorText || 'Failed to load certifications');
+        return;
+      }
+      const data = await response.json().catch(() => null);
+      const list = Array.isArray(data?.data)
+        ? data.data
+        : Array.isArray(data)
+        ? data
+        : [];
+      setCertifications(list);
+    } catch (e) {
+      showErrorToast('Error', 'Network error while loading certifications');
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
-            <AppHeader
-                role="Driver"
-                title={showDriverLicense ? "Driver's License" : "Certification"}
-                enableBack={true}
-                rightIcon={false}
+  useEffect(() => {
+    fetchCertifications();
+  }, [fetchCertifications]);
+
+  const pickDocument = useCallback(() => {
+    DocumentPicker.pick({
+      type: (DocumentPicker as any).types?.allFiles ?? DocumentPicker.types.pdf,
+      allowMultiSelection: false,
+    })
+      .then((res: any) => {
+        const file = Array.isArray(res) ? res[0] : res;
+        if (file?.uri && file?.name) {
+          setSelectedFile({uri: file.uri, name: file.name, type: file.type ?? ''});
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleCreateCertification = useCallback(async () => {
+    if (!token) {
+      showErrorToast('Error', 'Not authenticated');
+      return;
+    }
+    if (!certificationType.trim() || !certificationNumber.trim() || !issueDate.trim()) {
+      showErrorToast('Required', 'Type, Number and Issue Date are required');
+      return;
+    }
+    setSaving(true);
+    try {
+      const baseUrl = getApiBaseUrl();
+      const endpoint = `${baseUrl}/driver/certifications`;
+      let response: Response;
+
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append(
+          'document',
+          {
+            uri: selectedFile.uri,
+            name: selectedFile.name,
+            type: selectedFile.type || 'application/octet-stream',
+          } as any,
+        );
+        formData.append('certificationType', certificationType.trim());
+        formData.append('certificationNumber', certificationNumber.trim());
+        formData.append('issueDate', issueDate.trim());
+        if (expiryDate.trim()) formData.append('expiryDate', expiryDate.trim());
+        if (issuingAuthority.trim())
+          formData.append('issuingAuthority', issuingAuthority.trim());
+        formData.append('status', 'Active');
+
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {Authorization: `Bearer ${token}`},
+          body: formData,
+        });
+      } else {
+        const body: any = {
+          certificationType: certificationType.trim(),
+          certificationNumber: certificationNumber.trim(),
+          issueDate: issueDate.trim(),
+          status: 'Active',
+        };
+        if (expiryDate.trim()) body.expiryDate = expiryDate.trim();
+        if (issuingAuthority.trim()) body.issuingAuthority = issuingAuthority.trim();
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        showErrorToast('Create Failed', errorText || 'Could not create certification');
+        return;
+      }
+
+      showSuccessToast('Added', 'Certification added');
+      setCertificationType('');
+      setCertificationNumber('');
+      setIssueDate('');
+      setExpiryDate('');
+      setIssuingAuthority('');
+      setSelectedFile(null);
+      closeSheet();
+      fetchCertifications();
+    } catch (e) {
+      showErrorToast('Error', 'Network error while creating certification');
+    } finally {
+      setSaving(false);
+    }
+  }, [
+    token,
+    certificationType,
+    certificationNumber,
+    issueDate,
+    expiryDate,
+    issuingAuthority,
+    selectedFile,
+    closeSheet,
+    fetchCertifications,
+  ]);
+
+  return (
+    <AppLayout
+      statusbackgroundColor={AppColors.red}
+      style={{backgroundColor: AppColors.profileBg}}>
+      <AppHeader
+        role="Driver"
+        title="Certification"
+        enableBack={true}
+        rightIcon={false}
+      />
+
+      <View style={{flex: 1, justifyContent: 'space-between'}}>
+        <ScrollView
+          style={{flex: 1}}
+          contentContainerStyle={{paddingVertical: hp(2), gap: hp(2)}}>
+          {loading ? (
+            <ActivityIndicator size="large" color={AppColors.red} />
+          ) : certifications.length === 0 ? (
+            <Text style={[AppStyles.title, {textAlign: 'center'}]}>
+              No certifications yet.
+            </Text>
+          ) : (
+            certifications.map((item: any, idx: number) => {
+              const title =
+                item?.CertificationType ??
+                item?.certificationType ??
+                `Certification ${idx + 1}`;
+              const path = item?.DocumentPath ?? item?.documentPath ?? '';
+              return (
+                <AppDoc
+                  key={String(item?.CertificationId ?? item?.id ?? idx)}
+                  title={String(title)}
+                  containerStyle={{width: '90%', alignSelf: 'center'}}
+                  showAttachment={!!path}
+                  onPress={
+                    path
+                      ? () => {
+                          Linking.openURL(String(path)).catch(() =>
+                            showErrorToast(
+                              'Error',
+                              'Could not open certification document',
+                            ),
+                          );
+                        }
+                      : undefined
+                  }
+                />
+              );
+            })
+          )}
+        </ScrollView>
+
+        <AppButton
+          title="Upload Documents"
+          onPress={openSheet}
+          style={{
+            width: '90%',
+            backgroundColor: AppColors.red,
+            height: hp(6),
+            marginHorizontal: wp(7),
+            alignSelf: 'center',
+            marginBottom: hp(1.5),
+          }}
+          titleStyle={{fontSize: size.md}}
+        />
+      </View>
+
+      <AppBottomSheet
+        bottomSheetModalRef={bottomSheetModalRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose={false}
+        backdropComponent={({style}) => (
+          <Pressable
+            onPress={() => {}}
+            style={[style, {backgroundColor: 'rgba(0, 0, 0, 0.6)'}]}
+          />
+        )}>
+        <View style={{paddingHorizontal: hp(2), paddingVertical: hp(2)}}>
+          <Text style={[AppStyles.titleHead, {fontSize: size.lg}]}>
+            Add Certification
+          </Text>
+
+          <AppInput
+            value={certificationType}
+            onChangeText={setCertificationType}
+            placeholder="Certification Type"
+            container={styles.inputContainer}
+            inputStyle={styles.inputStyle}
+          />
+          <AppInput
+            value={certificationNumber}
+            onChangeText={setCertificationNumber}
+            placeholder="Certification Number"
+            container={styles.inputContainer}
+            inputStyle={styles.inputStyle}
+          />
+          <CalendarPicker
+            selectedDate={issueDate}
+            setDates={(d: string) => setIssueDate(d)}
+            label="Issue Date"
+          />
+          <CalendarPicker
+            selectedDate={expiryDate}
+            setDates={(d: string) => setExpiryDate(d)}
+            label="Expiry Date (optional)"
+          />
+          <AppInput
+            value={issuingAuthority}
+            onChangeText={setIssuingAuthority}
+            placeholder="Issuing Authority"
+            container={styles.inputContainer}
+            inputStyle={styles.inputStyle}
+          />
+
+          <UploadDoc
+            title="Tap and Upload Files"
+            onPress={pickDocument}
+            selectedFileName={selectedFile?.name ?? null}
+            containerStyle={styles.uploadDocBox}
+            textStyle={styles.tapText}
+          />
+
+          <View style={[AppStyles.rowBetween, AppStyles.widthFullPercent]}>
+            <AppButton
+              title="Cancel"
+              style={styles.backButton}
+              titleStyle={{color: AppColors.textLightGrey}}
+              onPress={() => {
+                setSelectedFile(null);
+                closeSheet();
+              }}
             />
-
-            {showDriverLicense === false ?
-                <Pressable style={{ justifyContent: 'space-between', flex: 1 }} onPress={() => { setShowDriverLicense(true) }}>
-
-                    <View style={{ gap: hp(4), justifyContent: 'center', alignItems: 'center' }}>
-
-
-
-                        <View style={styles.mainContainer}>
-                            <Text
-                                style={[
-                                    AppStyles.subHeading,
-                                    {
-
-                                        width: '100%',
-                                        textAlign: 'center',
-                                        paddingVertical: hp(2),
-                                        backgroundColor: AppColors.darkBrown,
-                                        color: AppColors.white,
-                                        fontFamily: AppFonts.NunitoSansBold,
-                                        alignSelf: 'center',
-                                        fontSize: size.default,
-
-                                    },
-                                ]}>
-                                Commercial Driver’s License
-                            </Text>
-
-
-                            <View style={styles.boxContainer}>
-                                <View style={styles.imageContainer}>
-                                    <Image source={require('../../assets/images/driverlicensepic.png')} resizeMode='cover' style={styles.image} />
-                                </View>
-                                <View style={styles.infoContainer}>
-                                    <View style={[styles.row1, {width: '100%'}]}>
-                                        <Text style={styles.headerSubTitle}>ID: B456788 </Text>
-                                        <Text style={styles.headerSubTitle}>Class B</Text>
-                                    </View>
-                                    <Text style={styles.nameText}>Mark Tommay</Text>
-                                    <Text style={styles.headerSubTitle}>Exp Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                    <Text style={styles.headerSubTitle}>Renewal Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                    <View style={[styles.row1,{width: '100%',}]}>
-                                        <Text style={[styles.headerSubTitle, { color: AppColors.green }]}>Verified</Text>
-                                        <View style={{transform: [{ rotate: '-50deg' }]}}><GlobalIcon library='MaterialIcons' name={'attachment'} color={AppColors.black} /></View>
-                                    </View>
-                                </View>
-                            </View>
-
-                        </View>
-
-                        <AppDoc title={'Fed Med Card'} containerStyle={{}} />
-                        <AppDoc title={'Endorsements'} containerStyle={{}} />
-
-                    </View>
-
-                    <AppButton
-                        title="Upload Documents"
-                        onPress={() => openSheet()}
-                        style={{
-                            // width: '100%',
-                            width: '90%',
-                            backgroundColor: AppColors.red,
-                            height: hp(6),
-                            marginHorizontal: wp(7),
-                            alignSelf: 'center',
-                            position: 'relative',
-                            top: -10
-                        }}
-                        titleStyle={{
-                            fontSize: size.md
-                        }}
-                    />
-
-                    <AppBottomSheet
-                        bottomSheetModalRef={bottomSheetModalRef}
-                        snapPoints={snapPoints}
-                        backdropComponent={({ style }) => (
-                            <Pressable
-                                onPress={() => closeSheet()}
-                                style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.6)' }]}
-                            />
-                        )}>
-                        <View style={AppStyles.center}>
-
-                            <View style={{ width: '90%' }}>
-
-                                <Text style={[AppStyles.titleHead, { fontSize: size.lg, alignSelf: 'flex-start' }]}>
-                                    Upload Documents
-                                </Text>
-                                <View style={styles.uploadDocBox}>
-
-                                    <GlobalIcon library='FontelloIcon' name={'group-(5)'} color={AppColors.red} size={40} />
-                                    <Text style={styles.tapText} >Tap and Upload Files</Text>
-                                </View>
-                            </View>
-
-                            <View style={[AppStyles.rowBetween, AppStyles.widthFullPercent]}>
-                                <AppButton
-                                    title="Cancel"
-                                    style={styles.backButton}
-                                    titleStyle={{ color: AppColors.textLightGrey }}
-                                    onPress={() => closeSheet()}
-                                />
-                                <AppButton title="Upload" style={styles.submitButton} onPress={() => closeSheet()} />
-                            </View>
-                        </View>
-                    </AppBottomSheet>
-
-
-
-
-
-                </Pressable>
-
-                :
-                <>
-
-                    <Text style={styles.text2}>Front Card</Text>
-                    <View style={[styles.mainContainer, { marginTop: 0 }]}>
-                        <Text
-                            style={[
-                                AppStyles.subHeading,
-                                {
-
-                                    width: '100%',
-                                    textAlign: 'center',
-                                    paddingVertical: hp(2),
-                                    backgroundColor: AppColors.darkBrown,
-                                    color: AppColors.white,
-                                    fontFamily: AppFonts.NunitoSansBold,
-                                    alignSelf: 'center',
-                                    fontSize: size.default,
-
-                                },
-                            ]}>
-                            Commercial Driver’s License
-                        </Text>
-
-
-                        <View style={styles.boxContainer}>
-                            <View style={styles.imageContainer}>
-                                <Image source={require('../../assets/images/driverlicensepic.png')} resizeMode='cover' style={styles.image} />
-                            </View>
-                            <View style={styles.infoContainer}>
-                            <View style={[styles.row1,{width: '100%'}]}>
-                                    <Text style={styles.headerSubTitle}>ID: B456788 </Text>
-                                    <Text style={styles.headerSubTitle}>Class B</Text>
-                                </View>
-                                <Text style={styles.nameText}>Mark Tommay</Text>
-                                <Text style={styles.headerSubTitle}>Exp Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                <Text style={styles.headerSubTitle}>Renewal Date: <Text style={[styles.headerSubTitle, styles.highlight]}>  7.8.2027  </Text> </Text>
-                                <View style={[styles.row1,{width: '100%', justifyContent: 'flex-end'}]}>
-                                    <Text style={[styles.headerSubTitle, { color: AppColors.green, fontSize: size.md }]}>Verified</Text>
-                                    {/* <GlobalIcon library='CustomIcon' name={'account_circle'} color={AppColors.red} /> */}
-                                </View>
-                            </View>
-                        </View>
-
-                    </View>
-
-                    <Text style={styles.text2}>Back Card</Text>
-
-                    <View style={[styles.mainContainer3]}>
-                        <View style={styles.row}>
-                            <Text style={styles.backCardSubText}>Restrictions</Text>
-                            <Text style={styles.backCardSubText}>ID: B456788 </Text>
-                        </View>
-                        <Text style={styles.backCardText}>●  Lorem ipsum dolor sit amet, consectetur adipiscing{'\n'}
-                            ●  elit, sed do eiusmod tempor incididunt{'\n'}
-                            ●  ut labore et dolore magna aliqua. Ut enim ad minim{'\n'}
-                            ●  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex </Text>
-                    </View>
-
-                </>
-
-
-            }
-
-
-        </AppLayout>
-    )
+            <AppButton
+              title={saving ? 'Saving...' : 'Upload'}
+              style={styles.submitButton}
+              onPress={handleCreateCertification}
+              loading={saving}
+            />
+          </View>
+        </View>
+      </AppBottomSheet>
+    </AppLayout>
+  );
 }
 
 const styles = StyleSheet.create({
-
-    backCardSubText: {
-        fontFamily: AppFonts.NunitoSansMedium,
-        fontSize: size.default,
-        lineHeight: 20,
-        color: AppColors.black,
-        alignSelf: 'center',
-
-    },
-
-
-    backCardText: {
-        fontFamily: AppFonts.NunitoSansRegular,
-        fontSize: size.s,
-        lineHeight: 20,
-        color: AppColors.black,
-        alignSelf: 'center',
-    },
-
-    uploadDocBox: {
-        width: '100%',
-        marginVertical: hp(3),
-        marginTop: hp(2),
-        height: hp(15),
-        gap: hp(1),
-        borderRadius: 20,
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        borderColor: AppColors.red,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
-    tapText: {
-
-        fontFamily: AppFonts.NunitoSansSemiBold,
-        fontSize: size.s,
-        lineHeight: 20,
-        color: AppColors.red,
-        alignSelf: 'center',
-    },
-
-    text2: {
-        fontFamily: AppFonts.NunitoSansMedium,
-        fontSize: size.default,
-        lineHeight: 20,
-        color: AppColors.black,
-        alignSelf: 'center',
-        marginTop: hp(5),
-        marginBottom: hp(1)
-    },
-    highlight: {
-        backgroundColor: AppColors.lightGrey,
-    },
-    mainContainer: {
-        width: '90%',
-        marginTop: hp(3),
-        alignSelf: 'center',
-        backgroundColor: AppColors.white,
-        borderRadius: 10,
-        overflow: 'hidden',
-        elevation: 20
-    },
-    mainContainer3: {
-        paddingVertical: hp(6),
-        paddingBottom: hp(8),
-        justifyContent: 'center', alignItems: 'center', padding: hp(2),
-        paddingHorizontal: wp(5),
-        gap: hp(1),
-        width: '90%',
-        marginTop: hp(0),
-        alignSelf: 'center',
-        backgroundColor: AppColors.white,
-        borderRadius: 10,
-        overflow: 'hidden',
-        elevation: 20
-    },
-    boxContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: wp(3),
-        padding: wp(3),
-        backgroundColor: AppColors.white
-
-    },
-    headerSubTitle: {
-        fontFamily: AppFonts.NunitoSansMedium,
-        fontSize: size.s,
-        lineHeight: 20,
-        color: AppColors.black,
-    },
-    image: {
-        // width: '100%',
-        // height: '100%',
-        // borderRadius: hp(10),
-        position: 'static',
-        borderColor: AppColors.white,
-        borderWidth: 1,
-    },
-    imageContainer: {
-        // height: hp(18),
-        // width: hp(13),
-        alignSelf: 'center'
-    },
-    infoContainer: {
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-
-    },
-    row1: {
-        maxWidth: '80%',
-        minWidth: '78%',
-        
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        // gap: wp(10)
-    },
-    row: {
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        // gap: wp(10)
-    },
-    nameText: {
-        color: AppColors.black,
-        fontFamily: AppFonts.NunitoSansSemiBold,
-        fontSize: size.xlg,
-        textAlign: 'left',
-    },
-    inputContainer: {
-        borderWidth: 1,
-        borderColor: AppColors.dimGray,
-        borderRadius: 5,
-        width: '60%',
-        marginTop: hp(2),
-        marginBottom: hp(1),
-    },
-    inputStyle: {
-        textAlign: 'center',
-    },
-    backButton: { width: '36%', backgroundColor: AppColors.screenColor },
-    submitButton: { width: '60%' },
-})
+  uploadDocBox: {
+    width: '100%',
+    marginVertical: hp(2),
+    height: hp(14),
+    borderRadius: 12,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: AppColors.red,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: AppColors.white,
+  },
+  tapText: {
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: size.s,
+    color: AppColors.red,
+    alignSelf: 'center',
+  },
+  inputContainer: {
+    borderWidth: 1,
+    borderColor: AppColors.graySuit,
+    borderRadius: 8,
+    marginTop: hp(1.2),
+  },
+  inputStyle: {
+    color: AppColors.black,
+  },
+  backButton: {width: '36%', backgroundColor: AppColors.screenColor},
+  submitButton: {width: '60%'},
+});

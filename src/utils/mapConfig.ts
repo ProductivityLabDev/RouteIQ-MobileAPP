@@ -81,5 +81,5 @@ export const mapCustomStyle = [
 
 // Google Directions API key used by react-native-maps-directions.
 // Do not hardcode secrets in the repo; provide this at build/runtime via your own config.
-export const googleMapsApiKey = '';
+export const googleMapsApiKey = 'AIzaSyDbcJf1H0HWQP40ySVxbbGmYH-bWGH65Wk';
   

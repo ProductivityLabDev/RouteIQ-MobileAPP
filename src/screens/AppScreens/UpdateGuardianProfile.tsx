@@ -17,6 +17,7 @@ import {size} from '../../utils/responsiveFonts';
 import {useAppSelector, useAppDispatch} from '../../store/hooks';
 import {fetchParentContacts} from '../../store/user/userSlices';
 import {showErrorToast, showSuccessToast} from '../../utils/toast';
+import {getApiBaseUrl} from '../../utils/apiConfig';
 
 const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
   route,
@@ -30,13 +31,6 @@ const UpdateGuardianProfile: React.FC<UpdateGuardianProfileProps> = ({
   const parentStudents = useAppSelector(state => state.userSlices.parentStudents);
   const [isLoading, setIsLoading] = useState(true);
   const [contactData, setContactData] = useState<any>(null);
-
-  const getApiBaseUrl = () => {
-    const manualHost = 'http://192.168.18.36:3000';
-    const deviceHost =
-      Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-    return manualHost?.trim() || deviceHost;
-  };
 
   // Determine if this is Contact 1 or Contact 2
   const isContact1 = route_data?.title === 'Contact 1';

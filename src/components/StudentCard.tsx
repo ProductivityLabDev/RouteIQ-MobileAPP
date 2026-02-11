@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { hp } from '../utils/constants';
 import { AppColors } from '../utils/color';
 import AppButton from './AppButton';
@@ -9,16 +9,97 @@ import { StudentCardProps } from '../types/types';
 import AppFonts from '../utils/appFonts';
 import { truncateString } from '../utils/functions';
 import { useNavigation } from '@react-navigation/native';
-import { useAppDispatch } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setStudentDetail } from '../store/driver/driverSlices';
 import { studentsData } from '../utils/DummyData';
 import GlobalIcon from './GlobalIcon';
+import { getApiBaseUrl } from '../utils/apiConfig';
+import { showErrorToast } from '../utils/toast';
 
-const StudentCard: React.FC<StudentCardProps> = ({ position, item, index }) => {
+const StudentCard: React.FC<StudentCardProps> = ({
+  position,
+  item,
+  index,
+  onAttendanceChange,
+}) => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
-  const [status, setStatus] = useState<'present' | 'absent' | null>(null);
+  const token = useAppSelector(state => state.userSlices.token);
+  const initialStatus =
+    item?.attendanceStatus === 'present' || item?.attendanceStatus === 'absent'
+      ? item.attendanceStatus
+      : null;
+  const [status, setStatus] = useState<'present' | 'absent' | null>(initialStatus);
+  const [detailsLoading, setDetailsLoading] = useState(false);
   const lastIndex = studentsData.length - 1 === index;
+
+  const handleOpenDetails = async () => {
+    const studentId = item?.studentId ?? item?.StudentId ?? item?.id ?? null;
+    if (!studentId || !token) {
+      dispatch(setStudentDetail(item));
+      navigation.navigate('DriverStudentDetail');
+      return;
+    }
+
+    setDetailsLoading(true);
+    try {
+      const baseUrl = getApiBaseUrl();
+      const endpoint = `${baseUrl}/driver/students/${studentId}/details`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        showErrorToast('Error', errorText || 'Failed to fetch student details');
+        return;
+      }
+
+      const payload = await response.json().catch(() => null);
+      const data = payload?.data ?? {};
+      const mapped = {
+        studentId: data?.studentId ?? studentId,
+        name: data?.name ?? item?.name ?? 'Student',
+        image: item?.image,
+        grade: data?.grade ?? '--',
+        school_name: data?.schoolName ?? '--',
+        emergency_contact: data?.emergencyContact ?? '--',
+        transportation_preference: data?.transportationPreference ?? '--',
+        medical_details: data?.medicalDetails ?? '--',
+        route: data?.route ?? null,
+        pickupLocation: data?.pickupLocation ?? null,
+        dropoffLocation: data?.dropoffLocation ?? null,
+        guardians: [
+          {
+            name: data?.guardian1?.name ?? '--',
+            relation: data?.guardian1?.relation ?? '--',
+            phone_number: data?.guardian1?.phone ?? '--',
+          },
+          {
+            name: data?.guardian2?.name ?? '--',
+            relation: data?.guardian2?.relation ?? '--',
+            phone_number: data?.guardian2?.phone ?? '--',
+          },
+        ],
+      };
+      dispatch(setStudentDetail(mapped));
+      navigation.navigate('DriverStudentDetail');
+    } catch (e) {
+      showErrorToast('Error', 'Network error while fetching student details');
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (item?.attendanceStatus === 'present' || item?.attendanceStatus === 'absent') {
+      setStatus(item.attendanceStatus);
+    }
+  }, [item?.attendanceStatus]);
 
   return (
     <View
@@ -53,24 +134,34 @@ const StudentCard: React.FC<StudentCardProps> = ({ position, item, index }) => {
         </View>
 
         <View style={position === 'row' ? styles.btnContainer : styles.columnBtnContainer}>
-          <TouchableOpacity onPress={() => setStatus('present')} style={[styles.statusButton, { backgroundColor: AppColors.green }]}>
+          <TouchableOpacity
+            onPress={() => {
+              setStatus('present');
+              const studentId = item?.studentId ?? item?.StudentId ?? item?.id;
+              if (studentId != null) onAttendanceChange?.(studentId, 'present');
+            }}
+            style={[styles.statusButton, { backgroundColor: AppColors.green }]}>
             <GlobalIcon library='FontAwesome' name='check' size={24} color={AppColors.white}/>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setStatus('absent')} style={[styles.statusButton, { backgroundColor: AppColors.red }]}>
+          <TouchableOpacity
+            onPress={() => {
+              setStatus('absent');
+              const studentId = item?.studentId ?? item?.StudentId ?? item?.id;
+              if (studentId != null) onAttendanceChange?.(studentId, 'absent');
+            }}
+            style={[styles.statusButton, { backgroundColor: AppColors.red }]}>
           <GlobalIcon library='Entypo' name='cross' size={30} color={AppColors.white}/>
           </TouchableOpacity>
         </View>
 
         {/* Details Button */}
         <AppButton
-          title="Details"
+          title={detailsLoading ? 'Loading...' : 'Details'}
           style={position === 'row' ? styles.detailBtn : { ...styles.detailColumnBtn }}
           titleStyle={styles.detailTitle}
-          onPress={() => {
-            dispatch(setStudentDetail(item));
-            navigation.navigate('DriverStudentDetail');
-          }}
+          loading={detailsLoading}
+          onPress={handleOpenDetails}
         />
       </View>
     </View>

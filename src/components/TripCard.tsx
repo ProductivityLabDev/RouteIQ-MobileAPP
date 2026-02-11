@@ -40,6 +40,10 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
   const [accept, setAccept] = useState(false);
   const role = useAppSelector(state => state.userSlices.role);
   const [isExpanded, setIsExpanded] = useState(false);
+  const shortTitle =
+    typeof item?.title === 'string' && item.title.length > 7
+      ? `${item.title.slice(0, 7)}...`
+      : item?.title;
 
   const snapPoints = useMemo(() => ['38%', '90%'], []);
   const openSheet = useCallback(() => {
@@ -55,8 +59,11 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
         <View style={styles.innerContainer}>
           <View style={AppStyles.rowBetween}>
             <View style={styles.tripHead}>
-              <Text style={[AppStyles.titleHead, {fontSize: size.md}]}>
-                {item?.title}
+              <Text
+                style={[AppStyles.titleHead, {fontSize: size.md}]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {shortTitle}
               </Text>
             </View>
             <View style={AppStyles.row}>
@@ -85,17 +92,27 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
               AppStyles.rowBetween,
               {marginTop: hp(1.5), marginBottom: hp(0.5)},
             ]}>
-            <View style={{gap: 5}}>
+            <View style={styles.leftRouteBlock}>
               <View style={AppStyles.row}>
                 <BulletIcon />
-                <Text style={styles.bulletText}>{item?.start_location}</Text>
+                <Text
+                  style={styles.bulletText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {item?.start_location}
+                </Text>
               </View>
               <View style={AppStyles.row}>
                 <BulletIcon />
-                <Text style={styles.bulletText}>{item?.end_location}</Text>
+                <Text
+                  style={styles.bulletText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {item?.end_location}
+                </Text>
               </View>
             </View>
-            <View>
+            <View style={styles.rightTripBlock}>
               <Text
                 style={[
                   AppStyles.whiteTitle,
@@ -104,10 +121,17 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                     textAlign: 'right',
                     top: -5,
                   },
-                ]}>
+                ]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {item?.trip_name}
               </Text>
-              <Text style={AppStyles.whiteTitle}>{item?.trip_no}</Text>
+              <Text
+                style={[AppStyles.whiteTitle, styles.tripNoText]}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}>
+                {item?.trip_no}
+              </Text>
             </View>
           </View>
           {!declined && (
@@ -354,12 +378,24 @@ const styles = StyleSheet.create({
     paddingVertical: hp(0.5),
     paddingHorizontal: hp(3),
     borderRadius: 50,
+    flexShrink: 1,
+    maxWidth: '62%',
   },
   bulletText: {
     fontFamily: AppFonts.NunitoSansMedium,
     fontSize: fontSize(14),
     color: AppColors.white,
     marginLeft: hp(1),
+    flexShrink: 1,
+    width: '85%',
+  },
+  leftRouteBlock: {
+    gap: 5,
+    width: '58%',
+  },
+  rightTripBlock: {
+    width: '38%',
+    alignItems: 'flex-end',
   },
   declineButton: {
     backgroundColor: AppColors.white,
@@ -447,5 +483,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: AppFonts.NunitoSansRegular,
     lineHeight: 20,
+  },
+  tripNoText: {
+    maxWidth: '100%',
+    alignSelf: 'flex-end',
+    textAlign: 'right',
+    flexShrink: 1,
   },
 });

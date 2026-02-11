@@ -16,6 +16,7 @@ import {Controller, useForm} from 'react-hook-form';
 import CalendarPicker from '../../components/CalendarPicker';
 import {useAppSelector} from '../../store/hooks';
 import {showSuccessToast, showErrorToast} from '../../utils/toast';
+import {getApiBaseUrl} from '../../utils/apiConfig';
 import moment from 'moment';
 import {SelectList} from 'react-native-dropdown-select-list';
 
@@ -34,13 +35,6 @@ const ParentFeedback = () => {
     {id: 3, label: 'Bus Terminal'},
     {id: 4, label: 'All'},
   ];
-
-  const getApiBaseUrl = () => {
-    const manualHost = 'http://192.168.18.36:3000';
-    const deviceHost =
-      Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-    return manualHost?.trim() || deviceHost;
-  };
 
   const feedbackTypeOptions = [
     {key: '1', value: 'Complaint'},

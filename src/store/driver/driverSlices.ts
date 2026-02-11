@@ -1,13 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {Platform} from 'react-native';
-
-const getApiBaseUrl = () => {
-  // For physical device dev, point to your machine LAN IP
-  const manualHost = 'http://192.168.18.36:3000';
-  const deviceHost =
-    Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-  return manualHost?.trim() || deviceHost;
-};
+import {getApiBaseUrl} from '../../utils/apiConfig';
 
 // GET /driver/details — backend auto-resolves employeeId from JWT token
 export const fetchDriverDetails = createAsyncThunk(
@@ -22,7 +14,11 @@ export const fetchDriverDetails = createAsyncThunk(
     }
 
     try {
-      const response = await fetch(`${baseUrl}/driver/details`, {
+      const endpoint = `${baseUrl}/driver/details`;
+      if (__DEV__) {
+        console.log('📡 GET /driver/details URL:', endpoint);
+      }
+      const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -32,18 +28,31 @@ export const fetchDriverDetails = createAsyncThunk(
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
+        if (__DEV__) {
+          console.warn(
+            '❌ GET /driver/details failed:',
+            response.status,
+            errorText,
+          );
+        }
         return rejectWithValue(
           errorText || `Driver details failed with status ${response.status}`,
         );
       }
 
       const data = await response.json().catch(() => null);
+      if (__DEV__) {
+        console.log('✅ GET /driver/details response:', data);
+      }
       // API shape: { ok: true, data: [ { EmployeeId, Name, Phone, Email, ... } ] }
       if (data?.ok === true && Array.isArray(data?.data)) {
         return data.data[0] ?? null;
       }
       return data;
     } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ GET /driver/details network error:', e);
+      }
       return rejectWithValue('Network error while fetching driver details');
     }
   },
@@ -405,6 +414,533 @@ export const updateVehicleLocation = createAsyncThunk(
   },
 );
 
+// =================== Emergency Contacts ===================
+// GET driver/emergency-contacts
+export const fetchEmergencyContacts = createAsyncThunk(
+  'driver/fetchEmergencyContacts',
+  async (_: void, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    const fullUrl = `${baseUrl}/driver/emergency-contacts`;
+    if (__DEV__) console.log('🌐 GET', fullUrl);
+
+    try {
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        if (__DEV__) {
+          console.warn('❌ GET emergency-contacts failed:', fullUrl, '| status:', response.status, '|', errorText);
+        }
+        return rejectWithValue(
+          errorText || `Fetch emergency contacts failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      let list: any[] = [];
+      if (data?.ok === true && Array.isArray(data?.data)) {
+        list = data.data;
+      } else if (Array.isArray(data?.data)) {
+        list = data.data;
+      } else if (Array.isArray(data)) {
+        list = data;
+      }
+      if (__DEV__) {
+        console.log('📡 GET emergency-contacts response:', { ok: data?.ok, count: list?.length, list });
+      }
+      return list;
+    } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ fetchEmergencyContacts NETWORK ERROR:', fullUrl, '|', e);
+        console.warn('   → Check: Backend running? Phone & PC same WiFi? IP in apiConfig = PC IP?');
+      }
+      return rejectWithValue('Network error while fetching emergency contacts');
+    }
+  },
+);
+
+// POST driver/emergency-contacts
+// Backend: contactName, relationship, phoneNumber, alternatePhone?, email?, address?, isPrimary?
+export type AddEmergencyContactPayload = {
+  contactName: string;
+  relationship: string;
+  phoneNumber: string;
+  alternatePhone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  isPrimary?: number | boolean | null;
+};
+
+export const addEmergencyContact = createAsyncThunk(
+  'driver/addEmergencyContact',
+  async (body: AddEmergencyContactPayload, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    const payload = {
+      contactName: body.contactName,
+      relationship: body.relationship,
+      phoneNumber: body.phoneNumber,
+      alternatePhone: body.alternatePhone ?? null,
+      email: body.email ?? null,
+      address: body.address ?? null,
+      isPrimary: body.isPrimary != null ? (typeof body.isPrimary === 'boolean' ? (body.isPrimary ? 1 : 0) : Number(body.isPrimary)) : 0,
+    };
+
+    try {
+      const endpoint = `${baseUrl}/driver/emergency-contacts`;
+      if (__DEV__) {
+        console.log('📡 POST /driver/emergency-contacts URL:', endpoint);
+        console.log('📡 POST /driver/emergency-contacts BODY:', payload);
+      }
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        if (__DEV__) {
+          console.warn(
+            '❌ addEmergencyContact failed:',
+            response.status,
+            errorText,
+          );
+        }
+        return rejectWithValue(
+          errorText || `Add emergency contact failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      if (__DEV__) {
+        console.log('✅ addEmergencyContact success:', data);
+      }
+      return data?.data ?? data;
+    } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ addEmergencyContact network error:', e);
+      }
+      return rejectWithValue('Network error while adding emergency contact');
+    }
+  },
+);
+
+// PATCH driver/emergency-contacts/:id
+// Backend: contactName?, relationship?, phoneNumber?, alternatePhone?, email?, address?, isPrimary?
+export type UpdateEmergencyContactPayload = {
+  id: number | string; // ContactId
+  contactName?: string | null;
+  relationship?: string | null;
+  phoneNumber?: string | null;
+  alternatePhone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  isPrimary?: number | boolean | null;
+};
+
+export const updateEmergencyContact = createAsyncThunk(
+  'driver/updateEmergencyContact',
+  async (
+    {id, ...rest}: UpdateEmergencyContactPayload,
+    {getState, rejectWithValue},
+  ) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    const body: Record<string, any> = {};
+    if (rest.contactName != null) body.contactName = rest.contactName;
+    if (rest.relationship != null) body.relationship = rest.relationship;
+    if (rest.phoneNumber != null) body.phoneNumber = rest.phoneNumber;
+    if (rest.alternatePhone != null) body.alternatePhone = rest.alternatePhone;
+    if (rest.email != null) body.email = rest.email;
+    if (rest.address != null) body.address = rest.address;
+    if (rest.isPrimary != null) body.isPrimary = typeof rest.isPrimary === 'boolean' ? (rest.isPrimary ? 1 : 0) : Number(rest.isPrimary);
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/driver/emergency-contacts/${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(body),
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText ||
+            `Update emergency contact failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      return data?.data ?? data;
+    } catch (e) {
+      return rejectWithValue('Network error while updating emergency contact');
+    }
+  },
+);
+
+// DELETE driver/emergency-contacts/:id
+export const deleteEmergencyContact = createAsyncThunk(
+  'driver/deleteEmergencyContact',
+  async (id: number | string, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/driver/emergency-contacts/${id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText ||
+            `Delete emergency contact failed with status ${response.status}`,
+        );
+      }
+
+      return id;
+    } catch (e) {
+      return rejectWithValue('Network error while deleting emergency contact');
+    }
+  },
+);
+
+// =================== Education Levels & Fields (for qualifications) ===================
+// GET driver/education/levels — Level dropdown (Matric, Bachelor, …)
+export const fetchEducationLevels = createAsyncThunk(
+  'driver/fetchEducationLevels',
+  async (_: void, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const response = await fetch(`${baseUrl}/driver/education/levels`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText ||
+            `Fetch education levels failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      if (data?.ok === true && Array.isArray(data?.data)) return data.data;
+      if (data?.ok === true && Array.isArray(data?.data?.levels))
+        return data.data.levels;
+      if (Array.isArray(data?.levels)) return data.levels;
+      if (Array.isArray(data)) return data;
+      return [];
+    } catch (e) {
+      return rejectWithValue(
+        'Network error while fetching education levels',
+      );
+    }
+  },
+);
+
+// GET driver/education/levels/:levelId/fields — Field dropdown (B.Com, BCS, …)
+export const fetchEducationFields = createAsyncThunk(
+  'driver/fetchEducationFields',
+  async (levelId: number | string, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/driver/education/levels/${levelId}/fields`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText ||
+            `Fetch education fields failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      if (data?.ok === true && Array.isArray(data?.data)) return data.data;
+      if (data?.ok === true && Array.isArray(data?.data?.fields))
+        return data.data.fields;
+      if (Array.isArray(data?.fields)) return data.fields;
+      if (Array.isArray(data)) return data;
+      return [];
+    } catch (e) {
+      return rejectWithValue(
+        'Network error while fetching education fields',
+      );
+    }
+  },
+);
+
+// =================== Driver Qualifications ===================
+// GET driver/qualifications
+export const fetchQualifications = createAsyncThunk(
+  'driver/fetchQualifications',
+  async (_: void, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const endpoint = `${baseUrl}/driver/qualifications`;
+      if (__DEV__) {
+        console.log('📡 GET /driver/qualifications URL:', endpoint);
+      }
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        if (__DEV__) {
+          console.warn(
+            '❌ GET /driver/qualifications failed:',
+            response.status,
+            errorText,
+          );
+        }
+        return rejectWithValue(
+          errorText || `Fetch qualifications failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      if (__DEV__) {
+        const rawList = Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data)
+          ? data
+          : [];
+        console.log('✅ GET /driver/qualifications response:', data);
+        console.log('✅ GET /driver/qualifications count:', rawList.length);
+      }
+      if (data?.ok === true && Array.isArray(data?.data)) return data.data;
+      if (Array.isArray(data)) return data;
+      return [];
+    } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ GET /driver/qualifications network error:', e);
+      }
+      return rejectWithValue('Network error while fetching qualifications');
+    }
+  },
+);
+
+// POST driver/qualifications
+export type AddQualificationPayload = {
+  levelId?: number | string;
+  fieldId?: number | string;
+  jobTitle?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+  [key: string]: any;
+};
+
+export const addQualification = createAsyncThunk(
+  'driver/addQualification',
+  async (body: AddQualificationPayload, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const endpoint = `${baseUrl}/driver/qualifications`;
+      if (__DEV__) {
+        console.log('📡 POST /driver/qualifications URL:', endpoint);
+        console.log('📡 POST /driver/qualifications BODY:', body);
+      }
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        if (__DEV__) {
+          console.warn(
+            '❌ addQualification failed:',
+            response.status,
+            errorText,
+          );
+        }
+        return rejectWithValue(
+          errorText || `Add qualification failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      if (__DEV__) {
+        console.log('✅ addQualification success:', data);
+      }
+      return data?.data ?? data;
+    } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ addQualification network error:', e);
+      }
+      return rejectWithValue('Network error while adding qualification');
+    }
+  },
+);
+
+// PATCH driver/qualifications/:id
+export type UpdateQualificationPayload = {
+  id: number | string;
+  jobTitle?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+  [key: string]: any;
+};
+
+export const updateQualification = createAsyncThunk(
+  'driver/updateQualification',
+  async (
+    {id, ...body}: UpdateQualificationPayload,
+    {getState, rejectWithValue},
+  ) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const response = await fetch(`${baseUrl}/driver/qualifications/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText ||
+            `Update qualification failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json().catch(() => null);
+      return data?.data ?? data;
+    } catch (e) {
+      return rejectWithValue('Network error while updating qualification');
+    }
+  },
+);
+
+// DELETE driver/qualifications/:id
+export const deleteQualification = createAsyncThunk(
+  'driver/deleteQualification',
+  async (id: number | string, {getState, rejectWithValue}) => {
+    const baseUrl = getApiBaseUrl();
+    const state: any = getState();
+    const token: string | null | undefined = state?.userSlices?.token;
+
+    if (!token) return rejectWithValue('Missing auth token');
+
+    try {
+      const response = await fetch(`${baseUrl}/driver/qualifications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        return rejectWithValue(
+          errorText ||
+            `Delete qualification failed with status ${response.status}`,
+        );
+      }
+
+      return id;
+    } catch (e) {
+      return rejectWithValue('Network error while deleting qualification');
+    }
+  },
+);
+
 const driverSlice = createSlice({
   name: 'driver',
   initialState: {
@@ -455,6 +991,25 @@ const driverSlice = createSlice({
     tripEndError: null as string | null,
     updateLocationStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
     updateLocationError: null as string | null,
+    // Emergency contacts
+    emergencyContacts: [] as any[],
+    emergencyContactsStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    emergencyContactsError: null as string | null,
+    emergencyContactMutateStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    emergencyContactMutateError: null as string | null,
+    // Qualifications
+    qualifications: [] as any[],
+    qualificationsStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    qualificationsError: null as string | null,
+    qualificationMutateStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    qualificationMutateError: null as string | null,
+    // Education levels & fields (for qualification dropdowns)
+    educationLevels: [] as any[],
+    educationLevelsStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    educationLevelsError: null as string | null,
+    educationFields: [] as any[],
+    educationFieldsStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
+    educationFieldsError: null as string | null,
   },
   reducers: {
     setMaintenanceDetail: (state, {payload}) => {
@@ -611,6 +1166,211 @@ const driverSlice = createSlice({
           (action.payload as string) ||
           action.error.message ||
           'Failed to end trip';
+      })
+      // ---- Emergency Contacts (List) ----
+      .addCase(fetchEmergencyContacts.pending, state => {
+        state.emergencyContactsStatus = 'loading';
+        state.emergencyContactsError = null;
+      })
+      .addCase(fetchEmergencyContacts.fulfilled, (state, {payload}) => {
+        state.emergencyContactsStatus = 'succeeded';
+        state.emergencyContactsError = null;
+        state.emergencyContacts = Array.isArray(payload) ? payload : [];
+      })
+      .addCase(fetchEmergencyContacts.rejected, (state, action) => {
+        state.emergencyContactsStatus = 'failed';
+        state.emergencyContactsError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to fetch emergency contacts';
+      })
+      // ---- Emergency Contact Add/Update/Delete ----
+      .addCase(addEmergencyContact.pending, state => {
+        state.emergencyContactMutateStatus = 'loading';
+        state.emergencyContactMutateError = null;
+      })
+      .addCase(addEmergencyContact.fulfilled, (state, {payload}) => {
+        state.emergencyContactMutateStatus = 'succeeded';
+        state.emergencyContactMutateError = null;
+        // Backend returns { ok, message } only — no created row. Call fetchEmergencyContacts() to refresh list.
+        if (payload && typeof payload === 'object' && (payload.ContactId ?? payload.contactId ?? payload.id)) {
+          const exists = state.emergencyContacts.some(
+            (c: any) => (c.ContactId ?? c.contactId ?? c.id) === (payload.ContactId ?? payload.contactId ?? payload.id),
+          );
+          if (!exists) state.emergencyContacts = [...state.emergencyContacts, payload];
+        }
+      })
+      .addCase(addEmergencyContact.rejected, (state, action) => {
+        state.emergencyContactMutateStatus = 'failed';
+        state.emergencyContactMutateError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to add emergency contact';
+      })
+      .addCase(updateEmergencyContact.pending, state => {
+        state.emergencyContactMutateStatus = 'loading';
+        state.emergencyContactMutateError = null;
+      })
+      .addCase(updateEmergencyContact.fulfilled, (state, {payload}) => {
+        state.emergencyContactMutateStatus = 'succeeded';
+        state.emergencyContactMutateError = null;
+        // Backend returns { ok, message } — no updated row. Refetch list in screen if needed.
+        if (payload && typeof payload === 'object') {
+          const id = payload.ContactId ?? payload.contactId ?? payload.id ?? payload.Id;
+          if (id != null) {
+            const idx = state.emergencyContacts.findIndex(
+              (c: any) => (c.ContactId ?? c.contactId ?? c.id ?? c.Id) === id,
+            );
+            if (idx >= 0) {
+              const next = [...state.emergencyContacts];
+              next[idx] = { ...next[idx], ...payload };
+              state.emergencyContacts = next;
+            }
+          }
+        }
+      })
+      .addCase(updateEmergencyContact.rejected, (state, action) => {
+        state.emergencyContactMutateStatus = 'failed';
+        state.emergencyContactMutateError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to update emergency contact';
+      })
+      .addCase(deleteEmergencyContact.pending, state => {
+        state.emergencyContactMutateStatus = 'loading';
+        state.emergencyContactMutateError = null;
+      })
+      .addCase(deleteEmergencyContact.fulfilled, (state, {payload: id}) => {
+        state.emergencyContactMutateStatus = 'succeeded';
+        state.emergencyContactMutateError = null;
+        state.emergencyContacts = state.emergencyContacts.filter(
+          (c: any) => (c.ContactId ?? c.contactId ?? c.id ?? c.Id) !== id,
+        );
+      })
+      .addCase(deleteEmergencyContact.rejected, (state, action) => {
+        state.emergencyContactMutateStatus = 'failed';
+        state.emergencyContactMutateError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to delete emergency contact';
+      })
+      // ---- Education Levels ----
+      .addCase(fetchEducationLevels.pending, state => {
+        state.educationLevelsStatus = 'loading';
+        state.educationLevelsError = null;
+      })
+      .addCase(fetchEducationLevels.fulfilled, (state, {payload}) => {
+        state.educationLevelsStatus = 'succeeded';
+        state.educationLevelsError = null;
+        state.educationLevels = Array.isArray(payload) ? payload : [];
+      })
+      .addCase(fetchEducationLevels.rejected, (state, action) => {
+        state.educationLevelsStatus = 'failed';
+        state.educationLevelsError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to fetch education levels';
+      })
+      // ---- Education Fields ----
+      .addCase(fetchEducationFields.pending, state => {
+        state.educationFieldsStatus = 'loading';
+        state.educationFieldsError = null;
+      })
+      .addCase(fetchEducationFields.fulfilled, (state, {payload}) => {
+        state.educationFieldsStatus = 'succeeded';
+        state.educationFieldsError = null;
+        state.educationFields = Array.isArray(payload) ? payload : [];
+      })
+      .addCase(fetchEducationFields.rejected, (state, action) => {
+        state.educationFieldsStatus = 'failed';
+        state.educationFieldsError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to fetch education fields';
+      })
+      // ---- Qualifications (List) ----
+      .addCase(fetchQualifications.pending, state => {
+        state.qualificationsStatus = 'loading';
+        state.qualificationsError = null;
+      })
+      .addCase(fetchQualifications.fulfilled, (state, {payload}) => {
+        state.qualificationsStatus = 'succeeded';
+        state.qualificationsError = null;
+        state.qualifications = Array.isArray(payload) ? payload : [];
+      })
+      .addCase(fetchQualifications.rejected, (state, action) => {
+        state.qualificationsStatus = 'failed';
+        state.qualificationsError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to fetch qualifications';
+      })
+      // ---- Qualification Add/Update/Delete ----
+      .addCase(addQualification.pending, state => {
+        state.qualificationMutateStatus = 'loading';
+        state.qualificationMutateError = null;
+      })
+      .addCase(addQualification.fulfilled, (state, {payload}) => {
+        state.qualificationMutateStatus = 'succeeded';
+        state.qualificationMutateError = null;
+        if (payload) {
+          const id = payload?.QualificationId ?? payload?.qualificationId ?? payload?.id;
+          const exists = state.qualifications.some(
+            (q: any) => (q?.QualificationId ?? q?.qualificationId ?? q?.id) === id,
+          );
+          if (!exists) state.qualifications = [...state.qualifications, payload];
+        }
+      })
+      .addCase(addQualification.rejected, (state, action) => {
+        state.qualificationMutateStatus = 'failed';
+        state.qualificationMutateError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to add qualification';
+      })
+      .addCase(updateQualification.pending, state => {
+        state.qualificationMutateStatus = 'loading';
+        state.qualificationMutateError = null;
+      })
+      .addCase(updateQualification.fulfilled, (state, {payload}) => {
+        state.qualificationMutateStatus = 'succeeded';
+        state.qualificationMutateError = null;
+        if (payload) {
+          const id = payload?.QualificationId ?? payload?.qualificationId ?? payload?.id;
+          const idx = state.qualifications.findIndex(
+            (q: any) => (q?.QualificationId ?? q?.qualificationId ?? q?.id) === id,
+          );
+          if (idx >= 0) {
+            const next = [...state.qualifications];
+            next[idx] = {...next[idx], ...payload};
+            state.qualifications = next;
+          }
+        }
+      })
+      .addCase(updateQualification.rejected, (state, action) => {
+        state.qualificationMutateStatus = 'failed';
+        state.qualificationMutateError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to update qualification';
+      })
+      .addCase(deleteQualification.pending, state => {
+        state.qualificationMutateStatus = 'loading';
+        state.qualificationMutateError = null;
+      })
+      .addCase(deleteQualification.fulfilled, (state, {payload: id}) => {
+        state.qualificationMutateStatus = 'succeeded';
+        state.qualificationMutateError = null;
+        state.qualifications = state.qualifications.filter(
+          (q: any) => (q?.QualificationId ?? q?.qualificationId ?? q?.id) !== id,
+        );
+      })
+      .addCase(deleteQualification.rejected, (state, action) => {
+        state.qualificationMutateStatus = 'failed';
+        state.qualificationMutateError =
+          (action.payload as string) ||
+          action.error.message ||
+          'Failed to delete qualification';
       });
   },
 });

@@ -53,6 +53,7 @@ const AppDropdown: React.FC<AppDropdownProps> = ({
         iconStyle={{marginRight: hp(1)}}
         placeholderStyle={{
           fontFamily: AppFonts.InterLight,
+          color: AppColors.textGrey,
         }}
         style={[styles.input, inputStyle]}
         data={data}
@@ -62,8 +63,11 @@ const AppDropdown: React.FC<AppDropdownProps> = ({
         placeholder={placeholder}
         multiple={multiple}
         value={value}
-        onChange={onChangeText}
+        onChange={(item: any) =>
+          onChangeText?.(labelType ? item?.label : item?.value)
+        }
         selectedTextStyle={{color: AppColors.black}}
+        itemTextStyle={{color: AppColors.black}}
         showsVerticalScrollIndicator={false}
         onConfirmSelectItem={onConfirmSelectItem}
       />

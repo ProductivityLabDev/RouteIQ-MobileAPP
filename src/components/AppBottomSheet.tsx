@@ -10,6 +10,8 @@ interface AppBottomSheetProps {
   handleSheetChanges?: (index: number) => void;
   children?: React.ReactNode;
   enablePanDownToClose?: boolean,
+  enableContentPanningGesture?: boolean,
+  enableHandlePanningGesture?: boolean,
   contentContainerStyle?: StyleProp<ViewStyle>,
   ContainerStyle?: StyleProp<ViewStyle>,
 }
@@ -21,6 +23,8 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
   handleSheetChanges,
   children,
   enablePanDownToClose,
+  enableContentPanningGesture,
+  enableHandlePanningGesture,
   contentContainerStyle,
   ContainerStyle
 }) => {
@@ -29,8 +33,8 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
       backdropComponent={backdropComponent}
       // detached={true}
       enablePanDownToClose={enablePanDownToClose}
-      // enableDismissOnClose={false}
-      // enableContentPanningGesture={false}
+      enableContentPanningGesture={enableContentPanningGesture}
+      enableHandlePanningGesture={enableHandlePanningGesture}
       handleComponent={() => null} 
       ref={bottomSheetModalRef}
       keyboardBehavior="interactive"

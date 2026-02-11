@@ -11,21 +11,14 @@
  * On 401 it dispatches logoutUser() and shows an error toast.
  */
 
-import {Platform} from 'react-native';
 import {showErrorToast} from './toast';
+import {getApiBaseUrl} from './apiConfig';
 
 // Store reference — set once at app startup to avoid circular imports
 let _storeRef: any = null;
 
 export const setApiFetchStoreRef = (store: any) => {
   _storeRef = store;
-};
-
-const getApiBaseUrl = () => {
-  const manualHost = 'http://192.168.18.36:3000';
-  const deviceHost =
-    Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-  return manualHost?.trim() || deviceHost;
 };
 
 export {getApiBaseUrl};
