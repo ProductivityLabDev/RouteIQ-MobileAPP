@@ -151,5 +151,7 @@ export interface EmergencyContactProps {
 }
 
 export interface CleaningCollapsableCardProps {
-  item: any
+  item: any;
+  checkedItemIds?: number[];
+  onToggleItem?: (itemId: number) => void;
 }

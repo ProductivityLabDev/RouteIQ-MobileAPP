@@ -16,17 +16,20 @@ import {mapCustomStyle} from '../../utils/mapConfig';
 import AppFonts from '../../utils/appFonts';
 import GlobalIcon from '../../components/GlobalIcon';
 import AlarmIcon from '../../assets/svgs/AlarmIcon';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import {Image} from 'react-native';
 import {useKeyboard} from '../../utils/keyboard';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {getVehicleLocation, updateVehicleLocation, fetchDriverDetails, fetchRoutesByDate, startTrip, endTrip} from '../../store/driver/driverSlices';
+import {getVehicleLocation, updateVehicleLocation, fetchDriverDetails, fetchRoutesByDate, startTrip, endTrip, setActiveRouteId, setRouteStarted} from '../../store/driver/driverSlices';
 import Geolocation from '@react-native-community/geolocation';
 import {Platform, PermissionsAndroid, Alert, Linking, AppState} from 'react-native';
 import {googleMapsApiKey} from '../../utils/mapConfig';
+import {getApiBaseUrl} from '../../utils/apiConfig';
+import {showSuccessToast} from '../../utils/toast';
 
 const DriverMapView = () => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const dispatch = useAppDispatch();
   const keyboardHeight = useKeyboard();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -39,6 +42,12 @@ const DriverMapView = () => {
     state => state.userSlices.showStartMileAgeSheet,
   );
   const [tripStarted, setTripStarted] = useState(false); // new
+  const [startMileage, setStartMileage] = useState('');
+  const [onBoardCount, setOnBoardCount] = useState(0);
+  const [totalStudentsCount, setTotalStudentsCount] = useState(0);
+  const [directionHint, setDirectionHint] = useState('Follow route');
+  const [directionDistance, setDirectionDistance] = useState<string>('—');
+  const [studentStops, setStudentStops] = useState<any[]>([]);
   const [currentGpsLocation, setCurrentGpsLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -49,6 +58,8 @@ const DriverMapView = () => {
   const [isLocationServiceEnabled, setIsLocationServiceEnabled] = useState<boolean | null>(null);
   const [locationAccuracyIssue, setLocationAccuracyIssue] = useState<boolean>(false);
   const watchIdRef = useRef<number | null>(null);
+  const mockIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mockStepRef = useRef(0);
   const lastLocationSendRef = useRef<number>(0);
   const mapRef = useRef<MapView>(null);
   const LOCATION_SEND_INTERVAL_MS = 10000; // Throttle: send to server every 10s (API guide: 5-10s recommended)
@@ -56,11 +67,11 @@ const DriverMapView = () => {
   // =================== DEV MOCK LOCATION ===================
   // Set USE_MOCK_LOCATION = true to test with US coordinates from Pakistan
   // Set to false for production / real GPS
-  const USE_MOCK_LOCATION = false; // Set to (__DEV__ && true) for mock US coords during testing
+  const USE_MOCK_LOCATION = true; // Set to (__DEV__ && true) for mock US coords during testing
   const MOCK_LOCATION = {
-    latitude: 41.87048140,   // Chicago, US
-    longitude: -87.63265390,
-    speed: 25,
+    latitude: 34.017289,
+    longitude: -118.483304,
+    speed: 45,
     heading: 90,
   };
   // ==========================================================
@@ -74,6 +85,16 @@ const DriverMapView = () => {
   const route = useRoute();
   const isFromMapView =
     (route.params as any)?.FromMapView ?? (route.params as any)?.fromMapView ?? false;
+  const inspectionSelectedIssueIds = Array.isArray(
+    (route.params as any)?.inspectionSelectedIssueIds,
+  )
+    ? (route.params as any)?.inspectionSelectedIssueIds
+    : [];
+  const inspectionNotes =
+    typeof (route.params as any)?.inspectionNotes === 'string'
+      ? (route.params as any)?.inspectionNotes
+      : '';
+  const inspectionReportId = (route.params as any)?.inspectionReportId ?? null;
 
   useEffect(() => {
     if (__DEV__ && route?.params != null) {
@@ -82,18 +103,27 @@ const DriverMapView = () => {
   }, [route?.params]);
 
   const role = useAppSelector(state => state.userSlices.role);
+  const token = useAppSelector(state => state.userSlices.token);
   const employeeId = useAppSelector(state => state.userSlices.employeeId);
   const tokenVehicleId = useAppSelector(state => (state as any).userSlices.vehicleId);
   // routeId + tripId from routes-by-date API (preferred) or JWT fallback
   const activeRouteId = useAppSelector(state => (state as any).driverSlices.activeRouteId);
   const activeTripId = useAppSelector(state => (state as any).driverSlices.activeTripId);
+  const routeStarted = useAppSelector(state => (state as any).driverSlices.routeStarted);
   const tokenRouteId = useAppSelector(state => (state as any).userSlices.routeId);
   const tokenTripId = useAppSelector(state => (state as any).userSlices.tripId);
-  const effectiveRouteId = activeRouteId ?? tokenRouteId;
+  const routesByDate = useAppSelector(state => (state as any).driverSlices.routesByDate);
+  const fallbackRouteIdFromRoutes = useMemo(() => {
+    const morning = Array.isArray(routesByDate?.morning) ? routesByDate.morning : [];
+    const evening = Array.isArray(routesByDate?.evening) ? routesByDate.evening : [];
+    const firstRoute = morning[0] ?? evening[0] ?? null;
+    return firstRoute?.RouteId ?? firstRoute?.routeId ?? null;
+  }, [routesByDate]);
+  const effectiveRouteId =
+    activeRouteId ?? tokenRouteId ?? fallbackRouteIdFromRoutes;
   const effectiveTripId = activeTripId ?? tokenTripId;
   const driverDetails = useAppSelector(state => state.driverSlices.driverDetails);
   const vehicleLocation = useAppSelector(state => state.driverSlices.vehicleLocation);
-  const routesByDate = useAppSelector(state => (state as any).driverSlices.routesByDate);
 
   const snapPoints = useMemo(
     () => [keyboardHeight ? '30%' : '23%', '10%'],
@@ -158,6 +188,38 @@ const DriverMapView = () => {
     routeCoordinates.hasValidRoute &&
     !!routeCoordinates.pickup &&
     !!routeCoordinates.dropoff;
+  const routeOrigin = useMemo(
+    () => routeCoordinates.pickup ?? null,
+    [routeCoordinates.pickup],
+  );
+  const routeDestination = useMemo(() => {
+    const firstDropoff = studentStops.find(
+      (student: any) =>
+        Number.isFinite(Number(student?.dropoffLocation?.latitude)) &&
+        Number.isFinite(Number(student?.dropoffLocation?.longitude)),
+    );
+    if (firstDropoff) {
+      return {
+        latitude: Number(firstDropoff.dropoffLocation.latitude),
+        longitude: Number(firstDropoff.dropoffLocation.longitude),
+      };
+    }
+    return routeCoordinates.dropoff ?? null;
+  }, [studentStops, routeCoordinates.dropoff]);
+  const routeWaypoints = useMemo(() => {
+    return studentStops
+      .filter(
+        (student: any) =>
+          Number.isFinite(Number(student?.pickupLocation?.latitude)) &&
+          Number.isFinite(Number(student?.pickupLocation?.longitude)),
+      )
+      .map((student: any) => ({
+        latitude: Number(student.pickupLocation.latitude),
+        longitude: Number(student.pickupLocation.longitude),
+      }));
+  }, [studentStops]);
+  const canRenderOptimizedDirections =
+    !!googleMapsApiKey && !!routeOrigin && !!routeDestination;
 
   // Live pin: always prefer driver's GPS (Karachi/current). API = fallback only when GPS not yet available.
   const currentVehicleLocation = useMemo(() => {
@@ -232,7 +294,13 @@ const DriverMapView = () => {
 
   // Live tracking: follow driver when GPS updates
   useEffect(() => {
-    if (!currentGpsLocation?.latitude || !currentGpsLocation?.longitude || !mapRef.current) return;
+    if (
+      USE_MOCK_LOCATION ||
+      !currentGpsLocation?.latitude ||
+      !currentGpsLocation?.longitude ||
+      !mapRef.current
+    )
+      return;
     mapRef.current.animateToRegion(
       {
         latitude: currentGpsLocation.latitude,
@@ -255,19 +323,39 @@ const DriverMapView = () => {
         showsMyLocationButton={false}
         followsUserLocation={false}>
       {/* Pickup -> Dropoff route line from routes/by-date coordinates */}
-      {routeCoordinates.hasValidRoute &&
-        routeCoordinates.pickup &&
-        routeCoordinates.dropoff && (
+      {routeOrigin && routeDestination && (
           <>
-            {canRenderDirections ? (
+            {canRenderOptimizedDirections ? (
               <MapViewDirections
-                origin={routeCoordinates.pickup}
-                destination={routeCoordinates.dropoff}
+                origin={routeOrigin}
+                destination={routeDestination}
+                waypoints={routeWaypoints}
                 apikey={googleMapsApiKey}
                 strokeWidth={4}
                 strokeColor={AppColors.red}
-                optimizeWaypoints={false}
+                optimizeWaypoints={true}
                 onReady={result => {
+                  const firstLeg: any =
+                    Array.isArray((result as any)?.legs) && (result as any).legs.length > 0
+                      ? (result as any).legs[0]
+                      : null;
+                  const firstStep: any =
+                    firstLeg && Array.isArray(firstLeg?.steps) && firstLeg.steps.length > 0
+                      ? firstLeg.steps[0]
+                      : null;
+                  const htmlInstruction =
+                    String(firstStep?.html_instructions ?? firstStep?.maneuver ?? '').trim();
+                  const plainInstruction = htmlInstruction
+                    ? htmlInstruction.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+                    : '';
+                  if (plainInstruction) {
+                    setDirectionHint(plainInstruction);
+                  }
+                  const stepDistanceText =
+                    String(firstStep?.distance?.text ?? firstLeg?.distance?.text ?? '').trim();
+                  if (stepDistanceText) {
+                    setDirectionDistance(stepDistanceText);
+                  }
                   mapRef.current?.fitToCoordinates(result.coordinates, {
                     edgePadding: {top: hp(6), right: hp(6), bottom: hp(24), left: hp(6)},
                     animated: true,
@@ -281,13 +369,21 @@ const DriverMapView = () => {
               />
             ) : (
               <Polyline
-                coordinates={[routeCoordinates.pickup, routeCoordinates.dropoff]}
+                coordinates={[routeOrigin, ...routeWaypoints, routeDestination]}
                 strokeColor={AppColors.red}
                 strokeWidth={4}
               />
             )}
-            <Marker coordinate={routeCoordinates.pickup} pinColor="#1FA971" />
-            <Marker coordinate={routeCoordinates.dropoff} pinColor="#C62828" />
+            <Marker coordinate={routeOrigin} pinColor="#1FA971" />
+            <Marker coordinate={routeDestination} pinColor="#C62828" />
+            {routeWaypoints.map((point, idx) => (
+              <Marker
+                key={`student_pick_${idx}`}
+                coordinate={point}
+                pinColor="#1E88E5"
+                title={String(studentStops[idx]?.name ?? `Student ${idx + 1}`)}
+              />
+            ))}
           </>
         )}
       {/* Vehicle Location Marker - live GPS when available */}
@@ -295,7 +391,7 @@ const DriverMapView = () => {
         <Marker
           coordinate={currentVehicleLocation}
           anchor={{x: 0.5, y: 0.5}}
-          tracksViewChanges={!!currentGpsLocation}
+          tracksViewChanges={false}
           onPress={() => {
             if (__DEV__) {
               console.log('📍 PIN MARKER CLICKED:');
@@ -323,8 +419,86 @@ const DriverMapView = () => {
       )}
     </MapView>
     ),
-    [mapRegion, currentVehicleLocation, currentGpsLocation, mapRef, routeCoordinates],
+    [
+      mapRegion,
+      currentVehicleLocation,
+      currentGpsLocation,
+      mapRef,
+      routeCoordinates,
+      routeOrigin,
+      routeDestination,
+      routeWaypoints,
+      studentStops,
+      setDirectionHint,
+      setDirectionDistance,
+    ],
   );
+
+  useEffect(() => {
+    const fetchRouteStudents = async () => {
+      if (!token) return;
+      try {
+        const baseUrl = getApiBaseUrl();
+        const endpoint = `${baseUrl}/driver/students`;
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
+        if (!response.ok) return;
+        const data = await response.json().catch(() => null);
+        const list = Array.isArray(data?.data) ? data.data : [];
+        setStudentStops(list);
+      } catch (e) {
+        // ignore
+      }
+    };
+    fetchRouteStudents();
+  }, [token, effectiveRouteId]);
+
+  const fetchOnBoardSummary = useCallback(async () => {
+    if (!token || !effectiveRouteId) return;
+    try {
+      const baseUrl = getApiBaseUrl();
+      const types: Array<'AM' | 'PM'> = ['AM', 'PM'];
+      let bestSummary: any = null;
+      let bestScore = -1;
+      for (const type of types) {
+        const endpoint = `${baseUrl}/tracking/routes/${effectiveRouteId}/students/onboard?type=${type}`;
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
+        if (!response.ok) continue;
+        const data = await response.json().catch(() => null);
+        const summary = data?.data ?? null;
+        if (!summary) continue;
+        const score = Number(summary?.onBoardCount ?? 0) * 1000 + Number(summary?.totalStudents ?? 0);
+        if (score > bestScore) {
+          bestScore = score;
+          bestSummary = summary;
+        }
+      }
+      if (bestSummary) {
+        setOnBoardCount(Number(bestSummary?.onBoardCount ?? 0));
+        setTotalStudentsCount(Number(bestSummary?.totalStudents ?? 0));
+      }
+    } catch (e) {
+      // keep old values
+    }
+  }, [token, effectiveRouteId]);
+
+  useEffect(() => {
+    if (!isFocused) return;
+    fetchOnBoardSummary();
+    const interval = setInterval(fetchOnBoardSummary, 6000);
+    return () => clearInterval(interval);
+  }, [isFocused, fetchOnBoardSummary]);
 
   useEffect(() => {
     if (showStartMileAgeSheet) {
@@ -501,10 +675,62 @@ const DriverMapView = () => {
     });
   }, []);
 
+  const getNextMockLocation = useCallback(() => {
+    const step = mockStepRef.current++;
+    const latOffset = Math.sin(step / 4) * 0.00026;
+    const lngOffset = Math.cos(step / 4) * 0.00026;
+    return {
+      latitude: MOCK_LOCATION.latitude + latOffset,
+      longitude: MOCK_LOCATION.longitude + lngOffset,
+      speed: MOCK_LOCATION.speed,
+      heading: (MOCK_LOCATION.heading + (step * 20) % 360) % 360,
+    };
+  }, []);
+
   // Start GPS location tracking (MANDATORY - permission required)
   const startLocationTracking = useCallback(() => {
     if (!vehicleId) {
       if (__DEV__) console.warn('❌ Cannot start location tracking: vehicleId is missing');
+      return;
+    }
+    if (USE_MOCK_LOCATION) {
+      if (!routeStarted) {
+        setCurrentGpsLocation({
+          latitude: MOCK_LOCATION.latitude,
+          longitude: MOCK_LOCATION.longitude,
+          speed: 0,
+          heading: MOCK_LOCATION.heading,
+        });
+        if (__DEV__) console.log('🧪 Mock GPS paused (trip not started)');
+        return;
+      }
+      if (mockIntervalRef.current) return;
+      setHasLocationPermission(true);
+      setIsLocationServiceEnabled(true);
+      const sendMockTick = () => {
+        const point = getNextMockLocation();
+        const timestamp = new Date().toISOString();
+        setCurrentGpsLocation(point);
+        const now = Date.now();
+        if (now - lastLocationSendRef.current >= LOCATION_SEND_INTERVAL_MS) {
+          lastLocationSendRef.current = now;
+          dispatch(
+            updateVehicleLocation({
+              vehicleId,
+              latitude: point.latitude,
+              longitude: point.longitude,
+              speed: point.speed ?? undefined,
+              heading: point.heading ?? undefined,
+              timestamp,
+              routeId: effectiveRouteId ?? undefined,
+              tripId: effectiveTripId ?? undefined,
+            }),
+          );
+        }
+      };
+      sendMockTick();
+      mockIntervalRef.current = setInterval(sendMockTick, 2000);
+      if (__DEV__) console.log('🧪 Mock GPS tracking started');
       return;
     }
     // Avoid starting multiple watchers
@@ -776,10 +1002,23 @@ const DriverMapView = () => {
         gpsPollIntervalRef.current = setInterval(pollOnce, 15000);
       }
     });
-  }, [vehicleId, dispatch, requestLocationPermission, hasLocationPermission, effectiveRouteId, effectiveTripId]);
+  }, [
+    vehicleId,
+    dispatch,
+    requestLocationPermission,
+    hasLocationPermission,
+    effectiveRouteId,
+    effectiveTripId,
+    getNextMockLocation,
+    routeStarted,
+  ]);
 
   // Stop GPS location tracking
   const stopLocationTracking = useCallback(() => {
+    if (mockIntervalRef.current) {
+      clearInterval(mockIntervalRef.current);
+      mockIntervalRef.current = null;
+    }
     if (watchIdRef.current !== null) {
       if (__DEV__) console.log('🛑 Stopping watchPosition, id:', watchIdRef.current);
       Geolocation.clearWatch(watchIdRef.current);
@@ -905,20 +1144,189 @@ const DriverMapView = () => {
   const handleStartTripPress = useCallback(async () => {
     const ok = await ensureDriverCanStartTrip();
     if (!ok) return;
-    setTripStarted(true);
     openSheet();
   }, [ensureDriverCanStartTrip, openSheet]);
 
-  // Start location tracking as soon as we have permission + vehicleId.
-  // Do not block on isLocationServiceEnabled (getCurrentPosition may TIMEOUT even when GPS is ON).
   useEffect(() => {
-    if (vehicleId && role === 'Driver' && hasLocationPermission === true) {
+    // Keep local CTA state in sync with persisted route start state.
+    setTripStarted(!!routeStarted);
+  }, [routeStarted]);
+
+  const handleStartRouteSubmit = useCallback(async () => {
+    if (!token) {
+      Alert.alert('Error', 'Not authenticated');
+      return;
+    }
+    if (!effectiveRouteId) {
+      if (__DEV__) {
+        console.warn('❌ Start route blocked: routeId missing', {
+          activeRouteId,
+          tokenRouteId,
+          fallbackRouteIdFromRoutes,
+          routesByDate,
+        });
+      }
+      Alert.alert('Error', 'Route not found');
+      return;
+    }
+    if (!vehicleId) {
+      Alert.alert('Error', 'Vehicle not found');
+      return;
+    }
+    try {
+      const baseUrl = getApiBaseUrl();
+      const endpoint = `${baseUrl}/driver/routes/${effectiveRouteId}/start`;
+      const body: any = {
+        vehicleId: Number(vehicleId),
+        selectedIssueIds: inspectionSelectedIssueIds,
+        notes: inspectionNotes,
+      };
+      const mileageNumber = Number(startMileage);
+      if (startMileage.trim() && Number.isFinite(mileageNumber)) {
+        body.startMileage = mileageNumber;
+      }
+      if (inspectionReportId != null) {
+        body.inspectionReportId = inspectionReportId;
+      }
+
+      if (__DEV__) {
+        console.log('📡 POST /driver/routes/:routeId/start URL:', endpoint);
+        console.log('📤 POST /driver/routes/:routeId/start BODY:', body);
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      const responseText = await response.text().catch(() => '');
+      if (!response.ok) {
+        if (__DEV__) {
+          console.warn(
+            '❌ POST /driver/routes/:routeId/start failed:',
+            response.status,
+            responseText,
+          );
+        }
+        Alert.alert('Start Failed', responseText || 'Could not start route');
+        return;
+      }
+      if (__DEV__) {
+        console.log('✅ POST /driver/routes/:routeId/start success:', responseText);
+      }
+      dispatch(setActiveRouteId(effectiveRouteId));
+      dispatch(setRouteStarted(true));
+      setTripStarted(true);
+      closeSheet();
+    } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ POST /driver/routes/:routeId/start network error:', e);
+      }
+      Alert.alert('Error', 'Network error while starting route');
+    }
+  }, [
+    token,
+    effectiveRouteId,
+    activeRouteId,
+    tokenRouteId,
+    fallbackRouteIdFromRoutes,
+    routesByDate,
+    vehicleId,
+    inspectionSelectedIssueIds,
+    inspectionNotes,
+    startMileage,
+    inspectionReportId,
+    closeSheet,
+  ]);
+
+  const handleEndRouteSubmit = useCallback(async () => {
+    if (!token) {
+      Alert.alert('Error', 'Not authenticated');
+      return;
+    }
+    if (!effectiveRouteId) {
+      Alert.alert('Error', 'Route not found');
+      return;
+    }
+    try {
+      const baseUrl = getApiBaseUrl();
+      const endpoint = `${baseUrl}/driver/routes/${effectiveRouteId}/end`;
+      const body: any = {};
+      const mileageNumber = Number(startMileage);
+      if (startMileage.trim() && Number.isFinite(mileageNumber)) {
+        body.endMileage = mileageNumber;
+      }
+
+      if (__DEV__) {
+        console.log('📡 POST /driver/routes/:routeId/end URL:', endpoint);
+        console.log('📤 POST /driver/routes/:routeId/end BODY:', body);
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      const responseText = await response.text().catch(() => '');
+      if (!response.ok) {
+        if (__DEV__) {
+          console.warn(
+            '❌ POST /driver/routes/:routeId/end failed:',
+            response.status,
+            responseText,
+          );
+        }
+        Alert.alert('End Failed', responseText || 'Could not end route');
+        return;
+      }
+      if (__DEV__) {
+        console.log('✅ POST /driver/routes/:routeId/end success:', responseText);
+      }
+      dispatch(setActiveRouteId(null));
+      dispatch(setRouteStarted(false));
+      showSuccessToast('Success', 'Route ended successfully');
+      closeSheet();
+      setTripStarted(false);
+      navigation.navigate('DriverHomeScreen');
+    } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ POST /driver/routes/:routeId/end network error:', e);
+      }
+      Alert.alert('Error', 'Network error while ending route');
+    }
+  }, [token, effectiveRouteId, startMileage, closeSheet, navigation, dispatch]);
+
+  // Start location tracking only when trip has started.
+  useEffect(() => {
+    if (
+      vehicleId &&
+      role === 'Driver' &&
+      hasLocationPermission === true &&
+      routeStarted
+    ) {
       startLocationTracking();
+    } else if (role === 'Driver') {
+      stopLocationTracking();
     }
     return () => {
       stopLocationTracking();
     };
-  }, [vehicleId, role, hasLocationPermission, startLocationTracking, stopLocationTracking]);
+  }, [
+    vehicleId,
+    role,
+    hasLocationPermission,
+    routeStarted,
+    startLocationTracking,
+    stopLocationTracking,
+  ]);
 
   // Continuous location service monitoring (app chalne ke dauran bhi check karega)
   useEffect(() => {
@@ -1020,12 +1428,14 @@ const DriverMapView = () => {
 
         <View style={[styles.absoluteContainer]}>
           <View style={[AppStyles.rowBetween, {alignItems: 'flex-end'}]}>
-            <View style={{gap: 10}}>
+            <View style={styles.tripInfoColumn}>
               <View style={styles.firstContainer}>
                 <Text style={styles.boardTitle}>Trip# 03</Text>
                 <Text style={styles.boardTitle}>Students on board</Text>
                 {/* <Text style={styles.boardTitle}>on board:</Text> */}
-                <Text style={styles.boardDate}>10 / 12</Text>
+                <Text style={styles.boardDate}>
+                  {`${onBoardCount} / ${totalStudentsCount}`}
+                </Text>
               </View>
               {!endTrip && (
                 <View style={styles.distanceContainer}>
@@ -1034,10 +1444,18 @@ const DriverMapView = () => {
                       library="MaterialCommunityIcons"
                       name="arrow-right-top-bold"
                     />
-                    <Text style={styles.boardDate}>50 Feet</Text>
+                    <Text
+                      style={styles.boardDate}
+                      numberOfLines={1}
+                      ellipsizeMode="tail">
+                      {directionDistance}
+                    </Text>
                   </View>
-                  <Text style={AppStyles.whiteSubTitle}>
-                    Turn right on banker road
+                  <Text
+                    style={AppStyles.whiteSubTitle}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {directionHint}
                   </Text>
                 </View>
               )}
@@ -1109,6 +1527,8 @@ const DriverMapView = () => {
             {tripEnd ? ' Enter End Mileage*' : ' Enter Start Mileage*'}
           </Text>
           <AppInput
+            value={startMileage}
+            onChangeText={setStartMileage}
             placeholder={
               tripEnd ? ' Enter End Mileage' : ' Enter Start Mileage'
             }
@@ -1129,12 +1549,9 @@ const DriverMapView = () => {
               style={styles.submitButton}
               onPress={() => {
                 if (tripEnd) {
-                  // Ending trip
-                  navigation.navigate('DriverHomeScreen');
+                  handleEndRouteSubmit();
                 } else {
-                  // Starting trip
-                  setTripStarted(true);
-                  closeSheet(); // close and stay on map
+                  handleStartRouteSubmit();
                 }
               }}
             />
@@ -1262,6 +1679,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
+    width: '100%',
+  },
+  tripInfoColumn: {
+    gap: 10,
+    width: '80%',
   },
   absoluteContainer: {
     position: 'absolute',

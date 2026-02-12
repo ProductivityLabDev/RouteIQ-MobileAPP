@@ -984,6 +984,7 @@ const driverSlice = createSlice({
     // Active trip/route tracking
     activeRouteId: null as number | string | null,
     activeTripId: null as number | string | null,
+    routeStarted: false,
     // Trip start/end
     tripStartStatus: 'idle' as 'idle' | 'loading' | 'succeeded' | 'failed',
     tripStartError: null as string | null,
@@ -1032,6 +1033,9 @@ const driverSlice = createSlice({
     },
     setActiveTripId: (state, {payload}) => {
       state.activeTripId = payload;
+    },
+    setRouteStarted: (state, {payload}) => {
+      state.routeStarted = !!payload;
     },
   },
   extraReducers: builder => {
@@ -1118,6 +1122,20 @@ const driverSlice = createSlice({
         state.routesByDateStatus = 'succeeded';
         state.routesByDateError = null;
         state.routesByDate = payload;
+        const allRoutes = [
+          ...(Array.isArray(payload?.morning) ? payload.morning : []),
+          ...(Array.isArray(payload?.evening) ? payload.evening : []),
+        ];
+        const hasStartedRoute = allRoutes.some((route: any) => {
+          const status = String(route?.TripStatus ?? route?.tripStatus ?? '').toLowerCase();
+          return (
+            status === 'started' ||
+            status === 'in progress' ||
+            status === 'ongoing' ||
+            status === 'active'
+          );
+        });
+        state.routeStarted = hasStartedRoute;
         // Auto-pick first morning route's routeId + tripId if available
         const firstRoute =
           payload?.morning?.[0] ?? payload?.evening?.[0] ?? null;
@@ -1383,6 +1401,7 @@ export const {
   setShowCreateGroup,
   setActiveRouteId,
   setActiveTripId,
+  setRouteStarted,
 } = driverSlice.actions;
 
 export default driverSlice.reducer;

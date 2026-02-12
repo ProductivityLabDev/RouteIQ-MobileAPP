@@ -1,5 +1,5 @@
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import AppHeader from '../../components/AppHeader';
 import AppLayout from '../../layout/AppLayout';
 import {AppColors} from '../../utils/color';
@@ -11,15 +11,21 @@ import GlobalIcon from '../../components/GlobalIcon';
 import GridIcon from '../../assets/svgs/GridIcon';
 import StudentCard from '../../components/StudentCard';
 import {studentsData} from '../../utils/DummyData';
-import {useAppSelector} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {getApiBaseUrl} from '../../utils/apiConfig';
+import {useIsFocused} from '@react-navigation/native';
+import {fetchRoutesByDate} from '../../store/driver/driverSlices';
 
 const DriverStudentsScreen = () => {
   // const isFocused = useIsFocused();
   const [grid, setGrid] = useState('row');
   const numColumns = grid === 'row' ? 2 : 1;
+  const dispatch = useAppDispatch();
   const token = useAppSelector(state => state.userSlices.token);
   const routesByDate = useAppSelector(state => (state as any).driverSlices.routesByDate);
+  const routeStarted = useAppSelector(
+    state => (state as any).driverSlices.routeStarted,
+  );
   const activeRouteId = useAppSelector(state => (state as any).driverSlices.activeRouteId);
   const tokenRouteId = useAppSelector(state => (state as any).userSlices.routeId);
   const fallbackRouteIdFromRoutesByDate = (() => {
@@ -40,8 +46,19 @@ const DriverStudentsScreen = () => {
   const [studentsOnBusCount, setStudentsOnBusCount] = useState<number>(0);
   const [totalStudentsCount, setTotalStudentsCount] = useState<number>(0);
   const [onBoardStudents, setOnBoardStudents] = useState<any[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [studentsRouteId, setStudentsRouteId] = useState<number | string | null>(
+    null,
+  );
+  const [requireStartTrip, setRequireStartTrip] = useState(false);
   const markedAttendanceRef = useRef<Set<string>>(new Set());
+  const isFocused = useIsFocused();
 
+  useEffect(() => {
+    if (!isFocused || !token) return;
+    const today = new Date().toISOString().split('T')[0];
+    dispatch(fetchRoutesByDate(today));
+  }, [isFocused, token, dispatch]);
   const markAttendance = useCallback(
     async (
       routeId: number | string,
@@ -115,21 +132,22 @@ const DriverStudentsScreen = () => {
         return next;
       });
 
-      if (!effectiveRouteId) return;
+      const attendanceRouteId = studentsRouteId ?? effectiveRouteId;
+      if (!attendanceRouteId) return;
       if (nextStatus === 'present') {
-        await markAttendance(effectiveRouteId, studentId, 'pickup');
+        await markAttendance(attendanceRouteId, studentId, 'pickup');
       } else {
-        await markAttendance(effectiveRouteId, studentId, 'dropoff');
+        await markAttendance(attendanceRouteId, studentId, 'dropoff');
       }
     },
-    [effectiveRouteId, markAttendance],
+    [studentsRouteId, effectiveRouteId, markAttendance],
   );
 
   // useEffect(() => {
   //   setGrid('row')
   // }, [isFocused])
   useEffect(() => {
-    const fetchOnBoardSummary = async () => {
+    const fetchStudentsAndOnBoardSummary = async () => {
       console.log('🧭 Onboard summary precheck:', {
         hasToken: !!token,
         activeRouteId,
@@ -137,55 +155,141 @@ const DriverStudentsScreen = () => {
         fallbackRouteIdFromRoutesByDate,
         effectiveRouteId,
       });
-      if (!token || !effectiveRouteId) {
-        console.warn('⚠️ Onboard summary skipped: token/routeId missing');
+      if (!token) {
+        console.warn('⚠️ Students fetch skipped: token missing');
+        setOnBoardStudents([]);
+        setStudentsOnBusCount(0);
+        setTotalStudentsCount(0);
+        setRequireStartTrip(true);
         return;
       }
       try {
+        setStudentsLoading(true);
         const baseUrl = getApiBaseUrl();
-        const currentType = new Date().getHours() < 12 ? 'AM' : 'PM';
-        const endpoint = `${baseUrl}/tracking/routes/${effectiveRouteId}/students/onboard?type=${currentType}`;
-        console.log('📡 GET onboard summary URL:', endpoint);
-        const response = await fetch(endpoint, {
+        const today = new Date().toISOString().split('T')[0];
+        const studentsEndpoint = `${baseUrl}/driver/students`;
+        console.log('📡 GET /driver/students URL:', studentsEndpoint);
+        const studentsResponse = await fetch(studentsEndpoint, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: 'application/json',
           },
         });
-        console.log('📡 GET onboard summary status:', response.status);
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => '');
-          console.warn('❌ GET onboard summary failed:', errorText);
+        console.log('📡 GET /driver/students status:', studentsResponse.status);
+        if (!studentsResponse.ok) {
+          const errorText = await studentsResponse.text().catch(() => '');
+          console.warn('❌ GET /driver/students failed:', errorText);
+          setOnBoardStudents([]);
+          setStudentsOnBusCount(0);
+          setTotalStudentsCount(0);
+          setRequireStartTrip(true);
           return;
         }
-        const data = await response.json().catch(() => null);
-        console.log('✅ GET onboard summary response:', data);
+        const studentsDataResponse = await studentsResponse.json().catch(() => null);
+        console.log('✅ GET /driver/students response:', studentsDataResponse);
+        const studentsList = Array.isArray(studentsDataResponse?.data)
+          ? studentsDataResponse.data
+          : [];
+        const routeIdFromStudents =
+          studentsDataResponse?.routeId ??
+          studentsDataResponse?.RouteId ??
+          effectiveRouteId;
+        setStudentsRouteId(routeIdFromStudents ?? null);
+
+        if (studentsList.length === 0) {
+          setOnBoardStudents([]);
+          setStudentsOnBusCount(0);
+          setTotalStudentsCount(0);
+          setRequireStartTrip(true);
+          return;
+        }
+        setRequireStartTrip(false);
+
+        let selectedSummary: any = null;
+        let bestScore = -1;
+        const currentType: 'AM' | 'PM' =
+          new Date().getHours() < 12 ? 'AM' : 'PM';
+        const candidateRouteIds = Array.from(
+          new Set([
+            routeIdFromStudents,
+            effectiveRouteId,
+            activeRouteId,
+            tokenRouteId,
+          ].filter(Boolean)),
+        );
+        for (const routeId of candidateRouteIds) {
+          const endpoint = `${baseUrl}/tracking/routes/${routeId}/students/onboard?type=${currentType}`;
+          console.log('📡 GET onboard summary URL:', endpoint);
+          const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/json',
+            },
+          });
+          console.log('📡 GET onboard summary status:', response.status, 'routeId:', routeId);
+          if (!response.ok) {
+            const errorText = await response.text().catch(() => '');
+            console.warn('❌ GET onboard summary failed:', routeId, errorText);
+            continue;
+          }
+          const data = await response.json().catch(() => null);
+          const summary = data?.data ?? {};
+          const list = Array.isArray(summary?.studentsOnBoard)
+            ? summary.studentsOnBoard
+            : [];
+          const totalStudents = Number(summary?.totalStudents ?? list.length ?? 0);
+          console.log('✅ GET onboard summary response routeId:', routeId, data);
+          // Prefer route with maximum total students; fallback to list length
+          const score = Number.isFinite(totalStudents) ? totalStudents : list.length;
+          if (score > bestScore) {
+            bestScore = score;
+            selectedSummary = summary;
+          }
+        }
+
+        if (!selectedSummary) {
+          selectedSummary = {
+            routeId: routeIdFromStudents,
+            studentsOnBoard: [],
+            onBoardCount: 0,
+            totalStudents: studentsList.length,
+          };
+        }
         console.log(
           '✅ GET onboard students list:',
-          JSON.stringify(data?.data?.studentsOnBoard ?? [], null, 2),
+          JSON.stringify(selectedSummary?.studentsOnBoard ?? [], null, 2),
         );
-        const summary = data?.data ?? {};
-        setStudentsOnBusCount(Number(summary?.onBoardCount ?? 0));
-        setTotalStudentsCount(Number(summary?.totalStudents ?? 0));
+        const summary = selectedSummary;
         const apiStudents = Array.isArray(summary?.studentsOnBoard)
           ? summary.studentsOnBoard
           : [];
-        const mappedStudents = apiStudents.map((student: any, idx: number) => ({
-          studentId: student?.studentId,
-          name: student?.studentName ?? `Student ${idx + 1}`,
-          age: '--',
-          image: studentsData[idx % studentsData.length]?.image,
-          pickupLocation: student?.pickupLocation ?? '',
-          pickupTime: student?.pickupTime ?? null,
-          estimatedDropoff: student?.estimatedDropoff ?? null,
-          status: student?.status ?? '',
-          attendanceStatus:
-            String(student?.status ?? '').toLowerCase() === 'on board'
-              ? 'present'
-              : null,
-        }));
+        const onboardByStudentId = new Map(
+          apiStudents.map((student: any) => [String(student?.studentId), student]),
+        );
+        const mappedStudents = studentsList.map((student: any, idx: number) => {
+          const onboard = onboardByStudentId.get(String(student?.studentId));
+          const rawStatus = String(onboard?.status ?? '').toLowerCase();
+          return {
+            studentId: student?.studentId,
+            name: student?.name ?? `Student ${idx + 1}`,
+            age: '--',
+            image: studentsData[idx % studentsData.length]?.image,
+            photo: student?.photo ?? null,
+            pickupLocation: onboard?.pickupLocation ?? '',
+            pickupTime: onboard?.pickupTime ?? null,
+            estimatedDropoff: onboard?.estimatedDropoff ?? null,
+            status: onboard?.status ?? '',
+            attendanceStatus: rawStatus === 'on board' ? 'present' : null,
+          };
+        });
         setOnBoardStudents(mappedStudents);
+        const presentCount = mappedStudents.filter(
+          (student: any) => student?.attendanceStatus === 'present',
+        ).length;
+        setStudentsOnBusCount(presentCount);
+        setTotalStudentsCount(studentsList.length);
 
         await Promise.all(
           mappedStudents.map((student: any) => {
@@ -209,26 +313,36 @@ const DriverStudentsScreen = () => {
               return Promise.resolve();
             }
             return markAttendance(
-              effectiveRouteId,
+              summary?.routeId ?? routeIdFromStudents ?? effectiveRouteId,
               student.studentId,
               action,
             );
           }),
         );
       } catch (e) {
-        console.warn('❌ GET onboard summary network error:', e);
+        console.warn('❌ GET students/onboard network error:', e);
+        setOnBoardStudents([]);
+        setStudentsOnBusCount(0);
+        setTotalStudentsCount(0);
+        setRequireStartTrip(true);
         // Keep UI stable on failure
+      } finally {
+        setStudentsLoading(false);
       }
     };
 
-    fetchOnBoardSummary();
+    if (isFocused) {
+      fetchStudentsAndOnBoardSummary();
+    }
   }, [
+    isFocused,
     token,
     effectiveRouteId,
     activeRouteId,
     tokenRouteId,
     fallbackRouteIdFromRoutesByDate,
     markAttendance,
+    routesByDate,
   ]);
 
   return (
@@ -304,7 +418,7 @@ const DriverStudentsScreen = () => {
           <FlatList
             key={numColumns}
             numColumns={numColumns}
-            data={onBoardStudents.length > 0 ? onBoardStudents : studentsData}
+            data={onBoardStudents}
             renderItem={({item, index}) => (
               <StudentCard
                 position={grid}
@@ -316,6 +430,17 @@ const DriverStudentsScreen = () => {
             columnWrapperStyle={numColumns > 1 ? styles.row : null}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: hp(20)}}
+            ListEmptyComponent={
+              <View style={{paddingTop: hp(4), alignItems: 'center', width: '100%'}}>
+                <Text style={[AppStyles.title, {color: AppColors.black}]}>
+                  {studentsLoading
+                    ? 'Loading students...'
+                    : requireStartTrip
+                    ? 'Please start the trip'
+                    : 'No students found for this route'}
+                </Text>
+              </View>
+            }
           />
         </View>
       </View>

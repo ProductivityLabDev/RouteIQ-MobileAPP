@@ -22,8 +22,8 @@ const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   // Persist slice keys must match combineReducers keys, and the option is "whitelist" (lowercase).
-  // We only persist auth/user state; driver data can be refetched.
-  whitelist: ['userSlices'],
+  // Persist auth + driver runtime state so trip/session does not reset on app relaunch.
+  whitelist: ['userSlices', 'driverSlices'],
   //   blackList: ['poSlice', 'common'],
 };
 

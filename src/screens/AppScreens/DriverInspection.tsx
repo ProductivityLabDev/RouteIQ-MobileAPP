@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
 import CircleCheckBoxIcon from '../../assets/svgs/CircleCheckBoxIcon';
 import CircleUnCheckBoxIcon from '../../assets/svgs/CircleUnCheckBoxIcon';
@@ -14,35 +14,165 @@ import {AppColors} from '../../utils/color';
 import {hp} from '../../utils/constants';
 import {
   handleInspectionButtonTitle,
-  handleSetFrontInspention,
 } from '../../utils/functions';
 import {front_inspection} from '../../utils/objects';
 import {size} from '../../utils/responsiveFonts';
 import {useNavigation} from '@react-navigation/native';
 import SquareCheckedIcon from '../../assets/svgs/SquareCheckedIcon';
-import { useAppDispatch } from '../../store/hooks';
-import { setShowStartMileAgeSheet } from '../../store/user/userSlices';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {setShowStartMileAgeSheet} from '../../store/user/userSlices';
+import {getApiBaseUrl} from '../../utils/apiConfig';
+import {showErrorToast, showSuccessToast} from '../../utils/toast';
 
 const DriverInspection = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
+  const token = useAppSelector(state => state.userSlices.token);
+  const tokenVehicleId = useAppSelector(
+    state => (state as any).userSlices.vehicleId,
+  );
+  const routesByDate = useAppSelector(state => (state as any).driverSlices.routesByDate);
   const [index, setIndex] = useState(0);
   const [isSwitchOn, setIsSwitchOn] = useState(true);
-  const [isChecked, setIsChecked] = useState<any>({
-    frontSide: false,
-    passengerSide: false,
-    backSide: false,
-    driverSide: false,
-    inCab: false,
-  });
-  const [isBoxChecked, setIsBoxChecked] = useState({
-    hazardLight: false,
-    headLight: false,
-    workProperly: false,
-  });
+  const [inspectionItems, setInspectionItems] = useState<any[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedIssueIds, setSelectedIssueIds] = useState<number[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const categories = useMemo(() => {
+    if (Array.isArray(inspectionItems) && inspectionItems.length > 0) {
+      return inspectionItems;
+    }
+    return front_inspection.map((name, idx) => ({
+      categoryId: idx + 1,
+      categoryName: name,
+      issues: [],
+    }));
+  }, [inspectionItems]);
+
+  const selectedCategory = useMemo(
+    () => categories.find((item: any) => Number(item?.categoryId) === Number(selectedCategoryId)),
+    [categories, selectedCategoryId],
+  );
+  const selectedCategoryName = selectedCategory?.categoryName ?? 'Category';
+  const selectedCategoryIssues = Array.isArray(selectedCategory?.issues)
+    ? selectedCategory.issues
+    : [];
+  const effectiveVehicleId = useMemo(() => {
+    if (tokenVehicleId != null) return Number(tokenVehicleId);
+    const morning = Array.isArray(routesByDate?.morning) ? routesByDate.morning : [];
+    const evening = Array.isArray(routesByDate?.evening) ? routesByDate.evening : [];
+    const firstRoute = morning[0] ?? evening[0] ?? null;
+    const id = firstRoute?.VehicleId ?? firstRoute?.vehicleId ?? null;
+    return id != null ? Number(id) : null;
+  }, [tokenVehicleId, routesByDate]);
+
+  useEffect(() => {
+    const fetchInspectionItems = async () => {
+      if (!token) return;
+      try {
+        const baseUrl = getApiBaseUrl();
+        const endpoint = `${baseUrl}/driver/inspection/items`;
+        console.log('📡 GET inspection items URL:', endpoint);
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
+        console.log('📡 GET inspection items status:', response.status);
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => '');
+          console.warn('❌ GET inspection items failed:', errorText);
+          return;
+        }
+        const data = await response.json().catch(() => null);
+        console.log('✅ GET inspection items response:', data);
+        const list = Array.isArray(data?.data) ? data.data : [];
+        setInspectionItems(list);
+      } catch (e) {
+        console.warn('❌ GET inspection items network error:', e);
+      }
+    };
+    fetchInspectionItems();
+  }, [token]);
 
   const handleToggle = (newValue: boolean) => {
     setIsSwitchOn(newValue);
+  };
+
+  const submitInspectionReport = async () => {
+    if (!token) {
+      showErrorToast('Error', 'Not authenticated');
+      return;
+    }
+    if (!selectedCategoryId) {
+      showErrorToast('Required', 'Please select category first');
+      return;
+    }
+    if (selectedIssueIds.length === 0) {
+      showErrorToast('Required', 'Please select at least one issue');
+      return;
+    }
+    if (!effectiveVehicleId) {
+      showErrorToast('Required', 'Vehicle not found. Please try again.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const baseUrl = getApiBaseUrl();
+      const endpoint = `${baseUrl}/driver/inspection`;
+      const body = {
+        vehicleId: Number(effectiveVehicleId),
+        inspectionType: 'Pre-Trip',
+        selectedIssueIds: selectedIssueIds,
+        notes: `Category: ${selectedCategoryName}`,
+      };
+      console.log('📡 POST inspection URL:', endpoint);
+      console.log('📤 POST inspection body:', body);
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      const responseText = await response.text().catch(() => '');
+      if (!response.ok) {
+        console.warn('❌ POST inspection failed:', response.status, responseText);
+        showErrorToast('Submit Failed', responseText || 'Could not submit inspection');
+        return;
+      }
+      let parsed: any = null;
+      try {
+        parsed = responseText ? JSON.parse(responseText) : null;
+      } catch (e) {
+        parsed = responseText;
+      }
+      console.log('✅ POST inspection success:', parsed);
+      showSuccessToast('Success', 'Inspection submitted');
+      const inspectionReportId =
+        parsed?.inspectionReportId ??
+        parsed?.InspectionId ??
+        parsed?.data?.inspectionReportId ??
+        parsed?.data?.inspectionId ??
+        parsed?.data?.InspectionId ??
+        null;
+      navigation.navigate('DriverMapView', {
+        inspectionReportId,
+        inspectionSelectedIssueIds: selectedIssueIds,
+        inspectionNotes: `Category: ${selectedCategoryName}`,
+      });
+      dispatch(setShowStartMileAgeSheet(true));
+    } catch (e) {
+      console.warn('❌ POST inspection network error:', e);
+      showErrorToast('Error', 'Network error while submitting inspection');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -79,23 +209,23 @@ const DriverInspection = () => {
                   Move to FRONT SIDE
                 </Text>
                 <FlatList
-                  data={front_inspection}
+                  data={categories}
+                  keyExtractor={(item: any, idx) =>
+                    String(item?.categoryId ?? idx)
+                  }
                   renderItem={({item}) => {
-                    const removeSpace = item.replace(/\s+/g, '');
-                    const smallFirstLetter =
-                      removeSpace.charAt(0).toLowerCase() +
-                      removeSpace.slice(1);
                     return (
                       <View style={{marginTop: hp(2)}}>
                         <AppCheckBox
-                          isChecked={isChecked[smallFirstLetter]}
-                          onClick={() =>
-                            handleSetFrontInspention(
-                              smallFirstLetter,
-                              setIsChecked,
-                            )
+                          isChecked={
+                            Number(selectedCategoryId) ===
+                            Number(item?.categoryId)
                           }
-                          rightText={item}
+                          onClick={() => {
+                            setSelectedCategoryId(Number(item?.categoryId));
+                            setSelectedIssueIds([]);
+                          }}
+                          rightText={String(item?.categoryName ?? '')}
                           checkedImage={<CircleCheckBoxIcon />}
                           unCheckedImage={<CircleUnCheckBoxIcon />}
                         />
@@ -109,7 +239,7 @@ const DriverInspection = () => {
               <View>
                 <View style={[styles.container, {gap: 5}]}>
                   <Text style={[AppStyles.titleHead, {fontSize: size.slg}]}>
-                    Lights and light covers
+                    {selectedCategoryName}
                   </Text>
                   <Text
                     style={[
@@ -119,48 +249,38 @@ const DriverInspection = () => {
                     Choose all issues that are present
                   </Text>
                 </View>
-                <View style={[styles.lightsContainer, {marginTop: hp(5)}]}>
-                  <AppCheckBox
-                    isChecked={isBoxChecked.hazardLight}
-                    onClick={() =>
-                      setIsBoxChecked(prev => ({
-                        ...prev,
-                        hazardLight: !prev.hazardLight,
-                      }))
-                    }
-                    rightText="Hazard light is not working"
-                    checkedImage={<SquareCheckedIcon />}
-                    unCheckedImage={<SquareCheckBoxIcon />}
-                  />
-                </View>
-                <View style={styles.lightsContainer}>
-                  <AppCheckBox
-                    isChecked={isBoxChecked.headLight}
-                    onClick={() =>
-                      setIsBoxChecked(prev => ({
-                        ...prev,
-                        headLight: !prev.headLight,
-                      }))
-                    }
-                    rightText="Headlight is not working"
-                    checkedImage={<SquareCheckedIcon />}
-                    unCheckedImage={<SquareCheckBoxIcon />}
-                  />
-                </View>
-                <View style={[styles.lightsContainer]}>
-                  <AppCheckBox
-                    isChecked={isBoxChecked.workProperly}
-                    onClick={() =>
-                      setIsBoxChecked(prev => ({
-                        ...prev,
-                        workProperly: !prev.workProperly,
-                      }))
-                    }
-                    rightText="Lights of light covers damaged (leaving hole or void), missing, or not working properly"
-                    checkedImage={<SquareCheckedIcon />}
-                    unCheckedImage={<SquareCheckBoxIcon />}
-                  />
-                </View>
+                <FlatList
+                  data={selectedCategoryIssues}
+                  keyExtractor={(item: any, idx) => String(item?.issueId ?? idx)}
+                  ListEmptyComponent={
+                    <View style={[styles.lightsContainer, {marginTop: hp(5)}]}>
+                      <Text style={AppStyles.subHeading}>
+                        No issues found for selected category.
+                      </Text>
+                    </View>
+                  }
+                  renderItem={({item}) => {
+                    const issueId = Number(item?.issueId);
+                    const checked = selectedIssueIds.includes(issueId);
+                    return (
+                      <View style={[styles.lightsContainer, {marginTop: hp(2)}]}>
+                        <AppCheckBox
+                          isChecked={checked}
+                          onClick={() =>
+                            setSelectedIssueIds(prev =>
+                              prev.includes(issueId)
+                                ? prev.filter(id => id !== issueId)
+                                : [...prev, issueId],
+                            )
+                          }
+                          rightText={String(item?.issueName ?? '')}
+                          checkedImage={<SquareCheckedIcon />}
+                          unCheckedImage={<SquareCheckBoxIcon />}
+                        />
+                      </View>
+                    );
+                  }}
+                />
               </View>
             )}
             {index == 3 && (
@@ -192,7 +312,9 @@ const DriverInspection = () => {
                       AppStyles.subHeading,
                       {paddingHorizontal: hp(2), paddingVertical: hp(2)},
                     ]}>
-                    You didn’t report any issues with the vehicle.
+                    {selectedIssueIds.length > 0
+                      ? `You selected ${selectedIssueIds.length} issue(s) in ${selectedCategoryName}.`
+                      : 'You didn’t report any issues with the vehicle.'}
                   </Text>
                 </View>
               </View>
@@ -233,14 +355,22 @@ const DriverInspection = () => {
               </View>
             )}
             <AppButton
-              title={handleInspectionButtonTitle(index)}
+              title={
+                index === 1 && selectedCategoryName
+                  ? `Inspect ${selectedCategoryName}`
+                  : handleInspectionButtonTitle(index)
+              }
               style={{width: '100%'}}
+              loading={submitting}
               onPress={() => {
                 if (index <= 2) {
+                  if (index === 1 && !selectedCategoryId) {
+                    showErrorToast('Required', 'Please select category');
+                    return;
+                  }
                   setIndex(index + 1);
                 } else {
-                  navigation.navigate('DriverMapView');
-                  dispatch(setShowStartMileAgeSheet(true))
+                  submitInspectionReport();
                 }
               }}
             />

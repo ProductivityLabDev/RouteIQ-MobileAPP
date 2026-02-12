@@ -96,6 +96,8 @@ export default function DriverHomeScreen() {
           : fallbackTime;
 
       return {
+        routeId: route?.RouteId ?? route?.routeId ?? null,
+        tripStatus: route?.TripStatus ?? route?.tripStatus ?? 'Pending',
         title: route?.RouteName ?? `Route ${route?.RouteId ?? ''}`,
         time: displayTime,
         date: formattedDate,

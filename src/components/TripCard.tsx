@@ -39,6 +39,23 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
   const [declined, setDeclined] = useState(false);
   const [accept, setAccept] = useState(false);
   const role = useAppSelector(state => state.userSlices.role);
+  const routeStarted = useAppSelector(
+    state => (state as any).driverSlices.routeStarted,
+  );
+  const activeRouteId = useAppSelector(
+    state => (state as any).driverSlices.activeRouteId,
+  );
+  const cardRouteId = item?.routeId ?? item?.RouteId ?? null;
+  const isCurrentActiveRoute =
+    routeStarted &&
+    activeRouteId != null &&
+    cardRouteId != null &&
+    String(activeRouteId) === String(cardRouteId);
+  const shouldShowTripRunning =
+    routeStarted &&
+    activeRouteId != null &&
+    cardRouteId != null &&
+    !isCurrentActiveRoute;
   const [isExpanded, setIsExpanded] = useState(false);
   const shortTitle =
     typeof item?.title === 'string' && item.title.length > 7
@@ -182,11 +199,23 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   {!accept && (
                     <>
                       <AppButton
-                        title="Start"
+                        title={
+                          isCurrentActiveRoute
+                            ? 'Return to Trip'
+                            : shouldShowTripRunning
+                            ? 'Trip Running'
+                            : 'Start'
+                        }
                         style={[styles.acceptButton, {width: '90%'}]}
+                        disabled={shouldShowTripRunning}
                         onPress={() => {
                           setAccept(false);
                           dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
+                          if (isCurrentActiveRoute) {
+                            navigation.navigate('DriverMapView', {fromMapView: false});
+                            return;
+                          }
+                          if (shouldShowTripRunning) return;
                           navigation.navigate('DriverInspection');
                         }}
                       />

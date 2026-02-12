@@ -10,17 +10,22 @@ import AppFonts from '../utils/appFonts';
 import { size } from '../utils/responsiveFonts';
 import { CleaningCollapsableCardProps } from '../types/types';
 
-const CleaningCollapsableCard: React.FC<CleaningCollapsableCardProps> = ({ item }) => {
+const CleaningCollapsableCard: React.FC<CleaningCollapsableCardProps> = ({
+    item,
+    checkedItemIds = [],
+    onToggleItem,
+}) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     
     
     const RenderCheckBox = ({option}: any) => {
-        const [isChecked, setIsChecked] = useState(false);
+        const optionId = Number(option?.itemId);
+        const isChecked = checkedItemIds.includes(optionId);
         return (
             <AppCheckBox
             isChecked={isChecked}
-            onClick={() => setIsChecked(!isChecked)}
-            rightText={option}
+            onClick={() => onToggleItem?.(optionId)}
+            rightText={String(option?.itemName ?? '')}
             style={{ marginBottom: hp(1) }}
             unCheckedImage={<View style={styles.checkContainer}></View>}
             checkedImage={
@@ -45,7 +50,12 @@ const CleaningCollapsableCard: React.FC<CleaningCollapsableCardProps> = ({ item 
             </Pressable>
             <Collapsible collapsed={isCollapsed}>
                 <View style={{ backgroundColor: AppColors.white, padding: hp(1.5) }}>
-                    <FlatList data={item.options} renderItem={({ item: option }) => <RenderCheckBox option={option} />} contentContainerStyle={{ gap: hp(2) }} />
+                    <FlatList
+                        data={Array.isArray(item.options) ? item.options : []}
+                        keyExtractor={(option: any, idx) => String(option?.itemId ?? idx)}
+                        renderItem={({ item: option }) => <RenderCheckBox option={option} />}
+                        contentContainerStyle={{ gap: hp(2) }}
+                    />
                 </View>
             </Collapsible>
         </>
