@@ -5,7 +5,7 @@ import {Platform} from 'react-native';
  * PC ka IP check: Windows → ipconfig | Mac → ifconfig
  * Phone aur PC same WiFi pe hone chahiye.
  */
-const API_BASE_URL = 'http://192.168.100.61:3000';
+const API_BASE_URL = 'http://192.168.18.36:3000';
 const API_BASE_URL_FALLBACKS = [
   'http://192.168.100.61:3000',
   'http://192.168.18.36:3000',

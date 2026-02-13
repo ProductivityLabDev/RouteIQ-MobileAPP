@@ -47,6 +47,8 @@ const DriverMapView = () => {
   const [totalStudentsCount, setTotalStudentsCount] = useState(0);
   const [directionHint, setDirectionHint] = useState('Follow route');
   const [directionDistance, setDirectionDistance] = useState<string>('—');
+  const [directionsApiFailed, setDirectionsApiFailed] = useState(false);
+  const [directionsUseWaypoints, setDirectionsUseWaypoints] = useState(true);
   const [studentStops, setStudentStops] = useState<any[]>([]);
   const [currentGpsLocation, setCurrentGpsLocation] = useState<{
     latitude: number;
@@ -59,7 +61,8 @@ const DriverMapView = () => {
   const [locationAccuracyIssue, setLocationAccuracyIssue] = useState<boolean>(false);
   const watchIdRef = useRef<number | null>(null);
   const mockIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const mockStepRef = useRef(0);
+  const mockRouteIndexRef = useRef(0);
+  const mockRouteProgressRef = useRef(0);
   const lastLocationSendRef = useRef<number>(0);
   const mapRef = useRef<MapView>(null);
   const LOCATION_SEND_INTERVAL_MS = 10000; // Throttle: send to server every 10s (API guide: 5-10s recommended)
@@ -69,10 +72,14 @@ const DriverMapView = () => {
   // Set to false for production / real GPS
   const USE_MOCK_LOCATION = true; // Set to (__DEV__ && true) for mock US coords during testing
   const MOCK_LOCATION = {
-    latitude: 34.017289,
-    longitude: -118.483304,
+    latitude: 33.8682032,
+    longitude: -118.2614261,
     speed: 45,
     heading: 90,
+  };
+  const FORCED_DROPOFF = {
+    latitude: 33.8612660793255,
+    longitude: -118.2547184017843,
   };
   // ==========================================================
 
@@ -147,6 +154,51 @@ const DriverMapView = () => {
   };
 
   const routeCoordinates = useMemo(() => {
+    const pickNumber = (obj: any, keys: string[]) => {
+      for (const key of keys) {
+        const raw = obj?.[key];
+        const num = raw != null ? Number(raw) : null;
+        if (num != null && Number.isFinite(num)) return num;
+      }
+      return null;
+    };
+    const parsePath = (routeObj: any): Array<{latitude: number; longitude: number}> => {
+      const candidateKeys = [
+        'RoutePath',
+        'routePath',
+        'Path',
+        'path',
+        'RouteCoordinates',
+        'routeCoordinates',
+        'Coordinates',
+        'coordinates',
+      ];
+      let raw: any = null;
+      for (const key of candidateKeys) {
+        if (routeObj?.[key] != null) {
+          raw = routeObj[key];
+          break;
+        }
+      }
+      if (raw == null) return [];
+      let list: any = raw;
+      if (typeof list === 'string') {
+        try {
+          list = JSON.parse(list);
+        } catch {
+          return [];
+        }
+      }
+      if (!Array.isArray(list)) return [];
+      return list
+        .map((item: any) => {
+          const lat = pickNumber(item, ['latitude', 'Latitude', 'lat', 'Lat']);
+          const lng = pickNumber(item, ['longitude', 'Longitude', 'lng', 'Lng', 'lon', 'Lon']);
+          if (lat == null || lng == null) return null;
+          return {latitude: lat, longitude: lng};
+        })
+        .filter(Boolean) as Array<{latitude: number; longitude: number}>;
+    };
     const morning = Array.isArray(routesByDate?.morning) ? routesByDate.morning : [];
     const evening = Array.isArray(routesByDate?.evening) ? routesByDate.evening : [];
     const allRoutes = [...morning, ...evening];
@@ -162,12 +214,42 @@ const DriverMapView = () => {
       ) ??
       null;
 
-    const pickupLat = targetRoute?.PickupLatitude != null ? Number(targetRoute.PickupLatitude) : null;
-    const pickupLng = targetRoute?.PickupLongitude != null ? Number(targetRoute.PickupLongitude) : null;
-    const dropoffLat =
-      targetRoute?.DropoffLatitude != null ? Number(targetRoute.DropoffLatitude) : null;
-    const dropoffLng =
-      targetRoute?.DropoffLongitude != null ? Number(targetRoute.DropoffLongitude) : null;
+    const pickupLat = pickNumber(targetRoute, [
+      'PickupLatitude',
+      'pickupLatitude',
+      'pickupLat',
+      'StartLatitude',
+      'startLatitude',
+      'FromLatitude',
+      'fromLatitude',
+    ]);
+    const pickupLng = pickNumber(targetRoute, [
+      'PickupLongitude',
+      'pickupLongitude',
+      'pickupLng',
+      'StartLongitude',
+      'startLongitude',
+      'FromLongitude',
+      'fromLongitude',
+    ]);
+    const dropoffLat = pickNumber(targetRoute, [
+      'DropoffLatitude',
+      'dropoffLatitude',
+      'dropoffLat',
+      'EndLatitude',
+      'endLatitude',
+      'ToLatitude',
+      'toLatitude',
+    ]);
+    const dropoffLng = pickNumber(targetRoute, [
+      'DropoffLongitude',
+      'dropoffLongitude',
+      'dropoffLng',
+      'EndLongitude',
+      'endLongitude',
+      'ToLongitude',
+      'toLongitude',
+    ]);
 
     const hasPickup =
       pickupLat != null && pickupLng != null && Number.isFinite(pickupLat) && Number.isFinite(pickupLng);
@@ -177,10 +259,12 @@ const DriverMapView = () => {
       Number.isFinite(dropoffLat) &&
       Number.isFinite(dropoffLng);
 
+    const apiPath = parsePath(targetRoute);
     return {
       pickup: hasPickup ? {latitude: pickupLat, longitude: pickupLng} : null,
       dropoff: hasDropoff ? {latitude: dropoffLat, longitude: dropoffLng} : null,
       hasValidRoute: hasPickup && hasDropoff,
+      path: apiPath,
     };
   }, [routesByDate, effectiveRouteId]);
   const canRenderDirections =
@@ -193,33 +277,151 @@ const DriverMapView = () => {
     [routeCoordinates.pickup],
   );
   const routeDestination = useMemo(() => {
-    const firstDropoff = studentStops.find(
-      (student: any) =>
-        Number.isFinite(Number(student?.dropoffLocation?.latitude)) &&
-        Number.isFinite(Number(student?.dropoffLocation?.longitude)),
-    );
-    if (firstDropoff) {
-      return {
-        latitude: Number(firstDropoff.dropoffLocation.latitude),
-        longitude: Number(firstDropoff.dropoffLocation.longitude),
-      };
-    }
-    return routeCoordinates.dropoff ?? null;
-  }, [studentStops, routeCoordinates.dropoff]);
-  const routeWaypoints = useMemo(() => {
+    return FORCED_DROPOFF ?? routeCoordinates.dropoff ?? null;
+  }, [routeCoordinates.dropoff]);
+  const parseStudentCoord = (student: any, kind: 'pickup' | 'dropoff') => {
+    const directLatKeys =
+      kind === 'pickup'
+        ? ['pickupLatitude', 'PickupLatitude', 'pickupLat', 'PickupLat', 'latitude', 'Latitude', 'lat', 'Lat']
+        : ['dropoffLatitude', 'DropoffLatitude', 'dropoffLat', 'DropoffLat', 'latitude', 'Latitude', 'lat', 'Lat'];
+    const directLngKeys =
+      kind === 'pickup'
+        ? ['pickupLongitude', 'PickupLongitude', 'pickupLng', 'PickupLng', 'longitude', 'Longitude', 'lng', 'Lng', 'lon', 'Lon']
+        : ['dropoffLongitude', 'DropoffLongitude', 'dropoffLng', 'DropoffLng', 'longitude', 'Longitude', 'lng', 'Lng', 'lon', 'Lon'];
+    const nested = kind === 'pickup' ? student?.pickupLocation : student?.dropoffLocation;
+    const getNum = (obj: any, keys: string[]) => {
+      for (const key of keys) {
+        const raw = obj?.[key];
+        const num = raw != null ? Number(raw) : null;
+        if (num != null && Number.isFinite(num)) return num;
+      }
+      return null;
+    };
+    const lat = getNum(student, directLatKeys) ?? getNum(nested, ['latitude', 'Latitude', 'lat', 'Lat']);
+    const lng =
+      getNum(student, directLngKeys) ??
+      getNum(nested, ['longitude', 'Longitude', 'lng', 'Lng', 'lon', 'Lon']);
+    if (lat == null || lng == null) return null;
+    return {latitude: lat, longitude: lng};
+  };
+  const routePickupPoints = useMemo(() => {
     return studentStops
-      .filter(
-        (student: any) =>
-          Number.isFinite(Number(student?.pickupLocation?.latitude)) &&
-          Number.isFinite(Number(student?.pickupLocation?.longitude)),
-      )
-      .map((student: any) => ({
-        latitude: Number(student.pickupLocation.latitude),
-        longitude: Number(student.pickupLocation.longitude),
-      }));
+      .map((student: any) => {
+        const point = parseStudentCoord(student, 'pickup');
+        if (!point) return null;
+        return {
+          latitude: point.latitude,
+          longitude: point.longitude,
+          name: String(student?.name ?? ''),
+        };
+      })
+      .filter(Boolean) as Array<{latitude: number; longitude: number; name: string}>;
+  }, [studentStops]);
+  const routeWaypoints = useMemo(() => {
+    // Ensure route passes through all student pickup points before dropoff.
+    return routePickupPoints.map(point => ({
+      latitude: point.latitude,
+      longitude: point.longitude,
+    }));
+  }, [routePickupPoints]);
+  const studentDropoffPoints = useMemo(() => {
+    return studentStops
+      .map((student: any) => {
+        const point = parseStudentCoord(student, 'dropoff');
+        if (!point) return null;
+        return {
+          latitude: point.latitude,
+          longitude: point.longitude,
+          name: String(student?.name ?? ''),
+        };
+      })
+      .filter(Boolean) as Array<{latitude: number; longitude: number; name: string}>;
   }, [studentStops]);
   const canRenderOptimizedDirections =
     !!googleMapsApiKey && !!routeOrigin && !!routeDestination;
+  const fallbackOrigin = routeCoordinates.pickup ?? null;
+  const fallbackDestination = routeCoordinates.dropoff ?? null;
+  const fallbackPolylineCoords = useMemo(() => {
+    if (Array.isArray(routeCoordinates.path) && routeCoordinates.path.length >= 2) {
+      return routeCoordinates.path;
+    }
+    const from = routeOrigin ?? fallbackOrigin;
+    const to = routeDestination ?? fallbackDestination;
+    if (!from || !to) return [];
+    return [from, ...routeWaypoints, to];
+  }, [
+    routeCoordinates.path,
+    routeOrigin,
+    routeDestination,
+    routeWaypoints,
+    fallbackOrigin,
+    fallbackDestination,
+  ]);
+  const routePolylineCoords = useMemo(() => {
+    if (fallbackPolylineCoords.length >= 2) return fallbackPolylineCoords;
+    return [];
+  }, [fallbackPolylineCoords]);
+  const mappedStudentMarkers = useMemo(() => {
+    if (routePolylineCoords.length < 2) return routePickupPoints;
+    const nearestPointOnRoute = (point: {latitude: number; longitude: number}) => {
+      let nearest = routePolylineCoords[0];
+      let best = Number.POSITIVE_INFINITY;
+      for (let i = 0; i < routePolylineCoords.length - 1; i++) {
+        const a = routePolylineCoords[i];
+        const b = routePolylineCoords[i + 1];
+        const abx = b.latitude - a.latitude;
+        const aby = b.longitude - a.longitude;
+        const apx = point.latitude - a.latitude;
+        const apy = point.longitude - a.longitude;
+        const denom = abx * abx + aby * aby || 1;
+        const t = Math.max(0, Math.min(1, (apx * abx + apy * aby) / denom));
+        const proj = {
+          latitude: a.latitude + t * abx,
+          longitude: a.longitude + t * aby,
+        };
+        const dx = point.latitude - proj.latitude;
+        const dy = point.longitude - proj.longitude;
+        const d = dx * dx + dy * dy;
+        if (d < best) {
+          best = d;
+          nearest = proj;
+        }
+      }
+      return nearest;
+    };
+    return routePickupPoints.map(p => {
+      const snapped = nearestPointOnRoute({latitude: p.latitude, longitude: p.longitude});
+      return {...p, latitude: snapped.latitude, longitude: snapped.longitude};
+    });
+  }, [routePolylineCoords, routePickupPoints]);
+  const fallbackDirection = useMemo(() => {
+    if (routeWaypoints.length > 0) {
+      return {hint: 'Proceed to next pickup point', distance: '—'};
+    }
+    if (fallbackPolylineCoords.length >= 2) {
+      return {hint: 'Proceed on assigned route', distance: '—'};
+    }
+    return {hint: 'Follow route', distance: '—'};
+  }, [routeWaypoints.length, fallbackPolylineCoords.length]);
+  const shouldUseFallbackDirections =
+    !canRenderOptimizedDirections || directionsApiFailed;
+
+  useEffect(() => {
+    if (shouldUseFallbackDirections) {
+      setDirectionHint(fallbackDirection.hint);
+    }
+  }, [shouldUseFallbackDirections, fallbackDirection]);
+
+  useEffect(() => {
+    mockRouteIndexRef.current = 0;
+    mockRouteProgressRef.current = 0;
+  }, [routePolylineCoords]);
+
+  useEffect(() => {
+    // Retry Google Directions when route inputs change
+    setDirectionsApiFailed(false);
+    setDirectionsUseWaypoints(true);
+  }, [routeOrigin, routeDestination, routeWaypoints.length]);
 
   // Live pin: always prefer driver's GPS (Karachi/current). API = fallback only when GPS not yet available.
   const currentVehicleLocation = useMemo(() => {
@@ -246,6 +448,49 @@ const DriverMapView = () => {
     }
     return null;
   }, [currentGpsLocation, vehicleLocation]);
+
+  useEffect(() => {
+    if (!shouldUseFallbackDirections) return;
+    if (!currentVehicleLocation || routePickupPoints.length === 0) {
+      setDirectionDistance('—');
+      return;
+    }
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const haversineKm = (
+      lat1: number,
+      lon1: number,
+      lat2: number,
+      lon2: number,
+    ) => {
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) *
+          Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
+    let minKm = Number.POSITIVE_INFINITY;
+    for (const p of routePickupPoints) {
+      const km = haversineKm(
+        currentVehicleLocation.latitude,
+        currentVehicleLocation.longitude,
+        p.latitude,
+        p.longitude,
+      );
+      if (km < minKm) minKm = km;
+    }
+    if (!Number.isFinite(minKm)) {
+      setDirectionDistance('—');
+      return;
+    }
+    setDirectionHint('Proceed to next pickup point');
+    setDirectionDistance(minKm < 1 ? `${Math.round(minKm * 1000)} m` : `${minKm.toFixed(1)} km`);
+  }, [shouldUseFallbackDirections, currentVehicleLocation, routePickupPoints]);
 
   // Use vehicle location if available, otherwise use default
   const mapCenter = currentVehicleLocation || {
@@ -323,18 +568,23 @@ const DriverMapView = () => {
         showsMyLocationButton={false}
         followsUserLocation={false}>
       {/* Pickup -> Dropoff route line from routes/by-date coordinates */}
-      {routeOrigin && routeDestination && (
+      {canRenderOptimizedDirections || routePolylineCoords.length >= 2 ? (
           <>
-            {canRenderOptimizedDirections ? (
+            {canRenderOptimizedDirections && !directionsApiFailed ? (
               <MapViewDirections
                 origin={routeOrigin}
                 destination={routeDestination}
-                waypoints={routeWaypoints}
+                waypoints={
+                  directionsUseWaypoints && routeWaypoints.length > 0
+                    ? routeWaypoints.slice(0, 10)
+                    : undefined
+                }
                 apikey={googleMapsApiKey}
                 strokeWidth={4}
                 strokeColor={AppColors.red}
-                optimizeWaypoints={true}
+                optimizeWaypoints={directionsUseWaypoints}
                 onReady={result => {
+                  setDirectionsApiFailed(false);
                   const firstLeg: any =
                     Array.isArray((result as any)?.legs) && (result as any).legs.length > 0
                       ? (result as any).legs[0]
@@ -348,14 +598,14 @@ const DriverMapView = () => {
                   const plainInstruction = htmlInstruction
                     ? htmlInstruction.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
                     : '';
-                  if (plainInstruction) {
-                    setDirectionHint(plainInstruction);
-                  }
+                  setDirectionHint(plainInstruction || 'Proceed on assigned route');
                   const stepDistanceText =
                     String(firstStep?.distance?.text ?? firstLeg?.distance?.text ?? '').trim();
-                  if (stepDistanceText) {
-                    setDirectionDistance(stepDistanceText);
-                  }
+                  const totalDistanceText =
+                    Number.isFinite(Number((result as any)?.distance))
+                      ? `${Number((result as any).distance).toFixed(1)} km`
+                      : '';
+                  setDirectionDistance(stepDistanceText || totalDistanceText || '—');
                   mapRef.current?.fitToCoordinates(result.coordinates, {
                     edgePadding: {top: hp(6), right: hp(6), bottom: hp(24), left: hp(6)},
                     animated: true,
@@ -363,29 +613,101 @@ const DriverMapView = () => {
                 }}
                 onError={error => {
                   if (__DEV__) {
+                    const rawError = String(error ?? '');
+                    const normalized = rawError.toUpperCase();
+                    const reason =
+                      normalized.includes('REQUEST_DENIED')
+                        ? 'REQUEST_DENIED (API key restriction/billing)'
+                        : normalized.includes('OVER_QUERY_LIMIT')
+                        ? 'OVER_QUERY_LIMIT (quota exceeded)'
+                        : normalized.includes('API_KEY')
+                        ? 'API_KEY issue (missing/invalid)'
+                        : normalized.includes('BILLING')
+                        ? 'BILLING_DISABLED'
+                        : normalized.includes('NOT AUTHORIZED')
+                        ? 'NOT_AUTHORIZED for Directions API'
+                        : 'UNKNOWN';
+                    console.warn('🧭 Google Directions failed:', {
+                      reason,
+                      rawError,
+                      googleMapsApiKeyPresent: !!googleMapsApiKey,
+                      usingWaypoints: directionsUseWaypoints,
+                      waypointCount: routeWaypoints.length,
+                      origin: routeOrigin,
+                      destination: routeDestination,
+                    });
+                  }
+                  if (directionsUseWaypoints && routeWaypoints.length > 0) {
+                    // Retry once without waypoints (Google rejects some waypoint payloads/limits).
+                    if (__DEV__) {
+                      console.warn(
+                        'MapViewDirections waypoint request failed, retrying without waypoints:',
+                        error,
+                      );
+                    }
+                    setDirectionsUseWaypoints(false);
+                    setDirectionHint('Recalculating route...');
+                    setDirectionDistance('—');
+                    return;
+                  }
+                  setDirectionsApiFailed(true);
+                  setDirectionHint(fallbackDirection.hint);
+                  setDirectionDistance(fallbackDirection.distance);
+                  if (__DEV__) {
                     console.warn('MapViewDirections error (DriverMapView):', error);
                   }
                 }}
               />
             ) : (
               <Polyline
-                coordinates={[routeOrigin, ...routeWaypoints, routeDestination]}
+                coordinates={
+                  routePolylineCoords
+                }
                 strokeColor={AppColors.red}
                 strokeWidth={4}
               />
             )}
-            <Marker coordinate={routeOrigin} pinColor="#1FA971" />
-            <Marker coordinate={routeDestination} pinColor="#C62828" />
-            {routeWaypoints.map((point, idx) => (
+            {routeOrigin ? (
               <Marker
-                key={`student_pick_${idx}`}
-                coordinate={point}
-                pinColor="#1E88E5"
-                title={String(studentStops[idx]?.name ?? `Student ${idx + 1}`)}
+                coordinate={routeOrigin}
+                pinColor="#1FA971"
+                title="Start Point"
+                description="Route start point"
               />
-            ))}
+            ) : fallbackOrigin ? (
+              <Marker
+                coordinate={fallbackOrigin}
+                pinColor="#1FA971"
+                title="Start Point"
+                description="Route start point"
+              />
+            ) : null}
+            {routeDestination ? (
+              <Marker
+                coordinate={routeDestination}
+                pinColor="#C62828"
+                title="Dropoff Point"
+                description="Route end point"
+              />
+            ) : fallbackDestination ? (
+              <Marker
+                coordinate={fallbackDestination}
+                pinColor="#C62828"
+                title="Dropoff Point"
+                description="Route end point"
+              />
+            ) : null}
           </>
-        )}
+        ) : null}
+      {mappedStudentMarkers.map((point, idx) => (
+        <Marker
+          key={`student_pick_${idx}`}
+          coordinate={{latitude: point.latitude, longitude: point.longitude}}
+          pinColor="#1E88E5"
+          title={point.name || `Student ${idx + 1}`}
+        />
+      ))}
+      {/* Keep only one destination marker to avoid duplicate red dropoff pins */}
       {/* Vehicle Location Marker - live GPS when available */}
       {currentVehicleLocation && (
         <Marker
@@ -428,7 +750,11 @@ const DriverMapView = () => {
       routeOrigin,
       routeDestination,
       routeWaypoints,
-      studentStops,
+      routePolylineCoords,
+      mappedStudentMarkers,
+      routePickupPoints,
+      studentDropoffPoints,
+      directionsUseWaypoints,
       setDirectionHint,
       setDirectionDistance,
     ],
@@ -676,16 +1002,54 @@ const DriverMapView = () => {
   }, []);
 
   const getNextMockLocation = useCallback(() => {
-    const step = mockStepRef.current++;
-    const latOffset = Math.sin(step / 4) * 0.00026;
-    const lngOffset = Math.cos(step / 4) * 0.00026;
+    const path = routePolylineCoords;
+    if (!Array.isArray(path) || path.length === 0) {
+      return {
+        latitude: MOCK_LOCATION.latitude,
+        longitude: MOCK_LOCATION.longitude,
+        speed: MOCK_LOCATION.speed,
+        heading: MOCK_LOCATION.heading,
+      };
+    }
+    if (path.length === 1) {
+      return {
+        latitude: path[0].latitude,
+        longitude: path[0].longitude,
+        speed: MOCK_LOCATION.speed,
+        heading: MOCK_LOCATION.heading,
+      };
+    }
+
+    // Move along route segments smoothly; when route ends, loop from start.
+    let index = mockRouteIndexRef.current;
+    let progress = mockRouteProgressRef.current;
+    const segmentStep = 0.18;
+    progress += segmentStep;
+    while (progress >= 1) {
+      progress -= 1;
+      index += 1;
+      if (index >= path.length - 1) {
+        index = 0;
+      }
+    }
+    mockRouteIndexRef.current = index;
+    mockRouteProgressRef.current = progress;
+
+    const from = path[index];
+    const to = path[index + 1] ?? path[0];
+    const latitude = from.latitude + (to.latitude - from.latitude) * progress;
+    const longitude = from.longitude + (to.longitude - from.longitude) * progress;
+    const dy = to.latitude - from.latitude;
+    const dx = to.longitude - from.longitude;
+    const heading = (Math.atan2(dx, dy) * 180) / Math.PI;
+
     return {
-      latitude: MOCK_LOCATION.latitude + latOffset,
-      longitude: MOCK_LOCATION.longitude + lngOffset,
+      latitude,
+      longitude,
       speed: MOCK_LOCATION.speed,
-      heading: (MOCK_LOCATION.heading + (step * 20) % 360) % 360,
+      heading: Number.isFinite(heading) ? (heading + 360) % 360 : MOCK_LOCATION.heading,
     };
-  }, []);
+  }, [routePolylineCoords]);
 
   // Start GPS location tracking (MANDATORY - permission required)
   const startLocationTracking = useCallback(() => {

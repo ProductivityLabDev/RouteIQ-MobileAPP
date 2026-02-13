@@ -139,30 +139,43 @@ export const fetchRoutesByDate = createAsyncThunk(
     }
 
     try {
-      const response = await fetch(
-        `${baseUrl}/driver/routes/by-date?date=${encodeURIComponent(date)}`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-          },
+      const endpoint = `${baseUrl}/driver/routes/by-date?date=${encodeURIComponent(date)}`;
+      if (__DEV__) {
+        console.log('📡 GET /driver/routes/by-date URL:', endpoint);
+      }
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
         },
-      );
+      });
+      if (__DEV__) {
+        console.log('📡 GET /driver/routes/by-date status:', response.status);
+      }
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
+        if (__DEV__) {
+          console.warn('❌ GET /driver/routes/by-date failed:', errorText);
+        }
         return rejectWithValue(
           errorText || `Fetch routes by date failed with status ${response.status}`,
         );
       }
 
       const data = await response.json().catch(() => null);
+      if (__DEV__) {
+        console.log('✅ GET /driver/routes/by-date response:', data);
+      }
       if (data?.ok === true && data?.data) {
         return data.data;
       }
       return data;
     } catch (e) {
+      if (__DEV__) {
+        console.warn('❌ GET /driver/routes/by-date network error:', e);
+      }
       return rejectWithValue('Network error while fetching routes by date');
     }
   },
