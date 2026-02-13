@@ -3,7 +3,11 @@ import {Platform} from 'react-native';
 import {Buffer} from 'buffer';
 import {childDropDown} from '../../utils/DummyData';
 import {showErrorToast, showSuccessToast} from '../../utils/toast';
-import {getApiBaseUrl} from '../../utils/apiConfig';
+import {
+  getApiBaseUrl,
+  getApiBaseUrlCandidates,
+  setApiBaseUrl,
+} from '../../utils/apiConfig';
 
 type LoginPayload = {
   email: string;
@@ -236,110 +240,120 @@ export const fetchParentContacts = createAsyncThunk(
 export const loginUser = createAsyncThunk(
   'users/loginUser',
   async ({email, password}: LoginPayload, {rejectWithValue}) => {
-    const baseUrl = getApiBaseUrl();
+    const baseCandidates = getApiBaseUrlCandidates();
+    let lastNetworkError: any = null;
 
-    try {
-      const response = await fetch(`${baseUrl}/auth/login`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email, password}),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
-        let errorBody: any = null;
-        try {
-          errorBody = errorText ? JSON.parse(errorText) : null;
-        } catch (e) {
-          errorBody = null;
-        }
-        const message =
-          errorBody?.message ||
-          errorBody?.error ||
-          errorText ||
-          `Login failed with status ${response.status}`;
-        return rejectWithValue(message);
-      }
-
+    for (const baseUrl of baseCandidates) {
       try {
-        const data = await response.json();
-        const token: string | undefined = data?.access_token;
-        if (!token) {
-          return rejectWithValue('Login response missing access_token');
+        const response = await fetch(`${baseUrl}/auth/login`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email, password}),
+        });
+
+        // Reachable backend mil gaya; isko runtime default bana do.
+        setApiBaseUrl(baseUrl);
+
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => '');
+          let errorBody: any = null;
+          try {
+            errorBody = errorText ? JSON.parse(errorText) : null;
+          } catch (e) {
+            errorBody = null;
+          }
+          const message =
+            errorBody?.message ||
+            errorBody?.error ||
+            errorText ||
+            `Login failed with status ${response.status}`;
+          return rejectWithValue(message);
         }
 
-        const decoded = decodeJwt(token);
-        const decodedAny = (decoded ?? {}) as any;
-        const roleCodeRaw =
-          decoded?.roleCode ||
-          decoded?.role ||
-          data?.roleCode ||
-          data?.role?.code;
-        const roleCode =
-          roleCodeRaw && typeof roleCodeRaw === 'string'
-            ? roleCodeRaw.trim().toUpperCase()
-            : '';
-        const mappedRole =
-          roleCode === 'DRIVER'
-            ? 'Driver'
-            : roleCode === 'RETAIL'
-            ? 'Retail'
-            : roleCode === 'PARENT' || roleCode === 'PARENTS'
-            ? 'Parents'
-            : 'Parents';
+        try {
+          const data = await response.json();
+          const token: string | undefined = data?.access_token;
+          if (!token) {
+            return rejectWithValue('Login response missing access_token');
+          }
 
-        const employeeId =
-          mappedRole === 'Driver'
-            ? (decoded?.employeeId ?? decoded?.sub ?? null)
-            : null;
+          const decoded = decodeJwt(token);
+          const decodedAny = (decoded ?? {}) as any;
+          const roleCodeRaw =
+            decoded?.roleCode ||
+            decoded?.role ||
+            data?.roleCode ||
+            data?.role?.code;
+          const roleCode =
+            roleCodeRaw && typeof roleCodeRaw === 'string'
+              ? roleCodeRaw.trim().toUpperCase()
+              : '';
+          const mappedRole =
+            roleCode === 'DRIVER'
+              ? 'Driver'
+              : roleCode === 'RETAIL'
+              ? 'Retail'
+              : roleCode === 'PARENT' || roleCode === 'PARENTS'
+              ? 'Parents'
+              : 'Parents';
 
-        const vehicleId =
-          mappedRole === 'Driver'
-            ? (decodedAny?.vehicleId ??
-              decodedAny?.VehicleId ??
-              decodedAny?.vehicle_id ??
-              decodedAny?.VehicleID ??
-              null)
-            : null;
+          const employeeId =
+            mappedRole === 'Driver'
+              ? (decoded?.employeeId ?? decoded?.sub ?? null)
+              : null;
 
-        const routeId =
-          mappedRole === 'Driver'
-            ? (decodedAny?.routeId ??
-              decodedAny?.RouteId ??
-              decodedAny?.route_id ??
-              decodedAny?.RouteID ??
-              null)
-            : null;
+          const vehicleId =
+            mappedRole === 'Driver'
+              ? (decodedAny?.vehicleId ??
+                decodedAny?.VehicleId ??
+                decodedAny?.vehicle_id ??
+                decodedAny?.VehicleID ??
+                null)
+              : null;
 
-        const tripId =
-          mappedRole === 'Driver'
-            ? (decodedAny?.tripId ??
-              decodedAny?.TripId ??
-              decodedAny?.trip_id ??
-              decodedAny?.TripID ??
-              null)
-            : null;
+          const routeId =
+            mappedRole === 'Driver'
+              ? (decodedAny?.routeId ??
+                decodedAny?.RouteId ??
+                decodedAny?.route_id ??
+                decodedAny?.RouteID ??
+                null)
+              : null;
 
-        showSuccessToast('Logged in', 'Welcome back');
-        return {
-          token,
-          role: mappedRole,
-          roleCode: roleCode || 'PARENT',
-          userId: decoded?.sub ?? data?.id ?? null,
-          employeeId,
-          vehicleId,
-          routeId,
-          tripId,
-        };
-      } catch (e) {
-        return rejectWithValue(
-          `Login response is not valid JSON`,
-        );
+          const tripId =
+            mappedRole === 'Driver'
+              ? (decodedAny?.tripId ??
+                decodedAny?.TripId ??
+                decodedAny?.trip_id ??
+                decodedAny?.TripID ??
+                null)
+              : null;
+
+          showSuccessToast('Logged in', 'Welcome back');
+          return {
+            token,
+            role: mappedRole,
+            roleCode: roleCode || 'PARENT',
+            userId: decoded?.sub ?? data?.id ?? null,
+            employeeId,
+            vehicleId,
+            routeId,
+            tripId,
+          };
+        } catch (e) {
+          return rejectWithValue(`Login response is not valid JSON`);
+        }
+      } catch (err) {
+        lastNetworkError = err;
+        if (__DEV__) {
+          console.warn('loginUser network attempt failed', {baseUrl, err});
+        }
       }
-    } catch (err) {
-      console.warn('loginUser exception', {baseUrl, err});
-      return rejectWithValue('Network/exception error during login');
     }
+
+    const baseUrl = getApiBaseUrl();
+    console.warn('loginUser exception', {baseUrl, err: lastNetworkError});
+    return rejectWithValue('Network/exception error during login');
   },
 );
 
