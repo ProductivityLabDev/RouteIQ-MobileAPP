@@ -11,9 +11,8 @@ import GlobalIcon from '../../components/GlobalIcon';
 import {AppColors} from '../../utils/color';
 import AppHeader from '../../components/AppHeader';
 import AppLayout from '../../layout/AppLayout';
-import {useAppSelector} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import AppStyles from '../../styles/AppStyles';
-import {NotificationData} from '../../utils/DummyData';
 import AppFonts from '../../utils/appFonts';
 import {hp, wp} from '../../utils/constants';
 import {size} from '../../utils/responsiveFonts';
@@ -24,12 +23,38 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {
+  fetchMyNotifications,
+  fetchUnreadCount,
+  markAllRead,
+  markNotificationRead,
+} from '../../store/notifications/notificationsSlice';
+import {ActivityIndicator} from 'react-native';
 
 const Notifications = () => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+  const dispatch = useAppDispatch();
   const role = useAppSelector(state => state.userSlices.role);
-  const [selected, setSelected] = React.useState<Array<number | string>>([3]);
+  const token = useAppSelector(state => state.userSlices.token);
+  const notifications = useAppSelector(state => state.notificationsSlices.items);
+  const listStatus = useAppSelector(state => state.notificationsSlices.listStatus);
+  const unreadCount = useAppSelector(state => state.notificationsSlices.unreadCount);
+
+  React.useEffect(() => {
+    if (!isFocused) return;
+    if (!token) return;
+    dispatch(fetchMyNotifications({limit: 50, offset: 0}));
+    dispatch(fetchUnreadCount({force: true}));
+  }, [dispatch, isFocused, token]);
+
+  const formatTime = (iso: string | null | undefined) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return String(iso);
+    return d.toLocaleString();
+  };
 
   return (
     <AppLayout
@@ -59,12 +84,16 @@ const Notifications = () => {
                 </View>
               </MenuTrigger>
               <MenuOptions optionsContainerStyle={styles.menuOptions}>
-                <MenuOption onSelect={() => console.log('Mark all as read')}>
+                <MenuOption
+                  onSelect={() => {
+                    dispatch(markAllRead());
+                    dispatch(fetchUnreadCount({force: true}));
+                  }}>
                   <Text style={AppStyles.title}>Mark all as read</Text>
                 </MenuOption>
                 <MenuOption
                   style={{marginBottom: hp(2)}}
-                  onSelect={() => console.log('Delete all')}>
+                  onSelect={() => console.log('Delete all (not supported)')}>
                   <Text style={AppStyles.title}>Delete all</Text>
                 </MenuOption>
               </MenuOptions>
@@ -92,12 +121,16 @@ const Notifications = () => {
                 </View>
               </MenuTrigger>
               <MenuOptions optionsContainerStyle={styles.menuOptions}>
-                <MenuOption onSelect={() => console.log('Mark all as read')}>
+                <MenuOption
+                  onSelect={() => {
+                    dispatch(markAllRead());
+                    dispatch(fetchUnreadCount({force: true}));
+                  }}>
                   <Text style={AppStyles.title}>Mark all as read</Text>
                 </MenuOption>
                 <MenuOption
                   style={{marginBottom: hp(2)}}
-                  onSelect={() => console.log('Delete all')}>
+                  onSelect={() => console.log('Delete all (not supported)')}>
                   <Text style={AppStyles.title}>Delete all</Text>
                 </MenuOption>
               </MenuOptions>
@@ -117,22 +150,38 @@ const Notifications = () => {
             marginTop: hp(-2)
           },
         ]}>
-        {NotificationData.length >= 0 ? (
+        {listStatus === 'loading' ? (
+          <View style={[styles.noNotifContainer, {flex: 1}]}>
+            <ActivityIndicator color={AppColors.red} />
+            <Text style={[styles.textWhenEmptyNotifs, {marginTop: hp(1)}]}>
+              Loading notifications...
+            </Text>
+          </View>
+        ) : notifications.length > 0 ? (
           <FlatList
             contentContainerStyle={{padding: hp(0)}}
-            data={NotificationData}
+            data={notifications}
+            keyExtractor={(item: any, idx: number) =>
+              String(item?.NotificationId ?? idx)
+            }
             renderItem={({item}: {item: any}) => {
+              const isRead = Number(item?.IsRead) === 1 || item?.IsRead === true;
               return (
                 <Pressable
+                  onPress={() => {
+                    const id = Number(item?.NotificationId);
+                    if (Number.isFinite(id) && !isRead) {
+                      dispatch(markNotificationRead(id));
+                      dispatch(fetchUnreadCount({force: true}));
+                    }
+                  }}
                   style={[
                     styles.column,
                     {
-                      backgroundColor: selected.includes(item.id)
-                        ? AppColors.lightRed
-                        : AppColors.profileBg,
+                      backgroundColor: isRead ? AppColors.profileBg : AppColors.lightRed,
                     },
                   ]}>
-                  {item.title && (
+                  {item?.Title ? (
                     <View style={AppStyles.rowBetween}>
                       <Text
                         style={[
@@ -142,13 +191,13 @@ const Notifications = () => {
                             width: '90%',
                           },
                         ]}>
-                        {item?.title}
+                        {item?.Title}
                       </Text>
-                      <TouchableOpacity>
+                      <TouchableOpacity onPress={() => console.log('Delete not supported')}>
                         <DeleteIcon />
                       </TouchableOpacity>
                     </View>
-                  )}
+                  ) : null}
 
                   <View style={styles.row2}>
                     <View
@@ -160,17 +209,17 @@ const Notifications = () => {
                         },
                       ]}>
                       <Text style={[styles.text, {width: '90%'}]}>
-                        {item.message}
+                        {item?.Message}
                       </Text>
-                      {!item?.title && (
-                        <TouchableOpacity>
+                      {!item?.Title ? (
+                        <TouchableOpacity onPress={() => console.log('Delete not supported')}>
                           <DeleteIcon />
                         </TouchableOpacity>
-                      )}
+                      ) : null}
                     </View>
                   </View>
 
-                  {item.new === true && (
+                  {String(item?.RelatedEntityType || '').toLowerCase() === 'chat' && (
                     <TouchableOpacity
                       onPress={() => role == 'Driver' ? navigation.navigate('DriverChats') : navigation.navigate('ChatScreen')}>
                       <Text style={[styles.replyText]}>{'Reply'}</Text>
@@ -183,7 +232,7 @@ const Notifications = () => {
                         styles.text,
                         {color: AppColors.grey, alignSelf: 'flex-end'},
                       ]}>
-                      {item.timeWhenArrived}
+                      {formatTime(item?.CreatedAt)}
                     </Text>
                   </View>
                 </Pressable>
@@ -214,6 +263,11 @@ const Notifications = () => {
               ]}>
               No new notifications yet for you
             </Text>
+            {unreadCount > 0 ? (
+              <Text style={[styles.textWhenEmptyNotifs, {color: AppColors.grey}]}>
+                Unread: {unreadCount}
+              </Text>
+            ) : null}
           </View>
         )}
       </View>

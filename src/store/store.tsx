@@ -12,18 +12,20 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import userSlices from './user/userSlices';
 import driverSlices from './driver/driverSlices';
+import notificationsSlices from './notifications/notificationsSlice';
 
 const reducers = combineReducers({
   userSlices,
   driverSlices,
+  notificationsSlices,
 });
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   // Persist slice keys must match combineReducers keys, and the option is "whitelist" (lowercase).
-  // Persist auth + driver runtime state so trip/session does not reset on app relaunch.
-  whitelist: ['userSlices', 'driverSlices'],
+  // Persist auth + driver + notifications so list/unread count survive app reload.
+  whitelist: ['userSlices', 'driverSlices', 'notificationsSlices'],
   //   blackList: ['poSlice', 'common'],
 };
 

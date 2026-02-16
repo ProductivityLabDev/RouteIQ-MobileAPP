@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Navigation from './src/navigation/Navigation';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
@@ -10,11 +10,17 @@ import Toast from 'react-native-toast-message';
 import {toastConfig} from './src/utils/toastConfig';
 import {hp} from './src/utils/constants';
 import {setApiFetchStoreRef} from './src/utils/apiFetch';
+import {setupFcmListeners} from './src/services/fcmService';
 
 // Register store for apiFetch 401 auto-logout
 setApiFetchStoreRef(store);
 
 const App = () => {
+  useEffect(() => {
+    const unsubscribe = setupFcmListeners();
+    return () => unsubscribe();
+  }, []);
+
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persister}>

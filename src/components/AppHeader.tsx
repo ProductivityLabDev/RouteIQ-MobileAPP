@@ -15,6 +15,7 @@ import {childDropDown} from '../utils/DummyData';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {setSelectedChild} from '../store/user/userSlices';
 import Geolocation from '@react-native-community/geolocation';
+import {fetchUnreadCount} from '../store/notifications/notificationsSlice';
 
 const AppHeader: React.FC<AppHeaderProps> = ({
   title,
@@ -37,7 +38,17 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   const dispatch = useAppDispatch();
   const parentStudents = useAppSelector(state => state.userSlices.parentStudents);
   const selectedChild = useAppSelector(state => state.userSlices.selectedChild);
+  const token = useAppSelector(state => state.userSlices.token);
+  const unreadCount = useAppSelector(
+    state => (state as any).notificationsSlices?.unreadCount ?? 0,
+  );
   const [isSwitchOn, setIsSwitchOn] = useState(true);
+
+  useEffect(() => {
+    if (!token) return;
+    // Keep this light; thunk has internal throttling.
+    dispatch(fetchUnreadCount());
+  }, [dispatch, token]);
 
   // Check location service before going online
   const checkLocationBeforeOnline = async (): Promise<boolean> => {
@@ -397,7 +408,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 <Pressable
                   style={styles.icon}
                   onPress={() => navigation.navigate('Notification')}>
-                  <NotificationIcon />
+                  <View>
+                    <NotificationIcon />
+                    {Number(unreadCount) > 0 ? (
+                      <View style={styles.unreadBadge}>
+                        <Text style={styles.unreadBadgeText}>
+                          {unreadCount > 99 ? '99+' : String(unreadCount)}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
                 </Pressable>
               )}
               {!rightIcon && bookmarkIcon && (
@@ -585,5 +605,24 @@ const styles = StyleSheet.create({
   dropdownItemIconStyle: {
     fontSize: 28,
     marginRight: 8,
+  },
+  unreadBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#C62828',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1,
+    borderColor: AppColors.white,
+  },
+  unreadBadgeText: {
+    color: AppColors.white,
+    fontSize: 10,
+    fontFamily: AppFonts.NunitoSansBold,
   },
 });

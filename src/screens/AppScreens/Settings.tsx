@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Image,
   Pressable,
@@ -11,6 +11,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppButton from '../../components/AppButton';
 import AppHeader from '../../components/AppHeader';
@@ -26,15 +27,33 @@ import {useAppDispatch} from '../../store/hooks';
 import {logoutUser} from '../../store/user/userSlices';
 import AppCustomModal from '../../components/AppCustomModal';
 import {showSuccessToast} from '../../utils/toast';
+import {registerForPushNotifications} from '../../services/fcmService';
+
+const PUSH_ENABLED_KEY = '@push_notifications_enabled';
 
 export default function Settings() {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const [pushLoading, setPushLoading] = useState(false);
   const [logoutVisible, setLogoutVisible] = useState(false);
-
   const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(PUSH_ENABLED_KEY).then(value => {
+      setIsEnabled(value === 'true');
+    });
+  }, []);
+
+  const togglePush = async (value: boolean) => {
+    setIsEnabled(value);
+    await AsyncStorage.setItem(PUSH_ENABLED_KEY, value ? 'true' : 'false');
+    if (value) {
+      setPushLoading(true);
+      await registerForPushNotifications();
+      setPushLoading(false);
+    }
+  };
 
   const openGallery = () => {
     launchImageLibrary({mediaType: 'photo'}, response => {
@@ -118,7 +137,7 @@ export default function Settings() {
       ),
       screen: 'ChildProfile',
       title: 'Push Notification',
-      disabled: true,
+      disabled: pushLoading,
       styleStatus: false,
     },
   ];
@@ -170,8 +189,9 @@ export default function Settings() {
               </View>
               {item.title === 'Push Notification' ? (
                 <Switch
-                  onValueChange={toggleSwitch}
+                  onValueChange={togglePush}
                   value={isEnabled}
+                  disabled={pushLoading}
                   trackColor={{false: '#767577', true: AppColors.red}}
                   thumbColor={isEnabled ? AppColors.white : '#f4f3f4'}
                   style={{transform: [{scale: 1.3}]}}
