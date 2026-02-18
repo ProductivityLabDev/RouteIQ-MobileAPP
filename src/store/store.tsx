@@ -13,11 +13,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import userSlices from './user/userSlices';
 import driverSlices from './driver/driverSlices';
 import notificationsSlices from './notifications/notificationsSlice';
+import chatSlices from './chat/chatSlice';
 
 const reducers = combineReducers({
   userSlices,
   driverSlices,
   notificationsSlices,
+  chatSlices,
 });
 
 const persistConfig = {

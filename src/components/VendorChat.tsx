@@ -1,168 +1,209 @@
-import React, {useCallback, useState} from 'react';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Bubble, GiftedChat} from 'react-native-gifted-chat';
-import AppStyles from '../styles/AppStyles';
+import React, {useCallback, useEffect, useMemo, useState, useRef} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+} from 'react-native';
+import {Bubble, GiftedChat, InputToolbar, Send, Composer} from 'react-native-gifted-chat';
+import type {IMessage} from 'react-native-gifted-chat';
 import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
-import {hp} from '../utils/constants';
-import AppInput from './AppInput';
-import GlobalIcon from './GlobalIcon';
+import {hp, wp} from '../utils/constants';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
+import {
+  selectSelectedConversation,
+  selectMessages,
+  selectMessagesStatus,
+  selectSendStatus,
+  selectTypingUsers,
+  fetchMessages,
+  sendChatMessage,
+  markConversationRead,
+} from '../store/chat/chatSlice';
+import type {ChatMessage} from '../store/chat/chatTypes';
+import {useChatSocket} from '../hooks/useChatSocket';
+
+function apiMessageToGifted(
+  msg: ChatMessage & { _isFromMe?: boolean },
+  currentUserDisplayId: string,
+  mySenderIds: string[],
+): IMessage {
+  const createdAt = msg.createdAt ?? msg.created_at;
+  const rawSenderId = msg.senderId ?? msg.sender_id;
+  const senderObj = (msg as any).sender;
+  const senderIdStr = String(
+    rawSenderId ?? senderObj?.id ?? senderObj?.userId ?? msg.id,
+  );
+  const isFromMeFlag = Boolean((msg as any)._isFromMe);
+  const isMe =
+    isFromMeFlag ||
+    mySenderIds.some(id => String(id) === senderIdStr);
+  const senderName =
+    senderObj?.name ??
+    msg.senderName ??
+    msg.sender_name ??
+    msg.senderType ??
+    msg.sender_type ??
+    'User';
+  const messageText = msg.text ?? msg.content ?? msg.attachmentUrl ?? msg.attachment_url ?? '';
+
+  return {
+    _id: String(msg.id),
+    text: messageText,
+    createdAt: createdAt ? new Date(createdAt) : new Date(),
+    user: {
+      _id: isMe ? currentUserDisplayId : senderIdStr,
+      name: isMe ? 'Me' : senderName,
+    },
+  };
+}
 
 const VendorChat = () => {
-  const [messages, setMessages] = useState<any>([
-    {
-      _id: -1,
-      text: '?',
-      createdAt: new Date(),
-      position: 'right',
-      user: {
-        _id: 2,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
-    {
-      _id: 0,
-      text: 'I am almost finished. Please give me your email, I will ZIP them and send you as son as im finish.',
-      createdAt: new Date(),
-      position: 'right',
-      user: {
-        _id: 2,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
-    {
-      _id: 1,
-      text: '08:43',
-      createdAt: new Date(),
-      position: 'left',
-      user: {
-        _id: 2,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'date',
-    },
-    {
-      _id: 2,
-      text: 'Next month?',
-      createdAt: new Date(),
-      position: 'left',
-      user: {
-        _id: 2,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
-    {
-      _id: 3,
-      text: 'I am in a process of designing some. When do you need them?',
-      createdAt: new Date(),
-      position: 'right',
-      user: {
-        _id: 2,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
+  const dispatch = useAppDispatch();
+  const selectedConversation = useAppSelector(selectSelectedConversation);
+  const conversationId = selectedConversation?.id;
+  const messagesStatus = useAppSelector(selectMessagesStatus);
+  const sendStatus = useAppSelector(selectSendStatus);
+  const userId = useAppSelector(state => state.userSlices?.userId);
+  const employeeId = useAppSelector(state => state.userSlices?.employeeId);
+  const currentUserDisplayId = String(userId ?? employeeId ?? 1);
+  const typingUsers = useAppSelector(
+    conversationId != null ? selectTypingUsers(conversationId) : () => ({}),
+  );
 
-    {
-      _id: 4,
-      text: '08:12',
-      createdAt: new Date(),
-      position: 'right',
-      user: {
-        _id: 1,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'date',
-    },
+  // WebSocket connection
+  const { isConnected, sendMessage: sendSocketMessage, sendTyping, sendStopTyping } = useChatSocket();
 
-    {
-      _id: 5,
-      text: 'I commented on chat, I want to add some fancy icons. Do you have any icon set?',
-      createdAt: new Date(),
-      position: 'left',
-      user: {
-        _id: 1,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
-    {
-      _id: 6,
-      text: '2 FEB 6:00',
-      createdAt: new Date(),
-      position: 'right',
-      user: {
-        _id: 1,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'date',
-    },
-    {
-      _id: 7,
-      text: 'I am good.',
-      createdAt: new Date(),
-      position: 'left',
-      user: {
-        _id: 2,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
-    {
-      _id: 8,
-      text: 'Hi Ron. How are you?',
-      createdAt: new Date(),
-      position: 'right',
-      user: {
-        _id: 2,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
-    {
-      _id: 9,
-      text: 'Hey Reed!',
-      createdAt: new Date(),
-      position: 'left',
-      user: {
-        _id: 1,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'messages',
-    },
-    {
-      _id: 10,
-      text: '1 FEB 12:00',
-      createdAt: new Date(),
-      position: 'right',
-      user: {
-        _id: 1,
-        name: 'React Native',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
-      type: 'date',
-    },
-  ]);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const onSend = useCallback((message = []) => {
-    setMessages((previousMessages: any) =>
-      GiftedChat.append(previousMessages, messages),
-    );
-  }, []);
+  const mySenderIds = useMemo(
+    () =>
+      [userId, employeeId]
+        .filter(v => v != null && v !== '')
+        .map(v => String(v)),
+    [userId, employeeId],
+  );
+
+  const apiMessages = useAppSelector(
+    conversationId != null ? selectMessages(conversationId) : () => [],
+  );
+
+  const giftedMessages: IMessage[] = useMemo(() => {
+    if (!conversationId) return [];
+    return apiMessages
+      .map(m => apiMessageToGifted(m, currentUserDisplayId, mySenderIds))
+      .sort((a, b) => {
+        const timeB = typeof b.createdAt === 'number' ? b.createdAt : b.createdAt?.getTime?.() ?? 0;
+        const timeA = typeof a.createdAt === 'number' ? a.createdAt : a.createdAt?.getTime?.() ?? 0;
+        return timeB - timeA;
+      });
+  }, [apiMessages, conversationId, currentUserDisplayId, mySenderIds]);
+
+  // Initial fetch (no polling - WebSocket handles real-time)
+  useEffect(() => {
+    if (conversationId == null) return;
+    dispatch(fetchMessages({conversationId}));
+    dispatch(markConversationRead(conversationId));
+  }, [conversationId, dispatch]);
+
+  // Typing indicator text
+  const typingIndicator = useMemo(() => {
+    if (!conversationId) return '';
+    const typing = Object.entries(typingUsers)
+      .filter(([uid]) => !mySenderIds.includes(uid))
+      .map(([, utype]) => utype);
+    if (typing.length === 0) return '';
+    if (typing.length === 1) return `${typing[0]} is typing...`;
+    return `${typing.length} people are typing...`;
+  }, [typingUsers, conversationId, mySenderIds]);
+
+  const onSend = useCallback(
+    async (newMessages: IMessage[] = []) => {
+      if (!conversationId || newMessages.length === 0) return;
+      const first = newMessages[0];
+      const text = first?.text?.trim();
+      if (!text) return;
+
+      // Stop typing indicator
+      if (isTyping) {
+        sendStopTyping(Number(conversationId));
+        setIsTyping(false);
+      }
+
+      // Try WebSocket first, fallback to REST
+      if (isConnected) {
+        try {
+          const result = await sendSocketMessage({
+            conversationId: Number(conversationId),
+            content: text,
+            messageType: 'TEXT',
+          });
+          if (result.success) {
+            console.log('[VendorChat] Message sent via WebSocket');
+            return;
+          }
+        } catch (e) {
+          console.warn('[VendorChat] WebSocket send failed, fallback to REST');
+        }
+      }
+
+      // Fallback to REST
+      dispatch(
+        sendChatMessage({
+          conversationId,
+          text,
+        }),
+      );
+    },
+    [conversationId, dispatch, isConnected, sendSocketMessage, sendStopTyping, isTyping],
+  );
+
+  // Handle typing - use ref to avoid stale closure
+  const onInputTextChanged = useCallback(
+    (text: string) => {
+      if (!conversationId) return;
+
+      const hasText = text && text.trim().length > 0;
+
+      // Start typing indicator
+      if (hasText && !isTyping) {
+        setIsTyping(true);
+        sendTyping(Number(conversationId));
+      }
+
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Only set timeout if there's text
+      if (hasText) {
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+          sendStopTyping(Number(conversationId));
+        }, 3000);
+      } else if (isTyping) {
+        // If text cleared, stop typing immediately
+        setIsTyping(false);
+        sendStopTyping(Number(conversationId));
+      }
+    },
+    [conversationId, isTyping, sendTyping, sendStopTyping],
+  );
+
+  // Cleanup typing on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      if (isTyping && conversationId) {
+        sendStopTyping(Number(conversationId));
+      }
+    };
+  }, [isTyping, conversationId, sendStopTyping]);
 
   const renderMessage = (props: any) => {
     const {currentMessage} = props;
@@ -176,56 +217,37 @@ const VendorChat = () => {
         fontFamily: AppFonts.NunitoSansMedium,
         fontSize: 12,
         color:
-          currentMessage.type == 'date' ? AppColors.black : AppColors.white,
+          currentMessage.type === 'date' ? AppColors.black : AppColors.white,
       },
     };
 
     return (
       <Bubble
-        key={currentMessage.id}
+        key={currentMessage._id}
         {...props}
-        renderTime={() => <Text style={{position: 'absolute'}}></Text>}
-        position={currentMessage.position}
+        renderTime={() => <Text style={{position: 'absolute'}} />}
         wrapperStyle={{
           left: {
             maxWidth: '80%',
             backgroundColor:
-            currentMessage.type == 'date'
-            ? AppColors.transparent
-            : currentMessage.position === 'left'
-            ? AppColors.inputColor
-            : AppColors.red,
+              currentMessage.type === 'date'
+                ? AppColors.transparent
+                : AppColors.inputColor,
             marginBottom: 20,
             fontFamily: AppFonts.NunitoSansMedium,
-            alignSelf:
-            currentMessage.type == 'date'
-            ? 'center'
-            : currentMessage.position === 'left'
-            ? 'left'
-            : 'right',
-            marginRight: currentMessage.type == 'date' ? hp(0) : 0,
+            alignSelf: 'left',
             paddingVertical: hp(1),
           },
           right: {
-            
             maxWidth: '80%',
             backgroundColor:
-              currentMessage.type == 'date'
+              currentMessage.type === 'date'
                 ? AppColors.transparent
-                : currentMessage.position === 'left'
-                ? '#EDEDED'
                 : AppColors.darkRed,
             fontFamily: AppFonts.NunitoSansMedium,
             marginBottom: 20,
-            alignSelf:
-              currentMessage.type == 'date'
-                ? 'center'
-                : currentMessage.position === 'left'
-                ? 'left'
-                : 'right',
-            marginLeft: currentMessage.type == 'date' ? hp(0) : 0,
+            alignSelf: 'right',
             paddingVertical: hp(1),
-            
           },
         }}
         textStyle={messageTextStyle}
@@ -233,35 +255,40 @@ const VendorChat = () => {
     );
   };
 
-  const renderInputToolbar = (props: any) => {
+  if (conversationId == null) {
     return (
-      <View style={styles.inputToolbarContainer}>
-        <View style={styles.inputToolbar}>
-          <View style={[AppStyles.rowCenter, styles.giftedContainer]}>
-            <AppInput
-              placeholder="Type your message here...."
-              style={styles.input}
-              container={styles.inputContainer}
-              containerStyle={styles.containerStyle}
-            />
-            <TouchableOpacity style={styles.sendButton}>
-              <GlobalIcon
-                library="Ionicons"
-                name="send"
-                color={AppColors.red}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
+      <View style={[styles.placeholder, styles.container]}>
+        <Text style={styles.placeholderText}>Select a conversation to start chatting</Text>
       </View>
     );
-  };
+  }
+
+  if (messagesStatus === 'loading' && giftedMessages.length === 0) {
+    return (
+      <View style={[styles.placeholder, styles.container]}>
+        <ActivityIndicator size="large" color={AppColors.red} />
+      </View>
+    );
+  }
+
+  const conversationTitle =
+    selectedConversation?.name ??
+    (Array.isArray(selectedConversation?.participants)
+      ? selectedConversation.participants.map((p: any) => p.name || p.id).join(', ')
+      : 'Chat');
 
   return (
-    <ScrollView scrollEnabled={false} contentContainerStyle={styles.container}>
+    <View style={styles.container}>
+      <View style={styles.chatWithBar}>
+        <Text style={styles.chatWithText} numberOfLines={1}>
+          Chat with: {conversationTitle}
+        </Text>
+        {typingIndicator ? (
+          <Text style={styles.typingText}>{typingIndicator}</Text>
+        ) : null}
+      </View>
       <GiftedChat
         renderMessage={renderMessage}
-        renderInputToolbar={renderInputToolbar}
         messagesContainerStyle={{
           paddingHorizontal: 20,
           backgroundColor: AppColors.profileBg,
@@ -270,13 +297,40 @@ const VendorChat = () => {
         }}
         renderAvatar={null}
         inverted={true}
-        messages={messages}
-        onSend={(newMessages: any) => onSend(newMessages)}
-        user={{_id: 1}}
-        isKeyboardInternallyHandled={false}
+        messages={giftedMessages}
+        onSend={onSend}
+        onInputTextChanged={onInputTextChanged}
+        user={{
+          _id: currentUserDisplayId,
+          name: 'Me',
+        }}
         listViewProps={{showsVerticalScrollIndicator: false}}
+        isLoadingEarlier={sendStatus === 'loading'}
+        renderInputToolbar={(props) => (
+          <InputToolbar
+            {...props}
+            containerStyle={styles.inputToolbarContainer}
+            primaryStyle={styles.inputToolbarPrimary}
+          />
+        )}
+        renderComposer={(props) => (
+          <View style={styles.composerWrap}>
+            <Composer
+              {...props}
+              textInputStyle={styles.textInput}
+            />
+          </View>
+        )}
+        renderSend={(props) => (
+          <Send {...props} containerStyle={styles.sendContainer}>
+            <Text style={styles.sendLabel}>Send</Text>
+          </Send>
+        )}
+        textInputProps={{
+          placeholderTextColor: AppColors.gradientGrey,
+        }}
       />
-    </ScrollView>
+    </View>
   );
 };
 
@@ -285,46 +339,75 @@ export default React.memo(VendorChat);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.screenColor
-  },
-  giftedContainer: {
     backgroundColor: AppColors.screenColor,
-    height: 50,
-    borderRadius: hp(10),
+  },
+  chatWithBar: {
+    paddingVertical: hp(1),
+    paddingHorizontal: 20,
+    backgroundColor: AppColors.inputColor,
+    borderBottomWidth: 1,
+    borderBottomColor: AppColors.lightGrey,
+  },
+  chatWithText: {
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: 14,
+    color: AppColors.black,
+  },
+  typingText: {
+    fontFamily: AppFonts.NunitoSansRegular,
+    fontSize: 11,
+    color: AppColors.gradientGrey,
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   inputToolbarContainer: {
-    backgroundColor: AppColors.white,
-    width: '100%',
-    paddingHorizontal: hp(2),
-    bottom: hp(4),
+    paddingHorizontal: 10,
+    paddingVertical: hp(1),
+    paddingRight: 6,
+    backgroundColor: AppColors.profileBg,
   },
-  inputToolbar: {
-    height: hp(10),
-    backgroundColor: AppColors.white,
+  inputToolbarPrimary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  composerWrap: {
+    flex: 1,
+    minWidth: 0,
+    maxWidth: wp(72),
+  },
+  textInput: {
+    minHeight: 40,
+    maxHeight: 100,
+    color: AppColors.black,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingTop: 10,
+    fontFamily: AppFonts.NunitoSansMedium,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.06)',
+  },
+  sendContainer: {
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: 8,
+    marginRight: 0,
+    minHeight: 40,
   },
-  input: {
-    width: '100%',
-    height: '100%',
-    alignSelf: 'center',
-    backgroundColor: AppColors.screenColor,
+  sendLabel: {
+    color: AppColors.red,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: 15,
   },
-  inputContainer: {
-    borderColor: 'transparent',
-    borderRadius: hp(10),
-    height: '100%',
-    backgroundColor: AppColors.screenColor,
+  placeholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  containerStyle: {
-    width: '90%',
-    padding: 0,
-    backgroundColor: AppColors.screenColor,
-    marginBottom: 0,
-    borderRadius: hp(10),
-  },
-  sendButton: {
-    transform: [{rotate: '-45deg'}],
-    marginRight: hp(1),
-    bottom: 1,
+  placeholderText: {
+    fontFamily: AppFonts.NunitoSansMedium,
+    fontSize: 14,
+    color: AppColors.gradientGrey,
   },
 });

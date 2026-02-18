@@ -11,6 +11,7 @@ import {toastConfig} from './src/utils/toastConfig';
 import {hp} from './src/utils/constants';
 import {setApiFetchStoreRef} from './src/utils/apiFetch';
 import {setupFcmListeners} from './src/services/fcmService';
+import {ChatSocketProvider} from './src/providers/ChatSocketProvider';
 
 // Register store for apiFetch 401 auto-logout
 setApiFetchStoreRef(store);
@@ -24,14 +25,16 @@ const App = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persister}>
-        <GestureHandlerRootView style={{flex: 1}}>
-          <MenuProvider>
-            <BottomSheetModalProvider>
-              <Navigation />
-            </BottomSheetModalProvider>
-          </MenuProvider>
-          <Toast config={toastConfig} position="bottom" bottomOffset={hp(10)} />
-        </GestureHandlerRootView>
+        <ChatSocketProvider>
+          <GestureHandlerRootView style={{flex: 1}}>
+            <MenuProvider>
+              <BottomSheetModalProvider>
+                <Navigation />
+              </BottomSheetModalProvider>
+            </MenuProvider>
+            <Toast config={toastConfig} position="bottom" bottomOffset={hp(10)} />
+          </GestureHandlerRootView>
+        </ChatSocketProvider>
       </PersistGate>
     </Provider>
   );

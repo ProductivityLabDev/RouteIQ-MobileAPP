@@ -168,6 +168,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           student?.studentId ??
           student?.StudentId ??
           student?.id ??
+          student?.Id ??
           student?.studentID ??
           null;
         const image =
@@ -185,17 +186,17 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   useEffect(() => {
     if (role !== 'ParentsDropDown') return;
     if (!dropdownData.length) return;
-    if (selectedChild?.studentId || selectedChild?.StudentId) {
+    if (selectedChild?.studentId ?? selectedChild?.StudentId ?? selectedChild?.id) {
       return;
     }
-    // Prefer dispatching the original student object from parentStudents
-    const firstStudent = Array.isArray(parentStudents) && parentStudents.length > 0 ? parentStudents[0] : null;
-    if (firstStudent) {
-      dispatch(setSelectedChild(firstStudent));
-      return;
+    // Only set from API list so selectedChild has StudentId etc.; never set dummy when we have no API data
+    const hasApiStudents = Array.isArray(parentStudents) && parentStudents.length > 0;
+    if (hasApiStudents) {
+      dispatch(setSelectedChild(parentStudents[0]));
+    } else {
+      dispatch(setSelectedChild(dropdownData[0]));
     }
-    dispatch(setSelectedChild(dropdownData[0]));
-  }, [dispatch, dropdownData, role, selectedChild]);
+  }, [dispatch, dropdownData, role, selectedChild, parentStudents]);
 
   return (
     <>
@@ -286,19 +287,18 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 data={dropdownData}
                 defaultValue={selectedChild?.title ? selectedChild : dropdownData[0]}
                 onSelect={(selectedItem, index) => {
-                  // selectedItem is the transformed dropdown item; find full student by id
-                  const sid = selectedItem?.studentId ?? selectedItem?.studentId;
+                  const sid = selectedItem?.studentId ?? selectedItem?.StudentId;
                   const found = Array.isArray(parentStudents)
                     ? parentStudents.find((s: any) =>
-                        String(s?.StudentId ?? s?.studentId ?? s?.id ?? '') === String(sid),
+                        String(s?.StudentId ?? s?.studentId ?? s?.id ?? s?.Id ?? '') === String(sid ?? ''),
                       )
                     : null;
                   if (found) {
                     dispatch(setSelectedChild(found));
-                    if (__DEV__) console.log(found, index);
+                    if (__DEV__) console.log('Selected child (API):', found);
                   } else {
                     dispatch(setSelectedChild(selectedItem));
-                    if (__DEV__) console.log(selectedItem, index);
+                    if (__DEV__) console.log('Selected child (dropdown item):', selectedItem);
                   }
                 }}
                 renderButton={(selectedItem, isOpened) => {

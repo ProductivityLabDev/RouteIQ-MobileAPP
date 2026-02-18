@@ -1,5 +1,5 @@
-import {View, Text, FlatList, StyleSheet, Image, Pressable} from 'react-native';
-import React, {useState} from 'react';
+import {View, Text, FlatList, StyleSheet, Image, Pressable, ActivityIndicator} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import {AppColors} from '../utils/color';
 import {size} from '../utils/responsiveFonts';
 import AppFonts from '../utils/appFonts';
@@ -8,22 +8,25 @@ import GlobalIcon from './GlobalIcon';
 import AppInput from './AppInput';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
-import {set} from 'react-hook-form';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
+import {
+  fetchChatContacts,
+  fetchConversations,
+  createConversation,
+  setSelectedConversation,
+  selectChatContacts,
+  selectChatContactsStatus,
+  selectConversations,
+} from '../store/chat/chatSlice';
+import type {ChatContact} from '../store/chat/chatTypes';
 
-// Define User Type
-type User = {
-  id: string;
-  name: string;
-  avatar: keyof typeof localImages;
-};
-
-// Local images mapping
 const localImages = {
   select1: require('../assets/images/select1.png'),
   select2: require('../assets/images/select2.png'),
 };
 
-// Initial user data
+type User = { id: string; name: string; avatar: keyof typeof localImages; participantType?: string };
+
 const initialData: User[] = [
   {id: '1', name: 'NYU', avatar: 'select1'},
   {id: '2', name: 'Johan', avatar: 'select2'},
@@ -33,11 +36,38 @@ const initialData: User[] = [
   {id: '6', name: 'Bobby Langford', avatar: 'select2'},
 ];
 
-const GroupChat = ({arrayData}) => {
+function contactToUser(c: ChatContact): User {
+  return {
+    id: String(c.id),
+    name: c.name ?? `ID ${c.id}`,
+    avatar: 'select1',
+    participantType: c.participantType ?? 'User',
+  };
+}
+
+const GroupChat = ({arrayData}: {arrayData?: any[]}) => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  const contacts = useAppSelector(selectChatContacts);
+  const contactsStatus = useAppSelector(selectChatContactsStatus);
+  const apiConversations = useAppSelector(selectConversations);
   const [showCreateGroup, setShowCreateGroup] = useState<boolean>(false);
   const [showGroup, setShowGroup] = useState<boolean>(false);
   const [selectedItems, setSelectedItems] = useState<User[]>([]);
+  const [groupName, setGroupName] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    // Initial fetch only - WebSocket handles real-time updates
+    dispatch(fetchConversations());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (showCreateGroup) dispatch(fetchChatContacts());
+  }, [showCreateGroup, dispatch]);
+
+  const memberList: User[] = contacts.length > 0 ? contacts.map(contactToUser) : initialData;
+  const groupList = arrayData?.length ? arrayData : apiConversations.filter((c: any) => (c.type === 'GROUP' || c.type === 'group'));
 
   const toggleSelection = (item: User) => {
     setSelectedItems(prevSelected => {
@@ -106,23 +136,30 @@ const GroupChat = ({arrayData}) => {
             )}
           />
 
-          <FlatList
-            data={initialData}
-            keyExtractor={item => item.id}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                onPress={() => toggleSelection(item)}
-                style={styles.userItem}>
-                <Image
-                  source={localImages[item.avatar]}
-                  style={styles.avatar}
-                />
-                <Text style={styles.userName}>{item.name}</Text>
-              </TouchableOpacity>
-            )}
-          />
+          {contactsStatus === 'loading' ? (
+            <ActivityIndicator size="small" color={AppColors.red} style={{marginVertical: hp(2)}} />
+          ) : (
+            <FlatList
+              data={memberList}
+              keyExtractor={item => item.id}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  onPress={() => toggleSelection(item)}
+                  style={styles.userItem}>
+                  <Image
+                    source={localImages[item.avatar]}
+                    style={styles.avatar}
+                  />
+                  <Text style={styles.userName}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
 
-          <TouchableOpacity style={styles.arrowButton} onPress={toggleGroup}>
+          <TouchableOpacity
+            style={styles.arrowButton}
+            onPress={toggleGroup}
+            disabled={selectedItems.length === 0}>
             <GlobalIcon
               library="FontAwesome6"
               name="arrow-right-long"
@@ -140,6 +177,8 @@ const GroupChat = ({arrayData}) => {
             />
             <AppInput
               placeholder="Group Name"
+              value={groupName}
+              onChangeText={setGroupName}
               container={[styles.inputContainer]}
               inputStyle={{
                 fontSize: 18,
@@ -180,13 +219,40 @@ const GroupChat = ({arrayData}) => {
           />
           <TouchableOpacity
             style={styles.checkButton}
-            onPress={() => setShowCreateGroup(true)}>
-            <GlobalIcon
-              library="FontAwesome5"
-              name="check"
-              size={24}
-              color={AppColors.white}
-            />
+            disabled={creating}
+            onPress={async () => {
+              if (creating || selectedItems.length === 0) return;
+              setCreating(true);
+              try {
+                const res = await dispatch(
+                  createConversation({
+                    type: 'group',
+                    name: groupName.trim() || 'New Group',
+                    participantIds: selectedItems.map(i => i.id),
+                    participantTypes: selectedItems.map(i => i.participantType ?? 'User'),
+                  }),
+                ).unwrap();
+                if (res?.id != null) {
+                  dispatch(setSelectedConversation(res));
+                  setShowGroup(false);
+                  setShowCreateGroup(false);
+                  setSelectedItems([]);
+                  setGroupName('');
+                }
+              } finally {
+                setCreating(false);
+              }
+            }}>
+            {creating ? (
+              <ActivityIndicator size="small" color={AppColors.white} />
+            ) : (
+              <GlobalIcon
+                library="FontAwesome5"
+                name="check"
+                size={24}
+                color={AppColors.white}
+              />
+            )}
           </TouchableOpacity>
         </>
       ) : (
@@ -211,21 +277,27 @@ const GroupChat = ({arrayData}) => {
             />
           </Pressable>
           <FlatList
-            data={arrayData}
-            keyExtractor={item => item.id?.toString() || item.title}
+            data={groupList}
+            keyExtractor={item => String(item?.id ?? item?.title ?? Math.random())}
             renderItem={({item}) => (
-              <View style={styles.groupchatView}>
+              <Pressable
+                onPress={() => item?.id != null && dispatch(setSelectedConversation(item))}
+                style={styles.groupchatView}>
                 <View style={styles.groupChat}>
-                  <Text style={styles.groupChatText}>PS</Text>
+                  <Text style={styles.groupChatText}>
+                    {(item?.name ?? item?.title ?? 'G').slice(0, 2).toUpperCase()}
+                  </Text>
                 </View>
                 <View style={styles.chatItem}>
                   <View style={styles.chatItemStyle}>
-                    <Text style={styles.groupName}>{item.title}</Text>
-                    <Text style={styles.lastMessage}>{item.time}</Text>
+                    <Text style={styles.groupName}>{item?.name ?? item?.title ?? 'Group'}</Text>
+                    <Text style={styles.lastMessage}>{item?.lastMessageAt ?? item?.time ?? ''}</Text>
                   </View>
-                  <Text style={styles.lastMessage}>{item.message}</Text>
+                  <Text style={styles.lastMessage} numberOfLines={1}>
+                    {item?.lastMessage?.content ?? item?.lastMessage?.text ?? item?.message ?? ''}
+                  </Text>
                 </View>
-              </View>
+              </Pressable>
             )}
           />
           {/* Create New Group Button */}

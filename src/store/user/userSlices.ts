@@ -77,7 +77,12 @@ export const fetchParentStudents = createAsyncThunk(
     }
 
     try {
-      const response = await fetch(`${baseUrl}/parent/studentsByParentsId`, {
+      const state2: any = getState();
+      const parentId = state2?.userSlices?.userId ?? state2?.userSlices?.employeeId;
+      const query = parentId != null ? `?parentId=${parentId}` : '';
+      const url = `${baseUrl}/parent/studentsByParentsId${query}`;
+      if (__DEV__) console.log('fetchParentStudents calling:', url);
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -87,19 +92,32 @@ export const fetchParentStudents = createAsyncThunk(
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
+        if (__DEV__) console.warn('fetchParentStudents failed', response.status, errorText);
         return rejectWithValue(
           errorText || `Fetch students failed with status ${response.status}`,
         );
       }
 
       const data = await response.json().catch(() => null);
+      let list: any[] = [];
       if (data?.ok === true && Array.isArray(data?.data)) {
-        return data.data;
+        list = data.data;
+      } else if (Array.isArray(data?.students)) {
+        list = data.students;
+      } else if (data?.data && Array.isArray(data.data.students)) {
+        list = data.data.students;
+      } else if (Array.isArray(data?.data)) {
+        list = data.data;
+      } else if (Array.isArray(data)) {
+        list = data;
+      } else if (data?.data && Array.isArray(data.data)) {
+        list = data.data;
       }
-      if (Array.isArray(data)) {
-        return data;
+      if (__DEV__) {
+        console.log('fetchParentStudents response:', list?.length ?? 0, 'items', list?.[0] ?? null);
+        if (list?.length === 0 && data != null) console.log('fetchParentStudents raw data keys:', Object.keys(data || {}));
       }
-      return [];
+      return list;
     } catch (err) {
       console.warn('fetchParentStudents exception', {baseUrl, err});
       return rejectWithValue('Network error while fetching parent students');

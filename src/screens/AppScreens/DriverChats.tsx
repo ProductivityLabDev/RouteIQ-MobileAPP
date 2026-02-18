@@ -14,8 +14,9 @@ import {
   Route,
   SceneRendererProps,
 } from 'react-native-tab-view';
-import { chats_data, groups_data } from '../../utils/DummyData';
+import { groups_data } from '../../utils/DummyData';
 import VendorChat from '../../components/VendorChat';
+// Chat list ab API se aati hai: GET /chat/conversations (DriverAllChats fetchConversations use karta hai)
 import DriverAllChats from './DriverAllChats';
 import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -28,8 +29,23 @@ export default function DriverChats() {
 
   const role = useAppSelector(state => state.userSlices.role);
   const chatTabIndex = useAppSelector(state => state.driverSlices.chatTabIndex);
+  const selectedChatName = useAppSelector(
+    state => (state.userSlices?.selectedUserChatData as any)?.name,
+  );
+  const selectedConversation = useAppSelector(
+    state => state.chatSlices?.selectedConversation,
+  );
 
   const [SchoolChattingScreen, setSchoolChattingScreen] = useState(false);
+
+  // Get chat title from conversation or selected chat data
+  const chatTitle = SchoolChattingScreen
+    ? selectedConversation?.name?.trim() ||
+      selectedChatName?.trim() ||
+      (Array.isArray(selectedConversation?.participants) && selectedConversation.participants.length > 0
+        ? selectedConversation.participants.map((p: any) => p.name || `ID ${p.id}`).join(', ')
+        : 'Chat')
+    : 'Chat';
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
   
@@ -55,17 +71,22 @@ export default function DriverChats() {
 
   
 
-  const FirstRoute = useMemo(() => () => <VendorChat />, []);
+  const FirstRoute = useMemo(
+    () => () =>
+      SchoolChattingScreen ? (
+        <VendorChat />
+      ) : (
+        <DriverAllChats setSchoolChattingScreen={setSchoolChattingScreen} />
+      ),
+    [SchoolChattingScreen]
+  );
 
   const SecondRoute = useMemo(
     () => () =>
       SchoolChattingScreen ? (
         <VendorChat />
       ) : (
-        <DriverAllChats
-          arrayData={chats_data.slice(0, 10)}
-          setSchoolChattingScreen={setSchoolChattingScreen}
-        />
+        <DriverAllChats setSchoolChattingScreen={setSchoolChattingScreen} />
       ),
     [SchoolChattingScreen]
   );
@@ -75,10 +96,7 @@ export default function DriverChats() {
       SchoolChattingScreen ? (
         <VendorChat />
       ) : (
-        <DriverAllChats
-          arrayData={chats_data.slice(10, 14)}
-          setSchoolChattingScreen={setSchoolChattingScreen}
-        />
+        <DriverAllChats setSchoolChattingScreen={setSchoolChattingScreen} />
       ),
     [SchoolChattingScreen]
   );
@@ -137,7 +155,7 @@ export default function DriverChats() {
     >
       <AppHeader
         role="Driver"
-        title={'Chat'}
+        title={chatTitle}
         backFunctionEnable={true}
         handleBack={() => {
           if (!SchoolChattingScreen) {

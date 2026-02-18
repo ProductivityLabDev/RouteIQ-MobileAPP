@@ -164,15 +164,17 @@ export default function HomeSreen() {
     }
   }, [selectAbsence]);
 
+  const isParent = role === 'Parents' || role === 'Parent';
   useEffect(() => {
-    if (role !== 'Parents') return;
-    if (parentStudentsStatus === 'idle') {
+    if (!isParent) return;
+    if (parentStudentsStatus === 'idle' || parentStudentsStatus === 'failed') {
+      if (__DEV__) console.log('Parent Home: fetching students, status=', parentStudentsStatus);
       dispatch(fetchParentStudents());
     }
-  }, [dispatch, parentStudentsStatus, role]);
+  }, [dispatch, isParent, parentStudentsStatus]);
 
   useEffect(() => {
-    if (role !== 'Parents') return;
+    if (!isParent) return;
     const studentId =
       selectedChild?.studentId ??
       selectedChild?.StudentId ??
@@ -180,7 +182,7 @@ export default function HomeSreen() {
       null;
     if (!studentId) return;
     dispatch(fetchParentRouteMap({studentId, type: 'AM'}));
-  }, [dispatch, role, selectedChild]);
+  }, [dispatch, isParent, selectedChild]);
 
   return (
     <AppLayout
