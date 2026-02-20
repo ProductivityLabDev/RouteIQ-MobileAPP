@@ -38,11 +38,34 @@ function formatChatTime(iso: string | null | undefined): string {
 }
 
 function getConversationTitle(conv: ChatConversation): string {
+  // 1. Try conversation name
   if (conv.name && String(conv.name).trim()) return String(conv.name).trim();
+
+  // 2. Try participant (singular) - backend uses this for DIRECT chats
+  const participant = (conv as any).participant;
+  if (participant?.name && String(participant.name).trim()) {
+    return String(participant.name).trim();
+  }
+
+  // 3. Try participants array (plural) - for GROUP chats or manually set
   const participants = conv.participants;
   if (Array.isArray(participants) && participants.length > 0) {
     return participants.map(p => p.name || `ID ${p.id}`).join(', ');
   }
+
+  // 4. Try last message sender as fallback
+  const lastMsg = conv.lastMessage;
+  if (lastMsg) {
+    const sender = (lastMsg as any).sender;
+    const senderName =
+      sender?.name ??
+      (lastMsg as any).senderName ??
+      (lastMsg as any).sender_name;
+    if (senderName && String(senderName).trim()) {
+      return String(senderName).trim();
+    }
+  }
+
   return 'Chat';
 }
 
@@ -70,11 +93,27 @@ const DriverAllChats: React.FC<DriverAllChatsProps> = ({
 
   const onPressItem = (item: any) => {
     if (item?.id != null) {
-      dispatch(setSelectedConversation(item as ChatConversation));
+      // Extract participant info - backend uses singular "participant" for DIRECT chats
+      let conversationWithParticipants = item;
+      const participant = item.participant;
+
+      // Convert singular participant to participants array for consistency
+      if (participant && (!item.participants || item.participants.length === 0)) {
+        conversationWithParticipants = {
+          ...item,
+          participants: [{
+            id: participant.id,
+            name: participant.name,
+            type: participant.type
+          }]
+        };
+      }
+
+      dispatch(setSelectedConversation(conversationWithParticipants as ChatConversation));
       dispatch(
         setSelectedUserChatData({
-          name: getConversationTitle(item),
-          profile_image: item?.avatar ?? '',
+          name: getConversationTitle(conversationWithParticipants),
+          profile_image: participant?.avatar ?? item?.avatar ?? '',
         }),
       );
       if (setSchoolChattingScreen !== undefined) {
@@ -84,6 +123,22 @@ const DriverAllChats: React.FC<DriverAllChatsProps> = ({
   };
 
   const renderRow = ({item}: {item: any}) => {
+    // Debug: Log conversation item to understand structure
+    if (item?.id) {
+      console.log('[DriverAllChats] Conversation item:', {
+        id: item.id,
+        name: item.name,
+        participants: item.participants,
+        lastMessage: item.lastMessage ? {
+          sender: (item.lastMessage as any).sender,
+          senderName: (item.lastMessage as any).senderName,
+          sender_name: (item.lastMessage as any).sender_name,
+          senderType: (item.lastMessage as any).senderType,
+          sender_type: (item.lastMessage as any).sender_type,
+        } : null,
+      });
+    }
+
     const title = getConversationTitle(item);
     const lastMsg = item?.lastMessage;
     const message = typeof lastMsg === 'string'
@@ -91,6 +146,18 @@ const DriverAllChats: React.FC<DriverAllChatsProps> = ({
       : (lastMsg?.content ?? lastMsg?.text ?? '');
     const time = formatChatTime(item?.lastMessageAt ?? lastMsg?.createdAt);
     const avatar = item?.avatar ? {uri: item.avatar} : require('../../assets/images/profile_image.webp');
+
+    // Get participant type from participant (singular) - backend uses this
+    let participantType = null;
+    const participant = (item as any).participant;
+    if (participant?.type) {
+      participantType = participant.type;
+    } else if (item.participants && item.participants.length > 0) {
+      participantType = item.participants[0]?.type;
+    } else if (lastMsg) {
+      const sender = (lastMsg as any).sender;
+      participantType = sender?.type ?? (lastMsg as any).senderType ?? (lastMsg as any).sender_type;
+    }
 
     return (
       <Pressable
@@ -102,17 +169,36 @@ const DriverAllChats: React.FC<DriverAllChatsProps> = ({
             AppStyles.rowBetween,
             {marginLeft: hp(2), width: '80%', alignItems: 'flex-start'},
           ]}>
-          <View style={{gap: hp(0.3)}}>
-            <Text
-              style={[
-                AppStyles.title,
-                {
-                  fontSize: size.md,
-                  fontFamily: AppFonts.NunitoSansSemiBold,
-                },
-              ]}>
-              {title}
-            </Text>
+          <View style={{gap: hp(0.3), flex: 1}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
+              <Text
+                style={[
+                  AppStyles.title,
+                  {
+                    fontSize: size.md,
+                    fontFamily: AppFonts.NunitoSansSemiBold,
+                  },
+                ]}>
+                {title}
+              </Text>
+              {participantType && (
+                <View
+                  style={[
+                    styles.typeBadge,
+                    participantType === 'DRIVER' && {backgroundColor: '#4CAF50'},
+                    participantType === 'SCHOOL' && {backgroundColor: '#2196F3'},
+                    participantType === 'VENDOR' && {backgroundColor: '#FF9800'},
+                    participantType === 'GUARDIAN' && {backgroundColor: '#9C27B0'},
+                  ]}>
+                  <Text style={styles.typeBadgeText}>
+                    {participantType === 'DRIVER' ? '🚗' :
+                     participantType === 'SCHOOL' ? '🏫' :
+                     participantType === 'VENDOR' ? '🚚' :
+                     participantType === 'GUARDIAN' ? '👨‍👩‍👧' : ''}
+                  </Text>
+                </View>
+              )}
+            </View>
             <Text
               style={[
                 AppStyles.title,
@@ -237,5 +323,15 @@ const styles = StyleSheet.create({
     fontSize: size.s,
     color: AppColors.gradientGrey,
     textAlign: 'center',
+  },
+  typeBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    backgroundColor: AppColors.gradientGrey,
+  },
+  typeBadgeText: {
+    fontSize: 11,
+    color: AppColors.white,
   },
 });

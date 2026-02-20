@@ -9,7 +9,7 @@ import {Bubble, GiftedChat, InputToolbar, Send, Composer} from 'react-native-gif
 import type {IMessage} from 'react-native-gifted-chat';
 import AppFonts from '../utils/appFonts';
 import {AppColors} from '../utils/color';
-import {hp, wp} from '../utils/constants';
+import {hp} from '../utils/constants';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {
   selectSelectedConversation,
@@ -361,9 +361,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   inputToolbarContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: hp(1),
-    paddingRight: 6,
     backgroundColor: AppColors.profileBg,
   },
   inputToolbarPrimary: {
@@ -373,7 +372,6 @@ const styles = StyleSheet.create({
   composerWrap: {
     flex: 1,
     minWidth: 0,
-    maxWidth: wp(72),
   },
   textInput: {
     minHeight: 40,
@@ -392,14 +390,16 @@ const styles = StyleSheet.create({
   sendContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 8,
-    marginRight: 0,
+    marginLeft: 10,
+    paddingHorizontal: 14,
     minHeight: 40,
+    backgroundColor: AppColors.red,
+    borderRadius: 20,
   },
   sendLabel: {
-    color: AppColors.red,
+    color: AppColors.white,
     fontFamily: AppFonts.NunitoSansSemiBold,
-    fontSize: 15,
+    fontSize: 14,
   },
   placeholder: {
     justifyContent: 'center',

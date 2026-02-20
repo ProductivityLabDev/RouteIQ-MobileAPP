@@ -17,18 +17,43 @@ export const fetchChatContacts = createAsyncThunk(
     const token = getAuthToken(getState());
     if (!token) return rejectWithValue('Missing auth token');
     try {
-      const q = new URLSearchParams();
-      if (params?.type) q.set('type', params.type);
-      const url = q.toString() ? `${base}/chat/contacts?${q}` : `${base}/chat/contacts`;
+      // Build query string manually (URLSearchParams not fully supported in RN)
+      const queryParams = [];
+      if (params?.type) queryParams.push(`type=${encodeURIComponent(params.type)}`);
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+      const url = `${base}/chat/contacts${queryString}`;
+
+      console.log('[fetchChatContacts] URL:', url);
+      console.log('[fetchChatContacts] Params:', params);
+
       const res = await fetch(url, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       });
-      if (!res.ok) return rejectWithValue(await res.text().catch(() => ''));
+
+      console.log('[fetchChatContacts] Response status:', res.status);
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => '');
+        console.log('[fetchChatContacts] Error response:', errorText);
+        return rejectWithValue(errorText);
+      }
+
       const data = await res.json().catch(() => null);
+      console.log('[fetchChatContacts] Response data:', data);
+
       const list = data?.contacts ?? data?.data ?? (Array.isArray(data) ? data : []);
-      return list as ChatContact[];
+      console.log('[fetchChatContacts] Parsed contacts list:', list);
+
+      // Add participantType to each contact based on the query type
+      const contactsWithType = list.map((contact: any) => ({
+        ...contact,
+        participantType: params?.type ?? contact.participantType,
+      }));
+
+      return contactsWithType as ChatContact[];
     } catch (e) {
+      console.log('[fetchChatContacts] Exception:', e);
       return rejectWithValue(e instanceof Error ? e.message : 'Network error');
     }
   },
@@ -45,9 +70,11 @@ export const fetchConversations = createAsyncThunk(
     const token = getAuthToken(getState());
     if (!token) return rejectWithValue('Missing auth token');
     try {
-      const q = new URLSearchParams();
-      if (params?.type) q.set('type', params.type);
-      const url = q.toString() ? `${base}/chat/conversations?${q}` : `${base}/chat/conversations`;
+      // Build query string manually (URLSearchParams not fully supported in RN)
+      const queryParams = [];
+      if (params?.type) queryParams.push(`type=${encodeURIComponent(params.type)}`);
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+      const url = `${base}/chat/conversations${queryString}`;
       const res = await fetch(url, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
@@ -146,8 +173,9 @@ export const fetchMessages = createAsyncThunk(
     const token = getAuthToken(getState());
     if (!token) return rejectWithValue('Missing auth token');
     try {
-      const q = new URLSearchParams({ page: String(page), limit: String(limit) });
-      const res = await fetch(`${base}/chat/conversations/${conversationId}/messages?${q}`, {
+      // Build query string manually (URLSearchParams not fully supported in RN)
+      const queryString = `?page=${page}&limit=${limit}`;
+      const res = await fetch(`${base}/chat/conversations/${conversationId}/messages${queryString}`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       });
@@ -395,12 +423,14 @@ export const fetchMonitoredConversations = createAsyncThunk(
     const token = getAuthToken(getState());
     if (!token) return rejectWithValue('Missing auth token');
     try {
-      const q = new URLSearchParams();
-      if (params?.page != null) q.set('page', String(params.page));
-      if (params?.limit != null) q.set('limit', String(params.limit));
-      if (params?.sourceType) q.set('sourceType', params.sourceType);
-      if (params?.targetType) q.set('targetType', params.targetType);
-      const url = `${base}/chat/monitoring/conversations${q.toString() ? `?${q}` : ''}`;
+      // Build query string manually (URLSearchParams not fully supported in RN)
+      const queryParams = [];
+      if (params?.page != null) queryParams.push(`page=${params.page}`);
+      if (params?.limit != null) queryParams.push(`limit=${params.limit}`);
+      if (params?.sourceType) queryParams.push(`sourceType=${encodeURIComponent(params.sourceType)}`);
+      if (params?.targetType) queryParams.push(`targetType=${encodeURIComponent(params.targetType)}`);
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+      const url = `${base}/chat/monitoring/conversations${queryString}`;
       const res = await fetch(url, {
         method: 'GET',
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
@@ -429,9 +459,10 @@ export const fetchMonitoredMessages = createAsyncThunk(
     const token = getAuthToken(getState());
     if (!token) return rejectWithValue('Missing auth token');
     try {
-      const q = new URLSearchParams({ page: String(page), limit: String(limit) });
+      // Build query string manually (URLSearchParams not fully supported in RN)
+      const queryString = `?page=${page}&limit=${limit}`;
       const res = await fetch(
-        `${base}/chat/monitoring/conversations/${conversationId}/messages?${q}`,
+        `${base}/chat/monitoring/conversations/${conversationId}/messages${queryString}`,
         {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
@@ -500,6 +531,11 @@ const chatSlice = createSlice({
     clearMessagesForConversation: (state, action: { payload: string | number }) => {
       delete state.messagesByConversation[String(action.payload)];
     },
+    clearContacts: (state) => {
+      state.contacts = [];
+      state.contactsStatus = 'idle';
+      state.contactsError = null;
+    },
     clearChatState: () => initialState,
     // WebSocket: add new message from socket event
     addSocketMessage: (state, action: { payload: ChatMessage }) => {
@@ -537,7 +573,11 @@ const chatSlice = createSlice({
       })
       .addCase(fetchChatContacts.fulfilled, (state, action) => {
         state.contactsStatus = 'succeeded';
-        state.contacts = action.payload ?? [];
+        // Merge new contacts with existing ones (avoid duplicates by ID)
+        const newContacts = action.payload ?? [];
+        const existingIds = new Set(state.contacts.map(c => c.id));
+        const uniqueNewContacts = newContacts.filter(c => !existingIds.has(c.id));
+        state.contacts = [...state.contacts, ...uniqueNewContacts];
         state.contactsError = null;
       })
       .addCase(fetchChatContacts.rejected, (state, action) => {
@@ -654,6 +694,7 @@ const chatSlice = createSlice({
 export const {
   setSelectedConversation,
   clearMessagesForConversation,
+  clearContacts,
   clearChatState,
   addSocketMessage,
   setUserTyping,

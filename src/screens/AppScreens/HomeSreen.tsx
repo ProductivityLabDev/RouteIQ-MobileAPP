@@ -184,6 +184,35 @@ export default function HomeSreen() {
     dispatch(fetchParentRouteMap({studentId, type: 'AM'}));
   }, [dispatch, isParent, selectedChild]);
 
+  // Debug: log parentRouteMap to find driver info
+  useEffect(() => {
+    if (parentRouteMap) {
+      console.log('[HomeScreen] parentRouteMap route:', JSON.stringify(parentRouteMap?.route, null, 2));
+      console.log('[HomeScreen] parentRouteMap driver:', parentRouteMap?.route?.driver ?? parentRouteMap?.driver ?? 'not found');
+      console.log('[HomeScreen] parentRouteMap keys:', Object.keys(parentRouteMap));
+    }
+  }, [parentRouteMap]);
+
+  // Extract driver name from API response
+  const child = selectedChild as any;
+  const driverName =
+    parentRouteMap?.route?.driver?.name ??
+    parentRouteMap?.route?.driver?.Name ??
+    parentRouteMap?.route?.driverName ??
+    parentRouteMap?.driver?.name ??
+    parentRouteMap?.driver?.Name ??
+    parentRouteMap?.driverName ??
+    child?.driverName ??
+    child?.DriverName ??
+    '';
+
+  const driverAvatar =
+    parentRouteMap?.route?.driver?.avatar ??
+    parentRouteMap?.route?.driver?.profileImage ??
+    parentRouteMap?.driver?.avatar ??
+    parentRouteMap?.driver?.profileImage ??
+    null;
+
   return (
     <AppLayout
       style={styles.layoutContainer}
@@ -237,7 +266,11 @@ export default function HomeSreen() {
             <View style={[AppStyles.rowCenter, {gap: 5}]}>
               <Image
                 style={styles.driverProfile}
-                source={require('../../assets/images/driverHomeProfile.png')}
+                source={
+                  driverAvatar
+                    ? {uri: driverAvatar}
+                    : require('../../assets/images/driverHomeProfile.png')
+                }
               />
             </View>
             <Text
@@ -247,8 +280,9 @@ export default function HomeSreen() {
                   color: AppColors.white,
                   fontFamily: AppFonts.NunitoSansBold,
                 },
-              ]}>
-              Wilson
+              ]}
+              numberOfLines={1}>
+              {driverName || 'Driver'}
             </Text>
           </View>
         </View>

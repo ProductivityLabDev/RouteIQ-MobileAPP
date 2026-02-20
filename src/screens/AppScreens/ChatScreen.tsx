@@ -1,4 +1,4 @@
-import {View, StyleSheet, TouchableOpacity, Text, Modal, FlatList, ActivityIndicator} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text, Modal, FlatList, ActivityIndicator, Alert} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import AppLayout from '../../layout/AppLayout';
@@ -10,9 +10,11 @@ import {
   fetchChatContacts,
   createConversation,
   setSelectedConversation,
+  clearContacts,
   selectChatContacts,
   selectChatContactsStatus,
 } from '../../store/chat/chatSlice';
+import {setSelectedUserChatData} from '../../store/user/userSlices';
 import type {ChatContact} from '../../store/chat/chatTypes';
 import GlobalIcon from '../../components/GlobalIcon';
 import {AppColors} from '../../utils/color';
@@ -34,10 +36,20 @@ const ChatScreen = () => {
   );
   const contacts = useAppSelector(selectChatContacts);
   const contactsStatus = useAppSelector(selectChatContactsStatus);
+  const contactsError = useAppSelector(state => state.chatSlices?.contactsError);
 
   useEffect(() => {
     if (showContactModal) {
-      dispatch(fetchChatContacts());
+      console.log('[ChatScreen] Fetching contacts...');
+
+      // Clear previous contacts first
+      dispatch(clearContacts());
+
+      // Backend requires type parameter, so fetch all types separately
+      // Parent can chat with: DRIVER, SCHOOL, VENDOR
+      dispatch(fetchChatContacts({ type: 'DRIVER' }));
+      dispatch(fetchChatContacts({ type: 'SCHOOL' }));
+      dispatch(fetchChatContacts({ type: 'VENDOR' }));
     }
   }, [showContactModal, dispatch]);
 
@@ -52,15 +64,41 @@ const ChatScreen = () => {
 
   const handleContactSelect = async (contact: ChatContact) => {
     if (creatingConv) return;
+
+    console.log('[ChatScreen] Contact selected:', contact);
+
     setCreatingConv(true);
     try {
       // Check if conversation already exists
       if (contact.existingConversationId) {
-        dispatch(setSelectedConversation({ id: contact.existingConversationId } as any));
+        console.log('[ChatScreen] Opening existing conversation:', contact.existingConversationId);
+
+        // Store conversation with participant info
+        dispatch(setSelectedConversation({
+          id: contact.existingConversationId,
+          participants: [{
+            id: contact.id,
+            name: contact.name,
+            type: contact.participantType
+          }]
+        } as any));
+
+        // Also store in user chat data for header
+        dispatch(setSelectedUserChatData({
+          name: contact.name || `ID ${contact.id}`,
+          profile_image: contact.avatar ?? '',
+        }));
+
         setShowContactModal(false);
         setShowThread(true);
       } else {
         // Create new conversation
+        console.log('[ChatScreen] Creating new conversation with:', {
+          type: 'DIRECT',
+          participantId: contact.id,
+          participantType: contact.participantType,
+        });
+
         const res = await dispatch(
           createConversation({
             type: 'DIRECT',
@@ -68,12 +106,39 @@ const ChatScreen = () => {
             participantType: contact.participantType,
           }),
         ).unwrap();
-        if (res?.id) {
-          dispatch(setSelectedConversation(res));
+
+        console.log('[ChatScreen] Conversation created:', res);
+
+        // Backend returns conversationId, not id
+        const convId = res?.conversationId ?? res?.id;
+        if (convId) {
+          // Store conversation with participant info
+          dispatch(setSelectedConversation({
+            ...res,
+            id: convId,
+            participants: [{
+              id: contact.id,
+              name: contact.name,
+              type: contact.participantType
+            }]
+          }));
+
+          // Also store in user chat data for header
+          dispatch(setSelectedUserChatData({
+            name: contact.name || `ID ${contact.id}`,
+            profile_image: contact.avatar ?? '',
+          }));
+
           setShowContactModal(false);
           setShowThread(true);
+        } else {
+          console.error('[ChatScreen] No conversation ID in response:', res);
+          Alert.alert('Error', 'Failed to create conversation - no ID returned');
         }
       }
+    } catch (error) {
+      console.error('[ChatScreen] Error creating conversation:', error);
+      Alert.alert('Error', `Failed to create conversation: ${error}`);
     } finally {
       setCreatingConv(false);
     }
@@ -134,9 +199,27 @@ const ChatScreen = () => {
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={AppColors.red} />
               </View>
+            ) : contactsStatus === 'failed' ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Failed to load contacts</Text>
+                <Text style={styles.errorText}>{contactsError || 'Unknown error'}</Text>
+                <TouchableOpacity
+                  style={styles.retryButton}
+                  onPress={() => {
+                    dispatch(clearContacts());
+                    dispatch(fetchChatContacts({ type: 'DRIVER' }));
+                    dispatch(fetchChatContacts({ type: 'SCHOOL' }));
+                    dispatch(fetchChatContacts({ type: 'VENDOR' }));
+                  }}>
+                  <Text style={styles.retryText}>Retry</Text>
+                </TouchableOpacity>
+              </View>
             ) : contacts.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>No contacts available</Text>
+                <Text style={styles.emptySubtext}>
+                  Please check with your administrator
+                </Text>
               </View>
             ) : (
               <FlatList
@@ -153,12 +236,27 @@ const ChatScreen = () => {
                       </Text>
                     </View>
                     <View style={styles.contactInfo}>
-                      <Text style={styles.contactName}>{item.name || `ID ${item.id}`}</Text>
-                      <Text style={styles.contactType}>{item.participantType || 'User'}</Text>
+                      <View style={{flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap'}}>
+                        <Text style={[styles.contactName, {flexShrink: 1}]} numberOfLines={2}>{item.name || `ID ${item.id}`}</Text>
+                        {item.participantType && (
+                          <View style={[
+                            styles.typeBadge,
+                            item.participantType === 'DRIVER' && {backgroundColor: '#4CAF50'},
+                            item.participantType === 'SCHOOL' && {backgroundColor: '#2196F3'},
+                            item.participantType === 'VENDOR' && {backgroundColor: '#FF9800'},
+                          ]}>
+                            <Text style={styles.typeBadgeText}>
+                              {item.participantType === 'DRIVER' ? '🚗 Driver' :
+                               item.participantType === 'SCHOOL' ? '🏫 School' :
+                               item.participantType === 'VENDOR' ? '🚚 Vendor' : item.participantType}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      {item.existingConversationId && (
+                        <Text style={styles.existingLabel}>Already chatting</Text>
+                      )}
                     </View>
-                    {item.existingConversationId && (
-                      <Text style={styles.existingBadge}>Existing</Text>
-                    )}
                   </TouchableOpacity>
                 )}
               />
@@ -198,7 +296,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '80%',
+    maxHeight: '70%',
     paddingBottom: hp(2),
   },
   modalHeader: {
@@ -225,8 +323,35 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: size.md,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    color: AppColors.black,
+    marginBottom: hp(0.5),
+  },
+  emptySubtext: {
+    fontSize: size.s,
     fontFamily: AppFonts.NunitoSansMedium,
     color: AppColors.gradientGrey,
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: size.s,
+    fontFamily: AppFonts.NunitoSansMedium,
+    color: AppColors.red,
+    marginTop: hp(1),
+    textAlign: 'center',
+    paddingHorizontal: hp(2),
+  },
+  retryButton: {
+    marginTop: hp(2),
+    backgroundColor: AppColors.red,
+    paddingHorizontal: hp(3),
+    paddingVertical: hp(1),
+    borderRadius: 8,
+  },
+  retryText: {
+    color: AppColors.white,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: size.md,
   },
   contactItem: {
     flexDirection: 'row',
@@ -263,6 +388,24 @@ const styles = StyleSheet.create({
     fontSize: size.s,
     fontFamily: AppFonts.NunitoSansMedium,
     color: AppColors.gradientGrey,
+  },
+  typeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    backgroundColor: AppColors.gradientGrey,
+  },
+  typeBadgeText: {
+    fontSize: 10,
+    fontFamily: AppFonts.NunitoSansBold,
+    color: AppColors.white,
+  },
+  existingLabel: {
+    fontSize: size.xs,
+    fontFamily: AppFonts.NunitoSansMedium,
+    color: AppColors.gradientGrey,
+    marginTop: 4,
+    fontStyle: 'italic',
   },
   existingBadge: {
     fontSize: size.xs,
