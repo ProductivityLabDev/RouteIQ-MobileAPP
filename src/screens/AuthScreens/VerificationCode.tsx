@@ -10,46 +10,87 @@ import {AppColors} from '../../utils/color';
 import {hp, wp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {saveToken, verifyOtp} from '../../store/user/userSlices';
+import {verifyOtp} from '../../store/user/userSlices';
+import {
+  retailerVerifySignupOtp,
+  retailerVerifyResetOtp,
+} from '../../store/retailer/retailerSlice';
 
 const VerificationCode = () => {
   const navigation = useNavigation();
   const [otp, setOtp] = useState('');
   const dispatch = useAppDispatch();
+
   const role = useAppSelector(state => state.userSlices.role);
   const resetEmail = useAppSelector(state => state.userSlices.resetEmail);
-  const otpStatus = useAppSelector(state => state.userSlices.otpStatus);
-  const handleContinue = useCallback(async () => {
-    if (!otp || otp.length < 4) {
-      return;
-    }
-    if (otpStatus === 'loading') {
-      return;
-    }
 
-    // Password reset OTP flow (email is captured during request-password-reset)
-    if (resetEmail) {
+  const retailSignupEmail = useAppSelector(state => state.retailerSlices.signupEmail);
+  const retailForgotEmail = useAppSelector(state => state.retailerSlices.forgotEmail);
+  const retailVerifyOtpStatus = useAppSelector(state => state.retailerSlices.verifyOtpStatus);
+  const retailVerifyResetStatus = useAppSelector(state => state.retailerSlices.verifyResetStatus);
+
+  const otpStatus = useAppSelector(state => state.userSlices.otpStatus);
+
+  const isRetail = role === 'Retail';
+  const isRetailSignup = isRetail && !!retailSignupEmail;
+  const isRetailForgot = isRetail && !!retailForgotEmail && !retailSignupEmail;
+
+  const loading =
+    otpStatus === 'loading' ||
+    retailVerifyOtpStatus === 'loading' ||
+    retailVerifyResetStatus === 'loading';
+
+  const handleContinue = useCallback(async () => {
+    if (!otp || otp.length < 4) return;
+    if (loading) return;
+
+    // Retailer signup OTP
+    if (isRetailSignup) {
       try {
         await dispatch(
-          verifyOtp({
-            email: resetEmail,
-            otp,
-          }),
+          retailerVerifySignupOtp({email: retailSignupEmail!, otp}),
         ).unwrap();
-        navigation.navigate('NewPassword');
-        return;
+        navigation.navigate('Login');
       } catch (e) {
-        console.log('verify-otp failed', e);
-        return;
+        // error shown via toast
       }
+      return;
     }
 
-    // Fallback: existing retail behavior (no api wired yet)
-    if (role === 'Retail') {
-      navigation.navigate('HomeSreen');
-      dispatch(saveToken(true));
+    // Retailer forgot password OTP
+    if (isRetailForgot) {
+      try {
+        await dispatch(
+          retailerVerifyResetOtp({email: retailForgotEmail!, otp}),
+        ).unwrap();
+        navigation.navigate('NewPassword');
+      } catch (e) {
+        // error shown via toast
+      }
+      return;
     }
-  }, [dispatch, navigation, otp, otpStatus, resetEmail, role]);
+
+    // Non-retail password reset OTP (Driver / Parent)
+    if (resetEmail) {
+      try {
+        await dispatch(verifyOtp({email: resetEmail, otp})).unwrap();
+        navigation.navigate('NewPassword');
+      } catch (e) {
+        console.log('verify-otp failed', e);
+      }
+      return;
+    }
+  }, [
+    dispatch,
+    isRetailForgot,
+    isRetailSignup,
+    loading,
+    navigation,
+    otp,
+    resetEmail,
+    retailForgotEmail,
+    retailSignupEmail,
+  ]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
@@ -64,7 +105,7 @@ const VerificationCode = () => {
                 AppStyles.subHeading,
                 {marginBottom: hp(2), textAlign: 'center'},
               ]}>
-              Enter your 4 digits code that you received on your email.
+              Enter your 4 digit code that you received on your email.
             </Text>
           </View>
           <View style={[styles.setMargin, {alignItems: 'center'}]}>
@@ -78,15 +119,18 @@ const VerificationCode = () => {
               onCodeFilled={(text: string) => setOtp(text)}
             />
             <Text style={styles.timerText}>00:30</Text>
-            <AppButton onPress={handleContinue} title="Continue" style={{marginTop: hp(10)}} />
-
+            <AppButton
+              onPress={handleContinue}
+              title={loading ? 'Verifying...' : 'Continue'}
+              style={{marginTop: hp(10)}}
+            />
             <Text
               style={{
                 textAlign: 'center',
                 marginTop: hp(1),
                 color: AppColors.lightBlack,
               }}>
-              If you didn’t receive a code!{' '}
+              If you didn't receive a code!{' '}
               <Text onPress={() => setOtp('')} style={styles.timerText}>
                 Resend
               </Text>
@@ -109,12 +153,12 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansRegular,
     fontSize: fontSize(16),
     textAlign: 'center',
-    marginTop: hp(2)
+    marginTop: hp(2),
   },
   otpContainer: {
     height: hp(8),
     marginTop: hp(2),
-    width: '90%'
+    width: '90%',
   },
   underlineStyleBase: {
     width: wp(18),

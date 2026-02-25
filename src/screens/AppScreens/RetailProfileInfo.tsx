@@ -1,5 +1,5 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect} from 'react';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
 import {AppColors} from '../../utils/color';
@@ -8,95 +8,45 @@ import {hp} from '../../utils/constants';
 import AppButton from '../../components/AppButton';
 import {useNavigation} from '@react-navigation/native';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {saveToken} from '../../store/user/userSlices';
+import {fetchRetailProfile} from '../../store/retailer/retailerSlice';
+
+const Row = ({label, value}: {label: string; value?: string | null}) => (
+  <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
+    <Text style={[AppStyles.title, AppStyles.halfWidth]}>{label}</Text>
+    <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>{value || '—'}</Text>
+  </View>
+);
 
 const RetailProfileInfo = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
-  const token = useAppSelector(state => state.userSlices.token);
-  const role = useAppSelector(state => state.userSlices.role);
+
+  const profile = useAppSelector(state => state.retailerSlices.profile);
+  const profileStatus = useAppSelector(state => state.retailerSlices.profileStatus);
+
+  useEffect(() => {
+    if (profileStatus === 'idle' || profileStatus === 'failed') {
+      dispatch(fetchRetailProfile());
+    }
+  }, [dispatch, profileStatus]);
+
   return (
     <AppLayout
       statusbackgroundColor={AppColors.red}
       style={{backgroundColor: AppColors.profileBg}}>
-      <AppHeader
-        role="Driver"
-        title="Profile Info"
-        enableBack={true}
-        rightIcon={false}
-      />
-      <View style={[ AppStyles.flexBetween]}>
-        <View style={{backgroundColor:AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2)}}>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Name</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-              Mark Tommay
-            </Text>
-          </View>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Company Name</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-              Nike.co
-            </Text>
-          </View>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Address</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>802 E Frierson Ave, Tampa, FL 33603</Text>
-          </View>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>
-              Phone Number
-            </Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-             +1-424-271-8337
-            </Text>
-          </View>
+      <AppHeader role="Retail" title="Profile Info" enableBack={true} rightIcon={false} />
 
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Email</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-              marktommay@gmail.com
-            </Text>
+      {profileStatus === 'loading' && !profile ? (
+        <ActivityIndicator color={AppColors.red} size="large" style={{marginTop: hp(4)}} />
+      ) : (
+        <View style={AppStyles.flexBetween}>
+          <View style={{backgroundColor: AppColors.white, paddingHorizontal: hp(2), paddingVertical: hp(2)}}>
+            <Row label="Name" value={profile?.Name} />
+            <Row label="Company Name" value={profile?.companyName} />
+            <Row label="Address" value={profile?.Address} />
+            <Row label="Phone Number" value={profile?.Phone} />
+            <Row label="Email" value={profile?.Email} />
           </View>
-          
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>CC</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-             1414
-            </Text>
-          </View>
-           <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Purchase Order info</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-             1234.1
-            </Text>
-          </View>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Card Holder Name</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-             Jhon
-            </Text>
-          </View>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Card Number</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-             4646 4646 4646 4646
-            </Text>
-          </View>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>Expiration Date</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-             02/2030
-            </Text>
-          </View>
-          <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-            <Text style={[AppStyles.title, AppStyles.halfWidth]}>CVV</Text>
-            <Text style={[AppStyles.subTitle, AppStyles.halfWidth]}>
-             123
-            </Text>
-          </View>
-        </View>
-        {role === 'Retail' && (
           <View>
             <AppButton
               onPress={() => navigation.navigate('UpdateRetailProfile')}
@@ -104,20 +54,9 @@ const RetailProfileInfo = () => {
               style={styles.button}
               titleStyle={styles.buttonTitle}
             />
-            <AppButton
-              title="Confirm"
-              style={{alignSelf: 'center', width: '95%'}}
-              onPress={() => {
-                console.log(token, 'token');
-
-                token || token == 1
-                  ? navigation.goBack()
-                  : dispatch(saveToken(1));
-              }}
-            />
           </View>
-        )}
-      </View>
+        </View>
+      )}
     </AppLayout>
   );
 };

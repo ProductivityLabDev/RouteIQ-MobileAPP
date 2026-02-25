@@ -103,6 +103,15 @@ const DriverMapView = () => {
       : '';
   const inspectionReportId = (route.params as any)?.inspectionReportId ?? null;
 
+  // Retail mode: coordinates passed directly from TripCard
+  const retailPickupLat = (route.params as any)?.retailPickupLat ?? null;
+  const retailPickupLong = (route.params as any)?.retailPickupLong ?? null;
+  const retailDropoffLat = (route.params as any)?.retailDropoffLat ?? null;
+  const retailDropoffLong = (route.params as any)?.retailDropoffLong ?? null;
+  const isRetailMode =
+    retailPickupLat != null && retailPickupLong != null &&
+    retailDropoffLat != null && retailDropoffLong != null;
+
   useEffect(() => {
     if (__DEV__ && route?.params != null) {
       console.log('Route params:', route.params);
@@ -269,16 +278,15 @@ const DriverMapView = () => {
   }, [routesByDate, effectiveRouteId]);
   const canRenderDirections =
     !!googleMapsApiKey &&
-    routeCoordinates.hasValidRoute &&
-    !!routeCoordinates.pickup &&
-    !!routeCoordinates.dropoff;
-  const routeOrigin = useMemo(
-    () => routeCoordinates.pickup ?? null,
-    [routeCoordinates.pickup],
-  );
+    (isRetailMode || (routeCoordinates.hasValidRoute && !!routeCoordinates.pickup && !!routeCoordinates.dropoff));
+  const routeOrigin = useMemo(() => {
+    if (isRetailMode) return {latitude: Number(retailPickupLat), longitude: Number(retailPickupLong)};
+    return routeCoordinates.pickup ?? null;
+  }, [isRetailMode, retailPickupLat, retailPickupLong, routeCoordinates.pickup]);
   const routeDestination = useMemo(() => {
+    if (isRetailMode) return {latitude: Number(retailDropoffLat), longitude: Number(retailDropoffLong)};
     return FORCED_DROPOFF ?? routeCoordinates.dropoff ?? null;
-  }, [routeCoordinates.dropoff]);
+  }, [isRetailMode, retailDropoffLat, retailDropoffLong, routeCoordinates.dropoff]);
   const parseStudentCoord = (student: any, kind: 'pickup' | 'dropoff') => {
     const directLatKeys =
       kind === 'pickup'

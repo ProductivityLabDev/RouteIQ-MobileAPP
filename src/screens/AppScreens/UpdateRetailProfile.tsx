@@ -9,64 +9,59 @@ import AppButton from '../../components/AppButton';
 import AppInput from '../../components/AppInput';
 import {useNavigation} from '@react-navigation/native';
 import {Controller, useForm} from 'react-hook-form';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {fetchRetailProfile, updateRetailProfile} from '../../store/retailer/retailerSlice';
 
 const UpdateRetailProfile = () => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: {errors},
-  } = useForm({
-    defaultValues: {
-      name: '',
-      companyName: '',
-      address: '',
-      phoneNumber: '',
-      email: '',
-      cc: '',
-      purchaseOrderInfo: '',
-      cardHolderName: '',
-      cardNumber: '',
-      expirationDate: '',
-      cvv: '',
-    },
+  const profile = useAppSelector(state => state.retailerSlices.profile);
+  const profileUpdateStatus = useAppSelector(state => state.retailerSlices.profileUpdateStatus);
+
+  const {control, handleSubmit, setValue, formState: {errors}} = useForm({
+    defaultValues: {name: '', address: '', phoneNumber: '', email: ''},
   });
 
   useEffect(() => {
-    setValue('name', 'Mark Tommay');
-    setValue('companyName', 'Nike.co');
-    setValue('address', '802 E Frierson Ave, Tampa, FL 33603');
-    setValue('phoneNumber', '+1-424-271-8337');
-    setValue('email', 'marktommay@gmail.com');
-    setValue('cc', '1414');
-    setValue('purchaseOrderInfo', '1234.1');
-    setValue('cardHolderName', 'jhon');
-    setValue('cardNumber', '4646 4646 4646 4646');
-    setValue('expirationDate', '02/2030');
-    setValue('cvv', '123');
-  }, []);
+    if (!profile) {
+      dispatch(fetchRetailProfile());
+    }
+  }, [dispatch, profile]);
 
-  const onSubmit = () => {
-    navigation.goBack();
+  useEffect(() => {
+    if (profile) {
+      setValue('name', profile.Name || '');
+      setValue('address', profile.Address || '');
+      setValue('phoneNumber', profile.Phone || '');
+      setValue('email', profile.Email || '');
+    }
+  }, [profile, setValue]);
+
+  const onSubmit = async (values: any) => {
+    if (profileUpdateStatus === 'loading') return;
+    try {
+      await dispatch(updateRetailProfile({
+        name: values.name,
+        address: values.address,
+        phone: values.phoneNumber,
+        email: values.email,
+      })).unwrap();
+      navigation.goBack();
+    } catch (e) {
+      // error shown via toast
+    }
   };
 
   return (
-    <AppLayout
-      statusbackgroundColor={AppColors.red}
-      style={{backgroundColor: AppColors.white}}>
-      <AppHeader
-        role="Driver"
-        title="Profile Info"
-        enableBack={true}
-        rightIcon={false}
-      />
+    <AppLayout statusbackgroundColor={AppColors.red} style={{backgroundColor: AppColors.white}}>
+      <AppHeader role="Retail" title="Edit Profile" enableBack={true} rightIcon={false} />
       <ScrollView
         contentContainerStyle={{padding: hp(2)}}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(5)}]}>
+
+        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
           <Text style={[AppStyles.title, AppStyles.halfWidth]}>Name</Text>
           <Controller
             name="name"
@@ -84,24 +79,7 @@ const UpdateRetailProfile = () => {
             )}
           />
         </View>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-          <Text style={[AppStyles.title, AppStyles.halfWidth]}>Company Name</Text>
-          <Controller
-            name="companyName"
-            control={control}
-            rules={{required: 'Company name is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                value={value}
-                containerStyle={AppStyles.halfWidth}
-                container={[styles.inputContainer, {height: 40}]}
-                inputStyle={styles.inputStyle}
-                onChangeText={text => onChange(text)}
-                error={errors.companyName?.message}
-              />
-            )}
-          />
-        </View>
+
         <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
           <Text style={[AppStyles.title, AppStyles.halfWidth]}>Address</Text>
           <Controller
@@ -121,6 +99,7 @@ const UpdateRetailProfile = () => {
             )}
           />
         </View>
+
         <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
           <Text style={[AppStyles.title, AppStyles.halfWidth]}>Phone Number</Text>
           <Controller
@@ -140,6 +119,7 @@ const UpdateRetailProfile = () => {
             )}
           />
         </View>
+
         <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
           <Text style={[AppStyles.title, AppStyles.halfWidth]}>Email</Text>
           <Controller
@@ -152,130 +132,15 @@ const UpdateRetailProfile = () => {
                 containerStyle={AppStyles.halfWidth}
                 container={[styles.inputContainer, {height: 40}]}
                 inputStyle={styles.inputStyle}
-                multiline
                 onChangeText={text => onChange(text)}
                 error={errors.email?.message}
               />
             )}
           />
         </View>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-          <Text style={[AppStyles.title, AppStyles.halfWidth]}>CC</Text>
-          <Controller
-            name="cc"
-            control={control}
-            rules={{required: 'CC is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                value={value}
-                containerStyle={AppStyles.halfWidth}
-                container={[styles.inputContainer, {height: 40}]}
-                inputStyle={styles.inputStyle}
-                multiline
-                onChangeText={text => onChange(text)}
-                error={errors.cc?.message}
-              />
-            )}
-          />
-        </View>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-          <Text style={[AppStyles.title, AppStyles.halfWidth]}>Purchase Order Info</Text>
-          <Controller
-            name="purchaseOrderInfo"
-            control={control}
-            rules={{required: 'Purchase order info is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                value={value}
-                containerStyle={AppStyles.halfWidth}
-                container={[styles.inputContainer, {height: 40}]}
-                inputStyle={styles.inputStyle}
-                multiline
-                onChangeText={text => onChange(text)}
-                error={errors.purchaseOrderInfo?.message}
-              />
-            )}
-          />
-        </View>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-          <Text style={[AppStyles.title, AppStyles.halfWidth]}>Card Holder Name</Text>
-          <Controller
-            name="cardHolderName"
-            control={control}
-            rules={{required: 'Card holder name is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                value={value}
-                containerStyle={AppStyles.halfWidth}
-                container={[styles.inputContainer, {height: 40}]}
-                inputStyle={styles.inputStyle}
-                multiline
-                onChangeText={text => onChange(text)}
-                error={errors.cardHolderName?.message}
-              />
-            )}
-          />
-        </View>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-          <Text style={[AppStyles.title, AppStyles.halfWidth]}>Card Number</Text>
-          <Controller
-            name="cardNumber"
-            control={control}
-            rules={{required: 'Card number is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                value={value}
-                containerStyle={AppStyles.halfWidth}
-                container={[styles.inputContainer, {height: 40}]}
-                inputStyle={styles.inputStyle}
-                multiline
-                onChangeText={text => onChange(text)}
-                error={errors.cardNumber?.message}
-              />
-            )}
-          />
-        </View>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-          <Text style={[AppStyles.title, AppStyles.halfWidth]}>Expiration Date</Text>
-          <Controller
-            name="expirationDate"
-            control={control}
-            rules={{required: 'Expiration date is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                value={value}
-                containerStyle={AppStyles.halfWidth}
-                container={[styles.inputContainer, {height: 40}]}
-                inputStyle={styles.inputStyle}
-                multiline
-                onChangeText={text => onChange(text)}
-                error={errors.expirationDate?.message}
-              />
-            )}
-          />
-        </View>
-        <View style={[AppStyles.rowBetween, {marginBottom: hp(2)}]}>
-          <Text style={[AppStyles.title, AppStyles.halfWidth]}>CVV</Text>
-          <Controller
-            name="cvv"
-            control={control}
-            rules={{required: 'CVV is required'}}
-            render={({field: {onChange, value}}) => (
-              <AppInput
-                value={value}
-                containerStyle={AppStyles.halfWidth}
-                container={[styles.inputContainer, {height: 40}]}
-                inputStyle={styles.inputStyle}
-                multiline
-                onChangeText={text => onChange(text)}
-                error={errors.cvv?.message}
-              />
-            )}
-          />
-        </View>
 
         <AppButton
-          title="Update"
+          title={profileUpdateStatus === 'loading' ? 'Saving...' : 'Update'}
           style={{width: '100%', alignSelf: 'center'}}
           onPress={handleSubmit(onSubmit)}
         />
@@ -287,15 +152,6 @@ const UpdateRetailProfile = () => {
 export default UpdateRetailProfile;
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: AppColors.white,
-    borderColor: AppColors.red,
-    borderWidth: 1.5,
-    marginBottom: hp(2),
-  },
-  buttonTitle: {
-    color: AppColors.black,
-  },
   inputContainer: {
     borderColor: AppColors.graySuit,
     borderWidth: 1,

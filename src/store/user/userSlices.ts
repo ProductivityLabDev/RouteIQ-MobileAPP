@@ -9,6 +9,20 @@ import {
   setApiBaseUrl,
 } from '../../utils/apiConfig';
 
+const LOGIN_TIMEOUT_MS = 8000;
+
+/** Promise.race se timeout – RN me AbortController reliable nahi, isliye 15s baad reject. */
+function fetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  ms: number = LOGIN_TIMEOUT_MS,
+): Promise<Response> {
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error('LOGIN_TIMEOUT')), ms);
+  });
+  return Promise.race([fetch(url, options), timeoutPromise]);
+}
+
 type LoginPayload = {
   email: string;
   password: string;
@@ -262,12 +276,18 @@ export const loginUser = createAsyncThunk(
     let lastNetworkError: any = null;
 
     for (const baseUrl of baseCandidates) {
+      const url = `${baseUrl}/auth/login`;
       try {
-        const response = await fetch(`${baseUrl}/auth/login`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({email, password}),
-        });
+        console.log('[Login] Trying URL:', url);
+        const response = await fetchWithTimeout(
+          url,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: email, password}), // backend: username ya email
+          },
+          LOGIN_TIMEOUT_MS,
+        );
 
         // Reachable backend mil gaya; isko runtime default bana do.
         setApiBaseUrl(baseUrl);
@@ -290,8 +310,10 @@ export const loginUser = createAsyncThunk(
 
         try {
           const data = await response.json();
-          const token: string | undefined = data?.access_token;
+          const token: string | undefined =
+            data?.access_token ?? data?.accessToken ?? data?.token;
           if (!token) {
+            if (__DEV__) console.warn('[loginUser] 200 but no token. Keys:', Object.keys(data || {}));
             return rejectWithValue('Login response missing access_token');
           }
 
@@ -348,6 +370,10 @@ export const loginUser = createAsyncThunk(
               : null;
 
           showSuccessToast('Logged in', 'Welcome back');
+          if (mappedRole === 'Retail') {
+            console.log('[Login Retail] Token:', token);
+            console.log('[Login Retail] Token length:', token?.length);
+          }
           return {
             token,
             role: mappedRole,
@@ -361,17 +387,100 @@ export const loginUser = createAsyncThunk(
         } catch (e) {
           return rejectWithValue(`Login response is not valid JSON`);
         }
-      } catch (err) {
+      } catch (err: any) {
         lastNetworkError = err;
-        if (__DEV__) {
-          console.warn('loginUser network attempt failed', {baseUrl, err});
-        }
+        const msg = err?.message || String(err);
+        console.warn('[Login] Request failed for', url, msg);
+        // Timeout/network: next URL try karo
+        continue;
       }
     }
 
     const baseUrl = getApiBaseUrl();
-    console.warn('loginUser exception', {baseUrl, err: lastNetworkError});
-    return rejectWithValue('Network/exception error during login');
+    console.warn('[Login] All URLs failed.', {baseUrl, lastError: lastNetworkError});
+    const isTimeout =
+      lastNetworkError?.message === 'LOGIN_TIMEOUT' ||
+      lastNetworkError?.message?.includes?.('abort');
+    return rejectWithValue(
+      isTimeout
+        ? 'Request timed out. Check WiFi and apiConfig.ts'
+        : 'Cannot reach server. Check WiFi and apiConfig.ts base URL.',
+    );
+  },
+);
+
+export const loginRetailUser = createAsyncThunk(
+  'users/loginRetailUser',
+  async ({email, password}: LoginPayload, {rejectWithValue}) => {
+    const baseCandidates = getApiBaseUrlCandidates();
+    const urlPath = '/retailer/auth/login';
+    const body = JSON.stringify({email, password});
+
+    console.log('[Login Retail] Starting. Will try', baseCandidates.length, 'URLs');
+
+    for (const baseUrl of baseCandidates) {
+      const url = `${baseUrl}${urlPath}`;
+      try {
+        console.log('[Login Retail] Trying URL:', url);
+        const response = await fetchWithTimeout(
+          url,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body,
+          },
+          LOGIN_TIMEOUT_MS,
+        );
+        const rawText = await response.text().catch(() => '');
+        console.log('[Login Retail] Response status:', response.status, '| raw length:', rawText?.length);
+        let json: any = null;
+        try {
+          json = rawText ? JSON.parse(rawText) : null;
+        } catch (_e) {
+          if (__DEV__) {
+            console.warn('[loginRetail] response not JSON', response.status, rawText?.slice(0, 200));
+          }
+          if (!response.ok) {
+            return rejectWithValue(rawText || `Login failed ${response.status}`);
+          }
+          return rejectWithValue('Invalid response from server');
+        }
+
+        if (!response.ok) {
+          const message =
+            json?.message || json?.error || rawText || `Login failed ${response.status}`;
+          console.warn('[Login Retail] Failed', response.status, '| message:', message, '| json:', JSON.stringify(json)?.slice(0, 300));
+          return rejectWithValue(message);
+        }
+
+        // Success (2xx): token kahin bhi ho sakta hai
+        console.log('[Login Retail] Success JSON keys:', json ? Object.keys(json) : []);
+        if (json?.data) console.log('[Login Retail] json.data keys:', Object.keys(json.data));
+        const token: string | undefined =
+          json?.data?.access_token ??
+          json?.data?.accessToken ??
+          json?.access_token ??
+          json?.accessToken ??
+          json?.data?.token;
+        console.log('[Login Retail] Token found:', !!token, '| token length:', token?.length ?? 0);
+        if (token) console.log('[Login Retail] Token (first 50 chars):', token?.slice(0, 50) + '...');
+        if (!token) {
+          console.warn('[Login Retail] 200 but no token. Full json:', JSON.stringify(json)?.slice(0, 500));
+          return rejectWithValue('Login response missing token');
+        }
+        setApiBaseUrl(baseUrl);
+        showSuccessToast('Logged in', 'Welcome back');
+        return {token, role: 'Retail' as const};
+      } catch (err: any) {
+        const msg = err?.message || String(err);
+        console.warn('[Login Retail] Failed for', url, msg);
+        // Timeout/network: next URL try karo, return mat karo
+        continue;
+      }
+    }
+
+    showErrorToast('Login failed', 'Cannot reach server');
+    return rejectWithValue('Cannot reach server. Check apiConfig.ts and backend.');
   },
 );
 
@@ -547,6 +656,10 @@ const userSlice = createSlice({
     setLogout: (state, {payload}) => {
       state.logout = payload;
     },
+    resetAuthLoading: state => {
+      state.authStatus = 'idle';
+      state.authError = null;
+    },
     setRole: (state, {payload}) => {
       state.role = payload;
     },
@@ -618,6 +731,23 @@ const userSlice = createSlice({
         state.authStatus = 'failed';
         state.authError =
           (action.payload as string) || action.error.message || 'Login failed';
+        state.token = null;
+      })
+      // Retail login
+      .addCase(loginRetailUser.pending, state => {
+        state.authStatus = 'loading';
+        state.authError = null;
+      })
+      .addCase(loginRetailUser.fulfilled, (state, {payload}) => {
+        state.authStatus = 'succeeded';
+        state.authError = null;
+        state.token = payload.token;
+        state.role = 'Retail';
+        state.logout = false;
+      })
+      .addCase(loginRetailUser.rejected, (state, action) => {
+        state.authStatus = 'failed';
+        state.authError = (action.payload as string) || action.error.message || 'Login failed';
         state.token = null;
       })
       .addCase(requestResetPassword.pending, state => {
@@ -720,6 +850,7 @@ const userSlice = createSlice({
 export const {
   saveToken,
   setLogout,
+  resetAuthLoading,
   setRole,
   setDriverHomeStatus,
   setRetailHomeStatus,

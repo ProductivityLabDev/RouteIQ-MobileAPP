@@ -20,6 +20,12 @@ import Notifications from '../screens/AppScreens/Notification';
 import UpdateDriveProfile from '../screens/AppScreens/UpdateDriveProfile';
 import FuelCodeScreen from '../screens/AppScreens/FuelCodeScreen';
 import RetailRFQ from '../screens/AppScreens/RetailRFQ';
+import RetailHistory from '../screens/AppScreens/RetailHistory';
+import RetailProfileInfo from '../screens/AppScreens/RetailProfileInfo';
+import UpdateRetailProfile from '../screens/AppScreens/UpdateRetailProfile';
+import RetailDetail from '../screens/AppScreens/RetailDetail';
+import RetailRequestQuote from '../screens/AppScreens/RetailRequestQuote';
+import EditRetailDetail from '../screens/AppScreens/EditRetailDetail';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,11 +43,12 @@ export const RFQStack = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="RetailRFQ" component={RetailRFQ} />
+      <Stack.Screen name="RetailDetail" component={RetailDetail} />
+      <Stack.Screen name="RetailRequestQuote" component={RetailRequestQuote} />
+      <Stack.Screen name="EditRetailDetail" component={EditRetailDetail} />
     </Stack.Navigator>
   );
 };
-
-
 
   export const ChatStack = () => {
     return (
@@ -68,13 +75,13 @@ export const RFQStack = () => {
         <Stack.Screen name="DriverQualifications" component={DriverQualifications} />
         <Stack.Screen name="DriverShiftTracking" component={DriverShiftTracking} />
         <Stack.Screen name="DriverShiftTrackingDetails" component={DriverShiftTrackingDetails} />
-        {/* <Stack.Screen name="DriverChats" component={DriverChats} /> */}
-        {/* <Stack.Screen name="DriverAllChats" component={DriverAllChats} /> */}
-
         <Stack.Screen name="FuelCodeScreen" component={FuelCodeScreen} />
-
-
+        {/* Retail-specific screens */}
+        <Stack.Screen name="RetailHistory" component={RetailHistory} />
+        <Stack.Screen name="RetailProfileInfo" component={RetailProfileInfo} />
+        <Stack.Screen name="UpdateRetailProfile" component={UpdateRetailProfile} />
       </Stack.Navigator>
     );
   };
+
   

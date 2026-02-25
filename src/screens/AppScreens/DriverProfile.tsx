@@ -21,6 +21,7 @@ import AppButton from '../../components/AppButton';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {logoutUser} from '../../store/user/userSlices';
 import {fetchDriverDetails} from '../../store/driver/driverSlices';
+import {fetchRetailProfile} from '../../store/retailer/retailerSlice';
 import AppCustomModal from '../../components/AppCustomModal';
 import {showSuccessToast} from '../../utils/toast';
 
@@ -33,13 +34,17 @@ const DriverProfile = () => {
   const driverDetailsStatus = useAppSelector(
     state => state.driverSlices.driverDetailsStatus,
   );
+  const retailProfile = useAppSelector(state => state.retailerSlices.profile);
+  const retailProfileStatus = useAppSelector(state => state.retailerSlices.profileStatus);
   const [logoutVisible, setLogoutVisible] = React.useState(false);
 
   React.useEffect(() => {
-    if (role !== 'Driver') return;
-    // Backend auto-resolves employeeId from JWT
-    dispatch(fetchDriverDetails());
-  }, [dispatch, role]);
+    if (role === 'Driver') {
+      dispatch(fetchDriverDetails());
+    } else if (role === 'Retail' && (retailProfileStatus === 'idle' || retailProfileStatus === 'failed')) {
+      dispatch(fetchRetailProfile());
+    }
+  }, [dispatch, role, retailProfileStatus]);
 
   const settingItems = [
     {title: 'Profile Info', icon: 'group-2022'},
@@ -117,10 +122,9 @@ const DriverProfile = () => {
           </View>
 
           <Text style={[AppStyles.subHeading, styles.userName]}>
-            {driverDetails?.EmployeeName ||
-              driverDetails?.name ||
-              driverDetails?.fullName ||
-              '—'}
+            {role === 'Retail'
+              ? (retailProfile?.Name || '—')
+              : (driverDetails?.EmployeeName || driverDetails?.name || driverDetails?.fullName || '—')}
           </Text>
 
           {role === 'Driver' && (

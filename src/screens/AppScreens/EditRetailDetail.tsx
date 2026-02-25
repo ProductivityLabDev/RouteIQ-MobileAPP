@@ -1,5 +1,5 @@
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import AppLayout from '../../layout/AppLayout';
 import AppHeader from '../../components/AppHeader';
 import {AppColors} from '../../utils/color';
@@ -7,18 +7,18 @@ import AppStyles from '../../styles/AppStyles';
 import {hp} from '../../utils/constants';
 import AppButton from '../../components/AppButton';
 import AppInput from '../../components/AppInput';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {Controller, useForm} from 'react-hook-form';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {updateRetailRFQ} from '../../store/retailer/retailerSlice';
 
 const EditRetailDetail = () => {
   const navigation = useNavigation();
-  const [fields, setFields] = useState({
-    name: 'Mark Tommay',
-    age: '32',
-    email: 'marktommay@gmail.com',
-    phoneNumber: '+1-424-271-8337',
-    address: '802 E Frierson Ave, Tampa, FL 33603',
-  });
+  const route = useRoute() as any;
+  const dispatch = useAppDispatch();
+  const rfqUpdateStatus = useAppSelector(state => state.retailerSlices.rfqUpdateStatus);
+
+  const {requestId, rfq} = route.params ?? {};
 
   const {
     control,
@@ -38,16 +38,52 @@ const EditRetailDetail = () => {
     },
   });
 
-  //   useEffect(() => {
-  //     setValue('name', 'Mark Tommay');
-  //     setValue('age', '32');
-  //     setValue('email', 'marktommay@gmail.com');
-  //     setValue('phoneNumber', '+1-424-271-8337');
-  //     setValue('address', '802 E Frierson Ave, Tampa, FL 33603');
-  //   }, []);
+  useEffect(() => {
+    console.log('[EditRFQ] route params - requestId:', requestId, 'rfq:', rfq);
+    if (!rfq) return;
+    setValue('name', rfq.CompanyGroupName ?? rfq.companyGroupName ?? '');
+    setValue('phoneNumber', rfq.Phone ?? rfq.phone ?? '');
+    setValue('email', rfq.Email ?? rfq.email ?? '');
+    setValue('roundTrip', rfq.IsRoundTrip || rfq.isRoundTrip ? 'Yes' : 'No');
+    setValue('isWheelchairLift', rfq.WheelchairLiftRequired || rfq.wheelchairLiftRequired ? 'Yes' : 'No');
+    setValue('nameOfLocaton', rfq.PickupLocation ?? rfq.pickupLocation ?? '');
+    const dests = rfq.AdditionalDestinations ?? rfq.additionalDestinations ?? [];
+    setValue('additionalDestination', Array.isArray(dests) ? dests[0] ?? '' : '');
+    setValue('specialInstructions', rfq.SpecialInstructions ?? rfq.specialInstructions ?? '');
+    console.log('[EditRFQ] pre-filled values:', {
+      name: rfq.CompanyGroupName ?? rfq.companyGroupName,
+      phone: rfq.Phone ?? rfq.phone,
+      email: rfq.Email ?? rfq.email,
+      roundTrip: rfq.IsRoundTrip ?? rfq.isRoundTrip,
+      wheelchair: rfq.WheelchairLiftRequired ?? rfq.wheelchairLiftRequired,
+      pickupLocation: rfq.PickupLocation ?? rfq.pickupLocation,
+    });
+  }, [rfq, setValue]);
 
-  const onSubmit = () => {
-    navigation.goBack();
+  const onSubmit = async (values: any) => {
+    if (rfqUpdateStatus === 'loading') return;
+    const body = {
+      companyGroupName: values.name,
+      phone: values.phoneNumber,
+      email: values.email,
+      isRoundTrip: values.roundTrip?.toLowerCase() === 'yes',
+      wheelchairLiftRequired: values.isWheelchairLift?.toLowerCase() === 'yes',
+      pickupLocation: values.nameOfLocaton,
+      additionalDestinations: values.additionalDestination ? [values.additionalDestination] : [],
+      specialInstructions: values.specialInstructions,
+    };
+    console.log('[EditRFQ] Submitting PATCH /retailer/rfq?id=' + requestId);
+    console.log('[EditRFQ] Request body:', body);
+    try {
+      const result = await dispatch(updateRetailRFQ({
+        id: requestId,
+        data: body,
+      })).unwrap();
+      console.log('[EditRFQ] Success:', result);
+      navigation.goBack();
+    } catch (e) {
+      console.log('[EditRFQ] Error:', e);
+    }
   };
 
   return (
@@ -64,7 +100,7 @@ const EditRetailDetail = () => {
         contentContainerStyle={{
           flexGrow: 1,
           paddingBottom: hp(10),
-           paddingTop: hp(2),
+          paddingTop: hp(2),
         }}
         showsVerticalScrollIndicator={false}>
         <View style={{paddingHorizontal: hp(2)}}>
@@ -96,7 +132,7 @@ const EditRetailDetail = () => {
             <Controller
               name="phoneNumber"
               control={control}
-              rules={{required: 'Age is required'}}
+              rules={{required: 'Phone Number is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
                   placeholder="012 022 1531"
@@ -140,17 +176,14 @@ const EditRetailDetail = () => {
             <Controller
               name="roundTrip"
               control={control}
-              rules={{required: 'Phone Number is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
                   placeholder="Shuttle"
                   value={value}
                   containerStyle={AppStyles.halfWidth}
-                  keyboardType="number-pad"
                   container={[styles.inputContainer, {height: 40}]}
                   inputStyle={styles.inputStyle}
                   onChangeText={text => onChange(text)}
-                  error={errors.roundTrip?.message}
                 />
               )}
             />
@@ -162,7 +195,6 @@ const EditRetailDetail = () => {
             <Controller
               name="isWheelchairLift"
               control={control}
-              rules={{required: 'Address is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
                   placeholder="Yes"
@@ -172,7 +204,6 @@ const EditRetailDetail = () => {
                   inputStyle={styles.inputStyle}
                   multiline={true}
                   onChangeText={text => onChange(text)}
-                  error={errors.isWheelchairLift?.message}
                 />
               )}
             />
@@ -184,7 +215,6 @@ const EditRetailDetail = () => {
             <Controller
               name="nameOfLocaton"
               control={control}
-              rules={{required: 'Name Of Locaton is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
                   placeholder="Oakwood Elementary School"
@@ -194,7 +224,6 @@ const EditRetailDetail = () => {
                   inputStyle={styles.inputStyle}
                   multiline={true}
                   onChangeText={text => onChange(text)}
-                  error={errors.nameOfLocaton?.message}
                 />
               )}
             />
@@ -206,7 +235,6 @@ const EditRetailDetail = () => {
             <Controller
               name="additionalDestination"
               control={control}
-              rules={{required: 'Additional Destination is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
                   placeholder="Oakwood Elementary School"
@@ -216,7 +244,6 @@ const EditRetailDetail = () => {
                   inputStyle={styles.inputStyle}
                   multiline={true}
                   onChangeText={text => onChange(text)}
-                  error={errors.additionalDestination?.message}
                 />
               )}
             />
@@ -228,7 +255,6 @@ const EditRetailDetail = () => {
             <Controller
               name="specialInstructions"
               control={control}
-              rules={{required: 'Special Instructions is required'}}
               render={({field: {onChange, value}}) => (
                 <AppInput
                   placeholder="Oakwood Elementary School"
@@ -238,15 +264,14 @@ const EditRetailDetail = () => {
                   inputStyle={styles.inputStyle}
                   multiline={true}
                   onChangeText={text => onChange(text)}
-                  error={errors.specialInstructions?.message}
                 />
               )}
             />
           </View>
         </View>
-        <View style={{width: '90%', alignSelf:'center'}}>
+        <View style={{width: '90%', alignSelf: 'center'}}>
           <AppButton
-            title="Update"
+            title={rfqUpdateStatus === 'loading' ? 'Updating...' : 'Update'}
             style={{width: '100%', alignSelf: 'center'}}
             onPress={handleSubmit(onSubmit)}
           />

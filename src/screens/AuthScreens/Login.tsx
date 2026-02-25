@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Image,
   ScrollView,
@@ -20,13 +20,13 @@ import AppFonts from '../../utils/appFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {
   loginUser,
-  saveToken,
   setForgotType,
   setLogout,
-  setRole,
+  resetAuthLoading,
 } from '../../store/user/userSlices';
 import {Controller, useForm} from 'react-hook-form';
 import {showErrorToast, showSuccessToast} from '../../utils/toast';
+import {saveApiBaseUrl} from '../../utils/apiConfig';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -34,10 +34,23 @@ const Login = () => {
   const role = useAppSelector(state => state.userSlices.role);
   const authStatus = useAppSelector(state => state.userSlices.authStatus);
   const authError = useAppSelector(state => state.userSlices.authError);
+  const [showServer, setShowServer] = useState(false);
+  const [serverUrl, setServerUrl] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     dispatch(setLogout(false));
   }, []);
+
+  // Agar 12 sec se loading atka rahe to button unstick karo (safety)
+  useEffect(() => {
+    if (authStatus !== 'loading') return;
+    const t = setTimeout(() => {
+      dispatch(resetAuthLoading());
+      showErrorToast('Request timed out', 'Check WiFi and apiConfig.ts');
+    }, 12000);
+    return () => clearTimeout(t);
+  }, [authStatus, dispatch]);
 
   const {
     control,
@@ -50,24 +63,30 @@ const Login = () => {
     },
   });
 
+  const handleSaveServer = useCallback(async () => {
+    const url = serverUrl.trim();
+    if (!url) return;
+    setSaving(true);
+    try {
+      const full = url.startsWith('http') ? url : `http://${url}`;
+      await saveApiBaseUrl(full);
+      showSuccessToast('Server saved', 'Ab login try karo');
+      setShowServer(false);
+      setServerUrl('');
+    } catch (_e) {
+      showErrorToast('Save failed', '');
+    } finally {
+      setSaving(false);
+    }
+  }, [serverUrl]);
+
   const onSubmit = useCallback(
     ({email, password}: {email: string; password: string}) => {
       if (authStatus === 'loading') {
         return;
       }
-      // Retail login isn't integrated yet: allow mock login for now.
-      if (role === 'Retail') {
-        dispatch(saveToken('retail-mock-token'));
-        dispatch(setRole('Retail'));
-        showSuccessToast('Logged in', 'Welcome back');
-        return;
-      }
-      dispatch(
-        loginUser({
-          email: email.trim(),
-          password,
-        }),
-      );
+      console.log('[Login] Button pressed. Role:', role, 'Email length:', email?.trim?.()?.length ?? 0);
+      dispatch(loginUser({email: email.trim(), password}));
     },
     [authStatus, dispatch, role],
   );
@@ -198,7 +217,39 @@ const Login = () => {
                 <Text style={styles.forgotText}>Forgot Password?</Text>
               </TouchableOpacity>
 
-              <AppButton onPress={handleSubmit(onSubmit)} title="Log In" />
+              {authStatus === 'failed' && authError ? (
+                <Text style={[styles.errorText, {marginBottom: hp(1)}]}>{authError}</Text>
+              ) : null}
+              <AppButton
+                onPress={handleSubmit(onSubmit)}
+                title={authStatus === 'loading' ? 'Logging in...' : 'Log In'}
+                disabled={authStatus === 'loading'}
+              />
+
+              <TouchableOpacity
+                onPress={() => setShowServer(s => !s)}
+                style={styles.serverToggle}>
+                <Text style={styles.serverToggleText}>
+                  {showServer ? '▼' : '▶'} Server URL (PC IP)
+                </Text>
+              </TouchableOpacity>
+              {showServer && (
+                <View style={styles.serverSection}>
+                  <AppInput
+                    placeholder="192.168.1.5:3000"
+                    value={serverUrl}
+                    onChangeText={setServerUrl}
+                    container={styles.inputContainer}
+                    inputStyle={styles.inputStyle}
+                  />
+                  <AppButton
+                    onPress={handleSaveServer}
+                    title={saving ? 'Saving...' : 'Save'}
+                    disabled={saving || !serverUrl.trim()}
+                    style={{marginTop: hp(1)}}
+                  />
+                </View>
+              )}
 
               {role == 'Retail' && (
                 <TouchableOpacity
@@ -256,6 +307,12 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: fontSize(14),
   },
+  errorText: {
+    color: AppColors.red,
+    fontFamily: AppFonts.NunitoSansMedium,
+    fontSize: fontSize(12),
+    textAlign: 'center',
+  },
   DontHaveAc: {
     marginTop: hp(1),
   },
@@ -265,5 +322,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize(14),
     textAlign: 'center',
     alignSelf: 'center',
+  },
+  serverToggle: {
+    marginTop: hp(2),
+    paddingVertical: hp(1),
+  },
+  serverToggleText: {
+    color: AppColors.red,
+    fontFamily: AppFonts.NunitoSansSemiBold,
+    fontSize: fontSize(13),
+  },
+  serverSection: {
+    marginTop: hp(1),
+    marginBottom: hp(1),
   },
 });

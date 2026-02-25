@@ -14,12 +14,14 @@ import userSlices from './user/userSlices';
 import driverSlices from './driver/driverSlices';
 import notificationsSlices from './notifications/notificationsSlice';
 import chatSlices from './chat/chatSlice';
+import retailerSlices from './retailer/retailerSlice';
 
 const reducers = combineReducers({
   userSlices,
   driverSlices,
   notificationsSlices,
   chatSlices,
+  retailerSlices,
 });
 
 const persistConfig = {
@@ -27,7 +29,7 @@ const persistConfig = {
   storage: AsyncStorage,
   // Persist slice keys must match combineReducers keys, and the option is "whitelist" (lowercase).
   // Persist auth + driver + notifications so list/unread count survive app reload.
-  whitelist: ['userSlices', 'driverSlices', 'notificationsSlices'],
+  whitelist: ['userSlices', 'driverSlices', 'notificationsSlices', 'retailerSlices'],
   //   blackList: ['poSlice', 'common'],
 };
 

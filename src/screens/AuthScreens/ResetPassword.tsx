@@ -13,12 +13,17 @@ import {hp, wp} from '../../utils/constants';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {requestResetPassword} from '../../store/user/userSlices';
+import {retailerForgotPassword} from '../../store/retailer/retailerSlice';
 
 const ResetPassword = ({route}: any) => {
   const type = useAppSelector(state => state.userSlices.forgotType);
+  const role = useAppSelector(state => state.userSlices.role);
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const resetStatus = useAppSelector(state => state.userSlices.resetStatus);
+  const retailForgotStatus = useAppSelector(state => state.retailerSlices.forgotStatus);
+  const isRetail = role === 'Retail';
+  const isLoading = isRetail ? retailForgotStatus === 'loading' : resetStatus === 'loading';
 
   const {
     control,
@@ -32,22 +37,19 @@ const ResetPassword = ({route}: any) => {
 
   const onSubmit = useCallback(
     async ({email}: {email: string}) => {
-      if (resetStatus === 'loading') {
-        return;
-      }
+      if (isLoading) return;
       try {
-        await dispatch(
-          requestResetPassword({
-            email: email.trim(),
-          }),
-        ).unwrap();
+        if (isRetail) {
+          await dispatch(retailerForgotPassword({usernameOrEmail: email.trim()})).unwrap();
+        } else {
+          await dispatch(requestResetPassword({email: email.trim()})).unwrap();
+        }
         navigation.navigate('VerificationCode');
       } catch (e) {
-        // UI untouched: errors are stored in redux; keep user on this screen
         console.log('reset-password failed', e);
       }
     },
-    [dispatch, navigation, resetStatus],
+    [dispatch, isLoading, isRetail, navigation],
   );
 
   return (
@@ -94,7 +96,7 @@ const ResetPassword = ({route}: any) => {
             />
             <AppButton
               onPress={handleSubmit(onSubmit)}
-              title="Continue"
+              title={isLoading ? 'Sending...' : 'Continue'}
               style={{marginTop: hp(10)}}
             />
           </View>

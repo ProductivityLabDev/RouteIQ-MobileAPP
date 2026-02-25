@@ -165,7 +165,17 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                   onPress={() => {
                     dispatch(setShowStartMileAgeSheet(false));
                     dispatch(setMapViewRouteBackOn('DriverHomeScreen'));
-                    navigation.navigate('DriverMapView', {fromMapView: false}); // ✅ use fromMapView
+                    if (role === 'Retail') {
+                      navigation.navigate('DriverMapView', {
+                        fromMapView: false,
+                        retailPickupLat: item?.pickupLat ?? null,
+                        retailPickupLong: item?.pickupLong ?? null,
+                        retailDropoffLat: item?.dropoffLat ?? null,
+                        retailDropoffLong: item?.dropoffLong ?? null,
+                      });
+                    } else {
+                      navigation.navigate('DriverMapView', {fromMapView: false});
+                    }
                   }}
                   style={{
                     marginLeft: hp(0.5),
@@ -188,7 +198,7 @@ const TripCard: React.FC<TripCardProps> = ({item}) => {
                     source={require('../assets/images/retailProfile.png')}
                     style={styles.retailImg}
                   />
-                  <Text style={styles.retailName}>Esther Howard</Text>
+                  <Text style={styles.retailName}>{item?.driverName || 'No Driver Assigned'}</Text>
                 </View>
               ) : (
                 <View

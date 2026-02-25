@@ -20,13 +20,15 @@ import {AppColors} from '../../utils/color';
 import {fontSize, size} from '../../utils/responsiveFonts';
 import AppFonts from '../../utils/appFonts';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {saveToken, setForgotType, setLogout} from '../../store/user/userSlices';
+import {setLogout} from '../../store/user/userSlices';
+import {retailerSignup} from '../../store/retailer/retailerSlice';
 import {Controller, useForm} from 'react-hook-form';
+import {showErrorToast} from '../../utils/toast';
 
 const Signup = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
-  const role = useAppSelector(state => state.userSlices.role);
+  const signupStatus = useAppSelector(state => state.retailerSlices.signupStatus);
 
   useEffect(() => {
     dispatch(setLogout(false));
@@ -35,20 +37,36 @@ const Signup = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: {errors},
   } = useForm({
     defaultValues: {
+      name: '',
+      username: '',
       email: '',
       password: '',
-      username: '',
-      confirmpassword: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = () => {
-    role == 'Retail'
-      ? navigation.navigate('VerificationCode')
-      : dispatch(saveToken(1));
+  const onSubmit = async (values: {
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }) => {
+    if (signupStatus === 'loading') return;
+    if (values.password !== values.confirmPassword) {
+      showErrorToast('Passwords do not match', 'Please re-check and try again');
+      return;
+    }
+    try {
+      await dispatch(retailerSignup(values)).unwrap();
+      navigation.navigate('VerificationCode');
+    } catch (e) {
+      // error already shown via toast in thunk
+    }
   };
 
   return (
@@ -88,19 +106,48 @@ const Signup = () => {
               </Text>
               <View style={styles.setMargin}>
                 <Controller
+                  name="name"
+                  control={control}
+                  rules={{required: 'Company name is required'}}
+                  render={({field: {onChange, value}}) => (
+                    <AppInput
+                      label="Company Name"
+                      value={value}
+                      placeholderTextColor={AppColors.inputGrey}
+                      inputStyle={styles.inputStyle}
+                      placeholder="Enter company name"
+                      container={styles.inputContainer}
+                      labelStyle={styles.inputLabelStyle}
+                      onChangeText={text => onChange(text)}
+                      containerStyle={{marginBottom: hp(0)}}
+                      error={errors.name?.message}
+                      rightInnerIcon={
+                        <GlobalIcon
+                          size={20}
+                          library="FontAwesome6"
+                          color={AppColors.inputGrey}
+                          name="building"
+                        />
+                      }
+                    />
+                  )}
+                />
+                <Controller
                   name="username"
                   control={control}
+                  rules={{required: 'Username is required'}}
                   render={({field: {onChange, value}}) => (
                     <AppInput
                       label="Username"
                       value={value}
                       placeholderTextColor={AppColors.inputGrey}
                       inputStyle={styles.inputStyle}
-                      placeholder="Username"
+                      placeholder="Enter username"
                       container={styles.inputContainer}
                       labelStyle={styles.inputLabelStyle}
                       onChangeText={text => onChange(text)}
                       containerStyle={{marginBottom: hp(0)}}
+                      error={errors.username?.message}
                       rightInnerIcon={
                         <GlobalIcon
                           size={20}
@@ -115,14 +162,14 @@ const Signup = () => {
                 <Controller
                   name="email"
                   control={control}
-                //   rules={{required: 'Email is required'}}
+                  rules={{required: 'Email is required'}}
                   render={({field: {onChange, value}}) => (
                     <AppInput
                       label="Email"
                       value={value}
                       placeholderTextColor={AppColors.inputGrey}
                       inputStyle={styles.inputStyle}
-                      placeholder="Enter Email Address"
+                      placeholder="Enter email address"
                       container={styles.inputContainer}
                       labelStyle={styles.inputLabelStyle}
                       onChangeText={text => onChange(text)}
@@ -141,11 +188,10 @@ const Signup = () => {
                     />
                   )}
                 />
-
                 <Controller
                   name="password"
                   control={control}
-                //   rules={{required: 'Password is required'}}
+                  rules={{required: 'Password is required', minLength: {value: 6, message: 'Min 6 characters'}}}
                   render={({field: {onChange, value}}) => (
                     <AppInput
                       label="Password"
@@ -155,7 +201,7 @@ const Signup = () => {
                       containerStyle={{marginBottom: hp(0)}}
                       container={styles.inputContainer}
                       labelStyle={styles.inputLabelStyle}
-                      placeholder="Enter Password"
+                      placeholder="Enter password"
                       togglePasswordVisibility={true}
                       secureTextEntry={true}
                       onChangeText={text => onChange(text)}
@@ -171,25 +217,27 @@ const Signup = () => {
                     />
                   )}
                 />
-
                 <Controller
-                  name="confirmpassword"
+                  name="confirmPassword"
                   control={control}
-                //   rules={{required: 'Password is required'}}
+                  rules={{
+                    required: 'Please confirm your password',
+                    validate: val => val === watch('password') || 'Passwords do not match',
+                  }}
                   render={({field: {onChange, value}}) => (
                     <AppInput
-                      label="Password"
+                      label="Confirm Password"
                       value={value}
                       placeholderTextColor={AppColors.inputGrey}
                       inputStyle={styles.inputStyle}
                       containerStyle={{marginBottom: hp(0)}}
                       container={styles.inputContainer}
                       labelStyle={styles.inputLabelStyle}
-                      placeholder="Enter Password"
+                      placeholder="Re-enter password"
                       togglePasswordVisibility={true}
                       secureTextEntry={true}
                       onChangeText={text => onChange(text)}
-                      error={errors.password?.message}
+                      error={errors.confirmPassword?.message}
                       rightInnerIcon={
                         <GlobalIcon
                           size={20}
@@ -203,17 +251,16 @@ const Signup = () => {
                 />
                 <AppButton
                   onPress={handleSubmit(onSubmit)}
-                  title="Sign Up"
+                  title={signupStatus === 'loading' ? 'Creating...' : 'Sign Up'}
                   style={styles.signup_Btn}
                 />
-
                 <TouchableOpacity
-                  onPress={() => {
-                    dispatch(setForgotType('password'));
-                    navigation.navigate('Login');
-                  }}
+                  onPress={() => navigation.navigate('Login')}
                   style={styles.forgotPassword}>
-                  <Text style={styles.forgotText}>Already Registered? <Text style={styles.loginText}>Login</Text></Text>
+                  <Text style={styles.forgotText}>
+                    Already Registered?{' '}
+                    <Text style={styles.loginText}>Login</Text>
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -244,7 +291,7 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     marginBottom: hp(2.5),
-    alignSelf:'center',
+    alignSelf: 'center',
     padding: hp(0.5),
     paddingRight: 0,
     marginTop: hp(0.5),
@@ -254,7 +301,7 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.NunitoSansRegular,
     fontSize: fontSize(14),
   },
-  loginText:{
+  loginText: {
     color: AppColors.red,
     fontFamily: AppFonts.NunitoSansBold,
     fontSize: fontSize(14),

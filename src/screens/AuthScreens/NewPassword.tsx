@@ -20,12 +20,16 @@ import AppFonts from '../../utils/appFonts';
 import { Controller, useForm } from 'react-hook-form';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
 import {confirmResetPassword} from '../../store/user/userSlices';
+import {retailerResetPassword} from '../../store/retailer/retailerSlice';
 import {showErrorToast} from '../../utils/toast';
 
 const NewPassword = () => {
   const navigation = useNavigation();
   const type = useAppSelector(state => state.userSlices.forgotType);
+  const role = useAppSelector(state => state.userSlices.role);
   const resetUserId = useAppSelector(state => state.userSlices.resetUserId);
+  const retailResetUserId = useAppSelector(state => state.retailerSlices.resetUserId);
+  const isRetail = role === 'Retail';
   const dispatch = useAppDispatch();
 
   const {
@@ -45,37 +49,39 @@ const NewPassword = () => {
   );
 
   const onSubmit = useCallback(async (values: any) => {
-    // Only wiring password reset for now. Username reset can be added later.
     if (type === 'username') {
       navigation.navigate('SuccessScreen');
       return;
     }
-
-    if (!resetUserId) {
-      console.log('Missing resetUserId for reset-password');
-      return;
-    }
-    if (confirmResetStatus === 'loading') {
-      return;
-    }
-
     if (values?.new_password !== values?.confirm_password) {
       showErrorToast('Passwords do not match', 'Please re-check and try again');
       return;
     }
+    if (confirmResetStatus === 'loading') return;
 
     try {
-      await dispatch(
-        confirmResetPassword({
-          userId: resetUserId,
-          newPassword: values.new_password,
-        }),
-      ).unwrap();
+      if (isRetail) {
+        if (!retailResetUserId) {
+          console.log('Missing retailResetUserId');
+          return;
+        }
+        await dispatch(
+          retailerResetPassword({userId: retailResetUserId, newPassword: values.new_password}),
+        ).unwrap();
+      } else {
+        if (!resetUserId) {
+          console.log('Missing resetUserId for reset-password');
+          return;
+        }
+        await dispatch(
+          confirmResetPassword({userId: resetUserId, newPassword: values.new_password}),
+        ).unwrap();
+      }
       navigation.navigate('SuccessScreen');
     } catch (e) {
       console.log('reset-password failed', e);
     }
-  }, [confirmResetStatus, dispatch, navigation, resetUserId, type]);
+  }, [confirmResetStatus, dispatch, isRetail, navigation, resetUserId, retailResetUserId, type]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>

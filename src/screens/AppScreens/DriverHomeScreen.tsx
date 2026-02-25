@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   FlatList,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import {
   TabView,
@@ -32,6 +33,8 @@ import AppFonts from '../../utils/appFonts';
 import DriverMonthlyCalendar from '../../components/DriverMonthlyCalendar';
 import AppStyles from '../../styles/AppStyles';
 import {fetchRoutesByDate} from '../../store/driver/driverSlices';
+import {fetchRetailDashboard} from '../../store/retailer/retailerSlice';
+import moment from 'moment';
 
 export default function DriverHomeScreen() {
   const driverHomeStatus = useAppSelector(
@@ -39,6 +42,8 @@ export default function DriverHomeScreen() {
   );
   const role = useAppSelector(state => state.userSlices.role);
   const routesByDate = useAppSelector(state => state.driverSlices.routesByDate);
+  const retailDashboard = useAppSelector(state => state.retailerSlices.dashboard);
+  const retailDashboardStatus = useAppSelector(state => state.retailerSlices.dashboardStatus);
   const dispatch = useAppDispatch();
   const layout = useWindowDimensions();
   const [selectedScene, setSelectedScene] = useState(2);
@@ -70,6 +75,47 @@ export default function DriverHomeScreen() {
     if (role !== 'Driver') return;
     dispatch(fetchRoutesByDate(requestDate));
   }, [dispatch, role, requestDate]);
+
+  useEffect(() => {
+    if (role !== 'Retail') return;
+    dispatch(fetchRetailDashboard());
+  }, [dispatch, role]);
+
+  useEffect(() => {
+    if (role === 'Retail' && retailDashboard) {
+      console.log('[Retail Home] dashboard in state:', {
+        status: retailDashboardStatus,
+        totalTrips: retailDashboard?.stats?.totalTrips,
+        pendingTrips: retailDashboard?.stats?.pendingTrips,
+        todayTripsLen: retailDashboard?.todayTrips?.length,
+      });
+    }
+  }, [role, retailDashboard, retailDashboardStatus]);
+
+  const retailTripCards = useMemo(() => {
+    const trips = retailDashboard?.todayTrips ?? [];
+    console.log('[Retail Dashboard] RFQ black cards data source: retailDashboard.todayTrips (from GET /retailer/dashboard) | count:', trips.length, '| raw:', JSON.stringify(trips?.slice(0, 2)));
+    return trips.map((item: any) => ({
+      routeId: item.RequestId,
+      tripStatus: item.Status,
+      title: item.RequestNumber || `RFQ#${item.RequestId}`,
+      time: item.PickupTime ? moment(item.PickupTime).format('h:mm A') : '',
+      date: item.PickupDate ? moment(item.PickupDate).format('DD/MMM/YY').toUpperCase() : '',
+      start_location: item.PickupLocation ?? '-',
+      end_location: item.DestinationLocation ?? '-',
+      driverName: item.driverName ?? item.DriverName ?? null,
+      pickupLat: item.PickupLat ?? null,
+      pickupLong: item.PickupLong ?? null,
+      dropoffLat: item.DropoffLat ?? null,
+      dropoffLong: item.DropoffLong ?? null,
+      trip_name: 'Bus No.',
+      trip_no: item.VehicleNumber ?? item.busName ?? '-',
+      trip_plan: [
+        {status: item.Status, time: item.PickupTime ? moment(item.PickupTime).format('h:mm A') : '', date: item.PickupDate ? moment(item.PickupDate).format('DD/MMM/YY').toUpperCase() : '', title: item.PickupLocation ?? '-', location: item.PickupLocation ?? '-'},
+        {status: 'Destination', time: '', date: '', title: item.DestinationLocation ?? '-', location: item.DestinationLocation ?? '-'},
+      ],
+    }));
+  }, [retailDashboard]);
 
   const mappedRouteCards = useMemo(() => {
     const morning = Array.isArray(routesByDate?.morning) ? routesByDate.morning : [];
@@ -288,13 +334,28 @@ export default function DriverHomeScreen() {
 
             {role === 'Retail' && (
               <>
+                {(retailDashboardStatus === 'loading' || retailDashboardStatus === 'idle') && (
+                  <View style={[AppStyles.center, {paddingVertical: hp(4)}]}>
+                    <ActivityIndicator size="large" color={AppColors.red} />
+                    <Text style={{marginTop: hp(1), color: AppColors.gradientGrey}}>Loading...</Text>
+                  </View>
+                )}
+                {retailDashboardStatus === 'failed' && (
+                  <View style={[AppStyles.center, {paddingVertical: hp(4)}]}>
+                    <Text style={{color: AppColors.red, textAlign: 'center'}}>Dashboard load failed</Text>
+                    <Pressable onPress={() => dispatch(fetchRetailDashboard())} style={{marginTop: hp(2)}}>
+                      <Text style={{color: AppColors.red, fontFamily: AppFonts.NunitoSansBold}}>Retry</Text>
+                    </Pressable>
+                  </View>
+                )}
+                {retailDashboardStatus === 'succeeded' && retailDashboard && (
                 <FlatList
-                  data={homeTripData}
+                  data={retailTripCards}
                   renderItem={({item}) => <TripCard item={item} />}
                   keyExtractor={(_, idx) => idx.toString()}
                   ListHeaderComponent={
                     <>
-                      <AppWeeklyCalendar />
+                      <AppWeeklyCalendar calendarData={retailDashboard?.calendarData} />
                       <View style={styles.setMargin}>
                         <Controller
                           name="search"
@@ -322,12 +383,16 @@ export default function DriverHomeScreen() {
                       </View>
                       <View style={styles.tripView}>
                         <View style={styles.tripBg}>
-                          <Text style={styles.tripNumber}>89</Text>
+                          <Text style={styles.tripNumber}>{retailDashboard?.stats?.totalTrips ?? 0}</Text>
                           <Text style={styles.tripText}>Total Trip</Text>
                         </View>
                         <View style={styles.tripBg}>
-                          <Text style={styles.tripNumber}>08</Text>
+                          <Text style={styles.tripNumber}>{retailDashboard?.stats?.pendingTrips ?? 0}</Text>
                           <Text style={styles.tripText}>Pending Trip</Text>
+                        </View>
+                        <View style={styles.tripBg}>
+                          <Text style={styles.tripNumber}>${retailDashboard?.stats?.totalSpend ?? 0}</Text>
+                          <Text style={styles.tripText}>Total Spend</Text>
                         </View>
                       </View>
                       <View style={AppStyles.driverContainer} />
@@ -336,6 +401,7 @@ export default function DriverHomeScreen() {
                   contentContainerStyle={{paddingBottom: hp(10)}}
                   showsVerticalScrollIndicator={false}
                 />
+                )}
               </>
             )}
           </>
@@ -375,7 +441,7 @@ const styles = StyleSheet.create({
   },
   tripBg: {
     backgroundColor: AppColors.white,
-    width: '35%',
+    width: '30%',
     padding: 6,
     borderRadius: 10,
     marginTop: hp(2),

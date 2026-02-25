@@ -1,6 +1,8 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
+import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {createRetailRFQ} from '../../store/retailer/retailerSlice';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
 import AppButton from '../../components/AppButton';
@@ -24,6 +26,8 @@ import CalendarPicker from '../../components/CalendarPicker';
 
 const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  const rfqCreateStatus = useAppSelector(state => state.retailerSlices.rfqCreateStatus);
   const [isChecked, setIsChecked] = useState(true);
 
   //   useEffect(() => {
@@ -74,6 +78,48 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
 
   const onSubmit = () => {
     navigation.goBack();
+  };
+
+  const onSubmitRFQ = async (values: any) => {
+    if (rfqCreateStatus === 'loading') return;
+    if (!isChecked) return;
+    try {
+      await dispatch(createRetailRFQ({
+        companyGroupName: values.companygroupname,
+        phone: values.phonenumber,
+        email: values.email,
+        typeOfGroup: values.typeofgroup,
+        referredBy: values.howwereyoureferredtous || null,
+        isRoundTrip: values.roundtrip === 'Yes',
+        numberOfPassengers: Number(values.numberofpassengers) || 0,
+        wheelchairLiftRequired: values.isawheelchairlift?.toLowerCase() === 'yes',
+        busType: values.bustype,
+        pickupDate: values.pickupdate,
+        pickupTime: values.pickuptime,
+        pickupName: values.name,
+        pickupLocation: values.pickuplocation,
+        pickupAddress: values.pickupaddress,
+        pickupCity: values.pickupcity,
+        pickupState: values.pickupstate,
+        pickupZip: values.pickupzip,
+        pickupLat: null,
+        pickupLong: null,
+        returnDate: values.returndate || null,
+        returnTime: values.returntime || null,
+        destinationLocation: values.destinationlocation,
+        destinationAddress: values.destinationaddress,
+        destinationCity: values.destinationcity,
+        destinationState: values.destinationstate,
+        destinationZip: values.destinationzip,
+        dropoffLat: null,
+        dropoffLong: null,
+        additionalDestinations: values.addadditionaldestinations ? [values.addadditionaldestinations] : [],
+        termsAccepted: isChecked,
+      })).unwrap();
+      navigation.goBack();
+    } catch (e) {
+      // error shown via toast
+    }
   };
 
   return (
@@ -361,7 +407,6 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
           <Controller
             name="returndate"
             control={control}
-            rules={{required: 'Return Date is required'}}
             render={({field: {onChange, value}, fieldState: {error}}) => (
               <CalendarPicker
                 selectedDate={value}
@@ -375,7 +420,6 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
           <Controller
             name="returntime"
             control={control}
-            rules={{required: 'Phone is required'}}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={{marginBottom: hp(0)}}
@@ -520,7 +564,6 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
           <Controller
             name="addadditionaldestinations"
             control={control}
-            rules={{required: 'Add Additional Destinations is required'}}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={{marginBottom: hp(0)}}
@@ -636,7 +679,6 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
           <Controller
             name="howwereyoureferredtous"
             control={control}
-            rules={{required: 'How Were You Referred To Us is Required'}}
             render={({field: {onChange, value}}) => (
               <AppInput
                 containerStyle={{marginBottom: hp(0)}}
@@ -646,7 +688,6 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
                 value={value}
                 onChangeText={(text: string) => onChange(text)}
                 editable={true}
-                keyboardType="number-pad"
                 error={errors.howwereyoureferredtous?.message}
               />
             )}
@@ -679,9 +720,9 @@ const RetailRequestQuote: React.FC<UpdateGuardianProfileProps> = ({route}) => {
         </View>
 
         <AppButton
-          title="Submit"
+          title={rfqCreateStatus === 'loading' ? 'Submitting...' : 'Submit'}
           style={styles.submitBtn}
-          onPress={handleSubmit}
+          onPress={handleSubmit(onSubmitRFQ)}
         />
 
         <AppButton

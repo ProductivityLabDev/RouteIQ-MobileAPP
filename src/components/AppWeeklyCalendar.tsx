@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,16 @@ import {fontSize, size} from '../utils/responsiveFonts';
 import {useAppDispatch} from '../store/hooks';
 import {setDriverHomeStatus} from '../store/user/userSlices';
 
-const AppMonthlyCalendar = () => {
+interface CalendarDataItem {
+  tripDate: string;
+  tripCount: number;
+}
+
+interface Props {
+  calendarData?: CalendarDataItem[];
+}
+
+const AppMonthlyCalendar = ({calendarData}: Props) => {
   const dispatch = useAppDispatch();
   const [currentMonth, setCurrentMonth] = useState(moment());
   const [selectedDay, setSelectedDay] = useState(moment());
@@ -48,6 +57,25 @@ const AppMonthlyCalendar = () => {
   };
 
   const daysOfMonth = generateDaysInMonth(currentMonth);
+  const flatListRef = useRef<FlatList>(null);
+
+  const tripDateSet = useMemo(() => {
+    return new Set(
+      (calendarData ?? []).map(d => moment(d.tripDate).format('YYYY-MM-DD')),
+    );
+  }, [calendarData]);
+  const todayIndex = today.date() - 1;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      flatListRef.current?.scrollToIndex({
+        index: todayIndex,
+        animated: false,
+        viewPosition: 0.5,
+      });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -76,14 +104,22 @@ const AppMonthlyCalendar = () => {
       </View>
 
       <FlatList
+        ref={flatListRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         data={daysOfMonth}
         keyExtractor={(item) => item.format('YYYY-MM-DD')}
         contentContainerStyle={styles.scrollContainer}
+        getItemLayout={(_, index) => ({
+          length: wp(16),
+          offset: wp(16) * index,
+          index,
+        })}
+        onScrollToIndexFailed={() => {}}
         renderItem={({item: day}) => {
           const isToday = day.isSame(today, 'day');
           const isSelected = day.isSame(selectedDay, 'day');
+          const hasTrip = tripDateSet.has(day.format('YYYY-MM-DD'));
 
           return (
             <TouchableOpacity
@@ -122,11 +158,12 @@ const AppMonthlyCalendar = () => {
                 style={[
                   styles.dot,
                   {
-                    backgroundColor: isSelected
-                      ? AppColors.white
-                      : isToday
-                      ? AppColors.white
-                      : AppColors.white,
+                    backgroundColor:
+                      isSelected || isToday
+                        ? AppColors.white
+                        : hasTrip
+                        ? AppColors.red
+                        : 'transparent',
                   },
                 ]}
               />

@@ -84,7 +84,7 @@ function RetailBottomTabs() {
 
   return (
     <Tab.Navigator
-      initialRouteName={'Home'}
+      initialRouteName="HomeStack"
       screenOptions={{
         tabBarInactiveTintColor: '#FFFFFF',
         tabBarActiveTintColor: '#16E6EF',

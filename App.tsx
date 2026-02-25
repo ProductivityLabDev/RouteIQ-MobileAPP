@@ -12,12 +12,14 @@ import {hp} from './src/utils/constants';
 import {setApiFetchStoreRef} from './src/utils/apiFetch';
 import {setupFcmListeners} from './src/services/fcmService';
 import {ChatSocketProvider} from './src/providers/ChatSocketProvider';
+import {loadSavedApiBaseUrl} from './src/utils/apiConfig';
 
 // Register store for apiFetch 401 auto-logout
 setApiFetchStoreRef(store);
 
 const App = () => {
   useEffect(() => {
+    loadSavedApiBaseUrl();
     const unsubscribe = setupFcmListeners();
     return () => unsubscribe();
   }, []);
